@@ -1,0 +1,124 @@
+import 'package:flowcash/features/inventory/data/datasources/warehouse_data_source.dart';
+import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
+import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/tables/warehouses_table.dart';
+import 'package:flowcash/core/enums/warehouse_type_enum.dart';
+
+final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
+  final SqliteService _db;
+  const WarehouseLocalDataSourceImpl(this._db);
+
+  @override
+  Future<List<WarehouseEntity>> get({Iterable<int>? ids}) async {
+    if (ids == null) {
+      final rows = await _db.query(table: WarehousesTable.tableName);
+      return rows.map(fromMap).toList();
+    }
+    final where =
+        '${WarehousesTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+    final rows = await _db.query(
+      table: WarehousesTable.tableName,
+      where: where,
+      whereArgs: ids.toList(),
+    );
+    return rows.map(fromMap).toList();
+  }
+
+  @override
+  Future<WarehouseEntity?> getById(int id) async {
+    final rows = await _db.query(
+      table: WarehousesTable.tableName,
+      where: '${WarehousesTable.id} = ?',
+      whereArgs: [id],
+    );
+    if (rows.isEmpty) return null;
+    return fromMap(rows.first);
+  }
+
+  @override
+  Future<WarehouseEntity> insert(WarehouseEntity entity) async {
+    await _db.insert(
+      table: WarehousesTable.tableName,
+      data: _sanitizeInsertData(toMap(entity), WarehousesTable.id),
+    );
+    return entity;
+  }
+
+  @override
+  Future<WarehouseEntity> update(WarehouseEntity entity) async {
+    await _db.update(
+      table: WarehousesTable.tableName,
+      data: toMap(entity),
+      where: {WarehousesTable.id: entity.id},
+    );
+    return entity;
+  }
+
+  @override
+  Future<bool> delete(int id) async {
+    await _db.deleteWhere(
+      table: WarehousesTable.tableName,
+      where: {WarehousesTable.id: id},
+    );
+    return true;
+  }
+
+  @override
+  Future<List<WarehouseEntity>> getAllStoresWhereWarehouse(
+    int warehouseId, {
+    bool trigger = false,
+    bool printQuery = true,
+  }) async {
+    final rows = await _db.query(
+      table: WarehousesTable.tableName,
+      where: '${WarehousesTable.id} = ? OR ${WarehousesTable.parentId} = ?',
+      whereArgs: [warehouseId, warehouseId],
+    );
+    return rows.map(fromMap).toList();
+  }
+
+  @override
+  Future<WarehouseEntity?> getByCode(String code) async {
+    final rows = await _db.query(
+      table: WarehousesTable.tableName,
+      where: '${WarehousesTable.warehouseName} = ?',
+      whereArgs: [code],
+    );
+    if (rows.isEmpty) return null;
+    return fromMap(rows.first);
+  }
+
+  @override
+  WarehouseEntity fromMap(Map<String, dynamic> map) {
+    return WarehouseEntity(
+      id: map[WarehousesTable.id] as int,
+      warehouseName: (map[WarehousesTable.warehouseName] as String?) ?? "",
+      location: (map[WarehousesTable.location] as String?) ?? "",
+      warehouseType: WarehouseType.of(map[WarehousesTable.warehouseType]),
+      parentId: map[WarehousesTable.parentId] as int?,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toMap(WarehouseEntity entity) {
+    return {
+      if (entity.id > 0) WarehousesTable.id: entity.id,
+      WarehousesTable.warehouseName: entity.warehouseName,
+      WarehousesTable.location: entity.location,
+      WarehousesTable.warehouseType: entity.warehouseType.name,
+      WarehousesTable.parentId: entity.parentId,
+    };
+  }
+
+  Map<String, dynamic> _sanitizeInsertData(
+    Map<String, dynamic> data,
+    String idKey,
+  ) {
+    if (data[idKey] is int && (data[idKey] as int) <= 0) {
+      final sanitized = Map<String, dynamic>.from(data);
+      sanitized.remove(idKey);
+      return sanitized;
+    }
+    return data;
+  }
+}

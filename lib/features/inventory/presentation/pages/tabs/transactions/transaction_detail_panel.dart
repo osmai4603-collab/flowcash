@@ -1,0 +1,296 @@
+import 'package:flutter/material.dart';
+import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
+import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_entity.dart';
+import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
+import 'package:flowcash/features/inventory/domain/entities/inventory_batch_entity.dart';
+import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
+import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
+
+class TransactionDetailPanel extends StatelessWidget {
+  final InventoryTransactionEntity transaction;
+  final List<InventoryTransactionOrderEntity> orders;
+  final List<InventoryBatchEntity> batches;
+  final List<WarehouseEntity> warehouses;
+  final List<InventoryEntity> inventoryItems;
+  final List<CategoryEntity> categories;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const TransactionDetailPanel({
+    super.key,
+    required this.transaction,
+    required this.orders,
+    required this.batches,
+    required this.warehouses,
+    required this.inventoryItems,
+    required this.categories,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  String _getWarehouseName(int id) {
+    try {
+      return warehouses.firstWhere((w) => w.id == id).warehouseName;
+    } catch (_) {
+      return 'مستودع غير معروف (#$id)';
+    }
+  }
+
+  String _getBatchLabel(int? batchId) {
+    if (batchId == null) return 'بند بدون دفعة';
+    try {
+      final b = batches.firstWhere((batch) => batch.id == batchId);
+      final item = inventoryItems.firstWhere((i) => i.id == b.inventoryId);
+      final catName = categories.firstWhere((c) => c.id == item.categoryId).categoryName;
+      return '$catName (دفعة: ${b.batchNumber})';
+    } catch (_) {
+      return 'دفعة #$batchId';
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final isReceipt = transaction.transactionType == InventoryTransactionType.inventoryReceipt;
+
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: isDark
+                ? [theme.colorScheme.surface, theme.colorScheme.surface.withAlpha(240)]
+                : [Colors.white, Colors.grey.shade50],
+          ),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: (isReceipt ? Colors.green : Colors.red).withAlpha(40),
+                  radius: 28,
+                  child: Icon(
+                    isReceipt ? Icons.login_outlined : Icons.logout_outlined,
+                    color: isReceipt ? Colors.green : Colors.red,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'سند: #${transaction.billNumber}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'نوع الإذن: ${transaction.transactionType.displayName()}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: isReceipt ? Colors.green : Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 16),
+
+            // 1. Transaction details
+            const Text(
+              '📋 معلومات الحركة الأساسية',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            _buildDetailRow(
+              context,
+              Icons.warehouse_outlined,
+              'المستودع الرئيسي:',
+              _getWarehouseName(transaction.warehouseId),
+            ),
+            _buildDetailRow(
+              context,
+              Icons.calendar_today_outlined,
+              'تاريخ وتوقيت الإصدار:',
+              _formatDate(transaction.createdAt),
+            ),
+            _buildDetailRow(
+              context,
+              Icons.person_outline,
+              'الرقم التعريفي للمصدر:',
+              'موظف #${transaction.createdBy}',
+            ),
+            if (transaction.note != null && transaction.note!.isNotEmpty)
+              _buildDetailRow(
+                context,
+                Icons.notes_outlined,
+                'البيان/الملاحظات:',
+                transaction.note!,
+              ),
+
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 16),
+
+            // 2. Child Items (Orders) List Table
+            const Text(
+              '📦 تفصيل الأصناف والبنود المشمولة',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: orders.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'لا توجد أصناف في هذا الإذن ⚠️',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(8),
+                        itemCount: orders.length,
+                        itemBuilder: (context, index) {
+                          final o = orders[index];
+                          return Card(
+                            elevation: 0,
+                            color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
+                            child: ListTile(
+                              title: Text(
+                                _getBatchLabel(o.inventoryBatchId),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                              trailing: Text(
+                                'الكمية: ${o.countUnits}',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ),
+
+            const Divider(height: 32),
+
+            // 3. Edit / Delete buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: onEdit,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: BorderSide(color: theme.colorScheme.primary),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: Icon(Icons.edit_note_outlined, color: theme.colorScheme.primary),
+                    label: Text(
+                      'تعديل الإذن',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: onDelete,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.errorContainer,
+                      foregroundColor: theme.colorScheme.onErrorContainer,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.delete_sweep_outlined),
+                    label: const Text(
+                      'حذف الإذن بالكامل',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: theme.colorScheme.primary.withAlpha(180),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+              color: theme.colorScheme.onSurface.withAlpha(180),
+            ),
+          ),
+          const Spacer(),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                value,
+                textAlign: TextAlign.left,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
