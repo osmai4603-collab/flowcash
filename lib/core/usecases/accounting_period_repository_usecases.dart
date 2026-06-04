@@ -1,7 +1,7 @@
 import 'package:flowcash/core/repositories/interfaces/accounting_period_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
-import 'package:flowcash/core/entities/accounting_period_entity.dart';
+import 'package:flowcash/features/system/domain/entities/accounting_period_entity.dart';
 
 /// UseCases for AccountingPeriodRepository
 

@@ -37,11 +37,14 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
 
   @override
   Future<JournalItemEntity> insert(JournalItemEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: JournalItemsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), JournalItemsTable.itemId),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert journal item');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

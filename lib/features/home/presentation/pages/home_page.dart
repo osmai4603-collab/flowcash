@@ -47,12 +47,8 @@ class _HomeDrawer extends StatelessWidget {
       iconData: Icons.dashboard_customize_outlined,
     ),
     HomeSectionItem(
-      section: HomeSection.periods,
-      iconData: Icons.view_timeline_sharp,
-    ),
-    HomeSectionItem(
-      section: HomeSection.currencies,
-      iconData: Icons.currency_exchange_outlined,
+      section: HomeSection.system,
+      iconData: Icons.admin_panel_settings_outlined,
     ),
     HomeSectionItem(
       section: HomeSection.databaseAdmin,
@@ -69,6 +65,10 @@ class _HomeDrawer extends StatelessWidget {
     HomeSectionItem(
       section: HomeSection.categories,
       iconData: Icons.category_outlined,
+    ),
+    HomeSectionItem(
+      section: HomeSection.transactions,
+      iconData: Icons.account_balance_wallet_outlined,
     ),
     HomeSectionItem(
       section: HomeSection.settings,
@@ -165,10 +165,8 @@ class _BottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentIndex = navigationShell.currentIndex;
-    final isSettingsSelected = currentIndex >= 7;
     return BottomNavigationBar(
-      currentIndex: isSettingsSelected ? 0 : currentIndex,
+      currentIndex: navigationShell.currentIndex,
       type: BottomNavigationBarType.fixed,
       onTap: (index) {
         navigationShell.goBranch(index);
@@ -179,12 +177,8 @@ class _BottomNavigationBar extends StatelessWidget {
           label: 'الرئيسية',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.view_timeline_sharp),
-          label: 'الفترات',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.currency_exchange_outlined),
-          label: 'العملات',
+          icon: Icon(Icons.admin_panel_settings_outlined),
+          label: 'النظام',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.storage_outlined),
@@ -201,6 +195,14 @@ class _BottomNavigationBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.category_outlined),
           label: 'الفئات',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.account_balance_wallet_outlined),
+          label: 'المعاملات',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.settings_rounded),
+          label: 'الإعدادات',
         ),
       ],
     );

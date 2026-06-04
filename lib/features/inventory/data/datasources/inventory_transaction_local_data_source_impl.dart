@@ -124,7 +124,7 @@ final class InventoryTransactionLocalDataSourceImpl
     return InventoryTransactionEntity(
       id: map[InventoryTransactionsTable.id] as int,
       createdAt: DateTime.parse(
-        map[InventoryTransactionsTable.createAt] as String? ?? "",
+        map[InventoryTransactionsTable.createdAt] as String? ?? "",
       ),
       createdBy: map[InventoryTransactionsTable.createdBy],
       note: map[InventoryTransactionsTable.note] as String?,
@@ -142,7 +142,7 @@ final class InventoryTransactionLocalDataSourceImpl
   Map<String, dynamic> toMap(InventoryTransactionEntity entity) {
     return {
       if (entity.id > 0) InventoryTransactionsTable.id: entity.id,
-      InventoryTransactionsTable.createAt: entity.createdAt.toIso8601String(),
+      InventoryTransactionsTable.createdAt: entity.createdAt.toIso8601String(),
       InventoryTransactionsTable.createdBy: entity.createdBy,
       InventoryTransactionsTable.note: entity.note,
       InventoryTransactionsTable.warehouseId: entity.warehouseId,

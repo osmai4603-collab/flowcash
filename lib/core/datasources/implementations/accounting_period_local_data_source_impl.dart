@@ -1,5 +1,5 @@
 import 'package:flowcash/core/datasources/interfaces/accounting_period_data_source.dart';
-import 'package:flowcash/core/entities/accounting_period_entity.dart';
+import 'package:flowcash/features/system/domain/entities/accounting_period_entity.dart';
 import 'package:flowcash/core/enums/accounting_inventory_type_enum.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/accounting_periods_table.dart';
@@ -38,11 +38,14 @@ final class AccountingPeriodLocalDataSourceImpl
 
   @override
   Future<AccountingPeriodEntity> insert(AccountingPeriodEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: AccountingPeriodsTable.tableName,
       data: toMap(entity),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert accounting period');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

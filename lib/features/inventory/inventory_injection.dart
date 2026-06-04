@@ -5,8 +5,6 @@ import 'package:flowcash/features/inventory/data/datasources/inventory_data_sour
 import 'package:flowcash/features/inventory/data/datasources/inventory_local_data_source_impl.dart';
 import 'package:flowcash/features/inventory/data/datasources/inventory_catalog_data_source.dart';
 import 'package:flowcash/features/inventory/data/datasources/inventory_catalog_local_data_source_impl.dart';
-import 'package:flowcash/features/inventory/data/datasources/inventory_batch_data_source.dart';
-import 'package:flowcash/features/inventory/data/datasources/inventory_batch_local_data_source_impl.dart';
 import 'package:flowcash/features/inventory/data/datasources/inventory_transaction_data_source.dart';
 import 'package:flowcash/core/tables/inventory_transactions_orders_table.dart';
 import 'package:flowcash/features/inventory/data/datasources/inventory_transaction_local_data_source_impl.dart';
@@ -24,8 +22,6 @@ import 'package:flowcash/features/inventory/domain/repositories/inventory_reposi
 import 'package:flowcash/features/inventory/data/repositories/inventory_repository_impl.dart';
 import 'package:flowcash/features/inventory/domain/repositories/inventory_catalog_repository.dart';
 import 'package:flowcash/features/inventory/data/repositories/inventory_catalog_repository_impl.dart';
-import 'package:flowcash/features/inventory/domain/repositories/inventory_batch_repository.dart';
-import 'package:flowcash/features/inventory/data/repositories/inventory_batch_repository_impl.dart';
 import 'package:flowcash/features/inventory/domain/repositories/inventory_transaction_repository.dart';
 import 'package:flowcash/features/inventory/data/repositories/inventory_transaction_repository_impl.dart';
 import 'package:flowcash/features/inventory/domain/repositories/inventory_transaction_order_repository.dart';
@@ -40,7 +36,6 @@ import 'package:flowcash/features/inventory/data/repositories/warehouse_value_re
 // Use Cases
 import 'package:flowcash/features/inventory/domain/usecases/inventory_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/inventory_catalog_usecases.dart';
-import 'package:flowcash/features/inventory/domain/usecases/inventory_batch_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/inventory_transaction_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/inventory_transaction_order_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/opening_quantity_usecases.dart';
@@ -50,7 +45,6 @@ import 'package:flowcash/features/inventory/domain/usecases/warehouse_usecases.d
 
 // Blocs (to be created)
 import 'package:flowcash/features/inventory/presentation/blocs/inventory_catalog/inventory_catalog_bloc.dart';
-import 'package:flowcash/features/inventory/presentation/blocs/batches/batches_bloc.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/transactions/transactions_bloc.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/warehouse_transfers/warehouse_transfers_bloc.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/opening_quantities/opening_quantities_bloc.dart';
@@ -73,15 +67,7 @@ void initInventoryFeature(GetIt sl) {
     ),
   );
 
-  sl.registerFactory(
-    () => BatchesBloc(
-      getInventoryBatchs: sl(),
-      insertInventoryBatch: sl(),
-      updateInventoryBatch: sl(),
-      deleteInventoryBatch: sl(),
-      getInventorys: sl(),
-    ),
-  );
+  // Batches feature removed: no DI registrations
 
   sl.registerFactory(
     () => TransactionsBloc(
@@ -92,7 +78,6 @@ void initInventoryFeature(GetIt sl) {
       getTransactionOrders: sl(),
       insertOrder: sl(),
       deleteOrder: sl(),
-      getBatches: sl(),
       getWarehouses: sl(),
     ),
   );
@@ -105,7 +90,6 @@ void initInventoryFeature(GetIt sl) {
       getTransactionOrders: sl(),
       insertOrder: sl(),
       deleteOrder: sl(),
-      getBatches: sl(),
       getWarehouses: sl(),
     ),
   );
@@ -142,15 +126,12 @@ void initInventoryFeature(GetIt sl) {
   sl.registerLazySingleton<InventorySubcategoryDataSource>(
     () => InventorySubcategoryLocalDataSourceImpl(sl()),
   );
-  sl.registerLazySingleton<InventoryBatchDataSource>(
-    () => InventoryBatchLocalDataSourceImpl(sl()),
-  );
   sl.registerLazySingleton<InventoryTransactionDataSource>(
     () => InventoryTransactionLocalDataSourceImpl(
       sl(),
       (order) => {
         if (order.id > 0) InventoryTransactionsOrdersTable.id: order.id,
-        InventoryTransactionsOrdersTable.inventoryBatchId: order.inventoryBatchId,
+        InventoryTransactionsOrdersTable.inventoryId: order.inventoryId,
         InventoryTransactionsOrdersTable.countUnits: order.countUnits,
         InventoryTransactionsOrdersTable.tranId: order.tranId,
         InventoryTransactionsOrdersTable.transactionType: order.transactionType.name,
@@ -178,9 +159,6 @@ void initInventoryFeature(GetIt sl) {
   );
   sl.registerLazySingleton<InventorySubcategoryRepository>(
     () => InventorySubcategoryRepositoryImpl(sl()),
-  );
-  sl.registerLazySingleton<InventoryBatchRepository>(
-    () => InventoryBatchRepositoryImpl(sl()),
   );
   sl.registerLazySingleton<InventoryTransactionRepository>(
     () => InventoryTransactionRepositoryImpl(sl()),
@@ -219,14 +197,7 @@ void initInventoryFeature(GetIt sl) {
   sl.registerLazySingleton(() => DeleteInventorySubcategoryUseCase(sl()));
   sl.registerLazySingleton(() => FirstWhereStoreAndCategoryUseCase(sl()));
 
-  // Batches
-  sl.registerLazySingleton(() => GetInventoryBatchsUseCase(sl()));
-  sl.registerLazySingleton(() => GetInventoryBatchByIdUseCase(sl()));
-  sl.registerLazySingleton(() => InsertInventoryBatchUseCase(sl()));
-  sl.registerLazySingleton(() => UpdateInventoryBatchUseCase(sl()));
-  sl.registerLazySingleton(() => DeleteInventoryBatchUseCase(sl()));
-  sl.registerLazySingleton(() => GetUnitCostUseCase(sl()));
-  sl.registerLazySingleton(() => GetBatchUseCase(sl()));
+  // Batches usecases removed
 
   // Transactions
   sl.registerLazySingleton(() => GetInventoryTransactionsUseCase(sl()));

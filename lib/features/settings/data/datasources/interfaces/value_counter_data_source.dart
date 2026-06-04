@@ -4,4 +4,5 @@ import '../../models/value_counter_model.dart';
 abstract class ValueCounterDataSource {
   Future<ValueCounterModel> getCounter(ValueCounterType type);
   Future<int> incrementCounter(ValueCounterType type);
+  Future<ValueCounterModel> setCounter(ValueCounterModel counter);
 }

@@ -239,10 +239,8 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                                         context: context,
                                         builder: (context) =>
                                             TransferFormDialog(
-                                              batches: state.batches,
                                               warehouses: state.warehouses,
-                                              inventoryItems:
-                                                  [], // state.inventoryItems,
+                                              inventoryItems: state.batches,
                                             ),
                                       );
                                   if (result != null) {
@@ -508,9 +506,8 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                           transaction: _selectedTransfer!,
                           allTransactions: state.transactions,
                           orders: state.allOrders,
-                          batches: state.batches,
                           warehouses: state.warehouses,
-                          inventoryItems: [], // state.inventoryItems,
+                          inventoryItems: state.batches,
                           categories: _categories,
                           onDelete: (fromId, toId) {
                             showDialog(

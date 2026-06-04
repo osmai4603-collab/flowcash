@@ -38,11 +38,14 @@ final class CategoryPropertyLocalDataSourceImpl
 
   @override
   Future<CategoryPropertyEntity> insert(CategoryPropertyEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: CategoryPropertiesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), CategoryPropertiesTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert category property');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

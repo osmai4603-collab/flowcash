@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/inventory/domain/usecases/inventory_transaction_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/inventory_transaction_order_usecases.dart';
-import 'package:flowcash/features/inventory/domain/usecases/inventory_batch_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/warehouse_usecases.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
 import 'warehouse_transfers_event.dart';
@@ -14,7 +13,6 @@ class WarehouseTransfersBloc extends Bloc<WarehouseTransfersEvent, WarehouseTran
   final GetInventoryTransactionOrdersUseCase _getTransactionOrders;
   final InsertInventoryTransactionOrderUseCase _insertOrder;
   final DeleteInventoryTransactionOrderUseCase _deleteOrder;
-  final GetInventoryBatchsUseCase _getBatches;
   final GetWarehousesUseCase _getWarehouses;
 
   WarehouseTransfersBloc({
@@ -24,15 +22,13 @@ class WarehouseTransfersBloc extends Bloc<WarehouseTransfersEvent, WarehouseTran
     required GetInventoryTransactionOrdersUseCase getTransactionOrders,
     required InsertInventoryTransactionOrderUseCase insertOrder,
     required DeleteInventoryTransactionOrderUseCase deleteOrder,
-    required GetInventoryBatchsUseCase getBatches,
     required GetWarehousesUseCase getWarehouses,
   })  : _getTransactions = getTransactions,
         _insertTransaction = insertTransaction,
         _deleteTransaction = deleteTransaction,
         _getTransactionOrders = getTransactionOrders,
         _insertOrder = insertOrder,
-        _deleteOrder = deleteOrder,
-        _getBatches = getBatches,
+      _deleteOrder = deleteOrder,
         _getWarehouses = getWarehouses,
         super(const WarehouseTransfersState()) {
     on<LoadTransfersEvent>(_onLoadTransfers);
@@ -48,7 +44,6 @@ class WarehouseTransfersBloc extends Bloc<WarehouseTransfersEvent, WarehouseTran
 
     final tRes = await _getTransactions();
     final oRes = await _getTransactionOrders();
-    final bRes = await _getBatches();
     final wRes = await _getWarehouses();
 
     tRes.fold(
@@ -57,21 +52,15 @@ class WarehouseTransfersBloc extends Bloc<WarehouseTransfersEvent, WarehouseTran
         oRes.fold(
           (f) => emit(state.toError(f.message)),
           (ordersList) {
-            bRes.fold(
+            wRes.fold(
               (f) => emit(state.toError(f.message)),
-              (batchesList) {
-                wRes.fold(
-                  (f) => emit(state.toError(f.message)),
-                  (warehousesList) {
-                    emit(state.copyWith(
-                      status: TransfersStatus.success,
-                      transactions: transList,
-                      allOrders: ordersList,
-                      batches: batchesList,
-                      warehouses: warehousesList,
-                    ));
-                  },
-                );
+              (warehousesList) {
+                emit(state.copyWith(
+                  status: TransfersStatus.success,
+                  transactions: transList,
+                  allOrders: ordersList,
+                  warehouses: warehousesList,
+                ));
               },
             );
           },

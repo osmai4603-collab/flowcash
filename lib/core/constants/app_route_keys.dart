@@ -12,10 +12,12 @@ sealed class AppRouteKeys {
   static const String dashboard = '/dashboard';
   static const String periods = '/dashboard/periods';
   static const String currencies = '/dashboard/currencies';
+  static const String system = '/dashboard/system';
   static const String databaseAdmin = '/dashboard/database-admin';
   static const String accounts = '/dashboard/accounts';
   static const String inventory = '/dashboard/inventory';
   static const String categories = '/dashboard/categories';
+  static const String transactions = '/dashboard/transactions';
   static const String settings = '/dashboard/settings';
 
   // ── Categories Sub-Routes ────────────────────────────────────────────────

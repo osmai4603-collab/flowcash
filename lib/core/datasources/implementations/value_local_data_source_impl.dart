@@ -1,5 +1,5 @@
 import 'package:flowcash/core/datasources/interfaces/value_data_source.dart';
-import 'package:flowcash/core/entities/value_entity.dart';
+import 'package:flowcash/features/system/domain/entities/value_entity.dart';
 import 'package:flowcash/core/enums/value_type_enum.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/values_table.dart';
@@ -38,11 +38,14 @@ final class ValueLocalDataSourceImpl implements ValueDataSource {
 
   @override
   Future<ValueEntity> insert(ValueEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: ValuesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), ValuesTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert value');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override
@@ -162,11 +165,6 @@ final class ValueLocalDataSourceImpl implements ValueDataSource {
 
   @override
   Future<Uint8List> fetchCompanyLogo() async {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<AccountingPatternType> fetchAccountingType() async {
     throw UnimplementedError();
   }
 

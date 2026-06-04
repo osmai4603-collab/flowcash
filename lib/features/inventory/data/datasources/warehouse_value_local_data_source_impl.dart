@@ -1,6 +1,6 @@
 import 'package:flowcash/features/inventory/data/datasources/warehouse_value_data_source.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_value_entity.dart';
-import 'package:flowcash/core/enums/warehouse_value_type.dart';
+import 'package:flowcash/core/enums/warehouse_value_type_enum.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/warehouse_values_table.dart';
 
@@ -38,11 +38,14 @@ final class WarehouseValueLocalDataSourceImpl
 
   @override
   Future<WarehouseValueEntity> insert(WarehouseValueEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: WarehouseValuesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), WarehouseValuesTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert warehouse value');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

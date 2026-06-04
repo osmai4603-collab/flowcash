@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
-import 'package:flowcash/features/inventory/domain/entities/inventory_batch_entity.dart';
+import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 
 enum TransactionsStatus { initial, loading, success, error }
@@ -9,7 +9,7 @@ enum TransactionsStatus { initial, loading, success, error }
 class TransactionsState extends Equatable {
   final List<InventoryTransactionEntity> transactions;
   final List<InventoryTransactionOrderEntity> allOrders;
-  final List<InventoryBatchEntity> batches;
+  final List<InventoryEntity> batches;
   final List<WarehouseEntity> warehouses;
   final TransactionsStatus status;
   final String? errorMessage;
@@ -30,7 +30,7 @@ class TransactionsState extends Equatable {
   TransactionsState copyWith({
     List<InventoryTransactionEntity>? transactions,
     List<InventoryTransactionOrderEntity>? allOrders,
-    List<InventoryBatchEntity>? batches,
+    List<InventoryEntity>? batches,
     List<WarehouseEntity>? warehouses,
     TransactionsStatus? status,
     String? errorMessage,

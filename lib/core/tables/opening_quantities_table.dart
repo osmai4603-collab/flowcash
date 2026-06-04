@@ -8,7 +8,7 @@ class OpeningQuantitiesTable {
   static const String categoryId = 'category_id';
   static const String countUnits = 'count_units';
   static const String warehouseId = 'store_id';
-  static const String createAt = 'create_at';
+  static const String createdAt = 'create_at';
   static const String costTotal = 'cost_total';
   static const String periodId = 'period_id';
 
@@ -17,7 +17,7 @@ class OpeningQuantitiesTable {
     categoryId,
     countUnits,
     warehouseId,
-    createAt,
+    createdAt,
     costTotal,
     periodId,
   ];

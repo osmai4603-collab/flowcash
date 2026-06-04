@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
 import 'package:flowcash/features/categories/domain/usecases/unit_usecases.dart';
 import 'categories_event.dart';
@@ -9,6 +8,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
   final GetAllCategoriesUseCase _getAllCategories;
   final DeleteCategoryUseCase _deleteCategory;
   final GetUnitsUseCase _getUnitsUseCase;
+  CategoriesController _categories = CategoriesController([]);
 
   CategoriesBloc({
     required GetAllCategoriesUseCase getAllCategories,
@@ -19,7 +19,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
   }) : _getAllCategories = getAllCategories,
        _deleteCategory = deleteCategory,
        _getUnitsUseCase = getUnitsUseCase,
-       super(const CategoriesState()) {
+       super(const CategoriesInitial()) {
     on<LoadCategoriesEvent>(_onLoadCategories);
     on<InjectCategoryEvent>(_onInjectCategory);
     on<DeleteCategoryEvent>(_onDeleteCategory);
@@ -29,25 +29,24 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
     LoadCategoriesEvent event,
     Emitter<CategoriesState> emit,
   ) async {
-    emit(state.copyWith(status: CategoriesStatus.loading, message: null));
+    emit(const CategoriesLoadInProgress());
 
     final result = await _getAllCategories();
 
-    late final List<CategoryEntity> entities;
     result.fold((failure) {
-      emit(state.copyWith(status: CategoriesStatus.failure, message: failure.message));
-      entities = const [];
-    }, (right) => entities = right);
+      emit(CategoriesLoadFailure(failure.message));
+      _categories = CategoriesController([]);
+    }, (right) => _categories = CategoriesController(right));
 
     if (result.isLeft()) return;
 
     final unitsResult = await _getUnitsUseCase();
     unitsResult.fold(
-      (failure) => emit(state.copyWith(status: CategoriesStatus.failure, message: failure.message)),
+      (failure) => emit(CategoriesLoadFailure(failure.message)),
       (unitsList) {
         final unitMap = {for (final unit in unitsList) unit.id: unit};
 
-        final categories = entities.map((model) {
+        final categories = _categories().map((model) {
           return model.copyWith(
             categoryUnit: unitMap[model.categoryUnitId],
             pricingUnit: unitMap[model.pricingUnitId],
@@ -56,11 +55,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
         }).toList();
 
         categories.sort((a, b) => a.categoryName.compareTo(b.categoryName));
-        emit(state.copyWith(
-          status: CategoriesStatus.success,
-          categories: categories,
-          message: null,
-        ));
+        emit(CategoriesLoadSuccess(categories: categories));
       },
     );
   }
@@ -69,32 +64,28 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
     InjectCategoryEvent event,
     Emitter<CategoriesState> emit,
   ) async {
-    if (state.status != CategoriesStatus.success) return;
-    emit(state.injectCategory(event.category));
+    if (state is! CategoriesLoadSuccess) return;
+    _categories.replace(event.category);
+    emit(CategoriesLoadSuccess(categories: _categories.categories));
   }
 
   Future<void> _onDeleteCategory(
     DeleteCategoryEvent event,
     Emitter<CategoriesState> emit,
   ) async {
-    if (state.status != CategoriesStatus.success) return;
+    final state = this.state;
+    if (state is! CategoriesLoadSuccess) return;
 
     final result = await _deleteCategory(id: event.category.id);
-    result.fold(
-      (failure) => emit(state.copyWith(status: CategoriesStatus.failure, message: failure.message)),
-      (success) {
-        if (!success) {
-          emit(state.copyWith(
-            status: CategoriesStatus.failure,
-            message: 'حدث خطأ أثناء حذف الصنف',
-          ));
-          return;
-        }
-
-        final current = List<CategoryEntity>.from(state.categories)
-          ..removeWhere((c) => c.id == event.category.id);
-        emit(state.copyWith(categories: current, message: null));
-      },
-    );
+    result.fold((failure) => emit(CategoriesLoadFailure(failure.message)), (
+      success,
+    ) {
+      if (!success) {
+        emit(const CategoriesLoadFailure('حدث خطأ أثناء حذف الصنف'));
+        return;
+      }
+      _categories.remove(event.category);
+      emit(CategoriesLoadSuccess(categories: _categories.categories));
+    });
   }
 }

@@ -5,14 +5,14 @@ class InventoryTransactionsOrdersTable {
   static const String tableName = 'inventory_transactions_orders';
 
   static const String id = 'order_id';
-  static const String inventoryBatchId = 'inventory_batch_id';
+  static const String inventoryId = 'inventory_id';
   static const String countUnits = 'count_units';
   static const String tranId = 'tran_id';
   static const String transactionType = 'tran_type';
 
   static const List<String> fields = [
     id,
-    inventoryBatchId,
+    inventoryId,
     countUnits,
     tranId,
     transactionType,

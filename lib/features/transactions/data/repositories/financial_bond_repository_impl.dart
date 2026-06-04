@@ -37,8 +37,8 @@ class FinancialBondRepositoryImpl implements FinancialBondRepository {
   Future<Either<Failure, FinancialBondEntity>> insert(
       FinancialBondEntity entity) async {
     try {
-      await _dataSource.insert(entity);
-      return right(entity);
+      final entityInserted = await _dataSource.insert(entity);
+      return right(entityInserted);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
     }

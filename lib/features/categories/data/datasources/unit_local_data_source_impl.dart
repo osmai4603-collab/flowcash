@@ -37,11 +37,14 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
 
   @override
   Future<UnitEntity> insert(UnitEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: UnitsTable.tableName,
-      data: _sanitizeInsertData(toMap(entity), UnitsTable.id),
+      data: toMap(entity),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert unit');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

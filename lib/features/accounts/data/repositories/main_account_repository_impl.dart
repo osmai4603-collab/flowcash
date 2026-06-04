@@ -41,8 +41,8 @@ class MainAccountRepositoryImpl implements MainAccountRepository {
     MainAccountEntity entity,
   ) async {
     try {
-      await _dataSource.insert(entity);
-      return Right(entity);
+      final entityInserted = await _dataSource.insert(entity);
+      return Right(entityInserted);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {
@@ -55,8 +55,8 @@ class MainAccountRepositoryImpl implements MainAccountRepository {
     MainAccountEntity entity,
   ) async {
     try {
-      await _dataSource.update(entity);
-      return Right(entity);
+      final entityUpdated = await _dataSource.update(entity);
+      return Right(entityUpdated);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {

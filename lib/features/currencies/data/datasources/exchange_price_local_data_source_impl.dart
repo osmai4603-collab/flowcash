@@ -37,20 +37,36 @@ final class ExchangePriceLocalDataSourceImpl
 
   @override
   Future<ExchangePriceEntity> insert(ExchangePriceEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: ExchangePricesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), ExchangePricesTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert exchange price');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override
   Future<ExchangePriceEntity> update(ExchangePriceEntity entity) async {
-    await _db.update(
-      table: ExchangePricesTable.tableName,
-      data: toMap(entity),
-      where: {ExchangePricesTable.id: entity.id},
-    );
+    await _db.transaction(() async {
+      await _db.update(
+        table: ExchangePricesTable.tableName,
+        data: toMap(entity),
+        where: {ExchangePricesTable.id: entity.id},
+      );
+
+      await _db.update(
+        table: ExchangePricesTable.tableName,
+        data: {
+          ExchangePricesTable.exchangePrice: 1 / entity.price,
+        },
+        where: {
+          ExchangePricesTable.fromCurrencyId: entity.toCurrencyId,
+          ExchangePricesTable.toCurrencyId: entity.fromCurrencyId,
+        },
+      );
+    });
     return entity;
   }
 

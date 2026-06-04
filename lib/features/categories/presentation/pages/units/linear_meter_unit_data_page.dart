@@ -160,7 +160,8 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
                             Expanded(
                               flex: 2,
                               child: TextFormField(
-                                textInputAction: TextInputAction.next,
+                                  textInputAction: TextInputAction.done,
+                                  onFieldSubmitted: (_) => _onSaveButtonClicked(),
                                 controller: lengthController,
                                 textDirection: TextDirection.ltr,
                                 keyboardType: TextInputType.number,

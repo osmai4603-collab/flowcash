@@ -194,7 +194,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                               horizontal: 12,
                                             ),
                                       ),
-                                      value: _filterType,
+                                      initialValue: _filterType,
                                       items: [
                                         const DropdownMenuItem<
                                           InventoryTransactionType?
@@ -225,27 +225,13 @@ class _TransactionsPageState extends State<TransactionsPage> {
                               // Add transaction button
                               ElevatedButton.icon(
                                 onPressed: () async {
-                                  if (state.batches.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'الرجاء إنشاء دفعات أصناف أولاً',
-                                        ),
-                                      ),
-                                    );
-                                    return;
-                                  }
-                                  final result =
-                                      await showDialog<Map<String, dynamic>>(
-                                        context: context,
-                                        builder: (context) =>
-                                            TransactionFormDialog(
-                                              batches: state.batches,
-                                              warehouses: state.warehouses,
-                                              inventoryItems:
-                                                  [], // state.inventoryItems,
-                                            ),
-                                      );
+                                  final result = await showDialog<Map<String, dynamic>>(
+                                    context: context,
+                                    builder: (context) => TransactionFormDialog(
+                                      warehouses: state.warehouses,
+                                      inventoryItems: [], // state.inventoryItems,
+                                    ),
+                                  );
                                   if (result != null) {
                                     final t =
                                         result['transaction']
@@ -484,7 +470,6 @@ class _TransactionsPageState extends State<TransactionsPage> {
                       : TransactionDetailPanel(
                           transaction: _selectedTransaction!,
                           orders: selectedOrders,
-                          batches: state.batches,
                           warehouses: state.warehouses,
                           inventoryItems: [], // state.inventoryItems,
                           categories: _categories,
@@ -495,7 +480,6 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                   builder: (context) => TransactionFormDialog(
                                     transaction: _selectedTransaction,
                                     initialOrders: selectedOrders,
-                                    batches: state.batches,
                                     warehouses: state.warehouses,
                                     inventoryItems: [], //state.inventoryItems,
                                   ),

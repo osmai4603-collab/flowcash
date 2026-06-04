@@ -1,8 +1,8 @@
+import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 import 'package:flowcash/core/tables/catalogs_table.dart';
 import 'package:flowcash/core/tables/inventory_catalogs_table.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqlite3/sqlite3.dart';
-
 import 'package:flowcash/core/tables/currencies_table.dart';
 import 'package:flowcash/core/tables/exchange_prices_table.dart';
 import 'package:flowcash/core/tables/warehouses_table.dart';
@@ -18,7 +18,6 @@ import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
 import 'package:flowcash/core/tables/categories_table.dart';
 import 'package:flowcash/core/tables/inventories_table.dart';
-import 'package:flowcash/core/tables/inventory_batches_table.dart';
 import 'package:flowcash/core/tables/inventory_transactions_table.dart';
 import 'package:flowcash/core/tables/inventory_transactions_orders_table.dart';
 import 'package:flowcash/core/tables/opening_quantities_table.dart';
@@ -32,19 +31,17 @@ import 'package:flowcash/core/tables/bill_orders_table.dart';
 import 'package:flowcash/core/tables/goods_costs_table.dart';
 import 'package:flowcash/core/tables/assets_transactions_table.dart';
 import 'package:flowcash/core/tables/values_table.dart';
+import 'package:flowcash/core/tables/warehouse_values_table.dart';
 
 final class SqliteSchemaManager {
   const SqliteSchemaManager._();
 
-  static const int latestVersion = 5;
+  static const int currentVersion = 5;
 
-  /// Create all tables as of the latest schema version.
+  /// Create schema for the initial version (version 1).
+  /// Later versions are applied sequentially by migrations.
   static void createAll(Database db) {
     _createV1Tables(db);
-    _createV2Tables(db);
-    _createV3Tables(db);
-    _createV4Tables(db);
-    _createV5Tables(db);
   }
 
   /// Apply incremental migrations from [fromVersion] (exclusive) up to [toVersion] (inclusive).
@@ -85,10 +82,11 @@ final class SqliteSchemaManager {
 
   // --- Schema pieces ---
   static void _createV1Tables(Database db) {
+    // Reordered V1 tables to ensure dependencies are available before use
     // 1. Currencies
     db.execute('''
       CREATE TABLE IF NOT EXISTS ${CurrenciesTable.tableName} (
-        ${CurrenciesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${CurrenciesTable.id} TEXT PRIMARY KEY,
         ${CurrenciesTable.currencyName} TEXT NOT NULL,
         ${CurrenciesTable.symbol} TEXT NOT NULL,
         ${CurrenciesTable.fullSymbol} TEXT NOT NULL,
@@ -97,7 +95,7 @@ final class SqliteSchemaManager {
       )
     ''');
 
-    // 2. Exchange Prices
+    // 2. Exchange Prices (depends on Currencies)
     db.execute('''
       CREATE TABLE IF NOT EXISTS ${ExchangePricesTable.tableName} (
         ${ExchangePricesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -109,18 +107,52 @@ final class SqliteSchemaManager {
       )
     ''');
 
-    // 3. Warehouses
+    // 3. Main Accounts (depends on Currencies)
+    db.execute('''
+      CREATE TABLE IF NOT EXISTS ${MainAccountsTable.tableName} (
+        ${MainAccountsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${MainAccountsTable.accountNumber} TEXT NOT NULL UNIQUE,
+        ${MainAccountsTable.accountName} TEXT NOT NULL UNIQUE,
+        ${MainAccountsTable.imagePath} TEXT,
+        ${MainAccountsTable.currencyId} TEXT NOT NULL,
+        ${MainAccountsTable.incrementsBalance} REAL NOT NULL DEFAULT 0.0,
+        ${MainAccountsTable.decrementsBalance} REAL NOT NULL DEFAULT 0.0,
+        ${MainAccountsTable.mainAccountType} INTEGER NOT NULL,
+        ${MainAccountsTable.numbersCounter} INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (${MainAccountsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON DELETE RESTRICT
+      )
+    ''');
+
+    // 4. Sub Accounts (depends on MainAccounts and Currencies)
+    db.execute('''
+      CREATE TABLE IF NOT EXISTS ${SubAccountsTable.tableName} (
+        ${SubAccountsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${SubAccountsTable.accountName} TEXT NOT NULL UNIQUE,
+        ${SubAccountsTable.accountNumber} TEXT NOT NULL UNIQUE,
+        ${SubAccountsTable.mainAccountId} INTEGER NOT NULL,
+        ${SubAccountsTable.currencyId} TEXT NOT NULL,
+        ${SubAccountsTable.debit} REAL NOT NULL DEFAULT 0.0,
+        ${SubAccountsTable.credit} REAL NOT NULL DEFAULT 0.0,
+        ${SubAccountsTable.balanceMax} REAL DEFAULT NULL,
+        ${SubAccountsTable.subAccountType} INTEGER NOT NULL,
+        ${SubAccountsTable.createdAt} TEXT NOT NULL,
+        FOREIGN KEY (${SubAccountsTable.mainAccountId}) REFERENCES ${MainAccountsTable.tableName} (${MainAccountsTable.id}) ON DELETE CASCADE,
+        FOREIGN KEY (${SubAccountsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON DELETE RESTRICT
+      )
+    ''');
+
+    // 5. Warehouses
     db.execute('''
       CREATE TABLE IF NOT EXISTS ${WarehousesTable.tableName} (
         ${WarehousesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ${WarehousesTable.warehouseName} TEXT NOT NULL,
+        ${WarehousesTable.warehouseName} TEXT NOT NULL UNIQUE,
         ${WarehousesTable.location} TEXT,
         ${WarehousesTable.warehouseType} INTEGER NOT NULL,
         ${WarehousesTable.parentId} INTEGER
       )
     ''');
 
-    // 4. Persons
+    // 6. Persons (depends on SubAccounts)
     db.execute('''
       CREATE TABLE IF NOT EXISTS ${PersonsTable.tableName} (
         ${PersonsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -132,42 +164,9 @@ final class SqliteSchemaManager {
         ${PersonsTable.receivableAccountId} INTEGER,
         ${PersonsTable.payableAccountId} INTEGER,
         ${PersonsTable.createdAt} TEXT,
+        UNIQUE (${PersonsTable.personName}, ${PersonsTable.personType}),
         FOREIGN KEY (${PersonsTable.receivableAccountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON UPDATE CASCADE ON DELETE SET NULL,
         FOREIGN KEY (${PersonsTable.payableAccountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON UPDATE CASCADE ON DELETE SET NULL
-      )
-    ''');
-
-    // 5. Main Accounts
-    db.execute('''
-      CREATE TABLE IF NOT EXISTS ${MainAccountsTable.tableName} (
-        ${MainAccountsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ${MainAccountsTable.accountNumber} TEXT NOT NULL UNIQUE,
-        ${MainAccountsTable.accountName} TEXT NOT NULL,
-        ${MainAccountsTable.imagePath} TEXT,
-        ${MainAccountsTable.currencyId} TEXT NOT NULL,
-        ${MainAccountsTable.incrementsBalance} REAL NOT NULL DEFAULT 0.0,
-        ${MainAccountsTable.decrementsBalance} REAL NOT NULL DEFAULT 0.0,
-        ${MainAccountsTable.mainAccountType} INTEGER NOT NULL,
-        ${MainAccountsTable.numbersCounter} INTEGER NOT NULL DEFAULT 0,
-        FOREIGN KEY (${MainAccountsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON DELETE RESTRICT
-      )
-    ''');
-
-    // 6. Sub Accounts
-    db.execute('''
-      CREATE TABLE IF NOT EXISTS ${SubAccountsTable.tableName} (
-        ${SubAccountsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ${SubAccountsTable.accountName} TEXT NOT NULL UNIQUE,
-        ${SubAccountsTable.accountNumber} TEXT NOT NULL UNIQUE,
-        ${SubAccountsTable.mainAccountId} INTEGER NOT NULL,
-        ${SubAccountsTable.currencyId} TEXT NOT NULL,
-        ${SubAccountsTable.incrementsBalance} REAL NOT NULL DEFAULT 0.0,
-        ${SubAccountsTable.decrementsBalance} REAL NOT NULL DEFAULT 0.0,
-        ${SubAccountsTable.balanceMax} REAL DEFAULT NULL,
-        ${SubAccountsTable.subAccountType} INTEGER NOT NULL,
-        ${SubAccountsTable.createdAt} TEXT NOT NULL,
-        FOREIGN KEY (${SubAccountsTable.mainAccountId}) REFERENCES ${MainAccountsTable.tableName} (${MainAccountsTable.id}) ON DELETE CASCADE,
-        FOREIGN KEY (${SubAccountsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON DELETE RESTRICT
       )
     ''');
   }
@@ -275,6 +274,7 @@ final class SqliteSchemaManager {
         ${SubcategoriesTable.mainCategoryId} INTEGER,
         ${SubcategoriesTable.catalogName} TEXT NOT NULL,
         ${SubcategoriesTable.catalogNumber} TEXT,
+        UNIQUE (${SubcategoriesTable.catalogName}, ${SubcategoriesTable.mainCategoryId}),
         FOREIGN KEY (${SubcategoriesTable.mainCategoryId}) REFERENCES ${CategoriesTable.tableName} (${CategoriesTable.id}) ON DELETE SET NULL
       )
     ''');
@@ -285,12 +285,17 @@ final class SqliteSchemaManager {
         ${InventoriesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         ${InventoriesTable.categoryId} INTEGER NOT NULL,
         ${InventoriesTable.storeId} INTEGER NOT NULL,
-        ${InventoriesTable.costType} TEXT NOT NULL,
         ${InventoriesTable.revenueAccountId} INTEGER,
         ${InventoriesTable.expenseAccountId} INTEGER,
         ${InventoriesTable.incomeStockId} INTEGER,
         ${InventoriesTable.outcomeStockId} INTEGER,
+        ${InventoriesTable.unitCost} REAL NOT NULL DEFAULT 0.0,
         ${InventoriesTable.countUnits} REAL NOT NULL DEFAULT 0.0,
+        Foreign KEY (${InventoriesTable.storeId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON DELETE RESTRICT,
+        FOREIGN KEY (${InventoriesTable.revenueAccountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${InventoriesTable.expenseAccountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${InventoriesTable.incomeStockId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${InventoriesTable.outcomeStockId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
         FOREIGN KEY (${InventoriesTable.categoryId}) REFERENCES ${CategoriesTable.tableName} (${CategoriesTable.id}) ON DELETE RESTRICT
       )
     ''');
@@ -305,39 +310,29 @@ final class SqliteSchemaManager {
         ${InventorySubcategoriesTable.expenseAccountId} INTEGER,
         ${InventorySubcategoriesTable.incomeStockId} INTEGER,
         ${InventorySubcategoriesTable.outcomeStockId} INTEGER,
-        FOREIGN KEY (${InventorySubcategoriesTable.catalogId}) REFERENCES ${SubcategoriesTable.tableName} (${SubcategoriesTable.id}) ON DELETE RESTRICT
+        FOREIGN KEY (${InventorySubcategoriesTable.storeId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON DELETE RESTRICT,
+        FOREIGN KEY (${InventorySubcategoriesTable.revenueAccountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${InventorySubcategoriesTable.expenseAccountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${InventorySubcategoriesTable.incomeStockId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${InventorySubcategoriesTable.outcomeStockId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,                                                                                                                                                               
+        FOREIGN KEY (${InventorySubcategoriesTable.catalogId}) REFERENCES ${SubcategoriesTable.tableName} (${SubcategoriesTable.id}) ON DELETE RESTRICT                                                              
       )
     ''');
 
-    // 5. Inventory Batches
-    db.execute('''
-      CREATE TABLE IF NOT EXISTS ${InventoryBatchesTable.tableName} (
-        ${InventoryBatchesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ${InventoryBatchesTable.batchNumber} TEXT NOT NULL,
-        ${InventoryBatchesTable.inventoryId} INTEGER NOT NULL,
-        ${InventoryBatchesTable.personId} INTEGER,
-        ${InventoryBatchesTable.batchSource} TEXT NOT NULL,
-        ${InventoryBatchesTable.batchStatus} TEXT NOT NULL,
-        ${InventoryBatchesTable.countUnits} REAL NOT NULL DEFAULT 0.0,
-        ${InventoryBatchesTable.unitCost} REAL NOT NULL DEFAULT 0.0,
-        ${InventoryBatchesTable.inputDate} TEXT NOT NULL,
-        ${InventoryBatchesTable.productionDate} TEXT,
-        ${InventoryBatchesTable.expirationDate} TEXT,
-        FOREIGN KEY (${InventoryBatchesTable.inventoryId}) REFERENCES ${InventoriesTable.tableName} (${InventoriesTable.id}) ON DELETE CASCADE
-      )
-    ''');
-
-    // 6. Inventory Transactions
+    // 5. Inventory Transactions
     db.execute('''
       CREATE TABLE IF NOT EXISTS ${InventoryTransactionsTable.tableName} (
         ${InventoryTransactionsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ${InventoryTransactionsTable.createAt} TEXT NOT NULL,
+        ${InventoryTransactionsTable.createdAt} TEXT NOT NULL,
         ${InventoryTransactionsTable.createdBy} INTEGER NOT NULL,
         ${InventoryTransactionsTable.note} TEXT,
         ${InventoryTransactionsTable.warehouseId} INTEGER NOT NULL,
         ${InventoryTransactionsTable.personId} INTEGER,
         ${InventoryTransactionsTable.billNumber} INTEGER NOT NULL,
-        ${InventoryTransactionsTable.transactionType} TEXT NOT NULL,
+        ${InventoryTransactionsTable.transactionType} TEXT NOT NULL CHECK(${InventoryTransactionsTable.transactionType} IN (${InventoryTransactionType.values.map((e) => "'${e.name}'").join(', ')})),
+
+        FOREIGN KEY (${InventoryTransactionsTable.personId}) REFERENCES ${PersonsTable.tableName} (${PersonsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${InventoryTransactionsTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${InventoryTransactionsTable.createdBy}) REFERENCES ${ProgramUsersTable.tableName} (${ProgramUsersTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT
       )
     ''');
@@ -346,14 +341,57 @@ final class SqliteSchemaManager {
     db.execute('''
       CREATE TABLE IF NOT EXISTS ${InventoryTransactionsOrdersTable.tableName} (
         ${InventoryTransactionsOrdersTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ${InventoryTransactionsOrdersTable.inventoryBatchId} INTEGER,
+        ${InventoryTransactionsOrdersTable.inventoryId} INTEGER,
         ${InventoryTransactionsOrdersTable.countUnits} REAL NOT NULL DEFAULT 0.0,
         ${InventoryTransactionsOrdersTable.tranId} INTEGER NOT NULL,
-        ${InventoryTransactionsOrdersTable.transactionType} TEXT NOT NULL,
-        FOREIGN KEY (${InventoryTransactionsOrdersTable.inventoryBatchId}) REFERENCES ${InventoryBatchesTable.tableName} (${InventoryBatchesTable.id}) ON DELETE SET NULL,
+        ${InventoryTransactionsOrdersTable.transactionType} TEXT NOT NULL CHECK(${InventoryTransactionsOrdersTable.transactionType} IN (${InventoryTransactionType.values.map((e) => "'${e.name}'").join(', ')})),
+        FOREIGN KEY (${InventoryTransactionsOrdersTable.inventoryId}) REFERENCES ${InventoriesTable.tableName} (${InventoriesTable.id}) ON DELETE SET NULL,
         FOREIGN KEY (${InventoryTransactionsOrdersTable.tranId}) REFERENCES ${InventoryTransactionsTable.tableName} (${InventoryTransactionsTable.id}) ON DELETE CASCADE
       )
     ''');
+
+    // Migration compatibility: older schemas used `inventory_batch_id` referencing `inventory_batches`.
+    // If older column exists, add `inventory_id` column (if missing), copy mapped inventory ids,
+    // and archive the old `inventory_batches` table by renaming it.
+    try {
+      final pragma = db.select("PRAGMA table_info(${InventoryTransactionsOrdersTable.tableName})");
+      final hasBatchCol = pragma.any((r) => r['name'] == 'inventory_batch_id');
+      final hasInventoryCol = pragma.any((r) => r['name'] == InventoryTransactionsOrdersTable.inventoryId);
+
+      if (hasBatchCol && !hasInventoryCol) {
+        // Add new column
+        db.execute('ALTER TABLE ${InventoryTransactionsOrdersTable.tableName} ADD COLUMN ${InventoryTransactionsOrdersTable.inventoryId} INTEGER');
+
+        // If inventory_batches table exists, copy mapping inventory_id
+        final batchesTable = db.select("SELECT name FROM sqlite_master WHERE type='table' AND name='inventory_batches'");
+        if (batchesTable.isNotEmpty) {
+          db.execute('''
+            UPDATE ${InventoryTransactionsOrdersTable.tableName}
+            SET ${InventoryTransactionsOrdersTable.inventoryId} = (
+              SELECT inventory_id FROM inventory_batches WHERE inventory_batches.id = ${InventoryTransactionsOrdersTable.tableName}.inventory_batch_id
+            )
+            WHERE inventory_batch_id IS NOT NULL
+          ''');
+
+          // Rename old batches table to keep archive
+          db.execute("ALTER TABLE inventory_batches RENAME TO inventory_batches_archived");
+          debugPrint('Migrated inventory_batch_id -> inventory_id and archived inventory_batches');
+        }
+      }
+    } catch (e) {
+      debugPrint('Inventory batches migration check failed: $e');
+    }
+
+    try {
+      final inventoryPragma = db.select("PRAGMA table_info(${InventoriesTable.tableName})");
+      final hasInventoryCost = inventoryPragma.any((r) => r['name'] == InventoriesTable.unitCost);
+      if (!hasInventoryCost) {
+        db.execute('ALTER TABLE ${InventoriesTable.tableName} ADD COLUMN ${InventoriesTable.unitCost} REAL NOT NULL DEFAULT 0.0');
+        debugPrint('Added ${InventoriesTable.unitCost} column to ${InventoriesTable.tableName}');
+      }
+    } catch (e) {
+      debugPrint('Inventory unitCost migration check failed: $e');
+    }
 
     // 8. Opening Quantities
     db.execute('''
@@ -362,9 +400,11 @@ final class SqliteSchemaManager {
         ${OpeningQuantitiesTable.categoryId} INTEGER NOT NULL,
         ${OpeningQuantitiesTable.countUnits} REAL NOT NULL DEFAULT 0.0,
         ${OpeningQuantitiesTable.warehouseId} INTEGER NOT NULL,
-        ${OpeningQuantitiesTable.createAt} TEXT NOT NULL,
+        ${OpeningQuantitiesTable.createdAt} TEXT NOT NULL,
         ${OpeningQuantitiesTable.costTotal} REAL NOT NULL DEFAULT 0.0,
         ${OpeningQuantitiesTable.periodId} INTEGER NOT NULL,
+        FOREIGN KEY (${OpeningQuantitiesTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON DELETE RESTRICT,
+        FOREIGN KEY (${OpeningQuantitiesTable.periodId}) REFERENCES ${AccountingPeriodsTable.tableName} (${AccountingPeriodsTable.id}) ON DELETE CASCADE,
         FOREIGN KEY (${OpeningQuantitiesTable.categoryId}) REFERENCES ${CategoriesTable.tableName} (${CategoriesTable.id}) ON DELETE RESTRICT
       )
     ''');
@@ -405,7 +445,8 @@ final class SqliteSchemaManager {
         ${UnitsTable.unitName} TEXT NOT NULL,
         ${UnitsTable.length} REAL NOT NULL DEFAULT 0.0,
         ${UnitsTable.width} REAL NOT NULL DEFAULT 0.0,
-        ${UnitsTable.thickness} REAL NOT NULL DEFAULT 0.0
+        ${UnitsTable.thickness} REAL NOT NULL DEFAULT 0.0,
+        UNIQUE(${UnitsTable.unitType}, ${UnitsTable.unitName}, ${UnitsTable.length}, ${UnitsTable.width}, ${UnitsTable.thickness})
       )
     ''');
 
@@ -438,7 +479,7 @@ final class SqliteSchemaManager {
     db.execute('''
       CREATE TABLE IF NOT EXISTS ${BillsTable.tableName} (
         ${BillsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ${BillsTable.createAt} TEXT NOT NULL,
+        ${BillsTable.createdAt} TEXT NOT NULL,
         ${BillsTable.createdBy} INTEGER NOT NULL,
         ${BillsTable.note} TEXT,
         ${BillsTable.offerAmount} REAL NOT NULL,
@@ -446,7 +487,7 @@ final class SqliteSchemaManager {
         ${BillsTable.billNumber} INTEGER NOT NULL,
         ${BillsTable.warehouseId} INTEGER NOT NULL,
         ${BillsTable.journalEntryId} INTEGER,
-        ${BillsTable.personId} INTEGER,
+        ${BillsTable.personId} INTEGER NOT NULL,
         ${BillsTable.inventoryTransactionId} INTEGER,
         ${BillsTable.isCash} INTEGER NOT NULL DEFAULT 0,
         ${BillsTable.billType} TEXT NOT NULL,
@@ -466,13 +507,8 @@ final class SqliteSchemaManager {
         ${BillOrdersTable.categoryId} INTEGER NOT NULL,
         ${BillOrdersTable.countUnits} REAL NOT NULL DEFAULT 0.0,
         ${BillOrdersTable.totalPrice} REAL NOT NULL DEFAULT 0.0,
-        ${BillOrdersTable.orderType} TEXT NOT NULL,
-        ${BillOrdersTable.inventoryId} INTEGER,
-        ${BillOrdersTable.batchId} INTEGER,
         FOREIGN KEY (${BillOrdersTable.billId}) REFERENCES ${BillsTable.tableName} (${BillsTable.id}) ON DELETE CASCADE,
-        FOREIGN KEY (${BillOrdersTable.categoryId}) REFERENCES ${CategoriesTable.tableName} (${CategoriesTable.id}) ON DELETE RESTRICT,
-        FOREIGN KEY (${BillOrdersTable.inventoryId}) REFERENCES ${InventoriesTable.tableName} (${InventoriesTable.id}) ON DELETE SET NULL,
-        FOREIGN KEY (${BillOrdersTable.batchId}) REFERENCES ${InventoryBatchesTable.tableName} (${InventoryBatchesTable.id}) ON DELETE SET NULL
+        FOREIGN KEY (${BillOrdersTable.categoryId}) REFERENCES ${CategoriesTable.tableName} (${CategoriesTable.id}) ON DELETE RESTRICT
       )
     ''');
 
@@ -480,7 +516,7 @@ final class SqliteSchemaManager {
     db.execute('''
       CREATE TABLE IF NOT EXISTS ${GoodsCostsTable.tableName} (
         ${GoodsCostsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ${GoodsCostsTable.createAt} TEXT NOT NULL,
+        ${GoodsCostsTable.createdAt} TEXT NOT NULL,
         ${GoodsCostsTable.createdBy} INTEGER NOT NULL,
         ${GoodsCostsTable.note} TEXT,
         ${GoodsCostsTable.offerAmount} REAL NOT NULL,
@@ -503,7 +539,7 @@ final class SqliteSchemaManager {
     db.execute('''
       CREATE TABLE IF NOT EXISTS ${AssetsTransactionsTable.tableName} (
         ${AssetsTransactionsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ${AssetsTransactionsTable.createAt} TEXT NOT NULL,
+        ${AssetsTransactionsTable.createdAt} TEXT NOT NULL,
         ${AssetsTransactionsTable.createdBy} INTEGER NOT NULL,
         ${AssetsTransactionsTable.note} TEXT,
         ${AssetsTransactionsTable.offerAmount} REAL NOT NULL,
@@ -517,6 +553,17 @@ final class SqliteSchemaManager {
         FOREIGN KEY (${AssetsTransactionsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${AssetsTransactionsTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${AssetsTransactionsTable.hintId}) REFERENCES ${HintsTable.tableName} (${HintsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT
+      )
+    ''');
+
+    // 11. Warehouse Default Values
+    db.execute('''
+      CREATE TABLE IF NOT EXISTS ${WarehouseValuesTable.tableName} (
+        ${WarehouseValuesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${WarehouseValuesTable.warehouseId} INTEGER NOT NULL,
+        ${WarehouseValuesTable.valueType} TEXT NOT NULL,
+        ${WarehouseValuesTable.value} TEXT NOT NULL,
+        FOREIGN KEY (${WarehouseValuesTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON DELETE CASCADE
       )
     ''');
 

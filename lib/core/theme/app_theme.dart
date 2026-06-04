@@ -24,10 +24,11 @@ sealed class Themes {
       appBarTheme: AppBarTheme(
         elevation: 0.0,
         backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
         titleTextStyle: textTheme.titleMedium?.copyWith(
           color: colorScheme.onPrimary,
         ),
-        iconTheme: IconThemeData(color: colorScheme.surfaceBright),
+        iconTheme: IconThemeData(color: colorScheme.onPrimary),
         actionsIconTheme: IconThemeData(color: colorScheme.surfaceBright),
       ),
       cardTheme: CardThemeData(
@@ -89,14 +90,8 @@ sealed class Themes {
         ),
       ),
       dropdownMenuTheme: DropdownMenuThemeData(
-        textStyle: textTheme.labelMedium?.copyWith(
+        textStyle: textTheme.bodyMedium?.copyWith(
           color: colorScheme.onSurface,
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          hintStyle: textTheme.labelMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-          outlineBorder: BorderSide(color: colorScheme.onSurface, width: 0.60),
         ),
         menuStyle: MenuStyle(
           backgroundColor: WidgetStatePropertyAll(colorScheme.surfaceContainer),
@@ -123,6 +118,8 @@ sealed class Themes {
         ),
       ),
 
+      
+
       inputDecorationTheme: InputDecorationThemeData(
         contentPadding: Paddings.smallAll,
         hintStyle: textTheme.bodyMedium?.copyWith(
@@ -145,7 +142,12 @@ sealed class Themes {
         ),
       ),
 
-      popupMenuTheme: PopupMenuThemeData(color: colorScheme.surfaceContainer),
+      popupMenuTheme: PopupMenuThemeData(
+        color: colorScheme.surfaceContainer,
+        textStyle: textTheme.bodyMedium?.copyWith(
+          color: colorScheme.onSurface,
+        ),
+      ),
     );
   }
 

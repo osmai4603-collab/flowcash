@@ -37,11 +37,14 @@ final class PersonLocalDataSourceImpl implements PersonDataSource {
 
   @override
   Future<PersonEntity> insert(PersonEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: PersonsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), PersonsTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert person');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

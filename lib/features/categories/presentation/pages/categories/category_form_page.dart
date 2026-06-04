@@ -25,8 +25,9 @@ class CategoryFormPage extends StatelessWidget {
         updateCategory: sl(),
         getUnitsUseCase: sl(),
         checkHasRequestsUseCase: sl(),
+        getNewCategoryNumberUseCase: sl(),
       )..add(InitCategoryForm(category)),
-      child: const _CategoryForm(),
+      child: _CategoryForm(),
     );
   }
 }
@@ -124,7 +125,13 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                         children: [
                           ShimmerPlaceholder(height: 50),
                           ShimmerPlaceholder(),
-                          ShimmerPlaceholder(),
+                          Row(
+                            spacing: Spacings.medium,
+                            children: [
+                              Expanded(child: ShimmerPlaceholder()),
+                              Expanded(child: ShimmerPlaceholder()),
+                            ],
+                          ),
                           Row(
                             spacing: Spacings.medium,
                             children: [
@@ -152,10 +159,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                           Row(
                             children: [
                               IconButton(
-                                icon: Icon(
-                                  Icons.arrow_back_outlined,
-                                  color: colors.primary,
-                                ),
+                                icon: Icon(Icons.arrow_back_outlined),
                                 tooltip: 'رجوع',
                                 onPressed: _onBackPressed,
                               ),
@@ -170,10 +174,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(
-                                  Icons.save_outlined,
-                                  color: colors.primary,
-                                ),
+                                icon: Icon(Icons.save_outlined),
                                 tooltip: 'حفظ البيانات',
                                 onPressed: () => _onSaveButtonClicked(context),
                               ),
@@ -189,68 +190,73 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                             validator: categoryNameValidator,
                             decoration: InputDecoration(
                               hintText: 'ادخل اسم الصنف',
-                              hintStyle: textTheme.labelLarge?.copyWith(
-                                color: colors.onSurfaceVariant,
-                              ),
-                              label: Text(
-                                'اسم الصنف',
-                                style: textTheme.labelLarge,
-                              ),
-                              
-                              prefixIcon: Icon(
-                                Icons.category_outlined,
-                                color: colors.primary,
-                              ),
+                              labelText: 'اسم الصنف',
+                              prefixIcon: Icon(Icons.category_outlined),
                             ),
                           ),
-                          TextFormField(
-                            textInputAction: TextInputAction.next,
-                            keyboardType: TextInputType.number,
-                            textDirection: TextDirection.ltr,
-                            initialValue: state.barcode,
-                            focusNode: barcodeFocusNode,
-                            cursorHeight: 20.0,
-                            style: textTheme.bodyLarge?.copyWith(
-                              letterSpacing: 2,
-                            ),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
+                          Row(
+                            spacing: Spacings.medium,
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  readOnly: true,
+                                  textInputAction: TextInputAction.next,
+                                  initialValue: state.categoryNumber,
+                                  style: textTheme.bodyLarge,
+                                  cursorHeight: 20.0,
+                                  textDirection: .ltr,
+                                  validator: categoryNumberValidator,
+                                  decoration: InputDecoration(
+                                    hintText: 'رقم الصنف',
+                                    hintStyle: textTheme.labelLarge?.copyWith(
+                                      color: colors.onSurfaceVariant,
+                                    ),
+                                    label: Text(
+                                      'رقم الصنف',
+                                      style: textTheme.labelLarge,
+                                    ),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        Icons.refresh_outlined,
+                                        color: colors.primary,
+                                      ),
+                                      tooltip: 'تحديث رقم الصنف',
+                                      onPressed: _generateCategoryNumber,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: TextFormField(
+                                  textInputAction: TextInputAction.next,
+                                  keyboardType: TextInputType.number,
+                                  textDirection: TextDirection.ltr,
+                                  initialValue: state.barcode,
+                                  focusNode: barcodeFocusNode,
+                                  cursorHeight: 20.0,
+                                  style: textTheme.bodyLarge,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ],
+                                  onChanged: onBarcodeChanged,
+                                  validator: barcodeValidator,
+                                  decoration: InputDecoration(
+                                    hintText: 'ادخل رمز الباركود',
+                                    hintStyle: textTheme.titleSmall?.copyWith(
+                                      color: colors.onSurfaceVariant,
+                                    ),
+                                    labelText: 'الباركود',
+                                    prefixIcon: IconButton(
+                                      icon: Icon(Icons.qr_code_outlined),
+                                      tooltip: 'قراء ماسح الباركود',
+                                      onPressed: _scanBarcode,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
-                            onChanged: onBarcodeChanged,
-                            validator: barcodeValidator,
-                            decoration: InputDecoration(
-                              hintText: state.barcode?.isEmpty ?? true
-                                  ? 'ادخل رمز الباركود'
-                                  : '',
-                              hintStyle: textTheme.titleSmall?.copyWith(
-                                color: colors.onSurfaceVariant,
-                              ),
-                              label: Text(
-                                'الباركود',
-                                style: textTheme.labelLarge,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: colors.onSurfaceVariant,
-                                  width: 0.50,
-                                ),
-                              ),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: colors.onSurfaceVariant,
-                                  width: 0.20,
-                                ),
-                              ),
-                              prefixIcon: IconButton(
-                                icon: Icon(
-                                  Icons.qr_code_outlined,
-                                  color: colors.primary,
-                                ),
-                                tooltip: 'قراء ماسح الباركود',
-                                onPressed: _scanBarcode,
-                              ),
-                            ),
                           ),
+
                           if (!state.hasRequests)
                             Row(
                               spacing: Spacings.medium,
@@ -284,7 +290,6 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                             const EdgeInsets.symmetric(
                                               horizontal: 12.0,
                                             ),
-                                        
                                       ),
                                       style: textTheme.bodyLarge,
                                       items: state.units.map((unit) {
@@ -404,9 +409,21 @@ class _CategoryFormPageState extends State<_CategoryForm> {
     return null;
   }
 
+  String? categoryNumberValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'رقم الصنف فارغ';
+    }
+    return null;
+  }
+
   void _onCategoryNameChanged(String? value) {
     if (value == null) return;
     context.read<CategoryFormBloc>().add(ChangeCategoryNameEvent(value));
+    _markChanged();
+  }
+
+  void _generateCategoryNumber() {
+    context.read<CategoryFormBloc>().add(const GenerateCategoryNumberEvent());
     _markChanged();
   }
 

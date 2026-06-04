@@ -1,5 +1,5 @@
 import 'package:flowcash/core/datasources/interfaces/value_counter_data_source.dart';
-import 'package:flowcash/core/entities/value_counter_entity.dart';
+import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart';
 import 'package:flowcash/core/enums/counter_type_enum.dart';
 import 'package:flowcash/core/enums/histories_group_enum.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
@@ -196,11 +196,14 @@ final class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
 
   @override
   Future<ValueCounterEntity> insert(ValueCounterEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: ValuesCounterTable.tableName,
       data: _sanitizeInsertData(toMap(entity), ValuesCounterTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert value counter');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

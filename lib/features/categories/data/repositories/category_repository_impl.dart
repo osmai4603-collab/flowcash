@@ -36,8 +36,8 @@ class CategoryRepositoryImpl implements CategoryRepository {
   @override
   Future<Either<Failure, CategoryEntity>> insert(CategoryEntity entity) async {
     try {
-      await _dataSource.insert(entity);
-      return Right(entity);
+      final insertedEntity = await _dataSource.insert(entity);
+      return Right(insertedEntity);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {
@@ -48,8 +48,8 @@ class CategoryRepositoryImpl implements CategoryRepository {
   @override
   Future<Either<Failure, CategoryEntity>> update(CategoryEntity entity) async {
     try {
-      await _dataSource.update(entity);
-      return Right(entity);
+      final updatedEntity = await _dataSource.update(entity);
+      return Right(updatedEntity);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {
@@ -60,8 +60,8 @@ class CategoryRepositoryImpl implements CategoryRepository {
   @override
   Future<Either<Failure, bool>> delete(int id) async {
     try {
-      await _dataSource.delete(id);
-      return Right(true);
+      final deleted = await _dataSource.delete(id);
+      return Right(deleted);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {

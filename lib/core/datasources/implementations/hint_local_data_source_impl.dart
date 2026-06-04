@@ -1,5 +1,5 @@
 import 'package:flowcash/core/datasources/interfaces/hint_data_source.dart';
-import 'package:flowcash/core/entities/hint_entity.dart';
+import 'package:flowcash/features/system/domain/entities/hint_entity.dart';
 import 'package:flowcash/core/enums/hint_type_enum.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/hints_table.dart';
@@ -38,11 +38,14 @@ final class HintLocalDataSourceImpl implements HintDataSource {
 
   @override
   Future<HintEntity> insert(HintEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: HintsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), HintsTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert hint');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

@@ -5,7 +5,7 @@ class GoodsCostsTable {
   static const String tableName = 'goods_costs';
 
   static const String id = 'tran_id';
-  static const String createAt = 'create_at';
+  static const String createdAt = 'create_at';
   static const String createdBy = 'created_by';
   static const String note = 'note';
   static const String offerAmount = 'amount';
@@ -19,7 +19,7 @@ class GoodsCostsTable {
 
   static const List<String> fields = [
     id,
-    createAt,
+    createdAt,
     createdBy,
     note,
     offerAmount,

@@ -35,8 +35,8 @@ class UnitRepositoryImpl implements UnitRepository {
   @override
   Future<Either<Failure, UnitEntity>> insert(UnitEntity entity) async {
     try {
-      await _dataSource.insert(entity);
-      return Right(entity);
+      final entityInserted = await _dataSource.insert(entity);
+      return Right(entityInserted);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {
@@ -47,8 +47,8 @@ class UnitRepositoryImpl implements UnitRepository {
   @override
   Future<Either<Failure, UnitEntity>> update(UnitEntity entity) async {
     try {
-      await _dataSource.update(entity);
-      return Right(entity);
+      final entityUpdated = await _dataSource.update(entity);
+      return Right(entityUpdated);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {
@@ -59,8 +59,8 @@ class UnitRepositoryImpl implements UnitRepository {
   @override
   Future<Either<Failure, bool>> delete(int id) async {
     try {
-      await _dataSource.delete(id);
-      return Right(true);
+      final result = await _dataSource.delete(id);
+      return Right(result);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {

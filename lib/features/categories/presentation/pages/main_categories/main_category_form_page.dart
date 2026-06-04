@@ -416,10 +416,10 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   onPressed: _onAddNewProperty,
                   child: Text(
                     'اضافة خصائص جديدة',
-                    style: TextStyle(
+                    style: textTheme.labelLarge?.copyWith(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: colors.surface,
+                      color: colors.onPrimary,
                     ),
                   ),
                 ),
@@ -438,7 +438,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
       padding: Paddings.mediumAll,
       decoration: BoxDecoration(
         borderRadius: Radiuses.smallAll,
-        border: Border.all(width: 0.50),
+        border: Border.all(width: 0.50, color: colors.outline.withValues(alpha: 0.80)),
       ),
       child: Column(
         spacing: Spacings.medium,

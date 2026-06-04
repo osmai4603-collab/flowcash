@@ -32,8 +32,8 @@ class BillOrderRepositoryImpl implements BillOrderRepository {
   @override
   Future<Either<Failure, BillOrderEntity>> insert(BillOrderEntity entity) async {
     try {
-      await _dataSource.insert(entity);
-      return right(entity);
+      final entityInserted = await _dataSource.insert(entity);
+      return right(entityInserted);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
     }

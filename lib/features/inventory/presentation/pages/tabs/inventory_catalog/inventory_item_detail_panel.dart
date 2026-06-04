@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flowcash/core/enums/inventory_cost_type_enum.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
@@ -49,20 +48,6 @@ class InventoryItemDetailPanel extends StatelessWidget {
     }
   }
 
-  String _getCostTypeLabel(InventoryCostType type) {
-    switch (type) {
-      case InventoryCostType.fifo:
-        return 'الوارِد أولاً صادِر أولاً (FIFO)';
-      case InventoryCostType.lifo:
-        return 'الوارِد أخيراً صادِر أولاً (LIFO)';
-      case InventoryCostType.costAVG:
-        return 'متوسط التكلفة (Average Cost)';
-      case InventoryCostType.manually:
-        return 'تسعير يدوي (Manually)';
-      default:
-        return 'الوارِد أولاً صادِر أولاً (FIFO)';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,27 +90,25 @@ class InventoryItemDetailPanel extends StatelessWidget {
                   ),
                 ],
               ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _getCategoryName(item.categoryId),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _getCategoryName(item.categoryId),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'المعرف الرقمي: #${item.id}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: theme.colorScheme.onSurface.withAlpha(150),
-                      ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'المعرف الرقمي: #${item.id}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurface.withAlpha(150),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 24),
@@ -144,12 +127,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
                 'المستودع الرئيسي:',
                 _getWarehouseName(item.storeId),
               ),
-              _buildDetailRow(
-                context,
-                Icons.price_check_outlined,
-                'طريقة حساب التكلفة:',
-                _getCostTypeLabel(item.costType),
-              ),
+              // costType removed from inventory card
               _buildDetailRow(
                 context,
                 Icons.tag_outlined,

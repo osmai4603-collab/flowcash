@@ -39,11 +39,14 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
 
   @override
   Future<SubAccountEntity> insert(SubAccountEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: SubAccountsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), SubAccountsTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert sub account');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override
@@ -72,9 +75,9 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
       mainAccountId: map[SubAccountsTable.mainAccountId] as int,
       accountName: (map[SubAccountsTable.accountName] as String?) ?? "",
       accountNumber: (map[SubAccountsTable.accountNumber] as String?) ?? "",
-      incrementsBalance: ((map[SubAccountsTable.incrementsBalance]) as num)
+      incrementsBalance: ((map[SubAccountsTable.debit]) as num)
           .toDouble(),
-      decrementsBalance: ((map[SubAccountsTable.decrementsBalance]) as num)
+      decrementsBalance: ((map[SubAccountsTable.credit]) as num)
           .toDouble(),
       currencyId: map[SubAccountsTable.currencyId],
       balanceMax: ((map[SubAccountsTable.balanceMax]) as num?)?.toDouble(),
@@ -92,8 +95,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
       SubAccountsTable.mainAccountId: entity.mainAccountId,
       SubAccountsTable.accountNumber: entity.accountNumber,
       SubAccountsTable.accountName: entity.accountName,
-      SubAccountsTable.incrementsBalance: entity.incrementsBalance,
-      SubAccountsTable.decrementsBalance: entity.decrementsBalance,
+      SubAccountsTable.debit: entity.incrementsBalance,
+      SubAccountsTable.credit: entity.decrementsBalance,
       SubAccountsTable.currencyId: entity.currencyId,
       SubAccountsTable.balanceMax: entity.balanceMax,
       SubAccountsTable.subAccountType: entity.subAccountType.name,
@@ -252,9 +255,9 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     await _db.update(
       table: SubAccountsTable.tableName,
       data: {
-        SubAccountsTable.incrementsBalance:
+        SubAccountsTable.debit:
             subAcc.incrementsBalance + incrementBalance,
-        SubAccountsTable.decrementsBalance:
+        SubAccountsTable.credit:
             subAcc.decrementsBalance + decrementBalance,
       },
       where: {SubAccountsTable.id: id},
@@ -286,10 +289,10 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     if (subAcc == null) return false;
     final data = <String, dynamic>{};
     if (isIncrement) {
-      data[SubAccountsTable.incrementsBalance] =
+      data[SubAccountsTable.debit] =
           subAcc.incrementsBalance + amount;
     } else {
-      data[SubAccountsTable.decrementsBalance] =
+      data[SubAccountsTable.credit] =
           subAcc.decrementsBalance + amount;
     }
     await _db.update(
@@ -423,8 +426,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
             ),
             mainAccountId: row[SubAccountsTable.mainAccountId],
             balance:
-                row[SubAccountsTable.incrementsBalance] -
-                row[SubAccountsTable.decrementsBalance],
+                row[SubAccountsTable.debit] -
+                row[SubAccountsTable.credit],
             currencyName: row[SubAccountsTable.currencyId],
           ),
         )
@@ -453,8 +456,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
             ),
             mainAccountId: row[SubAccountsTable.mainAccountId],
             balance:
-                row[SubAccountsTable.incrementsBalance] -
-                row[SubAccountsTable.decrementsBalance],
+                row[SubAccountsTable.debit] -
+                row[SubAccountsTable.credit],
             currencyName: row[SubAccountsTable.currencyId],
           ),
         )

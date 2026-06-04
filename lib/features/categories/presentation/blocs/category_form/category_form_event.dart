@@ -64,3 +64,10 @@ class ChangeCategoryNumberEvent extends CategoryFormEvent {
   @override
   List<Object?> get props => [categoryNumber];
 }
+
+class GenerateCategoryNumberEvent extends CategoryFormEvent {
+  const GenerateCategoryNumberEvent();
+
+  @override
+  List<Object?> get props => [];
+}

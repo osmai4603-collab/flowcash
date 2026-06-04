@@ -5,7 +5,7 @@ class InventoryTransactionsTable {
   static const String tableName = 'inventory_transactions';
 
   static const String id = 'tran_id';
-  static const String createAt = 'create_at';
+  static const String createdAt = 'create_at';
   static const String createdBy = 'created_by';
   static const String note = 'note';
   static const String warehouseId = 'store_id';
@@ -15,7 +15,7 @@ class InventoryTransactionsTable {
 
   static const List<String> fields = [
     id,
-    createAt,
+    createdAt,
     createdBy,
     note,
     warehouseId,

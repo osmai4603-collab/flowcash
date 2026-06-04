@@ -36,11 +36,14 @@ final class BillOrderLocalDataSourceImpl implements BillOrderDataSource {
 
   @override
   Future<BillOrderEntity> insert(BillOrderEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: BillOrdersTable.tableName,
       data: _sanitizeInsertData(toMap(entity), BillOrdersTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert bill order');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

@@ -9,9 +9,6 @@ class BillOrdersTable {
   static const String categoryId = 'category_id';
   static const String countUnits = 'count_units';
   static const String totalPrice = 'total_price';
-  static const String orderType = 'order_type';
-  static const String inventoryId = 'inventory_id';
-  static const String batchId = 'batch_id';
 
   static const List<String> fields = [
     id,
@@ -19,8 +16,5 @@ class BillOrdersTable {
     countUnits,
     billId,
     totalPrice,
-    orderType,
-    inventoryId,
-    batchId,
   ];
 }

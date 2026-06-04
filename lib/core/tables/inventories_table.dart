@@ -7,22 +7,22 @@ class InventoriesTable {
   static const String id = 'inventory_id';
   static const String categoryId = 'category_id';
   static const String storeId = 'store_id';
-  static const String costType = 'cost_type';
   static const String revenueAccountId = 'revenue_id';
   static const String expenseAccountId = 'expense_id';
   static const String incomeStockId = 'income_stock_id';
   static const String outcomeStockId = 'outcome_stock_id';
+  static const String unitCost = 'unit_cost';
   static const String countUnits = 'count_units';
 
   static const List<String> fields = [
     id,
     categoryId,
     storeId,
-    costType,
     revenueAccountId,
     expenseAccountId,
     incomeStockId,
     outcomeStockId,
+    unitCost,
     countUnits,
   ];
 }

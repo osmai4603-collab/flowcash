@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 // Sub Pages
 import 'tabs/inventory_catalog/inventory_catalog_page.dart';
-import 'tabs/batches/batches_page.dart';
 import 'tabs/transactions/transactions_page.dart';
 import 'tabs/warehouse_transfers/warehouse_transfers_page.dart';
 import 'tabs/opening_quantities/opening_quantities_page.dart';
@@ -43,7 +42,7 @@ class _InventoryPageState extends State<InventoryPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 8, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
     _tabNotifier = InventoryTabNotifier(_tabController);
   }
 
@@ -91,10 +90,6 @@ class _InventoryPageState extends State<InventoryPage>
                 text: 'قائمة المخزون',
               ),
               Tab(
-                icon: Icon(Icons.all_inbox_outlined),
-                text: 'الدفعات',
-              ),
-              Tab(
                 icon: Icon(Icons.swap_horiz_outlined),
                 text: 'حركات المخزون',
               ),
@@ -137,7 +132,6 @@ class _InventoryPageState extends State<InventoryPage>
             controller: _tabController,
             children: const [
               InventoryCatalogPage(),
-              BatchesPage(),
               TransactionsPage(),
               WarehouseTransfersPage(),
               OpeningQuantitiesPage(),

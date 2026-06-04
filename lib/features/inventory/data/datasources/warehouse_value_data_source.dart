@@ -1,6 +1,6 @@
 import 'package:flowcash/core/datasources/datasource.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_value_entity.dart';
-import 'package:flowcash/core/enums/warehouse_value_type.dart';
+import 'package:flowcash/core/enums/warehouse_value_type_enum.dart';
 
 abstract interface class WarehouseValueDataSource
     implements AppDataSource<int, WarehouseValueEntity, Map<String, dynamic>> {

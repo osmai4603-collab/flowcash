@@ -4,9 +4,9 @@ import 'package:flowcash/features/categories/domain/entities/subcategory_entity.
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
-import 'package:flowcash/features/categories/presentation/blocs/catalogs/catalogs_bloc.dart';
-import 'package:flowcash/features/categories/presentation/blocs/catalogs/catalogs_event.dart';
-import 'package:flowcash/features/categories/presentation/blocs/catalogs/catalogs_state.dart';
+import 'package:flowcash/features/categories/presentation/blocs/subcategories/subcategories_bloc.dart';
+import 'package:flowcash/features/categories/presentation/blocs/subcategories/subcategories_event.dart';
+import 'package:flowcash/features/categories/presentation/blocs/subcategories/subcategories_state.dart';
 import 'package:flowcash/features/categories/presentation/pages/subcategories/subcategory_form_page.dart';
 import 'package:flowcash/features/categories/presentation/pages/units/unit_form_page.dart';
 import 'package:flowcash/features/injection_container.dart';
@@ -35,11 +35,45 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
       create: (_) =>
           sl<SubcategoriesBloc>()..add(LoadSubcategoriesEvent(widget.mainCategory.id)),
       child: BlocListener<SubcategoriesBloc, SubcategoriesState>(
-        listener: (context, state) {
-          if (state.errorMessage != null) {
-            error(context: context, toast: state.errorMessage!);
+        listener: (context, state) async {
+          if (state is SubcategoriesLoadFailure) {
+            error(context: context, toast: state.message);
+            return;
           }
-          if (state.statusMessage != null) {
+
+          if (state is SubcategoriesLoadSuccess && state.generatedCategoryNames != null) {
+            final names = state.generatedCategoryNames!;
+            await showDialog<void>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: Text(names.isEmpty ? 'نتيجة التوليد' : 'الأصناف المولدة'),
+                content: SizedBox(
+                  width: 400,
+                  child: names.isEmpty
+                      ? const Text('لا يوجد اصناف تم توليدها')
+                      : SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: names.map((n) => Text('• $n')).toList(),
+                          ),
+                        ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text('حسناً'),
+                  ),
+                ],
+              ),
+            );
+            if (context.mounted) {
+              context.read<SubcategoriesBloc>().add(const ClearGeneratedCategoriesEvent());
+            }
+            return;
+          }
+
+          if (state is SubcategoriesLoadSuccess && state.statusMessage != null) {
             successToast(context: context, toast: state.statusMessage!);
           }
         },
@@ -119,15 +153,18 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             padding: const EdgeInsets.all(4),
             child: BlocBuilder<SubcategoriesBloc, SubcategoriesState>(
               builder: (context, state) {
-                if (state.status == SubcategoriesStatus.loading) {
+                if (state is SubcategoriesLoadInProgress) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                if (state.status == SubcategoriesStatus.error) {
+                if (state is SubcategoriesLoadFailure) {
                   return Center(
-                    child: Text(state.errorMessage ?? 'حدث خطأ غير معروف'),
+                    child: Text(state.message),
                   );
                 }
-                return buildSubcategories(context, state);
+                if (state is SubcategoriesLoadSuccess) {
+                  return buildSubcategories(context, state);
+                }
+                return const SizedBox.shrink();
               },
             ),
           ),
@@ -136,7 +173,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     );
   }
 
-  Widget buildSubcategories(BuildContext context, SubcategoriesState state) {
+  Widget buildSubcategories(BuildContext context, SubcategoriesLoadSuccess state) {
     final textTheme = TextTheme.of(context);
     final colors = ColorScheme.of(context);
     if (state.catalogs.isEmpty) {
@@ -203,7 +240,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     return widths;
   }
 
-  Widget listView(BuildContext context, SubcategoriesState state) {
+  Widget listView(BuildContext context, SubcategoriesLoadSuccess state) {
     final filteredSubcategories = state.searchQuery.isEmpty
         ? state.catalogs
         : state.catalogs
@@ -298,7 +335,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     BuildContext context,
     CategoryPropertyEntity property,
     SubcategoryEntity catalog,
-    SubcategoriesState state,
+    SubcategoriesLoadSuccess state,
   ) {
     final textTheme = TextTheme.of(context);
 

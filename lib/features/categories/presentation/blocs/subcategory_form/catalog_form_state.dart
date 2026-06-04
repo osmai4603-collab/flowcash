@@ -111,7 +111,7 @@ class SubcategoryUnit {
 
 class SubcategoryProperty {
   final CategoryPropertyEntity property;
-  final List<SubcategoryUnit> catalogUnits;
+  final List<SubcategoryUnit> subcatgoriesUnits;
   final List<SubcategoryUnit?> selectedUnits;
 
   int get propertyId => property.id;
@@ -119,7 +119,7 @@ class SubcategoryProperty {
 
   SubcategoryProperty({
     required this.property,
-    required this.catalogUnits,
+    required this.subcatgoriesUnits,
     required this.selectedUnits,
   });
 
@@ -129,7 +129,7 @@ class SubcategoryProperty {
   }) {
     return SubcategoryProperty(
       property: property,
-      catalogUnits: catalogUnits ?? this.catalogUnits,
+      subcatgoriesUnits: catalogUnits ?? this.subcatgoriesUnits,
       selectedUnits: selectedUnits ?? this.selectedUnits,
     );
   }

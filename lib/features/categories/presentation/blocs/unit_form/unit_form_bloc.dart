@@ -101,42 +101,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     final result = await _saveUnit(event.unit);
     await result.fold(
       (failure) async => emit(state.copyWith(status: UnitFormStatus.failure, messageError: failure.message)),
-      (ok) async {
-        if (!ok) {
-          emit(state.copyWith(status: UnitFormStatus.failure, messageError: 'فشل الحفظ'));
-          return;
-        }
-
-        final propertyId = state.property?.id ?? event.unit.propertyId ?? 0;
-        final unitsResult = await _getUnits(propertyId);
-        unitsResult.fold(
-          (failure) => emit(state.copyWith(status: UnitFormStatus.failure, messageError: failure.message)),
-          (units) {
-            final UnitEntity savedUnit;
-            if (state.property?.unitType is WeightUnitType || state.property?.unitType is LinearMeterUnitType) {
-              savedUnit = units.firstWhere(
-                (u) => u.unitName == event.unit.unitName && u.length == event.unit.length,
-                orElse: () => event.unit,
-              );
-            } else if (state.property?.unitType is ModelUnitType) {
-              savedUnit = units.firstWhere(
-                (u) => u.unitName == event.unit.unitName,
-                orElse: () => event.unit,
-              );
-            } else {
-              savedUnit = units.firstWhere(
-                (u) => u.length == event.unit.length && u.width == event.unit.width && u.thickness == event.unit.thickness,
-                orElse: () => event.unit,
-              );
-            }
-
-            emit(state.copyWith(
-              status: UnitFormStatus.saved,
-              saved: savedUnit,
-              units: units,
-            ));
-          },
-        );
+      (unit) async {
+        emit(state.copyWith(status: UnitFormStatus.saved, saved: unit));
       },
     );
   }

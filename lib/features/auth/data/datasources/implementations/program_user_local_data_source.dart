@@ -42,11 +42,14 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
 
   @override
   Future<ProgramUserEntity> insert(ProgramUserEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: ProgramUsersTable.tableName,
       data: toMap(entity),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert program user');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

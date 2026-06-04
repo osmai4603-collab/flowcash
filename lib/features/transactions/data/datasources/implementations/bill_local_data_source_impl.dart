@@ -120,7 +120,7 @@ final class BillLocalDataSourceImpl implements BillDataSource {
   BillEntity fromMap(Map<String, dynamic> map) {
     return BillEntity(
       id: map[BillsTable.id] as int,
-      createdAt: DateTime.parse(map[BillsTable.createAt]),
+      createdAt: DateTime.parse(map[BillsTable.createdAt]),
       createdBy: map[BillsTable.createdBy],
       note: map[BillsTable.note] as String?,
       offerAmount: ((map[BillsTable.offerAmount]) as num).toDouble(),
@@ -139,7 +139,7 @@ final class BillLocalDataSourceImpl implements BillDataSource {
   Map<String, dynamic> toMap(BillEntity entity) {
     return {
       if (entity.id > 0) BillsTable.id: entity.id,
-      BillsTable.createAt: entity.createdAt.toIso8601String(),
+      BillsTable.createdAt: entity.createdAt.toIso8601String(),
       BillsTable.createdBy: entity.createdBy,
       BillsTable.note: entity.note,
       BillsTable.offerAmount: entity.offerAmount,

@@ -43,7 +43,7 @@ import 'package:flowcash/features/categories/domain/usecases/category_property_u
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/main_categories/main_categories_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/main_category_form/main_category_form_bloc.dart';
-import 'package:flowcash/features/categories/presentation/blocs/catalogs/catalogs_bloc.dart';
+import 'package:flowcash/features/categories/presentation/blocs/subcategories/subcategories_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategory_form/catalog_form_bloc.dart';
 
 void initCategoriesFeature(GetIt sl) {
@@ -141,6 +141,7 @@ void initCategoriesFeature(GetIt sl) {
 
   // Subcategories use cases
   sl.registerLazySingleton(() => GetSubcategoriesByMainCategoryUseCase(sl()));
+  sl.registerLazySingleton(() => GetAllSubcategoriesUseCase(sl()));
   sl.registerLazySingleton(() => GetSubcategoryUnitsByMainCategoryUseCase(sl()));
   sl.registerLazySingleton(() => GetSubcategoryUnitsBySubcategoryIdsUseCase(sl()));
   sl.registerLazySingleton(() => GetSubcategoryByIdUseCase(sl()));

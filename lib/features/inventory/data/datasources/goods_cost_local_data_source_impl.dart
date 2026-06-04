@@ -37,11 +37,14 @@ final class GoodsCostLocalDataSourceImpl implements GoodsCostDataSource {
 
   @override
   Future<GoodsCostEntity> insert(GoodsCostEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: GoodsCostsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), GoodsCostsTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert goods cost');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override
@@ -67,7 +70,7 @@ final class GoodsCostLocalDataSourceImpl implements GoodsCostDataSource {
   GoodsCostEntity fromMap(Map<String, dynamic> map) {
     return GoodsCostEntity(
       id: map[GoodsCostsTable.id] as int,
-      createdAt: DateTime.parse(map[GoodsCostsTable.createAt] as String? ?? ""),
+      createdAt: DateTime.parse(map[GoodsCostsTable.createdAt] as String? ?? ""),
       createdBy: map[GoodsCostsTable.createdBy],
       note: map[GoodsCostsTable.note] as String?,
       offerAmount: ((map[GoodsCostsTable.offerAmount]) as num).toDouble(),
@@ -87,7 +90,7 @@ final class GoodsCostLocalDataSourceImpl implements GoodsCostDataSource {
   Map<String, dynamic> toMap(GoodsCostEntity entity) {
     return {
       if (entity.id > 0) GoodsCostsTable.id: entity.id,
-      GoodsCostsTable.createAt: entity.createdAt.toIso8601String(),
+      GoodsCostsTable.createdAt: entity.createdAt.toIso8601String(),
       GoodsCostsTable.createdBy: entity.createdBy,
       GoodsCostsTable.note: entity.note,
       GoodsCostsTable.offerAmount: entity.offerAmount,

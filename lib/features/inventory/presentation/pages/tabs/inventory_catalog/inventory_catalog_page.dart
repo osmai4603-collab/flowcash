@@ -1,3 +1,4 @@
+import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/injection_container.dart';
@@ -8,13 +9,12 @@ import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.da
 import 'package:flowcash/features/inventory/presentation/blocs/inventory_catalog/inventory_catalog_bloc.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/inventory_catalog/inventory_catalog_event.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/inventory_catalog/inventory_catalog_state.dart';
-import 'package:flowcash/core/enums/inventory_cost_type_enum.dart';
 import 'package:flowcash/features/inventory/domain/usecases/warehouse_usecases.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/sub_account_repository_usecases.dart';
+import 'package:flowcash/widgets/my_text_widget.dart';
 
 import 'inventory_item_form_dialog.dart';
-import 'inventory_item_detail_panel.dart';
 
 class InventoryCatalogPage extends StatefulWidget {
   const InventoryCatalogPage({super.key});
@@ -24,19 +24,13 @@ class InventoryCatalogPage extends StatefulWidget {
 }
 
 class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
-  // Local filter states
   String _searchQuery = "";
   int? _filterWarehouseId;
-  InventoryCostType? _filterCostType;
 
-  // Fully loaded reference lists for labels
   List<CategoryEntity> _categories = [];
   List<WarehouseEntity> _warehouses = [];
   List<SubAccountEntity> _subAccounts = [];
   bool _isLoadingMetaData = true;
-
-  // Selected item locally tracked
-  InventoryEntity? _selectedItem;
 
   @override
   void initState() {
@@ -83,15 +77,42 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
     }
   }
 
+  String _getAccountName(int? id) {
+    if (id == null) return 'غير معرف';
+    try {
+      final account = _subAccounts.firstWhere((a) => a.id == id);
+      return '${account.accountName} (${account.accountNumber})';
+    } catch (_) {
+      return 'حساب غير معروف (#$id)';
+    }
+  }
+
+  Map<int, TableColumnWidth> _getInventoryTableWidths() {
+    return {
+      0: const FixedColumnWidth(45),
+      1: const FlexColumnWidth(0.22), // الصنف
+      2: const FlexColumnWidth(0.16), // المستودع
+      4: const FixedColumnWidth(70), // الوحدات
+      5: const FlexColumnWidth(0.18), // حساب الإيرادات
+      6: const FlexColumnWidth(0.18), // حساب المصروفات
+      7: const FlexColumnWidth(0.18), // حساب مخزون الوارد
+      8: const FlexColumnWidth(0.18), // حساب مخزون الصادر
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final textTheme = Theme.of(context).textTheme;
+    final colors = Theme.of(context).colorScheme;
 
     return BlocProvider<InventoryCatalogBloc>(
-      create: (context) => sl<InventoryCatalogBloc>()..add(const LoadInventoryCatalogEvent()),
+      create: (context) =>
+          sl<InventoryCatalogBloc>()..add(const LoadInventoryCatalogEvent()),
       child: BlocConsumer<InventoryCatalogBloc, InventoryCatalogState>(
         listener: (context, state) {
-          if (state.status == CatalogStatus.error && state.errorMessage != null) {
+          if (state.status == CatalogStatus.error &&
+              state.errorMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage!),
@@ -101,286 +122,310 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
           }
         },
         builder: (context, state) {
-          final bloc = context.read<InventoryCatalogBloc>();
-
           if (state.status == CatalogStatus.loading || _isLoadingMetaData) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // Apply client-side search & filtering
           final filteredItems = state.items.where((item) {
-            final categoryName = _getCategoryName(item.categoryId).toLowerCase();
-            final matchesSearch = categoryName.contains(_searchQuery.toLowerCase());
-            final matchesWarehouse = _filterWarehouseId == null || item.storeId == _filterWarehouseId;
-            final matchesCostType = _filterCostType == null || item.costType == _filterCostType;
-            return matchesSearch && matchesWarehouse && matchesCostType;
+            final categoryName = _getCategoryName(
+              item.categoryId,
+            ).toLowerCase();
+            final matchesSearch = categoryName.contains(
+              _searchQuery.toLowerCase(),
+            );
+            final matchesWarehouse =
+                _filterWarehouseId == null ||
+                item.storeId == _filterWarehouseId;
+            return matchesSearch && matchesWarehouse;
           }).toList();
 
-          // Sync local selection if deleted/updated
-          if (_selectedItem != null) {
-            final exists = state.items.any((i) => i.id == _selectedItem!.id);
-            if (!exists) {
-              _selectedItem = null;
-            } else {
-              _selectedItem = state.items.firstWhere((i) => i.id == _selectedItem!.id);
-            }
-          }
-
-          // Desktop master-detail layout
-          return Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
+          return Scaffold(
+            body: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // MASTER PANEL (Left Side)
-                Expanded(
-                  flex: 3,
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Actions header: Search & Filters & Add Button
-                          Row(
-                            children: [
-                              // Search input
-                              Expanded(
-                                flex: 2,
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    hintText: 'البحث عن صنف مخزون... 🔍',
-                                    prefixIcon: const Icon(Icons.search),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                                  ),
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _searchQuery = val;
-                                    });
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              
-                              // Warehouse Filter
-                              Expanded(
-                                child: DropdownButtonFormField<int?>(
-                                  isExpanded: true,
-                                  decoration: InputDecoration(
-                                    hintText: 'كل المخازن 🏢',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                                  ),
-                                  value: _filterWarehouseId,
-                                  items: [
-                                    const DropdownMenuItem<int?>(
-                                      value: null,
-                                      child: Text('كل المخازن 🏢'),
-                                    ),
-                                    ..._warehouses.map((w) {
-                                      return DropdownMenuItem<int?>(
-                                        value: w.id,
-                                        child: Text(w.warehouseName),
-                                      );
-                                    }),
-                                  ],
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _filterWarehouseId = val;
-                                    });
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-
-                              // Add item button
-                              ElevatedButton.icon(
-                                onPressed: () async {
-                                  final result = await showDialog<InventoryEntity>(
-                                    context: context,
-                                    builder: (context) => const InventoryItemFormDialog(),
-                                  );
-                                  if (result != null) {
-                                    bloc.add(AddInventoryItemEvent(result));
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                icon: const Icon(Icons.add),
-                                label: const Text('إضافة صنف', style: TextStyle(fontWeight: FontWeight.bold)),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-
-                          // Header Row / Table Header
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.primaryContainer.withAlpha(50),
-                              borderRadius: BorderRadius.circular(8),
+                Padding(
+                  padding: Paddings.smallAll,
+                  child: SizedBox(
+                    height: 40,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'البحث عن صنف مخزون...',
+                              prefixIcon: const Icon(Icons.search),
                             ),
-                            child: const Row(
-                              children: [
-                                Expanded(flex: 2, child: Text('اسم الصنف 📦', style: TextStyle(fontWeight: FontWeight.bold))),
-                                Expanded(child: Text('المستودع الرئيسي 🏢', style: TextStyle(fontWeight: FontWeight.bold))),
-                                Expanded(child: Text('طريقة التسعير 💰', style: TextStyle(fontWeight: FontWeight.bold))),
-                                Expanded(child: Text('الوحدات 🔢', style: TextStyle(fontWeight: FontWeight.bold))),
+                            onChanged: (value) {
+                              setState(() {
+                                _searchQuery = value;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                                hintText: 'كل المخازن',
+                              ),
+                            child: DropdownButton<int?>(
+                              isExpanded: true,
+                              underline: const SizedBox(),
+                              value: _filterWarehouseId,
+                              items: [
+                                const DropdownMenuItem<int?>(
+                                  value: null,
+                                  child: Text('كل المخازن'),
+                                ),
+                                ..._warehouses.map(
+                                  (warehouse) => DropdownMenuItem<int?>(
+                                    value: warehouse.id,
+                                    child: Text(warehouse.warehouseName),
+                                  ),
+                                ),
                               ],
+                              onChanged: (value) {
+                                setState(() {
+                                  _filterWarehouseId = value;
+                                });
+                              },
                             ),
                           ),
-                          const SizedBox(height: 8),
-
-                          // Items List
-                          Expanded(
-                            child: filteredItems.isEmpty
-                                ? const Center(
-                                    child: Text(
-                                      'لا توجد أصناف تطابق معايير البحث ⚠️',
-                                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                                    ),
-                                  )
-                                : ListView.builder(
-                                    itemCount: filteredItems.length,
-                                    itemBuilder: (context, index) {
-                                      final item = filteredItems[index];
-                                      final isSelected = _selectedItem?.id == item.id;
-
-                                      return Card(
-                                        color: isSelected
-                                            ? theme.colorScheme.primary.withAlpha(20)
-                                            : null,
-                                        elevation: isSelected ? 2 : 0,
-                                        margin: const EdgeInsets.symmetric(vertical: 4),
-                                        shape: RoundedRectangleBorder(
-                                          side: BorderSide(
-                                            color: isSelected
-                                                ? theme.colorScheme.primary
-                                                : Colors.transparent,
-                                          ),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: InkWell(
-                                          borderRadius: BorderRadius.circular(8),
-                                          onTap: () {
-                                            setState(() {
-                                              _selectedItem = isSelected ? null : item;
-                                            });
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text(
-                                                    _getCategoryName(item.categoryId),
-                                                    style: const TextStyle(fontWeight: FontWeight.bold),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: Text(_getWarehouseName(item.storeId)),
-                                                ),
-                                                Expanded(
-                                                  child: Text(item.costType.name),
-                                                ),
-                                                Expanded(
-                                                  child: Text(item.countUnits.toString()),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
+                        ),
+                        const SizedBox(width: 12),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            final result = await showDialog<InventoryEntity>(
+                              context: context,
+                              builder: (context) =>
+                                  const InventoryItemFormDialog(),
+                            );
+                            if (result != null && context.mounted) {
+                              context.read<InventoryCatalogBloc>().add(
+                                AddInventoryItemEvent(result),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                        ],
-                      ),
+                          icon: const Icon(Icons.add),
+                          label: const Text(
+                            'إضافة مخزون جديد',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                
-                // DETAIL PANEL (Right Side - 40% Width)
-                const SizedBox(width: 20),
                 Expanded(
-                  flex: 2,
-                  child: _selectedItem == null
-                      ? Card(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          child: const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                  child: Padding(
+                    padding: Paddings.smallAll,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Table(
+                          border: TableBorder.all(
+                            width: 0.50,
+                            color: colors.outline,
+                          ),
+                          defaultVerticalAlignment:
+                              TableCellVerticalAlignment.middle,
+                          columnWidths: _getInventoryTableWidths(),
+                          children: [
+                            TableRow(
+                              decoration: BoxDecoration(
+                                color: colors.primaryContainer.withAlpha(
+                                  50,
+                                ),
+                              ),
                               children: [
-                                Icon(Icons.info_outline, size: 48, color: Colors.grey),
-                                SizedBox(height: 16),
-                                Text(
-                                  'الرجاء اختيار صنف من القائمة اليسرى لعرض كامل التفاصيل والحسابات المرتبطة.',
+                                TextWidget(
+                                  text: 'No',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.grey),
+                                  padding: const EdgeInsets.all(8),
+                                  style: textTheme.bodySmall,
+                                ),
+                                TextWidget(
+                                  text: 'الصنف',
+                                  textAlign: TextAlign.center,
+                                  padding: const EdgeInsets.all(8),
+                                  style: textTheme.bodySmall,
+                                ),
+                                TextWidget(
+                                  text: 'المستودع الرئيسي',
+                                  textAlign: TextAlign.center,
+                                  padding: const EdgeInsets.all(8),
+                                  style: textTheme.bodySmall,
+                                ),
+                                TextWidget(
+                                  text: 'الكمية',
+                                  textAlign: TextAlign.center,
+                                  padding: const EdgeInsets.all(8),
+                                  style: textTheme.bodySmall,
+                                ),
+                                TextWidget(
+                                  text: 'حساب الإيرادات',
+                                  textAlign: TextAlign.center,
+                                  padding: const EdgeInsets.all(8),
+                                  style: textTheme.bodySmall,
+                                ),
+                                TextWidget(
+                                  text: 'حساب المصروفات',
+                                  textAlign: TextAlign.center,
+                                  padding: const EdgeInsets.all(8),
+                                  style: textTheme.bodySmall,
+                                ),
+                                TextWidget(
+                                  text: 'حساب مخزون الوارد',
+                                  textAlign: TextAlign.center,
+                                  padding: const EdgeInsets.all(8),
+                                  style: textTheme.bodySmall,
+                                ),
+                                TextWidget(
+                                  text: 'حساب مخزون الصادر',
+                                  textAlign: TextAlign.center,
+                                  padding: const EdgeInsets.all(8),
+                                  style: textTheme.bodySmall,
                                 ),
                               ],
                             ),
-                          ),
-                        )
-                      : InventoryItemDetailPanel(
-                          item: _selectedItem!,
-                          categories: _categories,
-                          warehouses: _warehouses,
-                          subAccounts: _subAccounts,
-                          onEdit: () async {
-                            final result = await showDialog<InventoryEntity>(
-                              context: context,
-                              builder: (context) => InventoryItemFormDialog(item: _selectedItem),
-                            );
-                            if (result != null) {
-                              bloc.add(UpdateInventoryItemEvent(result));
-                            }
-                          },
-                          onDelete: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('تأكيد الحذف ⚠️'),
-                                content: const Text('هل أنت متأكد من رغبتك في حذف بطاقة صنف المخزون هذه؟'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('إلغاء'),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      bloc.add(DeleteInventoryItemEvent(_selectedItem!.id));
-                                      Navigator.pop(context);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: theme.colorScheme.error,
-                                      foregroundColor: theme.colorScheme.onError,
-                                    ),
-                                    child: const Text('حذف الصنف'),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                          ],
                         ),
+                        Expanded(
+                          child: filteredItems.isEmpty
+                              ? _buildEmptyInventory(textTheme)
+                              : _buildTable(
+                                  filteredItems,
+                                  colors,
+                                  textTheme,
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
           );
         },
       ),
+    );
+  }
+
+  Center _buildEmptyInventory(TextTheme textTheme) {
+    return Center(
+      child: Text(
+        'لا توجد أصناف تطابق معايير البحث ⚠️',
+        style: textTheme.bodyLarge?.copyWith(color: Colors.grey),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  ListView _buildTable(
+    List<InventoryEntity> filteredItems,
+    ColorScheme colors,
+    TextTheme textTheme,
+  ) {
+    return ListView.builder(
+      itemCount: filteredItems.length,
+      itemBuilder: (context, index) {
+        final item = filteredItems[index];
+        return InkWell(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => InventoryItemFormDialog(item: item),
+            );
+          },
+          child: Table(
+            border: TableBorder.all(width: 0.50, color: colors.outline),
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            columnWidths: _getInventoryTableWidths(),
+            children: [
+              TableRow(
+                decoration: BoxDecoration(
+                  color: index.isEven
+                      ? colors.primaryContainer.withAlpha(15)
+                      : null,
+                ),
+                children: [
+                  TextWidget(
+                    text: '${index + 1}',
+                    textAlign: TextAlign.center,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 6,
+                    ),
+                    style: textTheme.bodySmall,
+                  ),
+                  TextWidget(
+                    text: _getCategoryName(item.categoryId),
+                    padding: const EdgeInsets.all(8),
+                    style: textTheme.bodySmall,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  TextWidget(
+                    text: _getWarehouseName(item.storeId),
+                    textAlign: TextAlign.center,
+                    padding: const EdgeInsets.all(8),
+                    style: textTheme.bodySmall,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  TextWidget(
+                    text: item.countUnits.toString(),
+                    textAlign: TextAlign.center,
+                    padding: const EdgeInsets.all(8),
+                    style: textTheme.bodySmall,
+                  ),
+                  TextWidget(
+                    text: _getAccountName(item.revenueAccountId),
+                    textAlign: TextAlign.end,
+                    textDirection: TextDirection.rtl,
+                    padding: const EdgeInsets.all(8),
+                    style: textTheme.bodySmall,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  TextWidget(
+                    text: _getAccountName(item.expenseAccountId),
+                    textAlign: TextAlign.end,
+                    textDirection: TextDirection.rtl,
+                    padding: const EdgeInsets.all(8),
+                    style: textTheme.bodySmall,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  TextWidget(
+                    text: _getAccountName(item.incomeStockId),
+                    textAlign: TextAlign.end,
+                    textDirection: TextDirection.rtl,
+                    padding: const EdgeInsets.all(8),
+                    style: textTheme.bodySmall,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  TextWidget(
+                    text: _getAccountName(item.outcomeStockId),
+                    textAlign: TextAlign.end,
+                    textDirection: TextDirection.rtl,
+                    padding: const EdgeInsets.all(8),
+                    style: textTheme.bodySmall,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

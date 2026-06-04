@@ -42,14 +42,15 @@ final class InventoryTransactionOrderLocalDataSourceImpl
 
   @override
   Future<InventoryTransactionOrderEntity> insert(InventoryTransactionOrderEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: InventoryTransactionsOrdersTable.tableName,
-      data: _sanitizeInsertData(
+      data: 
         toMap(entity),
-        InventoryTransactionsOrdersTable.id,
-      ),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert value');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override
@@ -75,8 +76,8 @@ final class InventoryTransactionOrderLocalDataSourceImpl
   InventoryTransactionOrderEntity fromMap(Map<String, dynamic> map) {
     return InventoryTransactionOrderEntity(
       id: map[InventoryTransactionsOrdersTable.id] as int,
-      inventoryBatchId:
-          map[InventoryTransactionsOrdersTable.inventoryBatchId] as int?,
+        inventoryId:
+          map[InventoryTransactionsOrdersTable.inventoryId] as int?,
       countUnits: ((map[InventoryTransactionsOrdersTable.countUnits]) as num)
           .toDouble(),
       tranId: map[InventoryTransactionsOrdersTable.tranId] as int,
@@ -92,8 +93,8 @@ final class InventoryTransactionOrderLocalDataSourceImpl
   Map<String, dynamic> toMap(InventoryTransactionOrderEntity entity) {
     return {
       if (entity.id > 0) InventoryTransactionsOrdersTable.id: entity.id,
-      InventoryTransactionsOrdersTable.inventoryBatchId:
-          entity.inventoryBatchId,
+      InventoryTransactionsOrdersTable.inventoryId:
+          entity.inventoryId,
       InventoryTransactionsOrdersTable.countUnits: entity.countUnits,
       InventoryTransactionsOrdersTable.tranId: entity.tranId,
       InventoryTransactionsOrdersTable.transactionType:

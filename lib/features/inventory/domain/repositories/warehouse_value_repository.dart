@@ -1,4 +1,4 @@
-import 'package:flowcash/core/enums/warehouse_value_type.dart';
+import 'package:flowcash/core/enums/warehouse_value_type_enum.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_value_entity.dart';

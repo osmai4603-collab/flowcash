@@ -15,7 +15,7 @@ final class SqliteDatabaseManager {
 
   static Database? _database;
   static String? _databasePath;
-  static const int _version = SqliteSchemaManager.latestVersion;
+  static const int _version = SqliteSchemaManager.currentVersion;
   static const String _dbName = 'cashing.db';
 
   Future<Database> get database async {
@@ -39,17 +39,22 @@ final class SqliteDatabaseManager {
     final currentVersion = db.userVersion;
 
     if (currentVersion == 0) {
-      // Fresh DB: create full schema and insert defaults
+      // Fresh DB: create the initial schema for version 1,
+      // then apply migrations sequentially to the current version.
       SqliteSchemaManager.createAll(db);
+      db.userVersion = 1;
+      if (_version > 1) {
+        SqliteSchemaManager.migrate(db, 1, _version);
+      }
       DefaultDataInserter.insertDefaults(db);
       db.userVersion = _version;
     } else if (currentVersion < _version) {
-      // Incremental migrations
+      // Incremental migrations from the existing schema to the current version.
       SqliteSchemaManager.migrate(db, currentVersion, _version);
       db.userVersion = _version;
       DefaultDataInserter.insertDefaults(db);
     } else {
-      // Existing DB with current schema version: ensure required default rows exist.
+      // Existing DB at current schema version: ensure required default rows exist.
       DefaultDataInserter.insertDefaults(db);
     }
 
@@ -79,7 +84,7 @@ final class SqliteService {
     final query = 'INSERT INTO $table ($columns) VALUES ($placeholders)';
     debugPrint('INSERT INTO $table ($columns) VALUES ("${data.values.join('", "')}")');
     final stmt = db.prepare(
-      query,
+      query
     );
     stmt.execute(data.values.toList());
     final lastInsertId = db.lastInsertRowId;
@@ -132,10 +137,11 @@ final class SqliteService {
     final whereClause = where.keys.map((k) => '$k = ?').join(' AND ');
     final sql = 'UPDATE $table SET $setClause WHERE $whereClause';
     final stmt = db.prepare(sql);
-    debugPrint(sql);
+    debugPrint('${sql}with args: ${data.values.join()}');
     stmt.execute([...data.values, ...where.values]);
     stmt.dispose();
   }
+
 
   /// Delete rows matching [where] conditions.
   Future<void> deleteWhere({

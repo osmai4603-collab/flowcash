@@ -79,14 +79,11 @@ class GetUnitsForPropertyUseCase {
 class SaveUnitSelectionUseCase {
   final UnitRepository _repository;
   const SaveUnitSelectionUseCase(this._repository);
-  Future<Either<Failure, bool>> call(UnitEntity unit) async {
-    if (unit.id == 0) {
-      final res = await _repository.insert(unit);
-      return res.map((_) => true);
-    } else {
-      final res = await _repository.update(unit);
-      return res.map((_) => true);
-    }
+  Future<Either<Failure, UnitEntity>> call(UnitEntity unit) {
+    if(unit.id == 0) {
+      return _repository.insert(unit);
+    } 
+    return _repository.update(unit);
   }
 }
 

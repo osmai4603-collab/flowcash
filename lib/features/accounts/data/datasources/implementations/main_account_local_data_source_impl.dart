@@ -38,11 +38,14 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
 
   @override
   Future<MainAccountEntity> insert(MainAccountEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: MainAccountsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), MainAccountsTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert main account');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

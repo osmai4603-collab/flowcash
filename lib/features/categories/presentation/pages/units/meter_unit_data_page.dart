@@ -286,9 +286,14 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
   ) {
     final colors = ColorScheme.of(context);
     return TextFormField(
-      textInputAction: isDoneAction
-          ? TextInputAction.done
-          : TextInputAction.next,
+      textInputAction: isDoneAction ? TextInputAction.done : TextInputAction.next,
+      onFieldSubmitted: (value) {
+        if (isDoneAction) {
+          _onSaveButtonClicked();
+        } else {
+          FocusScope.of(context).nextFocus();
+        }
+      },
       controller: controller,
       onChanged: (_) => _markChanged(),
       autofocus: autoFocus,

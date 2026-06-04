@@ -50,11 +50,14 @@ final class FinancialBondLocalDataSourceImpl
 
   @override
   Future<FinancialBondEntity> insert(FinancialBondEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: FinancialBondsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), FinancialBondsTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert financial bond');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

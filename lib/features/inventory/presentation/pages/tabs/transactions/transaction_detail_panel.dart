@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
-import 'package:flowcash/features/inventory/domain/entities/inventory_batch_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
@@ -10,7 +9,6 @@ import 'package:flowcash/features/categories/domain/entities/category_entity.dar
 class TransactionDetailPanel extends StatelessWidget {
   final InventoryTransactionEntity transaction;
   final List<InventoryTransactionOrderEntity> orders;
-  final List<InventoryBatchEntity> batches;
   final List<WarehouseEntity> warehouses;
   final List<InventoryEntity> inventoryItems;
   final List<CategoryEntity> categories;
@@ -21,7 +19,6 @@ class TransactionDetailPanel extends StatelessWidget {
     super.key,
     required this.transaction,
     required this.orders,
-    required this.batches,
     required this.warehouses,
     required this.inventoryItems,
     required this.categories,
@@ -37,15 +34,14 @@ class TransactionDetailPanel extends StatelessWidget {
     }
   }
 
-  String _getBatchLabel(int? batchId) {
-    if (batchId == null) return 'بند بدون دفعة';
+  String _getInventoryLabel(int? inventoryId) {
+    if (inventoryId == null) return 'بند بدون صنف';
     try {
-      final b = batches.firstWhere((batch) => batch.id == batchId);
-      final item = inventoryItems.firstWhere((i) => i.id == b.inventoryId);
+      final item = inventoryItems.firstWhere((i) => i.id == inventoryId);
       final catName = categories.firstWhere((c) => c.id == item.categoryId).categoryName;
-      return '$catName (دفعة: ${b.batchNumber})';
+      return '$catName (${item.inventoryName})';
     } catch (_) {
-      return 'دفعة #$batchId';
+      return 'صنف #$inventoryId';
     }
   }
 
@@ -186,7 +182,7 @@ class TransactionDetailPanel extends StatelessWidget {
                             color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
                             child: ListTile(
                               title: Text(
-                                _getBatchLabel(o.inventoryBatchId),
+                                _getInventoryLabel(o.inventoryId),
                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                               ),
                               trailing: Text(

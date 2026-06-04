@@ -13,16 +13,19 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
   final UpdateCategoryUseCase _updateCategory;
   final GetUnitsUseCase _getUnitsUseCase;
   final CheckCategoryHasRequestsUseCase _checkHasRequestsUseCase;
+  final GetNewCategoryNumberUseCase _getNewCategoryNumberUseCase;
 
   CategoryFormBloc({
     required AddCategoryUseCase addCategory,
     required UpdateCategoryUseCase updateCategory,
     required GetUnitsUseCase getUnitsUseCase,
     required CheckCategoryHasRequestsUseCase checkHasRequestsUseCase,
+    required GetNewCategoryNumberUseCase getNewCategoryNumberUseCase,
   }) : _addCategory = addCategory,
        _updateCategory = updateCategory,
        _getUnitsUseCase = getUnitsUseCase,
        _checkHasRequestsUseCase = checkHasRequestsUseCase,
+       _getNewCategoryNumberUseCase = getNewCategoryNumberUseCase,
        super(const CategoryFormState()) {
     on<InitCategoryForm>(_onInit);
     on<SaveCategoryEvent>(_onSave);
@@ -39,6 +42,7 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
         ),
       ),
     );
+    on<GenerateCategoryNumberEvent>(_onGenerateCategoryNumber);
   }
 
   FutureOr<void> _onChangeCattegoryName(
@@ -108,11 +112,28 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
           }
         }
 
+        var categoryNumber = event.category?.categoryNumber ?? '';
+        if (categoryNumber.isEmpty) {
+          final counterResult = await _getNewCategoryNumberUseCase();
+          counterResult.fold(
+            (failure) => emit(
+              state.copyWith(
+                status: CategoryFormStatus.failure,
+                messageError: failure.message,
+              ),
+            ),
+            (generatedNumber) => categoryNumber = generatedNumber,
+          );
+          if (counterResult.isLeft()) {
+            return;
+          }
+        }
+
         emit(
           state.copyWith(
             id: event.category?.id,
             categoryName: event.category?.categoryName ?? '',
-            categoryNumber: event.category?.categoryNumber ?? '',
+            categoryNumber: categoryNumber,
             barcode: event.category?.barcode,
             status: CategoryFormStatus.ready,
             initialCategory: event.category,
@@ -125,6 +146,23 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
         );
         debugPrint('\nInit State: $state');
       },
+    );
+  }
+
+  Future<void> _onGenerateCategoryNumber(
+    GenerateCategoryNumberEvent event,
+    Emitter<CategoryFormState> emit,
+  ) async {
+    final result = await _getNewCategoryNumberUseCase();
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: CategoryFormStatus.failure,
+          messageError: failure.message,
+        ),
+      ),
+      (generatedNumber) =>
+          emit(state.copyWithCategoryNumber(categoryNumber: generatedNumber)),
     );
   }
 

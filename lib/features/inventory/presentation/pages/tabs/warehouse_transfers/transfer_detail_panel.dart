@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
-import 'package:flowcash/features/inventory/domain/entities/inventory_batch_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
@@ -10,7 +9,6 @@ class TransferDetailPanel extends StatelessWidget {
   final InventoryTransactionEntity transaction;
   final List<InventoryTransactionEntity> allTransactions;
   final List<InventoryTransactionOrderEntity> orders;
-  final List<InventoryBatchEntity> batches;
   final List<WarehouseEntity> warehouses;
   final List<InventoryEntity> inventoryItems;
   final List<CategoryEntity> categories;
@@ -21,7 +19,6 @@ class TransferDetailPanel extends StatelessWidget {
     required this.transaction,
     required this.allTransactions,
     required this.orders,
-    required this.batches,
     required this.warehouses,
     required this.inventoryItems,
     required this.categories,
@@ -36,15 +33,14 @@ class TransferDetailPanel extends StatelessWidget {
     }
   }
 
-  String _getBatchLabel(int? batchId) {
-    if (batchId == null) return 'بند بدون دفعة';
+  String _getInventoryLabel(int? inventoryId) {
+    if (inventoryId == null) return 'بند بدون صنف';
     try {
-      final b = batches.firstWhere((batch) => batch.id == batchId);
-      final item = inventoryItems.firstWhere((i) => i.id == b.inventoryId);
+      final item = inventoryItems.firstWhere((i) => i.id == inventoryId);
       final catName = categories.firstWhere((c) => c.id == item.categoryId).categoryName;
-      return '$catName (دفعة: ${b.batchNumber})';
+      return '$catName (${item.inventoryName})';
     } catch (_) {
-      return 'دفعة #$batchId';
+      return 'صنف #$inventoryId';
     }
   }
 
@@ -210,7 +206,7 @@ class TransferDetailPanel extends StatelessWidget {
                             color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
                             child: ListTile(
                               title: Text(
-                                _getBatchLabel(o.inventoryBatchId),
+                                _getInventoryLabel(o.inventoryId),
                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                               ),
                               trailing: Text(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
-import 'package:flowcash/features/inventory/domain/entities/inventory_batch_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
@@ -8,12 +7,10 @@ import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/combo_box_form.dart';
 
 class TransactionOrderForm extends StatefulWidget {
-  final List<InventoryBatchEntity> batches;
   final List<InventoryEntity> inventoryItems;
 
   const TransactionOrderForm({
     super.key,
-    required this.batches,
     required this.inventoryItems,
   });
 
@@ -24,8 +21,8 @@ class TransactionOrderForm extends StatefulWidget {
 class _TransactionOrderFormState extends State<TransactionOrderForm> {
   final _formKey = GlobalKey<FormState>();
   
-  final _batchController = TextEditingController();
-  int? _selectedBatchId;
+  final _itemController = TextEditingController();
+  int? _selectedInventoryId;
   final _quantityController = TextEditingController();
 
   List<CategoryEntity> _categories = [];
@@ -48,32 +45,31 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
     }
   }
 
-  String _getBatchLabel(InventoryBatchEntity b) {
+  String _getInventoryLabel(InventoryEntity i) {
     try {
-      final item = widget.inventoryItems.firstWhere((i) => i.id == b.inventoryId);
-      final catName = _categories.firstWhere((c) => c.id == item.categoryId).categoryName;
-      return '$catName (دفعة: ${b.batchNumber} - متاح: ${b.countUnits})';
+      final catName = _categories.firstWhere((c) => c.id == i.categoryId).categoryName;
+      return '$catName (صنف: ${i.inventoryName})';
     } catch (_) {
-      return 'دفعة: ${b.batchNumber}';
+      return '${i.inventoryName}';
     }
   }
 
   @override
   void dispose() {
-    _batchController.dispose();
+    _itemController.dispose();
     _quantityController.dispose();
     super.dispose();
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedBatchId == null) return;
+    if (_selectedInventoryId == null) return;
 
     final quantity = double.tryParse(_quantityController.text) ?? 1.0;
 
     final order = InventoryTransactionOrderEntity(
       id: 0,
-      inventoryBatchId: _selectedBatchId,
+      inventoryId: _selectedInventoryId,
       countUnits: quantity,
     );
 
@@ -100,36 +96,36 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Select Batch
-                  ComboBoxForm<InventoryBatchEntity>(
-                    controller: _batchController,
+                  // Select Inventory Item
+                  ComboBoxForm<InventoryEntity>(
+                    controller: _itemController,
                     decoration: const InputDecoration(
-                      labelText: 'اختر دفعة الصنف',
-                      prefixIcon: Icon(Icons.tag_outlined),
+                      labelText: 'اختر الصنف',
+                      prefixIcon: Icon(Icons.inventory_2_outlined),
                     ),
-                    labelMenu: (batch) => _getBatchLabel(batch),
-                    labelString: (batch) => _getBatchLabel(batch),
+                    labelMenu: (item) => _getInventoryLabel(item),
+                    labelString: (item) => _getInventoryLabel(item),
                     itemsBuilder: (value) {
                       final search = value.trim().toLowerCase();
-                      return widget.batches.where((batch) {
-                        return _getBatchLabel(batch).toLowerCase().contains(search);
+                      return widget.inventoryItems.where((item) {
+                        return _getInventoryLabel(item).toLowerCase().contains(search);
                       }).toList();
                     },
-                    onSelectedItem: (batch) {
+                    onSelectedItem: (item) {
                       setState(() {
-                        _selectedBatchId = batch.id;
+                        _selectedInventoryId = item.id;
                       });
                     },
                     onChanged: (value) {
-                      if (_selectedBatchId != null &&
-                          _batchController.text !=
-                              _getBatchLabel(widget.batches.firstWhere((batch) => batch.id == _selectedBatchId!))) {
+                      if (_selectedInventoryId != null &&
+                          _itemController.text !=
+                              _getInventoryLabel(widget.inventoryItems.firstWhere((it) => it.id == _selectedInventoryId!))) {
                         setState(() {
-                          _selectedBatchId = null;
+                          _selectedInventoryId = null;
                         });
                       }
                     },
-                    validator: (_) => _selectedBatchId == null ? 'الرجاء اختيار الدفعة' : null,
+                    validator: (_) => _selectedInventoryId == null ? 'الرجاء اختيار الصنف' : null,
                   ),
                   const SizedBox(height: 16),
 

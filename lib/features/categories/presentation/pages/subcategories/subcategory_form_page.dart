@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flowcash/core/theme/paddings.dart';
+import 'package:flowcash/core/theme/radiuses.dart';
 import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
@@ -57,7 +58,6 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = ColorScheme.of(context);
     final textTheme = TextTheme.of(context);
     return Dialog(
       constraints: const BoxConstraints(maxWidth: 500),
@@ -103,15 +103,12 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                       Row(
                         children: [
                           IconButton(
-                            icon: Icon(
-                              Icons.arrow_back_outlined,
-                              color: colors.primary,
-                            ),
+                            icon: Icon(Icons.arrow_back_outlined),
                             tooltip: 'رجوع',
                             onPressed: () => Navigator.pop(context),
                           ),
-                          const TextWidget(
-                            text: 'بيانات نوع',
+                         TextWidget(
+                            text: 'بيانات نوع ${state.mainCategory?.name ?? ''}',
                             padding: EdgeInsets.only(right: 10),
                             expanded: true,
                             textAlign: TextAlign.center,
@@ -131,9 +128,6 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                         onChanged: (value) => _catalogFormBloc.add(
                           SubcategoryNameChangedEvent(value),
                         ),
-                        textAlignVertical: isDesktop
-                            ? TextAlignVertical.center
-                            : TextAlignVertical.bottom,
                         style: textTheme.labelMedium,
                         autofocus: true,
                         cursorHeight: 20.0,
@@ -154,9 +148,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      if (state.catalogProperties
-                          .where((p) => p.property.isSingle)
-                          .isNotEmpty)
+                      if (state.catalogProperties.isNotEmpty)
                         ListView(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -204,7 +196,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
               hintText: 'حدد نوع ${property.property.propertyName}',
               prefixIcon: const Icon(Icons.category_outlined),
             ),
-            items: property.catalogUnits.map((catalogUnit) {
+            items: property.subcatgoriesUnits.map((catalogUnit) {
               return DropdownMenuItem<UnitEntity>(
                 value: catalogUnit.unit,
                 child: Text(catalogUnit.unitName()),
@@ -233,6 +225,16 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
         ),
         if (!property.property.unitType.isPiece)
           IconButton(
+            style: IconButton.styleFrom(
+              backgroundColor: colors.surfaceContainerLow,
+              shape: RoundedRectangleBorder(
+                borderRadius: Radiuses.xsmallAll,
+                side: BorderSide(
+                  color: colors.outline.withValues(alpha: 0.5),
+                  width: 1.5,
+                ),
+              ),
+            ),
             icon: Icon(Icons.add, color: colors.onSurface),
             tooltip: 'إضافة ${property.property.propertyName} جديد',
             onPressed: () => _onAddNewSubcategoryUnit(property),
@@ -243,6 +245,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
 
   Widget buildPropertyStruct(SubcategoryProperty property) {
     final colors = ColorScheme.of(context);
+    final textTheme = TextTheme.of(context);
     return FormField<List<SubcategoryUnit?>>(
       key: ValueKey(
         '${property.property.id}_${property.selectedUnits.hashCode}',
@@ -265,7 +268,9 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: formState.hasError ? colors.error : Colors.black26,
+                    color: formState.hasError
+                        ? colors.error
+                        : colors.outline.withValues(alpha: 0.5),
                     width: formState.hasError ? 1.5 : 1.0,
                   ),
                   borderRadius: BorderRadius.circular(10),
@@ -318,12 +323,12 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                       runSpacing: 10,
                       textDirection: TextDirection.rtl,
                       alignment: WrapAlignment.center,
-                      children: selectedList.map((catalogInfo) {
+                      children: selectedList.map((subcategoryUnit) {
                         return SizedBox(
                           width: 120,
                           child: PopupMenuButton<UnitEntity>(
-                            tooltip: catalogInfo?.unit.unitName,
-                            itemBuilder: (context) => property.catalogUnits
+                            tooltip: subcategoryUnit?.unit.unitName,
+                            itemBuilder: (context) => property.subcatgoriesUnits
                                 .map(
                                   (u) => PopupMenuItem<UnitEntity>(
                                     padding: const EdgeInsets.all(1),
@@ -338,12 +343,12 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                 )
                                 .toList(),
                             onSelected: (selected) {
-                              final idx = selectedList.indexOf(catalogInfo);
+                              final idx = selectedList.indexOf(subcategoryUnit);
                               final updated = List<SubcategoryUnit?>.from(
                                 selectedList,
                               );
                               final updatedInfo = SubcategoryUnit(
-                                id: catalogInfo?.id ?? 0,
+                                id: subcategoryUnit?.id ?? 0,
                                 property: property.property,
                                 unit: selected,
                               );
@@ -359,19 +364,20 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                 ),
                               );
                             },
-                            initialValue: catalogInfo?.unit,
+                            initialValue: subcategoryUnit?.unit,
                             child: Stack(
                               alignment: Alignment.centerLeft,
                               children: [
                                 TextWidget(
-                                  text: catalogInfo?.unit.unitName ?? '',
+                                  style: textTheme.bodyMedium,
+                                  text: subcategoryUnit?.unit.unitName ?? '',
                                   alignment: Alignment.center,
                                   padding: const EdgeInsets.all(5),
-                                  backColor: colors.secondary,
+                                  backColor: colors.surfaceContainerLow,
                                 ),
-                                Positioned(
+                                PositionedDirectional(
                                   top: isDesktop ? -10 : -15,
-                                  left: isDesktop ? -10 : -15,
+                                  end: isDesktop ? -10 : -15,
                                   child: IconButton(
                                     splashRadius: 10,
                                     tooltip: 'ازالة',
@@ -382,7 +388,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                     ),
                                     onPressed: () {
                                       final idx = selectedList.indexOf(
-                                        catalogInfo,
+                                        subcategoryUnit,
                                       );
                                       final updated =
                                           List<SubcategoryUnit?>.from(
@@ -411,7 +417,10 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                     const SizedBox(height: 20),
                     TextButton(
                       style: TextButton.styleFrom(
-                        backgroundColor: ColorScheme.of(context).primary,
+                        backgroundColor: colors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: Radiuses.smallAll,
+                        ),
                         padding: EdgeInsets.symmetric(
                           vertical: isDesktop ? 12 : 5,
                           horizontal: isDesktop ? 20 : 10,
@@ -422,7 +431,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                             .whereType<SubcategoryUnit>()
                             .map((u) => u.unit.id)
                             .toSet();
-                        final availableUnits = property.catalogUnits
+                        final availableUnits = property.subcatgoriesUnits
                             .where((u) => !selectedUnitIds.contains(u.unit.id))
                             .toList();
 
@@ -512,7 +521,10 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
     }
 
     _catalogFormBloc.add(
-      SaveSubcategoryEvent(catalog: catalog, unitsPerProperty: unitsPerProperty),
+      SaveSubcategoryEvent(
+        catalog: catalog,
+        unitsPerProperty: unitsPerProperty,
+      ),
     );
   }
 

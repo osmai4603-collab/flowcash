@@ -1,3 +1,4 @@
+import 'package:flowcash/features/settings/domain/usecases/counters/set_counter.dart';
 import 'package:get_it/get_it.dart';
 
 // Data sources
@@ -49,6 +50,7 @@ void initSettingsFeature(GetIt sl) {
   sl.registerLazySingleton(() => GetCompanyInfo(sl()));
   sl.registerLazySingleton(() => GetCounter(sl()));
   sl.registerLazySingleton(() => IncrementCounter(sl()));
+  sl.registerLazySingleton(() => SetCounter(sl()));
 
   // Blocs
   sl.registerFactory(

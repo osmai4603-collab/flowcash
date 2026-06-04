@@ -37,11 +37,14 @@ final class CategoryAttributeLocalDataSourceImpl
 
   @override
   Future<CategoryAttributeEntity> insert(CategoryAttributeEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: CategoriesAttributesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), CategoriesAttributesTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert category attribute');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override

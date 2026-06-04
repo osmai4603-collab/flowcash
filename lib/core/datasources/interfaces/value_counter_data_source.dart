@@ -1,5 +1,5 @@
 import 'package:flowcash/core/datasources/datasource.dart';
-import 'package:flowcash/core/entities/value_counter_entity.dart';
+import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart';
 import 'package:flowcash/core/enums/counter_type_enum.dart';
 import 'package:flowcash/core/enums/histories_group_enum.dart';
 

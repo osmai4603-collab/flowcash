@@ -1,4 +1,4 @@
-import 'package:flowcash/core/entities/accounting_period_entity.dart';
+import 'package:flowcash/features/system/domain/entities/accounting_period_entity.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/core/repositories/repository.dart';
 import 'package:fpdart/fpdart.dart';

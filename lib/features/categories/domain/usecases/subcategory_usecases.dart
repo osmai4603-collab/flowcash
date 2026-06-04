@@ -16,6 +16,16 @@ class GetSubcategoriesByMainCategoryUseCase {
   }
 }
 
+class GetAllSubcategoriesUseCase {
+  final SubcategoryRepository _repository;
+
+  const GetAllSubcategoriesUseCase(this._repository);
+
+  Future<Either<Failure, List<SubcategoryEntity>>> call() async {
+    return await _repository.get();
+  }
+}
+
 class GetSubcategoryByIdUseCase {
   final SubcategoryRepository _repository;
 

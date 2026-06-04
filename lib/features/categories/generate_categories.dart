@@ -15,6 +15,9 @@ import 'domain/usecases/main_category_usecases.dart';
 import 'domain/usecases/unit_usecases.dart';
 import 'domain/usecases/subcategory_usecases.dart';
 import 'domain/usecases/category_attribute_usecases.dart';
+import 'package:flowcash/features/injection_container.dart';
+import 'presentation/blocs/categories/categories_bloc.dart';
+import 'presentation/blocs/categories/categories_event.dart';
 
 class CategoriesUsecases {
   final GetMainCategoryByIdUseCase getMainCategoryById;
@@ -196,8 +199,17 @@ class GenerateCategories {
     for (var attribute in category.attributes) {
       await usecases.addCategoryAttribute(attribute);
     }
+    try {
+      // Inject category to CategoriesBloc so UI can update in real time
+      sl<CategoriesBloc>().add(InjectCategoryEvent(category));
+    } catch (e) {
+      debugPrint('Failed to inject category to CategoriesBloc: $e');
+    }
     return category;
   }
+
+    // After category is fully created (with attributes), inject it into CategoriesBloc
+    // so UI can listen and update in real time.
 
   Future<UnitEntity> _getCurrentUnitOfCategory() async {
     // Find the indexer marked as category unit

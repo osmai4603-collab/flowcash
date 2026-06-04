@@ -38,11 +38,14 @@ final class OpeningQuantityLocalDataSourceImpl
 
   @override
   Future<OpeningQuantityEntity> insert(OpeningQuantityEntity entity) async {
-    await _db.insert(
+    final entityId = await _db.insert(
       table: OpeningQuantitiesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), OpeningQuantitiesTable.id),
     );
-    return entity;
+    if(entityId < 0) {
+      throw Exception('Failed to insert opening quantity');
+    }
+    return entity.copyWith(id: entityId);
   }
 
   @override
@@ -72,7 +75,7 @@ final class OpeningQuantityLocalDataSourceImpl
       countUnits: ((map[OpeningQuantitiesTable.countUnits]) as num).toDouble(),
       warehouseId: map[OpeningQuantitiesTable.warehouseId] as int,
       createdAt: DateTime.parse(
-        map[OpeningQuantitiesTable.createAt] as String? ?? "",
+        map[OpeningQuantitiesTable.createdAt] as String? ?? "",
       ),
       costTotal: ((map[OpeningQuantitiesTable.costTotal]) as num).toDouble(),
       periodId: map[OpeningQuantitiesTable.periodId] as int,
@@ -86,7 +89,7 @@ final class OpeningQuantityLocalDataSourceImpl
       OpeningQuantitiesTable.categoryId: entity.categoryId,
       OpeningQuantitiesTable.countUnits: entity.countUnits,
       OpeningQuantitiesTable.warehouseId: entity.warehouseId,
-      OpeningQuantitiesTable.createAt: entity.createdAt.toIso8601String(),
+      OpeningQuantitiesTable.createdAt: entity.createdAt.toIso8601String(),
       OpeningQuantitiesTable.costTotal: entity.costTotal,
       OpeningQuantitiesTable.periodId: entity.periodId,
     };

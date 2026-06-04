@@ -17,7 +17,26 @@ class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
       whereArgs: [type.name],
     );
     if (rows.isEmpty) {
-      throw Exception('Counter not found for ${type.name}');
+      final initialCount = type == ValueCounterType.categoryNumber ? 1001 : 1;
+      final increment = 1;
+      final formatValue = '0000';
+      await _db.insert(
+        table: ValuesCounterTable.tableName,
+        data: {
+          ValuesCounterTable.counterType: type.name,
+          ValuesCounterTable.count: initialCount,
+          ValuesCounterTable.counterMax: 99999,
+          ValuesCounterTable.incrementValue: increment,
+          ValuesCounterTable.formatValue: formatValue,
+        },
+      );
+      final insertedRows = await _db.query(
+        table: ValuesCounterTable.tableName,
+        where: '${ValuesCounterTable.counterType} = ?',
+        whereArgs: [type.name],
+        limit: 1,
+      );
+      return ValueCounterModel.fromMap(insertedRows.first);
     }
     return ValueCounterModel.fromMap(rows.first);
   }
@@ -31,7 +50,7 @@ class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
     );
 
     if (rows.isEmpty) {
-      final initialCount = 1;
+      final initialCount = type == ValueCounterType.categoryNumber ? 1001 : 1;
       final increment = 1;
       final formatValue = '0000';
       await _db.insert(
@@ -48,21 +67,58 @@ class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
     }
 
     final row = rows.first;
-    final currentCount = row[ValuesCounterTable.count] ?? 0;
-    final increment = row[ValuesCounterTable.incrementValue] ??1;
-    final maxValue = row[ValuesCounterTable.counterMax] ??99999;
+    final currentCount = row[ValuesCounterTable.count] as int? ?? 0;
+    final increment = row[ValuesCounterTable.incrementValue] as int? ?? 1;
+    final maxValue = row[ValuesCounterTable.counterMax] as int? ?? 99999;
+    final initialCount = type == ValueCounterType.categoryNumber ? 1001 : 1;
     var nextCount = currentCount + increment;
     if (nextCount > maxValue) {
-      nextCount = 1;
+      nextCount = initialCount;
     }
 
     await _db.update(
       table: ValuesCounterTable.tableName,
-      data: {
-        ValuesCounterTable.count: nextCount,
-      },
+      data: {ValuesCounterTable.count: nextCount},
       where: {ValuesCounterTable.id: row[ValuesCounterTable.id]},
     );
     return currentCount;
+  }
+
+  @override
+  Future<ValueCounterModel> setCounter(ValueCounterModel counter) async {
+    final rows = await _db.query(
+      table: ValuesCounterTable.tableName,
+      where: '${ValuesCounterTable.counterType} = ?',
+      whereArgs: [counter.counterType.name],
+    );
+
+    if (rows.isEmpty) {
+      await _db.insert(
+        table: ValuesCounterTable.tableName,
+        data: counter.toMap(),
+      );
+      final insertedRows = await _db.query(
+        table: ValuesCounterTable.tableName,
+        where: '${ValuesCounterTable.counterType} = ?',
+        whereArgs: [counter.counterType.name],
+        limit: 1,
+      );
+      return ValueCounterModel.fromMap(insertedRows.first);
+    }
+
+    final row = rows.first;
+    await _db.update(
+      table: ValuesCounterTable.tableName,
+      data: counter.toMap(),
+      where: {ValuesCounterTable.id: row[ValuesCounterTable.id]},
+    );
+
+    final updatedRows = await _db.query(
+      table: ValuesCounterTable.tableName,
+      where: '${ValuesCounterTable.counterType} = ?',
+      whereArgs: [counter.counterType.name],
+      limit: 1,
+    );
+    return ValueCounterModel.fromMap(updatedRows.first);
   }
 }

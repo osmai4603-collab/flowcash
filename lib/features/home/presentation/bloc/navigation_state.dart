@@ -5,22 +5,22 @@ sealed class HomeSection extends AppEnum {
   const HomeSection();
 
   static const dashboard = DashboardHomeSection._();
-  static const periods = PeriodsHomeSection._();
-  static const currencies = CurrenciesHomeSection._();
+  static const system = SystemHomeSection._();
   static const databaseAdmin = DatabaseAdminHomeSection._();
   static const accounts = AccountsHomeSection._();
   static const inventory = InventoryHomeSection._();
   static const categories = CategoriesHomeSection._();
+  static const transactions = TransactionsHomeSection._();
   static const settings = SettingsHomeSection._();
 
   static const List<HomeSection> values = [
     dashboard,
-    periods,
-    currencies,
+    system,
     databaseAdmin,
     accounts,
     inventory,
     categories,
+    transactions,
     settings,
   ];
 
@@ -45,30 +45,17 @@ final class DashboardHomeSection extends HomeSection {
   String displayName() => 'لوحة المعلومات';
 }
 
-final class PeriodsHomeSection extends HomeSection {
-  const PeriodsHomeSection._();
+final class SystemHomeSection extends HomeSection {
+  const SystemHomeSection._();
 
   @override
-  String get name => 'periods';
+  String get name => 'system';
 
   @override
   int get index => 1;
 
   @override
-  String displayName() => 'الفترات المحاسبية';
-}
-
-final class CurrenciesHomeSection extends HomeSection {
-  const CurrenciesHomeSection._();
-
-  @override
-  String get name => 'currencies';
-
-  @override
-  int get index => 2;
-
-  @override
-  String displayName() => 'العملات وأسعار الصرف';
+  String displayName() => 'النظام';
 }
 
 final class DatabaseAdminHomeSection extends HomeSection {
@@ -78,7 +65,7 @@ final class DatabaseAdminHomeSection extends HomeSection {
   String get name => 'databaseAdmin';
 
   @override
-  int get index => 3;
+  int get index => 2;
 
   @override
   String displayName() => 'إدارة قاعدة البيانات';
@@ -91,7 +78,7 @@ final class AccountsHomeSection extends HomeSection {
   String get name => 'accounts';
 
   @override
-  int get index => 4;
+  int get index => 3;
 
   @override
   String displayName() => 'إدارة الحسابات';
@@ -104,7 +91,7 @@ final class InventoryHomeSection extends HomeSection {
   String get name => 'inventory';
 
   @override
-  int get index => 5;
+  int get index => 4;
 
   @override
   String displayName() => 'إدارة المخزون';
@@ -119,10 +106,23 @@ final class CategoriesHomeSection extends HomeSection {
   String get name => 'categories';
 
   @override
-  int get index => 6;
+  int get index => 5;
 
   @override
   String displayName() => 'إدارة الفئات';
+}
+
+final class TransactionsHomeSection extends HomeSection {
+  const TransactionsHomeSection._();
+
+  @override
+  String get name => 'transactions';
+
+  @override
+  int get index => 6;
+
+  @override
+  String displayName() => 'المعاملات المالية';
 }
 
 class SettingsHomeSection extends HomeSection {

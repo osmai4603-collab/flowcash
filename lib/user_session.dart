@@ -1,4 +1,4 @@
-import 'package:flowcash/core/entities/accounting_period_entity.dart';
+import 'package:flowcash/features/system/domain/entities/accounting_period_entity.dart';
 import 'package:flowcash/core/enums/accounting_inventory_type_enum.dart';
 import 'package:flowcash/core/usecases/accounting_period_repository_usecases.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';

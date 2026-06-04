@@ -1,5 +1,6 @@
 import 'package:flowcash/core/datasources/datasource.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
+import 'package:flowcash/features/inventory/domain/entities/inventory_category_entity.dart';
 
 abstract interface class InventoryDataSource
     implements AppDataSource<int, InventoryEntity, Map<String, dynamic>> {
@@ -17,4 +18,11 @@ abstract interface class InventoryDataSource
     required int categoryId,
     required int warehouseId,
   });
+
+  // Returns joined inventory + category records as `InventoryCategoryEntity`.
+  Future<List<InventoryCategoryEntity>> getInventoryCategories({
+    int? warehouseId,
+  });
+
+  Future<InventoryCategoryEntity?> getInventoryCategoryByInventoryId(int id);
 }

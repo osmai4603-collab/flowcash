@@ -122,7 +122,7 @@ class SubcategoryFormBloc extends Bloc<SubcategoryFormEvent, SubcategoryFormStat
           .toList();
       return SubcategoryProperty(
         property: property,
-        catalogUnits: catalogUnits,
+        subcatgoriesUnits: catalogUnits,
         selectedUnits: catalogUnits.where((unit) => unit.id > 0).toList(),
       );
     }).toList();
@@ -204,7 +204,7 @@ class SubcategoryFormBloc extends Bloc<SubcategoryFormEvent, SubcategoryFormStat
       (property) => property.propertyId == event.catalogProperty.propertyId,
     );
     catalogProperty = catalogProperty.copyWith(
-      catalogUnits: List.of(catalogProperty.catalogUnits)
+      catalogUnits: List.of(catalogProperty.subcatgoriesUnits)
         ..add(event.catalogUnit),
       selectedUnits:
           catalogProperty.isSingle
@@ -246,7 +246,7 @@ class SubcategoryFormBloc extends Bloc<SubcategoryFormEvent, SubcategoryFormStat
         .whereType<SubcategoryUnit>()
         .map((unit) => unit.unit.id)
         .toSet();
-    final availableUnits = catalogProperty.catalogUnits
+    final availableUnits = catalogProperty.subcatgoriesUnits
         .where((unit) => !selectedUnitIds.contains(unit.unit.id))
         .toList();
 

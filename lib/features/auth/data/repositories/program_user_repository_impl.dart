@@ -34,8 +34,8 @@ class ProgramUserRepositoryImpl implements ProgramUserRepository {
   @override
   Future<Either<Failure, ProgramUserEntity>> insert(ProgramUserEntity entity) async {
     try {
-      await _dataSource.insert(entity);
-      return right(entity);
+      final entityInserted = await _dataSource.insert(entity);
+      return right(entityInserted);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
     }
@@ -44,8 +44,8 @@ class ProgramUserRepositoryImpl implements ProgramUserRepository {
   @override
   Future<Either<Failure, ProgramUserEntity>> update(ProgramUserEntity entity) async {
     try {
-      await _dataSource.update(entity);
-      return right(entity);
+      final entityUpdated = await _dataSource.update(entity);
+      return right(entityUpdated);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
     }
@@ -54,8 +54,8 @@ class ProgramUserRepositoryImpl implements ProgramUserRepository {
   @override
   Future<Either<Failure, bool>> delete(int id) async {
     try {
-      await _dataSource.delete(id);
-      return right(true);
+      final result = await _dataSource.delete(id);
+      return right(result);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
     }

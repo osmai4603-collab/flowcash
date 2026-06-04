@@ -1,8 +1,10 @@
 import 'package:flowcash/features/inventory/data/datasources/warehouse_data_source.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
-import 'package:flowcash/core/tables/warehouses_table.dart';
 import 'package:flowcash/core/enums/warehouse_type_enum.dart';
+import 'package:flowcash/core/enums/warehouse_value_type_enum.dart';
+import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/tables/warehouse_values_table.dart';
+import 'package:flowcash/core/tables/warehouses_table.dart';
 
 final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
   final SqliteService _db;
@@ -37,11 +39,32 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
 
   @override
   Future<WarehouseEntity> insert(WarehouseEntity entity) async {
-    await _db.insert(
-      table: WarehousesTable.tableName,
-      data: _sanitizeInsertData(toMap(entity), WarehousesTable.id),
-    );
-    return entity;
+    return await _db.transaction(() async {
+      final entityId = await _db.insert(
+        table: WarehousesTable.tableName,
+        data: _sanitizeInsertData(toMap(entity), WarehousesTable.id),
+      );
+      if (entityId < 0) {
+        throw Exception('Failed to insert warehouse');
+      }
+
+      final values = WarehouseValueType.values
+          .map(
+            (valueType) => {
+              WarehouseValuesTable.warehouseId: entityId,
+              WarehouseValuesTable.valueType: valueType.name,
+              WarehouseValuesTable.value: null,
+            },
+          )
+          .toList();
+
+      await _db.insertAll(
+        table: WarehouseValuesTable.tableName,
+        dataList: values,
+      );
+
+      return entity.copyWith(id: entityId);
+    });
   }
 
   @override
@@ -56,10 +79,17 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
 
   @override
   Future<bool> delete(int id) async {
-    await _db.deleteWhere(
-      table: WarehousesTable.tableName,
-      where: {WarehousesTable.id: id},
-    );
+    await _db.transaction(() async {
+      await _db.deleteWhere(
+        table: WarehouseValuesTable.tableName,
+        where: {WarehouseValuesTable.warehouseId: id},
+      );
+
+      await _db.deleteWhere(
+        table: WarehousesTable.tableName,
+        where: {WarehousesTable.id: id},
+      );
+    });
     return true;
   }
 

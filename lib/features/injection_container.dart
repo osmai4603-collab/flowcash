@@ -6,6 +6,7 @@ import 'package:flowcash/features/categories/categories_injection.dart';
 import 'package:flowcash/features/transactions/transactions_injection.dart';
 import 'package:flowcash/features/settings/settings_injection.dart';
 import 'package:flowcash/features/inventory/inventory_injection.dart';
+import 'package:flowcash/features/system/system_injection.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -164,5 +165,6 @@ Future<void> initDependencies() async {
   //============================================================
   // Features - Inventory
   //============================================================
+  initSystemFeature(sl);
   initInventoryFeature(sl);
 }

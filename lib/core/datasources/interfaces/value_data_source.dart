@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flowcash/core/datasources/datasource.dart';
-import 'package:flowcash/core/entities/value_entity.dart';
+import 'package:flowcash/features/system/domain/entities/value_entity.dart';
 import 'package:flowcash/core/enums/value_type_enum.dart';
 
 abstract interface class ValueDataSource implements AppDataSource<int, ValueEntity, Map<String, dynamic>> {
@@ -21,7 +21,6 @@ abstract interface class ValueDataSource implements AppDataSource<int, ValueEnti
   Future<String> fetchCompanyDescription3English();
   Future<int> fetchDatabaseVersion();
   Future<Uint8List> fetchCompanyLogo();
-  Future<AccountingPatternType> fetchAccountingType();
   Future<Map<ValueType, ValueEntity>> fetchAsMap();
   Future<bool> updateValue({required String value, required int rowId});
 }

@@ -1,6 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
-import 'package:flowcash/core/entities/hint_entity.dart';
+import 'package:flowcash/features/system/domain/entities/hint_entity.dart';
 import 'package:flowcash/core/enums/histories_group_enum.dart';
 import 'package:flowcash/core/repositories/interfaces/hint_repository.dart';
 

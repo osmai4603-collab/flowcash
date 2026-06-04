@@ -5,6 +5,10 @@ import 'package:flowcash/core/tables/exchange_prices_table.dart';
 import 'package:flowcash/core/tables/program_users_table.dart';
 import 'package:flowcash/core/tables/units_table.dart';
 import 'package:flowcash/core/tables/warehouses_table.dart';
+import 'package:flowcash/core/tables/values_counter_table.dart';
+import 'package:flowcash/core/tables/values_table.dart';
+import 'package:flowcash/core/enums/value_type_enum.dart';
+import 'package:flowcash/core/enums/value_counter_type_enum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -18,6 +22,43 @@ final class DefaultDataInserter {
     _insertUnits(db);
     _insertExchangePrices(db);
     _insertAccountingPeriod(db);
+    _insertValuesCounterDefaults(db);
+    _insertDefaultValues(db);
+  }
+
+  static void _insertDefaultValues(Database db) {
+    try {
+      final rs = db.select('SELECT COUNT(*) AS cnt FROM ${ValuesTable.tableName}');
+      final cnt = rs.isNotEmpty ? (rs.first['cnt'] as int) : 0;
+      if (cnt == 0) {
+        for (final vt in ValueType.values) {
+          final v = vt.defaultValue.replaceAll("'", "''");
+          final sql = "INSERT INTO ${ValuesTable.tableName} (${ValuesTable.value}, ${ValuesTable.valueType}) VALUES ('$v', '${vt.name}')";
+          debugPrint(sql);
+          db.execute(sql);
+        }
+      }
+    } catch (e) {
+      debugPrint('insert default values failed: $e');
+    }
+  }
+
+  static void _insertValuesCounterDefaults(Database db) {
+    try {
+      final rs = db.select(
+        'SELECT COUNT(*) AS cnt FROM ${ValuesCounterTable.tableName} WHERE ${ValuesCounterTable.counterType} = ?',
+        [ValueCounterType.categoryNumber.name],
+      );
+      final cnt = rs.isNotEmpty ? (rs.first['cnt'] as int) : 0;
+      if (cnt == 0) {
+        final sql =
+            "INSERT INTO ${ValuesCounterTable.tableName} (${ValuesCounterTable.counterType}, ${ValuesCounterTable.count}, ${ValuesCounterTable.counterMax}, ${ValuesCounterTable.incrementValue}, ${ValuesCounterTable.formatValue}) VALUES ('${ValueCounterType.categoryNumber.name}', 1001, 99999, 1, '0000')";
+        debugPrint(sql);
+        db.execute(sql);
+      }
+    } catch (e) {
+      debugPrint('insert default category number counter failed: $e');
+    }
   }
 
   static void _insertProgramUsers(Database db) {
@@ -47,17 +88,17 @@ final class DefaultDataInserter {
         final field =
             "${CurrenciesTable.id}, ${CurrenciesTable.currencyName}, ${CurrenciesTable.symbol}, ${CurrenciesTable.fullSymbol}, ${CurrenciesTable.country}, ${CurrenciesTable.selected}";
         final sql =
-            "INSERT INTO ${CurrenciesTable.tableName} ($field) VALUES (1, 'يمني', 'ر.ي', 'ريال يمني', 'اليمن', 1)";
+            "INSERT INTO ${CurrenciesTable.tableName} ($field) VALUES ('YER', 'يمني', 'ر.ي', 'ريال يمني', 'اليمن', 1)";
         debugPrint('Executing query: $sql');
         db.execute(sql);
 
         final sql2 =
-            "INSERT INTO ${CurrenciesTable.tableName} ($field) VALUES (2, 'سعودي', 'ر.س', 'ريال سعودي', 'السعودية', 0)";
+            "INSERT INTO ${CurrenciesTable.tableName} ($field) VALUES ('SAR', 'سعودي', 'ر.س', 'ريال سعودي', 'السعودية', 0)";
         debugPrint(sql2);
         db.execute(sql2);
 
         final sql3 =
-            "INSERT INTO ${CurrenciesTable.tableName} ($field) VALUES (3, 'دولار', '\$', 'دولار امريكي', 'الولايات المتحدة الامريكية', 0)";
+            "INSERT INTO ${CurrenciesTable.tableName} ($field) VALUES ('USD', 'دولار', '\$', 'دولار امريكي', 'الولايات المتحدة الامريكية', 0)";
         debugPrint(sql3);
         db.execute(sql3);
       }
@@ -75,7 +116,8 @@ final class DefaultDataInserter {
       if (cntw == 0) {
         final warehouseName = 'المركز الرئيسي';
         final location = 'صنعاء الحصبة شارع الفاهرة';
-        final sql = "INSERT INTO ${WarehousesTable.tableName} (${WarehousesTable.id}, ${WarehousesTable.warehouseName}, ${WarehousesTable.location}, ${WarehousesTable.warehouseType}, ${WarehousesTable.parentId}) VALUES (1, '$warehouseName', '$location', '${WarehouseType.branch}', NULL)";
+        final sql =
+            "INSERT INTO ${WarehousesTable.tableName} (${WarehousesTable.id}, ${WarehousesTable.warehouseName}, ${WarehousesTable.location}, ${WarehousesTable.warehouseType}, ${WarehousesTable.parentId}) VALUES (1, '$warehouseName', '$location', '${WarehouseType.branch}', NULL)";
         debugPrint(sql);
         db.execute(sql);
       }
@@ -129,7 +171,8 @@ final class DefaultDataInserter {
           for (final toRow in currencies) {
             final fromId = fromRow['id'];
             final toId = toRow['id'];
-            final sql = "INSERT INTO ${ExchangePricesTable.tableName} (${ExchangePricesTable.fromCurrencyId}, ${ExchangePricesTable.toCurrencyId}, ${ExchangePricesTable.exchangePrice}) VALUES ($fromId, $toId, 1.0)";
+            final sql =
+                "INSERT INTO ${ExchangePricesTable.tableName} (${ExchangePricesTable.fromCurrencyId}, ${ExchangePricesTable.toCurrencyId}, ${ExchangePricesTable.exchangePrice}) VALUES ($fromId, $toId, 1.0)";
             debugPrint(sql);
             db.execute(sql);
           }
@@ -148,12 +191,12 @@ final class DefaultDataInserter {
       final cntp = rsp.isNotEmpty ? (rsp.first['cnt'] as int) : 0;
       if (cntp == 0) {
         final startDate = DateTime.now().toIso8601String();
-        final sql = "INSERT INTO ${AccountingPeriodsTable.tableName} "
+        final sql =
+            "INSERT INTO ${AccountingPeriodsTable.tableName} "
             "(${AccountingPeriodsTable.balance}, ${AccountingPeriodsTable.currencyId}, ${AccountingPeriodsTable.lastPeriodId}, ${AccountingPeriodsTable.periodName}, ${AccountingPeriodsTable.dateOfStartPeriod}, ${AccountingPeriodsTable.dateOfEndPeriod}, ${AccountingPeriodsTable.inventoryType}) "
-            "VALUES (0.0, 1, NULL, '2026', '$startDate', NULL, NULL)";
+            "VALUES (0.0, 'YER', NULL, '2026', '$startDate', NULL, NULL)";
         debugPrint(sql);
         db.execute(sql);
-        
       }
     } catch (e) {
       debugPrint('insert default accounting period failed: $e');

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
-import 'package:flowcash/features/inventory/domain/entities/inventory_batch_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
@@ -11,13 +10,11 @@ import 'package:flowcash/features/injection_container.dart';
 import '../transactions/transaction_order_form.dart';
 
 class TransferFormDialog extends StatefulWidget {
-  final List<InventoryBatchEntity> batches;
   final List<WarehouseEntity> warehouses;
   final List<InventoryEntity> inventoryItems;
 
   const TransferFormDialog({
     super.key,
-    required this.batches,
     required this.warehouses,
     required this.inventoryItems,
   });
@@ -59,15 +56,14 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
     }
   }
 
-  String _getBatchLabel(int? batchId) {
-    if (batchId == null) return 'بند بدون دفعة';
+  String _getInventoryLabel(int? inventoryId) {
+    if (inventoryId == null) return 'بند بدون صنف';
     try {
-      final b = widget.batches.firstWhere((batch) => batch.id == batchId);
-      final item = widget.inventoryItems.firstWhere((i) => i.id == b.inventoryId);
+      final item = widget.inventoryItems.firstWhere((i) => i.id == inventoryId);
       final catName = _categories.firstWhere((c) => c.id == item.categoryId).categoryName;
-      return '$catName (دفعة: ${b.batchNumber})';
+      return '$catName (${item.inventoryName})';
     } catch (_) {
-      return 'دفعة #$batchId';
+      return 'صنف #$inventoryId';
     }
   }
 
@@ -279,10 +275,9 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                           onPressed: () async {
                             final result = await showDialog<InventoryTransactionOrderEntity>(
                               context: context,
-                              builder: (context) => TransactionOrderForm(
-                                batches: widget.batches,
-                                inventoryItems: widget.inventoryItems,
-                              ),
+                                builder: (context) => TransactionOrderForm(
+                                  inventoryItems: widget.inventoryItems,
+                                ),
                             );
                             if (result != null) {
                               setState(() {
@@ -325,7 +320,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                                     color: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
                                     child: ListTile(
                                       title: Text(
-                                        _getBatchLabel(order.inventoryBatchId),
+                                        _getInventoryLabel(order.inventoryId),
                                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                       ),
                                       trailing: Row(

@@ -197,8 +197,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
     final textTheme = TextTheme.of(context);
     return BlocListener<CategoriesBloc, CategoriesState>(
       listener: (context, state) {
-        if (state.status == CategoriesStatus.failure) {
-          error(context: context, toast: state.message ?? 'حدث خطأ');
+        if (state is CategoriesLoadFailure) {
+          error(context: context, toast: state.message);
         }
       },
       child: Scaffold(
@@ -216,7 +216,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     colors.secondary.withValues(alpha: 0.25),
                   ),
                   controller: searchBarController,
-                  leading: const Icon(Icons.search_outlined, color: Colors.white70),
+                  leading: const Icon(
+                    Icons.search_outlined,
+                    color: Colors.white70,
+                  ),
                   hintText: 'ابحث عن صنف هنا',
                   textStyle: isDesktop
                       ? WidgetStatePropertyAll(
@@ -242,8 +245,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   children: [
                     BlocBuilder<CategoriesBloc, CategoriesState>(
                       builder: (context, state) {
-                        final categories =
-                            state.status == CategoriesStatus.success
+                        final categories = state is CategoriesLoadSuccess
                             ? state.categories
                             : <CategoryEntity>[];
                         final filtered = searchBarController.text.isEmpty
@@ -298,14 +300,22 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     IconButton(
                       tooltip: 'اضافة صنف جديد',
                       color: colors.onPrimary,
-                      icon: const Icon(Icons.add, size: 26, color: Colors.white),
+                      icon: const Icon(
+                        Icons.add,
+                        size: 26,
+                        color: Colors.white,
+                      ),
                       onPressed: _onAddNewCategoryPressed,
                     ),
                     const SizedBox(width: 10),
                     IconButton(
                       tooltip: 'طباعة بيانات الأصناف',
                       color: colors.onPrimary,
-                      icon: Icon(Icons.print, size: 26, color: colors.onPrimary),
+                      icon: Icon(
+                        Icons.print,
+                        size: 26,
+                        color: colors.onPrimary,
+                      ),
                       onPressed: () async {},
                     ),
                   ],
@@ -321,10 +331,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
             padding: const EdgeInsets.all(2),
             child: BlocBuilder<CategoriesBloc, CategoriesState>(
               builder: (context, state) {
-                if (state.status == CategoriesStatus.loading) {
+                if (state is CategoriesLoadInProgress) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                if (state.status == CategoriesStatus.success) {
+                if (state is CategoriesLoadSuccess) {
                   return listView(state.categories);
                 }
                 return const Center(child: Text('لا يوجد اصناف موجودة'));
@@ -354,6 +364,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
       context: context(),
       builder: (_) => const CategoryFormPage(),
     );
+    print('Category Inserted: $category');
     if (category != null && context().mounted) {
       context().read<CategoriesBloc>().add(InjectCategoryEvent(category));
       showSnackBar(context(), 'تمت إضافة الصنف بنجاح');

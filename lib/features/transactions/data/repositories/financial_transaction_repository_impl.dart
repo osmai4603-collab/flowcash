@@ -37,8 +37,8 @@ class FinancialTransactionRepositoryImpl implements FinancialTransactionReposito
   Future<Either<Failure, FinancialTransactionEntity>> insert(
       FinancialTransactionEntity entity) async {
     try {
-      await _dataSource.insert(entity);
-      return right(entity);
+      final entityInserted = await _dataSource.insert(entity);
+      return right(entityInserted);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
     }
@@ -48,8 +48,8 @@ class FinancialTransactionRepositoryImpl implements FinancialTransactionReposito
   Future<Either<Failure, FinancialTransactionEntity>> update(
       FinancialTransactionEntity entity) async {
     try {
-      await _dataSource.update(entity);
-      return right(entity);
+      final entityUpdated = await _dataSource.update(entity);
+      return right(entityUpdated);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
     }
@@ -58,8 +58,8 @@ class FinancialTransactionRepositoryImpl implements FinancialTransactionReposito
   @override
   Future<Either<Failure, bool>> delete(int id) async {
     try {
-      await _dataSource.delete(id);
-      return right(true);
+      final deleted = await _dataSource.delete(id);
+      return right(deleted);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
     }
