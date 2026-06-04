@@ -1,39 +1,35 @@
-name: Build Windows
+Name: Flutter Windows CI
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [ main, master ] # سيبدأ البناء تلقائياً عند رفع الكود لفرع main أو master
 
 jobs:
-  build-windows:
+  build_windows:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
-          cache: true
+          flutter-version: '3.41.8' # إصدار فلاتر المطابق لجهازك
 
-      - name: Enable Windows desktop support
-        run: flutter config --enable-windows-desktop
-
-      - name: Install dependencies
+      - name: Get Dependencies
         run: flutter pub get
 
-      - name: Build Windows release
+      - name: Enable Windows Desktop Support
+        run: |
+          flutter config --enable-windows-desktop
+          flutter create . --platforms=windows
+
+      - name: Build Windows Application (Release)
         run: flutter build windows --release
 
-      - name: Upload Windows build artifact
-        uses: actions/upload-artifact@v7
+      - name: Upload Windows EXE Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: windows-release-build
-          path: build/windows/runner/Release/**
+          name: Flutter-Windows-App
+          path: build/windows/x64/runner/Release/
