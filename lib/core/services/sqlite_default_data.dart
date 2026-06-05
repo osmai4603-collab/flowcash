@@ -172,7 +172,7 @@ final class DefaultDataInserter {
             final fromId = fromRow['id'];
             final toId = toRow['id'];
             final sql =
-                "INSERT INTO ${ExchangePricesTable.tableName} (${ExchangePricesTable.fromCurrencyId}, ${ExchangePricesTable.toCurrencyId}, ${ExchangePricesTable.exchangePrice}) VALUES ($fromId, $toId, 1.0)";
+                "INSERT INTO ${ExchangePricesTable.tableName} (${ExchangePricesTable.fromCurrencyId}, ${ExchangePricesTable.toCurrencyId}, ${ExchangePricesTable.exchangePrice}) VALUES ('$fromId', '$toId', 1.0)";
             debugPrint(sql);
             db.execute(sql);
           }

@@ -54,29 +54,32 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     final bloc = context.read<JournalEntriesBloc>();
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => ContentDialog(
-        title: Row(
-          children: const [
-            Icon(FluentIcons.warning, color: Colors.red),
-            SizedBox(width: 10),
-            Text('تأكيد الحذف'),
+      builder: (context) => Material(
+        color: Colors.transparent,
+        child: ContentDialog(
+          title: Row(
+            children: const [
+              Icon(FluentIcons.warning, color: Colors.red),
+              SizedBox(width: 10),
+              Text('تأكيد الحذف'),
+            ],
+          ),
+          content: Text('هل أنت متأكد من رغبتك في حذف القيد رقم "${entry.referenceNumber}"؟ سيتم حذف جميع البنود المرتبطة به وتعديل أرصدة الحسابات.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('إلغاء'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('حذف قيد اليومية'),
+            ),
           ],
         ),
-        content: Text('هل أنت متأكد من رغبتك في حذف القيد رقم "${entry.referenceNumber}"؟ سيتم حذف جميع البنود المرتبطة به وتعديل أرصدة الحسابات.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('حذف قيد اليومية'),
-          ),
-        ],
       ),
     );
 
@@ -101,10 +104,12 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
             return ref.contains(query) || desc.contains(query);
           }).toList();
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
+          return Material(
+            color: Colors.transparent,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
                 // Top Toolbar
                 Row(
                   children: [
@@ -288,8 +293,9 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                 ),
               ],
             ),
-          );
-        },
+          ),
+        );
+      },
       ),
     );
   }

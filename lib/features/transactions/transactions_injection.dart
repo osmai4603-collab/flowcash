@@ -1,3 +1,5 @@
+import 'package:flowcash/features/transactions/presentation/blocs/financial_bonds/financial_bonds_bloc.dart';
+import 'package:flowcash/features/transactions/presentation/blocs/financial_transactions/financial_transactions_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 // Data sources
@@ -26,6 +28,7 @@ import 'package:flowcash/features/transactions/domain/usecases/bill_repository_u
 import 'package:flowcash/features/transactions/domain/usecases/bill_order_repository_usecases.dart';
 import 'package:flowcash/features/transactions/domain/usecases/financial_transaction_repository_usecases.dart';
 import 'package:flowcash/features/transactions/domain/usecases/financial_bond_repository_usecases.dart';
+import 'package:flowcash/features/transactions/presentation/blocs/bills/bills_bloc.dart';
 
 void initTransactionsFeature(GetIt sl) {
   //============================================================
@@ -92,4 +95,32 @@ void initTransactionsFeature(GetIt sl) {
   sl.registerLazySingleton(() => InsertFinancialBondUseCase(sl()));
   sl.registerLazySingleton(() => UpdateFinancialBondUseCase(sl()));
   sl.registerLazySingleton(() => DeleteFinancialBondUseCase(sl()));
+
+  // Presentation Blocs
+  sl.registerFactory(
+    () => BillsBloc(
+      getBillsUseCase: sl(),
+      insertBillUseCase: sl(),
+      updateBillUseCase: sl(),
+      deleteBillUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => FinancialTransactionsBloc(
+      getFinancialTransactionsUseCase: sl(),
+      insertFinancialTransactionUseCase: sl(),
+      updateFinancialTransactionUseCase: sl(),
+      deleteFinancialTransactionUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => FinancialBondsBloc(
+      getFinancialBondsUseCase: sl(),
+      insertFinancialBondUseCase: sl(),
+      updateFinancialBondUseCase: sl(),
+      deleteFinancialBondUseCase: sl(),
+    ),
+  );
 }

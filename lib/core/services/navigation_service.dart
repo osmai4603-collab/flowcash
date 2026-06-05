@@ -9,7 +9,7 @@ import 'package:flowcash/features/home/presentation/widgets/home_navigation_view
 import 'package:flowcash/features/inventory/presentation/pages/inventory_dashboard.dart';
 import 'package:flowcash/features/settings/presentation/pages/settings_page.dart';
 import 'package:flowcash/features/system/presentation/pages/system_page.dart';
-import 'package:flowcash/features/transactions/presentation/pages/transactions_page.dart';
+import 'package:flowcash/features/transactions/presentation/pages/transactions_dashboard.dart';
 import 'package:flowcash/features/inventory/presentation/pages/inventory_page.dart';
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/user_session.dart';
