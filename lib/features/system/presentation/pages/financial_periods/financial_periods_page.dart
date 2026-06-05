@@ -134,12 +134,12 @@ class FinancialPeriodsPage extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: colors.primaryContainer),
+      decoration: BoxDecoration(color: colors.surfaceContainerHigh),
       child: Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium?.copyWith(
-          color: colors.onPrimaryContainer,
+          color: colors.onSurface,
           fontWeight: FontWeight.bold,
         ),
       ),
