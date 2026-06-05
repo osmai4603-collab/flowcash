@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:flowcash/features/currencies/domain/entities/exchange_price_entity.dart';
 import 'package:flowcash/features/currencies/domain/usecases/exchange_price_repository_usecases.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, ProgressRing;
 class ExchangeRateEditDialog extends StatefulWidget {
   const ExchangeRateEditDialog({super.key, required this.exchangePrice});
 
@@ -70,7 +71,7 @@ class _ExchangeRateEditDialogState extends State<ExchangeRateEditDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return AlertDialog(
+    return ContentDialog(
       title: const Text('تعديل سعر الصرف'),
       content: SingleChildScrollView(
         child: Column(
@@ -133,7 +134,7 @@ class _ExchangeRateEditDialogState extends State<ExchangeRateEditDialog> {
               ? const SizedBox(
                   height: 18,
                   width: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: ProgressRing(strokeWidth: 2),
                 )
               : const Text('حفظ التغيير'),
         ),

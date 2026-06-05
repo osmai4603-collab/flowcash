@@ -5,6 +5,7 @@ import 'package:flowcash/features/currencies/domain/entities/currency_entity.dar
 import 'package:flowcash/features/currencies/domain/usecases/currency_repository_usecases.dart';
 import 'package:flowcash/features/system/presentation/bloc/currencies/currency_form_bloc.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
 class CurrencyFormPage extends StatefulWidget {
   const CurrencyFormPage({super.key, this.initialValue});
 
@@ -56,9 +57,9 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
             Navigator.of(context).pop(state.savedEntity);
           }
         },
-        child: AlertDialog(
+        child: ContentDialog(
           title: Text(widget.initialValue == null ? 'إضافة عملة' : 'تعديل عملة'),
-          scrollable: true,
+          
           content: BlocBuilder<CurrencyFormBloc, CurrencyFormState>(
             builder: (context, state) {
               return Form(
@@ -71,7 +72,7 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                       controller: _idController,
                       decoration: const InputDecoration(
                         labelText: 'المعرف',
-                        prefixIcon: Icon(Icons.vpn_key),
+                        prefixIcon: Icon(FluentIcons.lock12),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -89,7 +90,7 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                       controller: _nameController,
                       decoration: const InputDecoration(
                         labelText: 'الاسم',
-                        prefixIcon: Icon(Icons.text_fields),
+                        prefixIcon: Icon(FluentIcons.text_field),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -106,7 +107,7 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                       controller: _symbolController,
                       decoration: const InputDecoration(
                         labelText: 'الرمز',
-                        prefixIcon: Icon(Icons.label),
+                        prefixIcon: Icon(FluentIcons.label),
                       ),
                       onChanged: (value) => context.read<CurrencyFormBloc>().add(
                             CurrencyFormSymbolChanged(value),
@@ -117,7 +118,7 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                       controller: _fullSymbolController,
                       decoration: const InputDecoration(
                         labelText: 'الرمز الكامل',
-                        prefixIcon: Icon(Icons.label_important),
+                        prefixIcon: Icon(FluentIcons.important),
                       ),
                       onChanged: (value) => context.read<CurrencyFormBloc>().add(
                             CurrencyFormFullSymbolChanged(value),
@@ -128,7 +129,7 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                       controller: _countryController,
                       decoration: const InputDecoration(
                         labelText: 'البلد',
-                        prefixIcon: Icon(Icons.public),
+                        prefixIcon: Icon(FluentIcons.public_folder),
                       ),
                       onChanged: (value) => context.read<CurrencyFormBloc>().add(
                             CurrencyFormCountryChanged(value),
@@ -172,7 +173,7 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                       ? const SizedBox(
                           height: 18,
                           width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: ProgressRing(strokeWidth: 2),
                         )
                       : const Text('حفظ');
                 },

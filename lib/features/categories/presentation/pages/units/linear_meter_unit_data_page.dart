@@ -17,6 +17,7 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog;
 class LinearMeterUnitDataPage extends StatefulWidget {
   final CategoryPropertyEntity property;
   final UnitEntity? unit;
@@ -118,9 +119,9 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
             if (didPop) return;
             _onBackPressed();
           },
-          child: Dialog(
+          child: ContentDialog(
             constraints: const BoxConstraints(maxWidth: 400),
-            child: Padding(
+            content: Padding(
               padding: Paddings.mediumAll,
               child: ShimmerLoadingWidget(
                 canShimmer: isLoading,
@@ -136,7 +137,7 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
                         Row(
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.arrow_back_outlined),
+                              icon: const Icon(Icons.arrow_back),
                               tooltip: 'رجوع',
                               onPressed: () => Navigator.pop(context),
                             ),
@@ -212,8 +213,7 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
                                       width: 0.20,
                                     ),
                                   ),
-                                  prefixIcon: Icon(
-                                    Icons.line_weight_outlined,
+                                  prefixIcon: Icon(Icons.fitness_center,
                                     color: colors.primary,
                                   ),
                                 ),
@@ -225,7 +225,7 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
                                 decoration: const InputDecoration(
                                   labelText: 'الوحدة',
                                   hintText: 'حدد الوحدة',
-                                  prefixIcon: Icon(Icons.ac_unit_outlined),
+                                  prefixIcon: Icon(Icons.merge_type),
                                 ),
                                 items: measuresUnits.map((String value) {
                                   return DropdownMenuItem<String>(

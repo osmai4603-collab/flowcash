@@ -8,6 +8,7 @@ import 'package:flowcash/features/inventory/presentation/blocs/stocktaking/stock
 import 'package:flowcash/features/inventory/presentation/blocs/stocktaking/stocktaking_event.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/stocktaking/stocktaking_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class StocktakingPage extends StatefulWidget {
   const StocktakingPage({super.key});
 
@@ -71,19 +72,14 @@ class _StocktakingPageState extends State<StocktakingPage> {
         listener: (context, state) {
           if (state.status == StocktakingStatus.error &&
               state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: theme.colorScheme.error,
-              ),
-            );
+            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
           }
         },
         builder: (context, state) {
           final bloc = context.read<StocktakingBloc>();
 
           if (state.status == StocktakingStatus.loading || _isLoadingMetaData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: ProgressRing());
           }
 
           // Apply client filters
@@ -134,7 +130,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'البحث باسم صنف المخزون... 🔍',
-                              prefixIcon: const Icon(Icons.search),
+                              prefixIcon: const Icon(FluentIcons.search),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -148,31 +144,33 @@ class _StocktakingPageState extends State<StocktakingPage> {
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: DropdownButtonFormField<int?>(
-                            decoration: InputDecoration(
-                              hintText: 'كل المخازن 🏢',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
+                          child: SizedBox(
+                            height: 40,
+                            child: MenuBar(
+                              children: [
+                                SubmenuButton(
+                                  menuChildren: [
+                                    MenuItemButton(
+                                      onPressed: () => setState(() => _filterWarehouseId = null),
+                                      child: const Text('كل المخازن 🏢'),
+                                    ),
+                                    ...state.warehouses.map(
+                                      (w) => MenuItemButton(
+                                        onPressed: () => setState(() => _filterWarehouseId = w.id),
+                                        child: Text(w.warehouseName),
+                                      ),
+                                    ),
+                                  ],
+                                  child: Text(
+                                    _filterWarehouseId == null
+                                        ? 'كل المخازن 🏢'
+                                        : state.warehouses.where((w) => w.id == _filterWarehouseId).isEmpty
+                                            ? 'كل المخازن 🏢'
+                                            : state.warehouses.where((w) => w.id == _filterWarehouseId).first.warehouseName,
+                                  ),
+                                ),
+                              ],
                             ),
-                            initialValue: _filterWarehouseId,
-                            items: [
-                              const DropdownMenuItem<int?>(
-                                value: null,
-                                child: Text('كل المخازن 🏢'),
-                              ),
-                              ...state.warehouses.map((w) {
-                                return DropdownMenuItem<int?>(
-                                  value: w.id,
-                                  child: Text(w.warehouseName),
-                                );
-                              }),
-                            ],
-                            onChanged: (val) =>
-                                setState(() => _filterWarehouseId = val),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -186,7 +184,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
                               vertical: 14,
                             ),
                           ),
-                          icon: const Icon(Icons.sync),
+                          icon: const Icon(FluentIcons.sync),
                           label: const Text('إعادة تحميل القياسات'),
                         ),
                       ],

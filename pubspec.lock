@@ -193,6 +193,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.70.2"
+  fluent_ui:
+    dependency: "direct main"
+    description:
+      name: fluent_ui
+      sha256: ccddccb8256f2d7c93838be8e01021cfe337070bb6b880d0f005c137d3e29224
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.15.1"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -413,6 +421,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.1"
+  math_expressions:
+    dependency: transitive
+    description:
+      name: math_expressions
+      sha256: "2e1ceb974c2b1893c809a68c7005f1b63f7324db0add800a0e792b1ac8ff9f03"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   meta:
     dependency: transitive
     description:
@@ -669,6 +685,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
+  recase:
+    dependency: transitive
+    description:
+      name: recase
+      sha256: e4eb4ec2dcdee52dcf99cb4ceabaffc631d7424ee55e56f280bc039737f89213
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   record_use:
     dependency: transitive
     description:
@@ -677,6 +701,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
+  scroll_pos:
+    dependency: transitive
+    description:
+      name: scroll_pos
+      sha256: cebf602b2dd939de6832bb902ffefb574608d1b84f420b82b381a4007d3c1e1b
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -802,6 +834,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  syncfusion_flutter_core:
+    dependency: transitive
+    description:
+      name: syncfusion_flutter_core
+      sha256: fe25aa8cf709f8e10c17c6f36019dd98bffad4218d9402f3c990156408cfd941
+      url: "https://pub.dev"
+    source: hosted
+    version: "33.2.10"
+  syncfusion_flutter_datagrid:
+    dependency: "direct main"
+    description:
+      name: syncfusion_flutter_datagrid
+      sha256: "501f55d3fdae454fb773e768c9f7f1f3558b5f9a2f8b9ddf81b8b14c9ead6346"
+      url: "https://pub.dev"
+    source: hosted
+    version: "33.2.10"
   tafqit:
     dependency: "direct main"
     description:

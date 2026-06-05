@@ -11,6 +11,7 @@ import 'package:flowcash/widgets/message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show InfoBar, ProgressRing, displayInfoBar, FluentIcons;
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
 
@@ -217,7 +218,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   ),
                   controller: searchBarController,
                   leading: const Icon(
-                    Icons.search_outlined,
+                    FluentIcons.search,
                     color: Colors.white70,
                   ),
                   hintText: 'ابحث عن صنف هنا',
@@ -276,7 +277,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     IconButton(
                       tooltip: 'الاصناف الرئيسية',
                       icon: Icon(
-                        Icons.add_box_outlined,
+                        FluentIcons.add,
                         size: 26,
                         color: colors.onPrimary,
                       ),
@@ -288,7 +289,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     IconButton(
                       tooltip: 'إعادة تحميل الأصناف',
                       icon: Icon(
-                        Icons.refresh,
+                        FluentIcons.refresh,
                         size: 26,
                         color: colors.onPrimary,
                       ),
@@ -301,7 +302,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                       tooltip: 'اضافة صنف جديد',
                       color: colors.onPrimary,
                       icon: const Icon(
-                        Icons.add,
+                        FluentIcons.add,
                         size: 26,
                         color: Colors.white,
                       ),
@@ -312,7 +313,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                       tooltip: 'طباعة بيانات الأصناف',
                       color: colors.onPrimary,
                       icon: Icon(
-                        Icons.print,
+                        FluentIcons.print,
                         size: 26,
                         color: colors.onPrimary,
                       ),
@@ -332,7 +333,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
             child: BlocBuilder<CategoriesBloc, CategoriesState>(
               builder: (context, state) {
                 if (state is CategoriesLoadInProgress) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: ProgressRing());
                 }
                 if (state is CategoriesLoadSuccess) {
                   return listView(state.categories);
@@ -372,9 +373,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
   }
 
   void showSnackBar(BuildContext context, String s) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(s), duration: const Duration(seconds: 2)),
-    );
+    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(s)));
   }
 
   void _onUpdateCategoryPressed(CategoryEntity category) async {

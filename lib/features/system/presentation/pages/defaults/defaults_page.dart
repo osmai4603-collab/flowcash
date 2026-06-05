@@ -8,6 +8,7 @@ import 'package:flowcash/features/system/domain/entities/value_entity.dart';
 import 'package:flowcash/core/enums/value_type_enum.dart';
 import 'package:flutter/material.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class DefaultsPage extends StatelessWidget {
   const DefaultsPage({super.key});
 
@@ -84,13 +85,11 @@ class DefaultsPage extends StatelessWidget {
                         DefaultValueFormPage(initialValue: null),
                   );
                   if (result != null && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('تمت إضافة القيمة')),
-                    );
+                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تمت إضافة القيمة')));
                     context.read<DefaultsBloc>().add(LoadDefaultsEvent());
                   }
                 },
-                icon: const Icon(Icons.add),
+                icon: const Icon(FluentIcons.add),
                 label: const Text('إضافة'),
               ),
             ],
@@ -143,9 +142,7 @@ class DefaultsPage extends StatelessWidget {
                         DefaultValueFormPage(initialValue: valueEntity),
                   );
                   if (didUpdate != null && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('تم تحديث القيمة')),
-                    );
+                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تم تحديث القيمة')));
                     context.read<DefaultsBloc>().add(LoadDefaultsEvent());
                   }
                 },
@@ -179,7 +176,7 @@ class DefaultsPage extends StatelessWidget {
     return BlocBuilder<DefaultsBloc, DefaultsState>(
       builder: (context, state) {
         if (state is DefaultsLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: ProgressRing());
         }
         if (state is DefaultsFailure) {
           return Center(

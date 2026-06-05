@@ -17,6 +17,7 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons;
 class WeightUnitDataPage extends StatefulWidget {
   final CategoryPropertyEntity property;
   final UnitEntity? unit;
@@ -117,10 +118,9 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
             if (didPop) return;
             _onBackPressed();
           },
-          child: Dialog(
-            alignment: Alignment.center,
+          child: ContentDialog(
             constraints: const BoxConstraints(maxWidth: 350),
-            child: Padding(
+            content: Padding(
               padding: Paddings.mediumAll,
               child: ShimmerLoadingWidget(
                 canShimmer: isLoading,
@@ -137,7 +137,7 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                           child: Row(
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.arrow_back_outlined),
+                                icon: const Icon(FluentIcons.back),
                                 tooltip: 'رجوع',
                                 onPressed: () => Navigator.pop(context),
                               ),
@@ -148,7 +148,7 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                                 expanded: true,
                               ),
                               IconButton(
-                                icon: const Icon(Icons.save),
+                                icon: const Icon(FluentIcons.save),
                                 tooltip: 'حفظ البيانات',
                                 onPressed: _onSaveButtonClicked,
                               ),
@@ -212,8 +212,7 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                                       width: 0.20,
                                     ),
                                   ),
-                                  prefixIcon: Icon(
-                                    Icons.line_weight_outlined,
+                                  prefixIcon: Icon(FluentIcons.light_weight,
                                     color: colors.primary,
                                   ),
                                 ),
@@ -227,7 +226,7 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                                 decoration: const InputDecoration(
                                   labelText: 'الوحدة',
                                   hintText: 'حدد الوحدة',
-                                  prefixIcon: Icon(Icons.ac_unit_outlined),
+                                  prefixIcon: Icon(FluentIcons.unite_shape),
                                 ),
                                 items: measuresUnits.map((String value) {
                                   return DropdownMenuItem<String>(

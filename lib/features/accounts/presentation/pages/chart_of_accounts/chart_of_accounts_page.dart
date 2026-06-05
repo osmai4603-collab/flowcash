@@ -25,6 +25,7 @@ import 'package:flowcash/features/accounts/presentation/widgets/sub_account_row.
 import 'main_account_form_dialog.dart';
 import 'sub_account_form_dialog.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
 class ChartOfAccountsPage extends StatelessWidget {
   const ChartOfAccountsPage({super.key});
 
@@ -155,7 +156,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
             child: BlocBuilder<ChartOfAccountsBloc, ChartOfAccountsState>(
               builder: (context, state) {
                 if (state.status == ChartOfAccountsStatus.loading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: ProgressRing());
                 }
 
                 if (state.status == ChartOfAccountsStatus.failure) {
@@ -336,7 +337,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'البحث برقم الحساب أو الاسم...',
-                    prefixIcon: const Icon(Icons.search),
+                    prefixIcon: const Icon(FluentIcons.search),
                     border: const OutlineInputBorder(),
                     
                     fillColor: theme.colorScheme.surfaceContainerHighest
@@ -352,27 +353,36 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
               ),
               BlocBuilder<ChartOfAccountsBloc, ChartOfAccountsState>(
                 builder: (context, state) {
-                  return DropdownButton<MainAccountGroup?>(
-                    value: state.selectedGroup,
-                    hint: const Text('كل المجموعات'),
-                    underline: const SizedBox(),
-                    items: [
-                      const DropdownMenuItem<MainAccountGroup?>(
-                        value: null,
-                        child: Text('كل المجموعات'),
-                      ),
-                      ...MainAccountGroup.values.map(
-                        (g) => DropdownMenuItem<MainAccountGroup?>(
-                          value: g,
-                          child: Text(g.displayName()),
+                  final title = state.selectedGroup?.displayName() ?? 'كل المجموعات';
+                  return SizedBox(
+                    height: 40,
+                    child: MenuBar(
+                      children: [
+                        SubmenuButton(
+                          menuChildren: [
+                            MenuItemButton(
+                              onPressed: () {
+                                context.read<ChartOfAccountsBloc>().add(
+                                      FilterChartOfAccounts(null),
+                                    );
+                              },
+                              child: const Text('كل المجموعات'),
+                            ),
+                            ...MainAccountGroup.values.map(
+                              (g) => MenuItemButton(
+                                onPressed: () {
+                                  context.read<ChartOfAccountsBloc>().add(
+                                        FilterChartOfAccounts(g),
+                                      );
+                                },
+                                child: Text(g.displayName()),
+                              ),
+                            ),
+                          ],
+                          child: Text(title),
                         ),
-                      ),
-                    ],
-                    onChanged: (group) {
-                      context.read<ChartOfAccountsBloc>().add(
-                            FilterChartOfAccounts(group),
-                          );
-                    },
+                      ],
+                    ),
                   );
                 },
               ),
@@ -383,7 +393,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                     onPressed: () {
                       _showMainAccountDialog(context);
                     },
-                    icon: const Icon(Icons.add),
+                    icon: const Icon(FluentIcons.add),
                     label: const Text('إضافة حساب رئيسي'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.colorScheme.primary,
@@ -392,7 +402,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                   ),
                   const SizedBox(width: 8),
                   IconButton(
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(FluentIcons.refresh),
                     onPressed: () {
                       context.read<ChartOfAccountsBloc>().add(
                             const LoadChartOfAccounts(),

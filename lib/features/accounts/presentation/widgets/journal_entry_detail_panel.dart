@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
 class JournalEntryDetailPanel extends StatelessWidget {
   final JournalEntryEntity entry;
   final List<JournalItemEntity> items;
@@ -36,7 +37,7 @@ class JournalEntryDetailPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.list_alt, color: theme.colorScheme.primary),
+              Icon(FluentIcons.list, color: theme.colorScheme.primary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

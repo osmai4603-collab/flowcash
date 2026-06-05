@@ -12,6 +12,7 @@ import '../bloc/settings/settings_event.dart';
 import '../bloc/settings/settings_state.dart';
 import '../widgets/setting_tile.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, ProgressRing;
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -44,7 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
     await showDialog<void>(
       context: context,
       builder: (context) {
-        return AlertDialog(
+        return ContentDialog(
           title: Text(title),
           content: SingleChildScrollView(
             child: ColorPicker(
@@ -134,7 +135,7 @@ class _SettingsPageState extends State<SettingsPage> {
           padding: const EdgeInsets.all(16.0),
           child: BlocBuilder<SettingsBloc, SettingsState>(
             builder: (context, state) {
-              if (state.status == SettingsStatus.loading) {
+                if (state.status == SettingsStatus.loading) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (state.status == SettingsStatus.failure) {

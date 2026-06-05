@@ -15,6 +15,7 @@ import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons;
 class SubcategoryFormPage extends StatefulWidget {
   final int mainCategoryId;
   final SubcategoryEntity? subcategory;
@@ -59,9 +60,9 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
   @override
   Widget build(BuildContext context) {
     final textTheme = TextTheme.of(context);
-    return Dialog(
+    return ContentDialog(
       constraints: const BoxConstraints(maxWidth: 500),
-      child: Padding(
+      content: Padding(
         padding: Paddings.mediumAll,
         child: SingleChildScrollView(
           child: Form(
@@ -103,7 +104,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                       Row(
                         children: [
                           IconButton(
-                            icon: Icon(Icons.arrow_back_outlined),
+                            icon: Icon(FluentIcons.back),
                             tooltip: 'رجوع',
                             onPressed: () => Navigator.pop(context),
                           ),
@@ -114,7 +115,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                             textAlign: TextAlign.center,
                           ),
                           IconButton(
-                            icon: const Icon(Icons.save),
+                            icon: const Icon(FluentIcons.save),
                             tooltip: 'حفظ البيانات',
                             onPressed: _onSaveButtonClicked,
                           ),
@@ -144,7 +145,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                           ),
                           hintText: 'ادخل اسم النوع',
                           label: Text('اسم النوع'),
-                          prefixIcon: Icon(Icons.category_outlined),
+                          prefixIcon: Icon(FluentIcons.category_classification),
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -194,7 +195,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
             decoration: InputDecoration(
               labelText: property.property.propertyName,
               hintText: 'حدد نوع ${property.property.propertyName}',
-              prefixIcon: const Icon(Icons.category_outlined),
+              prefixIcon: const Icon(FluentIcons.category_classification),
             ),
             items: property.subcatgoriesUnits.map((catalogUnit) {
               return DropdownMenuItem<UnitEntity>(
@@ -235,7 +236,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                 ),
               ),
             ),
-            icon: Icon(Icons.add, color: colors.onSurface),
+            icon: Icon(FluentIcons.add, color: colors.onSurface),
             tooltip: 'إضافة ${property.property.propertyName} جديد',
             onPressed: () => _onAddNewSubcategoryUnit(property),
           ),
@@ -281,7 +282,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                     Row(
                       children: [
                         IconButton(
-                          icon: Icon(Icons.add, color: colors.onSurface),
+                          icon: Icon(FluentIcons.add, color: colors.onSurface),
                           tooltip:
                               'اضافة ${property.property.propertyName} جديد',
                           onPressed: () async {
@@ -381,8 +382,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                   child: IconButton(
                                     splashRadius: 10,
                                     tooltip: 'ازالة',
-                                    icon: Icon(
-                                      Icons.remove_circle,
+                                    icon: Icon(FluentIcons.remove_link,
                                       color: Colors.red.shade400,
                                       size: 16,
                                     ),

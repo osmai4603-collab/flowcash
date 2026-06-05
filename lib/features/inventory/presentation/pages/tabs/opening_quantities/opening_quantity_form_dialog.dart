@@ -7,6 +7,7 @@ import 'package:flowcash/features/categories/domain/usecases/category_usecases.d
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/combo_box_form.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
 class OpeningQuantityFormDialog extends StatefulWidget {
   final List<InventoryEntity> inventoryItems;
   final List<WarehouseEntity> warehouses;
@@ -92,9 +93,8 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
+    return ContentDialog(
+      content: Container(
         width: 500,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
@@ -106,7 +106,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
           ),
         ),
         child: _isLoading
-            ? const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()))
+            ? const SizedBox(height: 200, child: Center(child: const ProgressRing()))
             : Form(
                 key: _formKey,
                 child: Column(
@@ -115,7 +115,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.playlist_add_check_outlined, color: theme.colorScheme.primary, size: 28),
+                        Icon(FluentIcons.page_checked_out, color: theme.colorScheme.primary, size: 28),
                         const SizedBox(width: 8),
                         const Text('إضافة رصيد افتتاحي 📊', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       ],
@@ -127,7 +127,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                       controller: _inventoryItemController,
                       decoration: const InputDecoration(
                         labelText: 'اختر صنف المخزون',
-                        prefixIcon: Icon(Icons.inventory_2_outlined),
+                        prefixIcon: Icon(FluentIcons.product),
                       ),
                       labelMenu: (item) => _getInventoryLabel(item),
                       labelString: (item) => _getInventoryLabel(item),
@@ -159,7 +159,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                     DropdownButtonFormField<int>(
                       decoration: const InputDecoration(
                         labelText: 'اختر المستودع',
-                        prefixIcon: Icon(Icons.store),
+                        prefixIcon: Icon(FluentIcons.store_logo16),
                       ),
                       initialValue: _selectedWarehouseId,
                       items: widget.warehouses.map((w) {
@@ -182,7 +182,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                             textDirection: TextDirection.ltr,
                             decoration: const InputDecoration(
                               labelText: 'الكمية الافتتاحية',
-                              prefixIcon: Icon(Icons.format_list_numbered),
+                              prefixIcon: Icon(FluentIcons.numbered_list_number),
                             ),
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             validator: (val) => val == null || val.isEmpty ? 'الكمية مطلوبة' : null,
@@ -195,7 +195,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                             textDirection: TextDirection.ltr,
                             decoration: const InputDecoration(
                               labelText: 'إجمالي التكلفة الدفترية',
-                              prefixIcon: Icon(Icons.attach_money_outlined),
+                              prefixIcon: Icon(FluentIcons.money),
                             ),
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             validator: (val) => val == null || val.isEmpty ? 'التكلفة مطلوبة' : null,

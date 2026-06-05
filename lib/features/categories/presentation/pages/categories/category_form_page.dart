@@ -13,6 +13,7 @@ import 'package:flowcash/features/categories/presentation/blocs/category_form/ca
 import 'package:flowcash/widgets/message.dart';
 import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons;
 class CategoryFormPage extends StatelessWidget {
   final CategoryEntity? category;
   const CategoryFormPage({super.key, this.category});
@@ -108,11 +109,11 @@ class _CategoryFormPageState extends State<_CategoryForm> {
           if (didPop) return;
           _onBackPressed();
         },
-        child: Dialog(
+        child: ContentDialog(
           constraints: BoxConstraints(
             maxWidth: isDesktop ? 500.0 : double.infinity,
           ),
-          child: SingleChildScrollView(
+          content: SingleChildScrollView(
             child: Padding(
               padding: Spacings.mediumPadding,
               child: BlocBuilder<CategoryFormBloc, CategoryFormState>(
@@ -159,7 +160,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                           Row(
                             children: [
                               IconButton(
-                                icon: Icon(Icons.arrow_back_outlined),
+                                icon: Icon(FluentIcons.back),
                                 tooltip: 'رجوع',
                                 onPressed: _onBackPressed,
                               ),
@@ -174,7 +175,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.save_outlined),
+                                icon: Icon(FluentIcons.save),
                                 tooltip: 'حفظ البيانات',
                                 onPressed: () => _onSaveButtonClicked(context),
                               ),
@@ -191,7 +192,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                             decoration: InputDecoration(
                               hintText: 'ادخل اسم الصنف',
                               labelText: 'اسم الصنف',
-                              prefixIcon: Icon(Icons.category_outlined),
+                              prefixIcon: Icon(FluentIcons.category_classification),
                             ),
                           ),
                           Row(
@@ -216,8 +217,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                       style: textTheme.labelLarge,
                                     ),
                                     suffixIcon: IconButton(
-                                      icon: Icon(
-                                        Icons.refresh_outlined,
+                                      icon: Icon(FluentIcons.refresh,
                                         color: colors.primary,
                                       ),
                                       tooltip: 'تحديث رقم الصنف',
@@ -247,7 +247,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                     ),
                                     labelText: 'الباركود',
                                     prefixIcon: IconButton(
-                                      icon: Icon(Icons.qr_code_outlined),
+                                      icon: Icon(FluentIcons.q_r_code),
                                       tooltip: 'قراء ماسح الباركود',
                                       onPressed: _scanBarcode,
                                     ),
@@ -276,12 +276,11 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                         style: textTheme.labelMedium,
                                       ),
                                       isExpanded: true,
-                                      icon: Icon(
-                                        Icons.arrow_drop_down,
+                                      icon: Icon(FluentIcons.chevron_down,
                                         color: colors.onSurfaceVariant,
                                       ),
                                       decoration: InputDecoration(
-                                        prefixIcon: Icon(Icons.ac_unit),
+                                        prefixIcon: Icon(FluentIcons.unite_shape),
                                         label: Text(
                                           'الوحدة',
                                           style: textTheme.labelLarge,
@@ -339,15 +338,14 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                         initialValue:
                                             state.selectedCategoryType,
                                         decoration: InputDecoration(
-                                          prefixIcon: Icon(Icons.type_specimen),
+                                          prefixIcon: Icon(FluentIcons.type_script_language),
                                           label: Text(
                                             'النوع',
                                             style: textTheme.labelLarge,
                                           ),
                                         ),
                                         isExpanded: true,
-                                        icon: Icon(
-                                          Icons.arrow_drop_down,
+                                        icon: Icon(FluentIcons.chevron_down,
                                           color: colors.onSurfaceVariant,
                                         ),
                                         style: textTheme.bodyLarge,

@@ -8,6 +8,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/trial_balance/tria
 import 'package:flowcash/features/accounts/presentation/blocs/trial_balance/trial_balance_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/trial_balance/trial_balance_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
 class TrialBalancePage extends StatefulWidget {
   const TrialBalancePage({super.key});
 
@@ -72,13 +73,11 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                                 decoration: InputDecoration(
                                   labelText: 'من تاريخ',
                                   border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(
-                                    Icons.date_range_outlined,
+                                  prefixIcon: const Icon(FluentIcons.calendar_settings,
                                   ),
                                   suffixIcon: _startDate != null
                                       ? IconButton(
-                                          icon: const Icon(
-                                            Icons.clear,
+                                          icon: const Icon(FluentIcons.clear,
                                             size: 18,
                                           ),
                                           onPressed: () {
@@ -109,13 +108,11 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                                 decoration: InputDecoration(
                                   labelText: 'إلى تاريخ',
                                   border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(
-                                    Icons.date_range_outlined,
+                                  prefixIcon: const Icon(FluentIcons.calendar_settings,
                                   ),
                                   suffixIcon: _endDate != null
                                       ? IconButton(
-                                          icon: const Icon(
-                                            Icons.clear,
+                                          icon: const Icon(FluentIcons.clear,
                                             size: 18,
                                           ),
                                           onPressed: () {
@@ -148,7 +145,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.compare_arrows),
+                            icon: const Icon(FluentIcons.compare),
                             label: const Text('تحديث الميزان'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: theme.colorScheme.primary,
@@ -167,7 +164,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
 
                           // Refresh Button
                           IconButton(
-                            icon: const Icon(Icons.refresh),
+                            icon: const Icon(FluentIcons.refresh),
                             tooltip: 'إعادة تحميل البيانات',
                             onPressed: () {
                               context.read<TrialBalanceBloc>().add(
@@ -186,7 +183,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                     // 2. Trial Balance Content
                     Expanded(
                       child: state.status == TrialBalanceStatus.loading
-                          ? const Center(child: CircularProgressIndicator())
+                          ? const Center(child: ProgressRing())
                           : state.status == TrialBalanceStatus.failure
                           ? Center(
                               child: Text(
@@ -345,8 +342,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                       color: theme.colorScheme.primaryContainer.withAlpha(20),
                       child: Row(
                         children: [
-                          Icon(
-                            Icons.folder_open,
+                          Icon(FluentIcons.folder_open,
                             size: 18,
                             color: theme.colorScheme.primary,
                           ),
@@ -512,7 +508,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                 Row(
                   children: [
                     Icon(
-                      isBalanced ? Icons.check_circle : Icons.error,
+                      isBalanced ? FluentIcons.skype_circle_check : FluentIcons.error,
                       color: isBalanced ? Colors.green : Colors.red,
                       size: 20,
                     ),

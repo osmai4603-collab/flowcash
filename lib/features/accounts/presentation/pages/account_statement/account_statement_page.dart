@@ -10,6 +10,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/account_statement/
 import 'package:flowcash/features/accounts/presentation/blocs/account_statement/account_statement_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/account_statement/account_statement_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
 class AccountStatementPage extends StatefulWidget {
   const AccountStatementPage({super.key});
 
@@ -167,10 +168,10 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                               decoration: InputDecoration(
                                 labelText: 'اختر الحساب الفرعي',
                                 border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.account_box_outlined),
+                                prefixIcon: const Icon(FluentIcons.personalize),
                                 suffixIcon: _selectedAccount != null
                                     ? IconButton(
-                                        icon: const Icon(Icons.clear),
+                                        icon: const Icon(FluentIcons.clear),
                                         onPressed: () {
                                           fieldTextEditingController.clear();
                                           setState(() {
@@ -195,10 +196,10 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                             decoration: InputDecoration(
                               labelText: 'من تاريخ',
                               border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(Icons.date_range_outlined),
+                              prefixIcon: const Icon(FluentIcons.calendar_settings),
                               suffixIcon: _startDate != null
                                   ? IconButton(
-                                      icon: const Icon(Icons.clear, size: 18),
+                                      icon: const Icon(FluentIcons.clear, size: 18),
                                       onPressed: () {
                                         setState(() {
                                           _startDate = null;
@@ -224,10 +225,10 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                             decoration: InputDecoration(
                               labelText: 'إلى تاريخ',
                               border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(Icons.date_range_outlined),
+                              prefixIcon: const Icon(FluentIcons.calendar_settings),
                               suffixIcon: _endDate != null
                                   ? IconButton(
-                                      icon: const Icon(Icons.clear, size: 18),
+                                      icon: const Icon(FluentIcons.clear, size: 18),
                                       onPressed: () {
                                         setState(() {
                                           _endDate = null;
@@ -255,7 +256,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                       endDate: _endDate,
                                     ));
                               },
-                        icon: const Icon(Icons.receipt_long),
+                        icon: const Icon(FluentIcons.receipt_processing),
                         label: const Text('عرض الكشف'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: theme.colorScheme.primary,
@@ -278,7 +279,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.search_outlined, size: 72, color: theme.colorScheme.onSurface.withAlpha(50)),
+                              Icon(FluentIcons.search, size: 72, color: theme.colorScheme.onSurface.withAlpha(50)),
                               const SizedBox(height: 16),
                               Text(
                                 'يرجى تحديد حساب فرعي وتاريخ ثم النقر على عرض الكشف',
@@ -290,7 +291,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                       }
 
                       if (state.status == AccountStatementStatus.loading) {
-                        return const Center(child: CircularProgressIndicator());
+                        return const Center(child: ProgressRing());
                       }
 
                       if (state.status == AccountStatementStatus.failure) {

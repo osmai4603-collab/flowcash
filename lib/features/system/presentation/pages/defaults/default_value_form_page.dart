@@ -4,6 +4,7 @@ import 'package:flowcash/features/system/domain/entities/value_entity.dart';
 import 'package:flowcash/core/enums/value_type_enum.dart';
 import 'package:flowcash/features/system/presentation/bloc/defaults/default_value_form_cubit.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons;
 class DefaultValueFormPage extends StatefulWidget {
   final ValueEntity? initialValue;
 
@@ -41,7 +42,7 @@ class _DefaultValueFormPageState extends State<DefaultValueFormPage> {
             Navigator.of(context).pop(state.value);
           }
         },
-        child: AlertDialog(
+        child: ContentDialog(
           constraints: const BoxConstraints(maxWidth: 500, minWidth: 500),
           title: Text(widget.initialValue == null ? 'إضافة قيمة' : 'تعديل قيمة'),
           content: Form(
@@ -52,7 +53,7 @@ class _DefaultValueFormPageState extends State<DefaultValueFormPage> {
                 children: [
                   DropdownButtonFormField<ValueType>(
                     initialValue: _selectedType,
-                    decoration: const InputDecoration(labelText: 'نوع القيمة', prefixIcon: Icon(Icons.category)),
+                    decoration: const InputDecoration(labelText: 'نوع القيمة', prefixIcon: Icon(FluentIcons.category_classification)),
                     items: ValueType.values
                         .map((e) => DropdownMenuItem(value: e, child: Text(e.displayName())))
                         .toList(),
@@ -69,7 +70,7 @@ class _DefaultValueFormPageState extends State<DefaultValueFormPage> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _valueController,
-                    decoration: const InputDecoration(labelText: 'القيمة', prefixIcon: Icon(Icons.numbers)),
+                    decoration: const InputDecoration(labelText: 'القيمة', prefixIcon: Icon(FluentIcons.number)),
                     validator: (v) => (v == null || v.isEmpty) ? 'الرجاء إدخال قيمة' : null,
                   ),
                 ],

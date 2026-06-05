@@ -6,6 +6,7 @@ import 'package:flowcash/features/inventory/domain/entities/warehouse_value_enti
 import 'package:flowcash/features/system/presentation/bloc/warehouse_values/warehouse_values_cubit.dart';
 import 'package:flowcash/features/system/presentation/pages/warehouse_values/warehouse_value_form_page.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class WarehouseValuesPage extends StatelessWidget {
   const WarehouseValuesPage({super.key});
 
@@ -14,7 +15,7 @@ class WarehouseValuesPage extends StatelessWidget {
     return BlocBuilder<WarehouseValuesBloc, WarehouseValuesState>(
       builder: (context, state) {
         if (state is WarehouseValuesLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: ProgressRing());
         }
         if (state is WarehouseValuesFailure) {
           return Center(
@@ -108,7 +109,7 @@ class WarehouseValuesPage extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: FilledButton.icon(
                 onPressed: () => _openWarehouseValueForm(context, null),
-                icon: const Icon(Icons.add),
+                icon: const Icon(FluentIcons.add),
                 label: const Text('إضافة قيمة'),
               ),
             ),
@@ -130,7 +131,7 @@ class WarehouseValuesPage extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: FilledButton.icon(
               onPressed: () => _openWarehouseValueForm(context, null),
-              icon: const Icon(Icons.add),
+              icon: const Icon(FluentIcons.add),
               label: const Text('إضافة قيمة'),
             ),
           ),
@@ -164,9 +165,7 @@ class WarehouseValuesPage extends StatelessWidget {
                     item,
                   );
                   if (didUpdate == true && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('تم تحديث قيمة المستودع')),
-                    );
+                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تم تحديث قيمة المستودع')));
                     context.read<WarehouseValuesBloc>().add(
                       LoadWarehouseValuesEvent(),
                     );
@@ -214,9 +213,7 @@ class WarehouseValuesPage extends StatelessWidget {
     if (result != null && context.mounted) {
       context.read<WarehouseValuesBloc>().add(LoadWarehouseValuesEvent());
       if (entity == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تمت إضافة قيمة المستودع')),
-        );
+        displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تمت إضافة قيمة المستودع')));
       }
     }
 

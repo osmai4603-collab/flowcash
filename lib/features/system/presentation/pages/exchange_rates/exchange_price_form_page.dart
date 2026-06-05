@@ -5,6 +5,7 @@ import 'package:flowcash/features/currencies/domain/entities/exchange_price_enti
 import 'package:flowcash/features/currencies/domain/usecases/exchange_price_repository_usecases.dart';
 import 'package:flowcash/features/system/presentation/bloc/exchange_rates/exchange_price_form_bloc.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, ProgressRing;
 class ExchangePriceFormPage extends StatefulWidget {
   const ExchangePriceFormPage({super.key, this.initialValue});
 
@@ -50,9 +51,9 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
             Navigator.of(context).pop(state.savedEntity);
           }
         },
-        child: AlertDialog(
+        child: ContentDialog(
           title: Text(widget.initialValue == null ? 'إضافة سعر صرف' : 'تعديل سعر صرف'),
-          scrollable: true,
+          
           content: BlocBuilder<ExchangePriceFormBloc, ExchangePriceFormState>(
             builder: (context, state) {
               return Form(
@@ -100,7 +101,7 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: const InputDecoration(
                         labelText: 'سعر الصرف',
-                        prefixIcon: Icon(Icons.price_check),
+                        prefixIcon: Icon(Icons.receipt_long),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -145,7 +146,7 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
                       ? const SizedBox(
                           height: 18,
                           width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: ProgressRing(strokeWidth: 2),
                         )
                       : const Text('حفظ');
                 },

@@ -16,6 +16,7 @@ import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, InfoBar, displayInfoBar;
 class MainCategoryFormPage extends StatefulWidget {
   final int? id;
   const MainCategoryFormPage({super.key, this.id});
@@ -162,9 +163,9 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
           if (didPop) return;
           _onBackPressed();
         },
-        child: Dialog(
+        child: ContentDialog(
           constraints: BoxConstraints(maxWidth: 500),
-          child: Padding(
+          content: Padding(
             padding: Paddings.mediumAll,
             child: SingleChildScrollView(
               child: BlocConsumer<MainCategoryFormBloc, MainCategoryFormState>(
@@ -173,13 +174,9 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                     Navigator.of(context).pop(state.entity);
                   }
                   if (state.status == MainCategoryFormStatus.failure) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
+                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(
                           state.messageError ?? 'حدث خطأ في حفظ الصنف',
-                        ),
-                      ),
-                    );
+                        )));
                   }
                 },
                 builder: (context, state) {
@@ -211,7 +208,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back_outlined),
+                icon: const Icon(Icons.arrow_back),
                 tooltip: 'رجوع',
                 onPressed: () => Navigator.pop(context),
               ),
@@ -244,7 +241,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   decoration: InputDecoration(
                     hintText: 'ادخل اسم الصنف الرئيسي',
                     label: Text('اسم الصنف'),
-                    prefixIcon: Icon(Icons.category_outlined),
+                    prefixIcon: Icon(Icons.category),
                   ),
                   onChanged: (value) {
                     _markChanged();
@@ -269,8 +266,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   decoration: InputDecoration(
                     hintText: 'ادخل اسم الوحدة',
                     label: Text('اسم الوحدة'),
-                    prefixIcon: Icon(
-                      Icons.circle_outlined,
+                    prefixIcon: Icon(Icons.radio_button_unchecked,
                       color: colors.primary,
                     ),
                   ),
@@ -295,8 +291,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                     style: textTheme.labelMedium,
                   ),
 
-                  icon: Icon(
-                    Icons.arrow_drop_down,
+                  icon: Icon(Icons.expand_more,
                     color: colors.onSurfaceVariant,
                   ),
                   isExpanded: true,
@@ -307,7 +302,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                     label: Text('الوحدة'),
                     hint: Text('حدد وحدة الصنف'),
 
-                    prefixIcon: Icon(Icons.ac_unit),
+                    prefixIcon: Icon(Icons.merge_type),
                   ),
                   items: UnitType.values.where((type) => type.isBasic).map((
                     unit,
@@ -343,8 +338,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   decoration: InputDecoration(
                     label: Text('نوع الصنف'),
 
-                    prefixIcon: Icon(
-                      Icons.circle_outlined,
+                    prefixIcon: Icon(Icons.radio_button_unchecked,
                       color: colors.primary,
                     ),
                   ),
@@ -458,7 +452,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   decoration: InputDecoration(
                     hintText: 'ادخل اسم الخاصية',
                     label: Text('اسم الخاصية'),
-                    prefixIcon: Icon(Icons.category_outlined),
+                    prefixIcon: Icon(Icons.category),
                   ),
                   onChanged: (_) => _markChanged(),
                 ),
@@ -467,7 +461,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                 child: DropdownButtonFormField<UnitType>(
                   initialValue: property.unitTypeSelected,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.ac_unit_rounded),
+                    prefixIcon: Icon(Icons.merge_type),
                     label: Text('نوع الوحدة'),
                     hint: Text('حدد نوع الوحدة'),
                   ),
@@ -529,7 +523,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
         child: Row(
           textDirection: TextDirection.rtl,
           children: [
-            Icon(Icons.delete_outline, color: colors.onError),
+                    Icon(Icons.delete, color: colors.onError),
             const SizedBox(width: 5),
             TextWidget(
               text: 'ازالة',

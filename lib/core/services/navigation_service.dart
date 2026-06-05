@@ -1,9 +1,12 @@
 import 'package:flowcash/core/constants/app_route_keys.dart';
+import 'package:flowcash/features/accounts/presentation/pages/accounts_dashboard.dart';
 import 'package:flowcash/features/accounts/presentation/pages/accounts_page.dart';
 import 'package:flowcash/features/auth/presentation/pages/login_page.dart';
 import 'package:flowcash/features/categories/presentation/pages/categories/categories_dashboard_page.dart';
 import 'package:flowcash/features/categories/presentation/pages/main_categories/main_categories_page.dart';
 import 'package:flowcash/features/home/presentation/pages/home_page.dart';
+import 'package:flowcash/features/home/presentation/widgets/home_navigation_view.dart';
+import 'package:flowcash/features/inventory/presentation/pages/inventory_dashboard.dart';
 import 'package:flowcash/features/settings/presentation/pages/settings_page.dart';
 import 'package:flowcash/features/system/presentation/pages/system_page.dart';
 import 'package:flowcash/features/transactions/presentation/pages/transactions_page.dart';
@@ -63,7 +66,7 @@ sealed class NavigationService {
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
-          return MainScreen(navigationShell: navigationShell);
+          return HomeNavigationView(navigationShell: navigationShell);
         },
         branches: [
           StatefulShellBranch(
@@ -100,7 +103,7 @@ sealed class NavigationService {
             routes: [
               GoRoute(
                 path: AppRouteKeys.accounts,
-                builder: (context, state) => const AccountsPage(),
+                builder: (context, state) => AccountsDashboard(),
               ),
             ],
           ),
@@ -108,7 +111,7 @@ sealed class NavigationService {
             routes: [
               GoRoute(
                 path: AppRouteKeys.inventory,
-                builder: (context, state) => const InventoryPage(),
+                builder: (context, state) => const InventoryDashboard(),
               ),
             ],
           ),
@@ -130,7 +133,7 @@ sealed class NavigationService {
             routes: [
               GoRoute(
                 path: AppRouteKeys.transactions,
-                builder: (context, state) => const TransactionsPage(),
+                builder: (context, state) => const TransactionsDashboard(),
               ),
             ],
           ),

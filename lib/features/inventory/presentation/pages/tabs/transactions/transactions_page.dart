@@ -1,3 +1,4 @@
+import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/injection_container.dart';
@@ -14,6 +15,7 @@ import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 import 'transaction_form_dialog.dart';
 import 'transaction_detail_panel.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({super.key});
 
@@ -79,12 +81,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
         listener: (context, state) {
           if (state.status == TransactionsStatus.error &&
               state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: theme.colorScheme.error,
-              ),
-            );
+            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
           }
         },
         builder: (context, state) {
@@ -92,7 +89,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
           if (state.status == TransactionsStatus.loading ||
               _isLoadingMetaData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: ProgressRing());
           }
 
           // Apply client-side search & filtering
@@ -131,7 +128,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
           }
 
           return Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: Paddings.largeAll,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -144,7 +141,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(20.0),
+                      padding: Paddings.largeAll,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -158,7 +155,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                   decoration: InputDecoration(
                                     hintText:
                                         'البحث برقم السند أو البيان... 🔍',
-                                    prefixIcon: const Icon(Icons.search),
+                                    prefixIcon: const Icon(FluentIcons.search),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
@@ -177,48 +174,36 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
                               // Type filter
                               Expanded(
-                                child:
-                                    DropdownButtonFormField<
-                                      InventoryTransactionType?
-                                    >(
-                                      isExpanded: true,
-                                      decoration: InputDecoration(
-                                        hintText: 'كل الأنواع 📋',
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12,
+                                child: SizedBox(
+                                  height: 40,
+                                  child: MenuBar(
+                                    children: [
+                                      SubmenuButton(
+                                        menuChildren: [
+                                          MenuItemButton(
+                                            onPressed: () => setState(
+                                              () => _filterType = null,
                                             ),
-                                      ),
-                                      initialValue: _filterType,
-                                      items: [
-                                        const DropdownMenuItem<
-                                          InventoryTransactionType?
-                                        >(
-                                          value: null,
-                                          child: Text('كل الأنواع 📋'),
+                                            child: const Text('كل الأنواع 📋'),
+                                          ),
+                                          ...InventoryTransactionType.values.map(
+                                            (type) => MenuItemButton(
+                                              onPressed: () => setState(
+                                                () => _filterType = type,
+                                              ),
+                                              child: Text(type.displayName()),
+                                            ),
+                                          ),
+                                        ],
+                                        child: Text(
+                                          _filterType == null
+                                              ? 'كل الأنواع'
+                                              : _filterType!.displayName().toString(),
                                         ),
-                                        ...InventoryTransactionType.values.map((
-                                          type,
-                                        ) {
-                                          return DropdownMenuItem<
-                                            InventoryTransactionType?
-                                          >(
-                                            value: type,
-                                            child: Text(type.displayName()),
-                                          );
-                                        }),
-                                      ],
-                                      onChanged: (val) {
-                                        setState(() {
-                                          _filterType = val;
-                                        });
-                                      },
-                                    ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                               const SizedBox(width: 12),
 
@@ -253,7 +238,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                icon: const Icon(Icons.add_box_outlined),
+                                icon: const Icon(FluentIcons.add),
                                 label: const Text(
                                   'إصدار إذن',
                                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -452,8 +437,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  Icons.description_outlined,
+                                Icon(FluentIcons.one_note_doc_type,
                                   size: 48,
                                   color: Colors.grey,
                                 ),
@@ -497,7 +481,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                           onDelete: () {
                             showDialog(
                               context: context,
-                              builder: (context) => AlertDialog(
+                              builder: (context) => ContentDialog(
                                 title: const Text('تأكيد حذف إذن الحركة ⚠️'),
                                 content: const Text(
                                   'هل أنت متأكد من رغبتك في حذف بطاقة إذن الحركة المخزنية هذه وبنودها نهائياً؟',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/system/presentation/bloc/company/company_cubit.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ProgressRing;
 class CompanyPage extends StatelessWidget {
   const CompanyPage({super.key});
  
@@ -10,7 +11,7 @@ class CompanyPage extends StatelessWidget {
     return BlocBuilder<CompanyBloc, CompanyState>(
       builder: (context, state) {
         if (state is CompanyLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: ProgressRing());
         }
         if (state is CompanyFailure) {
           return Center(

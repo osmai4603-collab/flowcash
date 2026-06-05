@@ -10,6 +10,7 @@ import 'package:flowcash/features/injection_container.dart';
 
 import 'transaction_order_form.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, InfoBar, ProgressRing, displayInfoBar;
 class TransactionFormDialog extends StatefulWidget {
   final InventoryTransactionEntity? transaction;
   final List<InventoryTransactionOrderEntity>? initialOrders;
@@ -94,15 +95,11 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedWarehouseId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء اختيار مستودع الحركة')),
-      );
+      displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('الرجاء اختيار مستودع الحركة')));
       return;
     }
     if (_orders.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('يجب إضافة بند واحد على الأقل للحركة')),
-      );
+      displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('يجب إضافة بند واحد على الأقل للحركة')));
       return;
     }
 
@@ -127,16 +124,15 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Dialog(
+    return ContentDialog(
       constraints: BoxConstraints(
         maxWidth: 700,
         maxHeight: MediaQuery.of(context).size.height * 0.9,
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: _isLoadingCategories
+      content: _isLoadingCategories
           ? const SizedBox(
               height: 300,
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: const ProgressRing()),
             )
           : Form(
               key: _formKey,
@@ -177,7 +173,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                         child: DropdownButtonFormField<InventoryTransactionType>(
                           decoration: const InputDecoration(
                             labelText: 'نوع الحركة',
-                            prefixIcon: Icon(Icons.swap_horiz),
+                            prefixIcon: Icon(Icons.transform),
                           ),
                           initialValue: _selectedType,
                           items: InventoryTransactionType.values.map((type) {
@@ -228,7 +224,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                           textDirection: TextDirection.ltr,
                           decoration: const InputDecoration(
                             labelText: 'رقم الفاتورة/السند الدفتري',
-                            prefixIcon: Icon(Icons.confirmation_number_outlined),
+                            prefixIcon: Icon(Icons.event_available),
                           ),
                           keyboardType: TextInputType.number,
                           validator: (val) =>
@@ -243,7 +239,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                           controller: _noteController,
                           decoration: const InputDecoration(
                             labelText: 'بيان/ملاحظات الحركة',
-                            prefixIcon: Icon(Icons.note_outlined),
+                            prefixIcon: Icon(Icons.note),
                           ),
                         ),
                       ),
@@ -277,7 +273,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                           backgroundColor: theme.colorScheme.primaryContainer,
                           foregroundColor: theme.colorScheme.onPrimaryContainer,
                         ),
-                        icon: const Icon(Icons.add_shopping_cart, size: 16),
+                        icon: const Icon(Icons.playlist_add, size: 16),
                         label: const Text('إضافة بند'),
                       ),
                     ],
@@ -320,7 +316,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                                         ),
                                         const SizedBox(width: 16),
                                         IconButton(
-                                          icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                                          icon: const Icon(Icons.remove_circle, color: Colors.red),
                                           onPressed: () {
                                             setState(() {
                                               _orders.removeAt(index);
@@ -351,7 +347,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         ),
-                        icon: const Icon(Icons.save_outlined),
+                        icon: const Icon(Icons.save),
                         label: Text(_isEdit ? 'حفظ إذن الحركة' : 'حفظ وإصدار الإذن'),
                       ),
                     ],

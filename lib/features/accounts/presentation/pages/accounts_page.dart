@@ -9,6 +9,7 @@ import 'trial_balance/trial_balance_page.dart';
 import 'group_balances/group_balances_report_page.dart';
 import 'account_types/account_types_management_page.dart';
 
+// fluent_ui import removed
 class AccountsTabNotifier extends ChangeNotifier {
   final TabController tabController;
   int? selectedSubAccountId;
@@ -61,8 +62,7 @@ class _AccountsPageState extends State<AccountsPage>
         appBar: AppBar(
           title: Row(
             children: [
-              Icon(
-                Icons.account_balance_outlined,
+              Icon(Icons.account_tree,
                 color: theme.colorScheme.primary,
                 size: 28,
               ),
@@ -80,20 +80,20 @@ class _AccountsPageState extends State<AccountsPage>
             isScrollable: true,
             indicatorSize: TabBarIndicatorSize.tab,
             indicatorWeight: 3,
-            tabs: const [
+            tabs: [
               Tab(
-                icon: Icon(Icons.account_tree_outlined),
+                icon: Icon(Icons.manage_accounts),
                 text: 'دليل الحسابات',
               ),
-              Tab(icon: Icon(Icons.book_outlined), text: 'قيود اليومية'),
-              Tab(icon: Icon(Icons.receipt_long_outlined), text: 'كشف حساب'),
+              Tab(icon: Icon(Icons.book), text: 'قيود اليومية'),
+              Tab(icon: Icon(Icons.receipt_long), text: 'كشف حساب'),
               Tab(
-                icon: Icon(Icons.compare_arrows_outlined),
+                icon: Icon(Icons.compare),
                 text: 'ميزان المراجعة',
               ),
-              Tab(icon: Icon(Icons.pie_chart_outline), text: 'تقرير الأرصدة'),
+              Tab(icon: Icon(Icons.pie_chart), text: 'تقرير الأرصدة'),
               Tab(
-                icon: Icon(Icons.settings_applications_outlined),
+                icon: Icon(Icons.settings),
                 text: 'أنواع الحسابات',
               ),
             ],

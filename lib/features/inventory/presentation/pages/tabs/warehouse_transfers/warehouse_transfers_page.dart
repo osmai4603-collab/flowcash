@@ -13,6 +13,7 @@ import 'package:flowcash/features/inventory/presentation/blocs/warehouse_transfe
 import 'transfer_form_dialog.dart';
 import 'transfer_detail_panel.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class WarehouseTransfersPage extends StatefulWidget {
   const WarehouseTransfersPage({super.key});
 
@@ -78,19 +79,14 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
         listener: (context, state) {
           if (state.status == TransfersStatus.error &&
               state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: theme.colorScheme.error,
-              ),
-            );
+            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
           }
         },
         builder: (context, state) {
           final bloc = context.read<WarehouseTransfersBloc>();
 
           if (state.status == TransfersStatus.loading || _isLoadingMetaData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: ProgressRing());
           }
 
           // Filter for only "Outward" transfer transactions to avoid duplicate listing of double-sided transfers
@@ -171,7 +167,7 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                                   decoration: InputDecoration(
                                     hintText:
                                         'البحث برقم سند النقل أو التفاصيل... 🔍',
-                                    prefixIcon: const Icon(Icons.search),
+                                    prefixIcon: const Icon(FluentIcons.search),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
@@ -190,32 +186,36 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
 
                               // From Warehouse filter
                               Expanded(
-                                child: DropdownButtonFormField<int?>(
-                                  isExpanded: true,
-                                  decoration: InputDecoration(
-                                    hintText: 'من مستودع 📤',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                    ),
-                                  ),
-                                  initialValue: _filterFromWarehouseId,
-                                  items: [
-                                    const DropdownMenuItem<int?>(
-                                      value: null,
-                                      child: Text('من مستودع 📤'),
-                                    ),
-                                    ...state.warehouses.map((w) {
-                                      return DropdownMenuItem<int?>(
-                                        value: w.id,
-                                        child: Text(w.warehouseName),
-                                      );
-                                    }),
-                                  ],
-                                  onChanged: (val) => setState(
-                                    () => _filterFromWarehouseId = val,
+                                child: SizedBox(
+                                  height: 40,
+                                  child: MenuBar(
+                                    children: [
+                                      SubmenuButton(
+                                        menuChildren: [
+                                          MenuItemButton(
+                                            onPressed: () => setState(
+                                              () => _filterFromWarehouseId = null,
+                                            ),
+                                            child: const Text('من مستودع 📤'),
+                                          ),
+                                          ...state.warehouses.map(
+                                            (w) => MenuItemButton(
+                                              onPressed: () => setState(
+                                                () => _filterFromWarehouseId = w.id,
+                                              ),
+                                              child: Text(w.warehouseName),
+                                            ),
+                                          ),
+                                        ],
+                                        child: Text(
+                                          _filterFromWarehouseId == null
+                                              ? 'من مستودع 📤'
+                                              : state.warehouses.where((w) => w.id == _filterFromWarehouseId).isEmpty
+                                                  ? 'من مستودع 📤'
+                                                  : state.warehouses.where((w) => w.id == _filterFromWarehouseId).first.warehouseName,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -225,13 +225,9 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                               ElevatedButton.icon(
                                 onPressed: () async {
                                   if (state.batches.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
+                                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(
                                           'الرجاء إنشاء دفعات أصناف أولاً',
-                                        ),
-                                      ),
-                                    );
+                                        )));
                                     return;
                                   }
                                   final result =
@@ -273,7 +269,7 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                icon: const Icon(Icons.local_shipping_outlined),
+                                icon: const Icon(FluentIcons.shopping_cart),
                                 label: const Text(
                                   'إجراء نقل',
                                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -487,8 +483,7 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  Icons.local_shipping_outlined,
+                                Icon(FluentIcons.shopping_cart,
                                   size: 48,
                                   color: Colors.grey,
                                 ),
@@ -512,7 +507,7 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                           onDelete: (fromId, toId) {
                             showDialog(
                               context: context,
-                              builder: (context) => AlertDialog(
+                              builder: (context) => ContentDialog(
                                 title: const Text(
                                   'عكس وإلغاء عملية التحويل ⚠️',
                                 ),

@@ -4,6 +4,7 @@ import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dar
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
 class InventoryItemDetailPanel extends StatelessWidget {
   final InventoryEntity item;
   final List<CategoryEntity> categories;
@@ -82,8 +83,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
                   CircleAvatar(
                     backgroundColor: theme.colorScheme.primary.withAlpha(40),
                     radius: 28,
-                    child: Icon(
-                      Icons.inventory_2_outlined,
+                    child: Icon(Icons.production_quantity_limits,
                       color: theme.colorScheme.primary,
                       size: 28,
                     ),
@@ -123,14 +123,14 @@ class InventoryItemDetailPanel extends StatelessWidget {
               const SizedBox(height: 16),
               _buildDetailRow(
                 context,
-                Icons.warehouse_outlined,
+                Icons.production_quantity_limits,
                 'المستودع الرئيسي:',
                 _getWarehouseName(item.storeId),
               ),
               // costType removed from inventory card
               _buildDetailRow(
                 context,
-                Icons.tag_outlined,
+                Icons.label,
                 'عدد الوحدات:',
                 item.countUnits.toString(),
               ),
@@ -147,28 +147,28 @@ class InventoryItemDetailPanel extends StatelessWidget {
               const SizedBox(height: 16),
               _buildAccountRow(
                 context,
-                Icons.trending_up,
+                Icons.arrow_circle_up,
                 'حساب الإيرادات (المبيعات):',
                 _getAccountName(item.revenueAccountId),
                 Colors.green,
               ),
               _buildAccountRow(
                 context,
-                Icons.trending_down,
+                Icons.arrow_circle_down,
                 'حساب المصروفات (المشتريات):',
                 _getAccountName(item.expenseAccountId),
                 Colors.red,
               ),
               _buildAccountRow(
                 context,
-                Icons.login_outlined,
+                Icons.login,
                 'حساب مخزون الوارد:',
                 _getAccountName(item.incomeStockId),
                 Colors.blue,
               ),
               _buildAccountRow(
                 context,
-                Icons.logout_outlined,
+                Icons.logout,
                 'حساب مخزون الصادر:',
                 _getAccountName(item.outcomeStockId),
                 Colors.orange,
@@ -190,8 +190,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      icon: Icon(
-                        Icons.edit_outlined,
+                      icon: Icon(Icons.edit,
                         color: theme.colorScheme.primary,
                       ),
                       label: Text(
@@ -215,7 +214,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      icon: const Icon(Icons.delete_sweep_outlined),
+                      icon: const Icon(Icons.delete_forever),
                       label: const Text(
                         'حذف البطاقة',
                         style: TextStyle(fontWeight: FontWeight.bold),

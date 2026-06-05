@@ -9,6 +9,7 @@ import 'package:flowcash/features/accounts/presentation/widgets/journal_entry_ro
 import 'package:flowcash/features/accounts/presentation/widgets/journal_entry_detail_panel.dart';
 import 'package:flowcash/features/accounts/presentation/pages/journal_entries/journal_entry_form_dialog.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
 class JournalEntriesPage extends StatefulWidget {
   const JournalEntriesPage({super.key});
 
@@ -53,10 +54,10 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     final bloc = context.read<JournalEntriesBloc>();
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => ContentDialog(
         title: Row(
           children: const [
-            Icon(Icons.warning_amber_rounded, color: Colors.red),
+            Icon(FluentIcons.warning, color: Colors.red),
             SizedBox(width: 10),
             Text('تأكيد الحذف'),
           ],
@@ -119,7 +120,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Row(
                           children: [
-                            Icon(Icons.search, color: theme.colorScheme.onSurface.withAlpha(120)),
+                            Icon(FluentIcons.search, color: theme.colorScheme.onSurface.withAlpha(120)),
                             const SizedBox(width: 8),
                             Expanded(
                               child: TextField(
@@ -133,7 +134,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                             ),
                             if (_searchQuery.isNotEmpty)
                               IconButton(
-                                icon: const Icon(Icons.clear, size: 18),
+                                icon: const Icon(FluentIcons.clear, size: 18),
                                 onPressed: () => _searchController.clear(),
                               ),
                           ],
@@ -145,7 +146,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                     // Add Entry button
                     ElevatedButton.icon(
                       onPressed: () => _showEntryDialog(context),
-                      icon: const Icon(Icons.add),
+                      icon: const Icon(FluentIcons.add),
                       label: const Text('إضافة قيد جديد'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.colorScheme.primary,
@@ -161,7 +162,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
 
                     // Refresh Button
                     IconButton(
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(FluentIcons.refresh),
                       tooltip: 'إعادة تحميل البيانات',
                       onPressed: () => context.read<JournalEntriesBloc>().add(const LoadJournalEntries()),
                     ),
@@ -213,7 +214,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                               // Items List
                               Expanded(
                                 child: state.status == JournalEntriesStatus.loading
-                                    ? const Center(child: CircularProgressIndicator())
+                                    ? const Center(child: ProgressRing())
                                     : state.status == JournalEntriesStatus.failure
                                         ? Center(child: Text('خطأ في تحميل القيود: ${state.errorMessage}'))
                                         : filteredEntries.isEmpty
@@ -256,8 +257,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(
-                                        Icons.description_outlined,
+                                      Icon(FluentIcons.note_pinned,
                                         size: 64,
                                         color: theme.colorScheme.onSurface.withAlpha(50),
                                       ),

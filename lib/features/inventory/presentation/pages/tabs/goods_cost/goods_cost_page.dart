@@ -9,6 +9,7 @@ import 'package:flowcash/features/inventory/presentation/blocs/goods_cost/goods_
 
 import 'goods_cost_form_dialog.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class GoodsCostPage extends StatefulWidget {
   const GoodsCostPage({super.key});
 
@@ -41,16 +42,14 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
       child: BlocConsumer<GoodsCostBloc, GoodsCostState>(
         listener: (context, state) {
           if (state.status == GoodsCostStatus.error && state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage!), backgroundColor: theme.colorScheme.error),
-            );
+            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
           }
         },
         builder: (context, state) {
           final bloc = context.read<GoodsCostBloc>();
 
           if (state.status == GoodsCostStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: ProgressRing());
           }
 
           // Apply client filters
@@ -81,7 +80,7 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'البحث برقم السند أو البيان... 🔍',
-                              prefixIcon: const Icon(Icons.search),
+                              prefixIcon: const Icon(FluentIcons.search),
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                             ),
@@ -90,20 +89,33 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: DropdownButtonFormField<int?>(
-                            decoration: InputDecoration(
-                              hintText: 'كل المخازن 🏢',
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: SizedBox(
+                            height: 40,
+                            child: MenuBar(
+                              children: [
+                                SubmenuButton(
+                                  menuChildren: [
+                                    MenuItemButton(
+                                      onPressed: () => setState(() => _filterWarehouseId = null),
+                                      child: const Text('كل المخازن 🏢'),
+                                    ),
+                                    ...state.warehouses.map(
+                                      (w) => MenuItemButton(
+                                        onPressed: () => setState(() => _filterWarehouseId = w.id),
+                                        child: Text(w.warehouseName),
+                                      ),
+                                    ),
+                                  ],
+                                  child: Text(
+                                    _filterWarehouseId == null
+                                        ? 'كل المخازن 🏢'
+                                        : state.warehouses.where((w) => w.id == _filterWarehouseId).isEmpty
+                                            ? 'كل المخازن 🏢'
+                                            : state.warehouses.where((w) => w.id == _filterWarehouseId).first.warehouseName,
+                                  ),
+                                ),
+                              ],
                             ),
-                            value: _filterWarehouseId,
-                            items: [
-                              const DropdownMenuItem<int?>(value: null, child: Text('كل المخازن 🏢')),
-                              ...state.warehouses.map((w) {
-                                return DropdownMenuItem<int?>(value: w.id, child: Text(w.warehouseName));
-                              }),
-                            ],
-                            onChanged: (val) => setState(() => _filterWarehouseId = val),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -122,7 +134,7 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                           ),
-                          icon: const Icon(Icons.add),
+                          icon: const Icon(FluentIcons.add),
                           label: const Text('تسجيل تكلفة', style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       ],
@@ -203,11 +215,11 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
                                           child: Align(
                                             alignment: Alignment.centerRight,
                                             child: IconButton(
-                                              icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                              icon: const Icon(FluentIcons.delete, color: Colors.red),
                                               onPressed: () {
                                                 showDialog(
                                                   context: context,
-                                                  builder: (context) => AlertDialog(
+                                                  builder: (context) => ContentDialog(
                                                     title: const Text('حذف قيد التكلفة ⚠️'),
                                                     content: const Text('هل أنت متأكد من رغبتك في حذف قيد تكلفة البضاعة هذا؟'),
                                                     actions: [

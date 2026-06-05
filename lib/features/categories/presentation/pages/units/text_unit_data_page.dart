@@ -15,6 +15,7 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog;
 class TextUnitDataPage extends StatefulWidget {
   final CategoryPropertyEntity property;
   final UnitEntity? unit;
@@ -108,9 +109,9 @@ class _TextUnitDataPageState extends State<TextUnitDataPage> {
             if (didPop) return;
             _onBackPressed();
           },
-          child: Dialog(
+          child: ContentDialog(
             constraints: const BoxConstraints(maxWidth: 400.0),
-            child: Padding(
+            content: Padding(
               padding: Paddings.mediumAll,
               child: ShimmerLoadingWidget(
                 canShimmer: isLoading,
@@ -126,7 +127,7 @@ class _TextUnitDataPageState extends State<TextUnitDataPage> {
                         Row(
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.arrow_back_outlined),
+                              icon: const Icon(Icons.arrow_back),
                               tooltip: 'رجوع',
                               onPressed: () => Navigator.pop(context),
                             ),
@@ -169,8 +170,7 @@ class _TextUnitDataPageState extends State<TextUnitDataPage> {
                             labelStyle: Styles.titleMedium.copyWith(
                               color: ColorScheme.of(context).primary,
                             ),
-                            prefixIcon: Icon(
-                              Icons.model_training,
+                            prefixIcon: Icon(Icons.widgets,
                               color: ColorScheme.of(context).primary,
                             ),
                           ),

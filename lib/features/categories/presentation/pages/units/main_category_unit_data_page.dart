@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flowcash/core/theme/styles.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons;
 class MainCategoryUnitDataPage extends StatefulWidget {
   final MainCategoryEntity mainCategory;
   const MainCategoryUnitDataPage({super.key, required this.mainCategory});
@@ -107,9 +108,9 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
         if (didPop) return;
         _onBackPressed();
       },
-      child: Dialog(
+      child: ContentDialog(
         constraints: const BoxConstraints(maxWidth: 500.0),
-        child: Padding(
+        content: Padding(
           padding: Paddings.mediumAll,
           child: SingleChildScrollView(
             child: Form(
@@ -121,7 +122,7 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.arrow_back_outlined),
+                        icon: const Icon(FluentIcons.back),
                         tooltip: 'رجوع',
                         onPressed: _onBackPressed,
                       ),
@@ -131,7 +132,7 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                         alignment: Alignment.center,
                       ),
                       IconButton(
-                        icon: const Icon(Icons.save),
+                        icon: const Icon(FluentIcons.save),
                         tooltip: 'حفظ البيانات',
                         onPressed: () => _onSaveButtonClicked(context),
                       ),
@@ -163,8 +164,7 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                         color: colors.primary,
                       ),
 
-                      prefixIcon: Icon(
-                        Icons.category_outlined,
+                      prefixIcon: Icon(FluentIcons.category_classification,
                         color: colors.primary,
                       ),
                     ),

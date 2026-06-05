@@ -8,6 +8,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/group_balances/gro
 import 'package:flowcash/features/accounts/presentation/blocs/group_balances/group_balances_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/group_balances/group_balances_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
 class GroupBalancesReportPage extends StatefulWidget {
   const GroupBalancesReportPage({super.key});
 
@@ -70,10 +71,10 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                 decoration: InputDecoration(
                                   labelText: 'من تاريخ',
                                   border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(Icons.date_range_outlined),
+                                  prefixIcon: const Icon(FluentIcons.calendar_settings),
                                   suffixIcon: _startDate != null
                                       ? IconButton(
-                                          icon: const Icon(Icons.clear, size: 18),
+                                          icon: const Icon(FluentIcons.clear, size: 18),
                                           onPressed: () {
                                             setState(() {
                                               _startDate = null;
@@ -98,10 +99,10 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                 decoration: InputDecoration(
                                   labelText: 'إلى تاريخ',
                                   border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(Icons.date_range_outlined),
+                                  prefixIcon: const Icon(FluentIcons.calendar_settings),
                                   suffixIcon: _endDate != null
                                       ? IconButton(
-                                          icon: const Icon(Icons.clear, size: 18),
+                                          icon: const Icon(FluentIcons.clear, size: 18),
                                           onPressed: () {
                                             setState(() {
                                               _endDate = null;
@@ -126,7 +127,7 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                     endDate: _endDate,
                                   ));
                             },
-                            icon: const Icon(Icons.pie_chart),
+                            icon: const Icon(FluentIcons.chart),
                             label: const Text('عرض التقرير'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: theme.colorScheme.primary,
@@ -139,7 +140,7 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
 
                           // Refresh Button
                           IconButton(
-                            icon: const Icon(Icons.refresh),
+                            icon: const Icon(FluentIcons.refresh),
                             tooltip: 'إعادة تحميل البيانات',
                             onPressed: () {
                               context.read<GroupBalancesBloc>().add(LoadGroupBalances(
@@ -156,7 +157,7 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                     // 2. Main Content
                     Expanded(
                       child: state.status == GroupBalancesStatus.loading
-                          ? const Center(child: CircularProgressIndicator())
+                          ? const Center(child: ProgressRing())
                           : state.status == GroupBalancesStatus.failure
                               ? Center(child: Text('خطأ في تحميل التقرير: ${state.errorMessage}'))
                               : _buildReportContent(context, state),
@@ -265,8 +266,7 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                               group.displayName(),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
-                            Icon(
-                              Icons.folder,
+                            Icon(FluentIcons.folder,
                               color: theme.colorScheme.primary.withAlpha(180),
                               size: 20,
                             ),
@@ -299,7 +299,7 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
         // Detail Table Title
         Row(
           children: [
-            Icon(Icons.list_alt, color: theme.colorScheme.primary),
+            Icon(FluentIcons.list, color: theme.colorScheme.primary),
             const SizedBox(width: 8),
             Text(
               _selectedGroupFilter == null

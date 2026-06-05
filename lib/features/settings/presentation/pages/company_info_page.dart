@@ -8,6 +8,7 @@ import '../bloc/settings/settings_event.dart';
 import '../bloc/settings/settings_state.dart';
 import '../widgets/setting_tile.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ProgressRing;
 class CompanyInfoPage extends StatelessWidget {
   const CompanyInfoPage({super.key});
 
@@ -22,7 +23,7 @@ class CompanyInfoPage extends StatelessWidget {
           child: BlocBuilder<SettingsBloc, SettingsState>(
             builder: (context, state) {
               if (state.status == SettingsStatus.loading) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: ProgressRing());
               }
               if (state.status == SettingsStatus.failure) {
                 return Center(child: Text(state.errorMessage ?? 'Failed to load company info'));

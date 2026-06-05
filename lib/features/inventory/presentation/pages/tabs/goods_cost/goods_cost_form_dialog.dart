@@ -3,6 +3,7 @@ import 'package:flowcash/features/inventory/domain/entities/goods_cost_entity.da
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons;
 class GoodsCostFormDialog extends StatefulWidget {
   final List<WarehouseEntity> warehouses;
 
@@ -67,9 +68,8 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
+    return ContentDialog(
+      content: Container(
         width: 500,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
@@ -88,7 +88,7 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.price_check_outlined, color: theme.colorScheme.primary, size: 28),
+                  Icon(FluentIcons.receipt_check, color: theme.colorScheme.primary, size: 28),
                   const SizedBox(width: 8),
                   const Text('تسجيل تكلفة بضاعة جديدة 💰', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ],
@@ -99,7 +99,7 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
               DropdownButtonFormField<int>(
                 decoration: const InputDecoration(
                   labelText: 'اختر المستودع الرئيسي',
-                  prefixIcon: Icon(Icons.store),
+                  prefixIcon: Icon(FluentIcons.store_logo16),
                 ),
                 initialValue: _selectedWarehouseId,
                 items: widget.warehouses.map((w) {
@@ -123,7 +123,7 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
                       textDirection: TextDirection.ltr,
                       decoration: const InputDecoration(
                         labelText: 'رقم السند/الفاتورة',
-                        prefixIcon: Icon(Icons.confirmation_number_outlined),
+                        prefixIcon: Icon(FluentIcons.ticket),
                       ),
                       keyboardType: TextInputType.number,
                       validator: (val) => val == null || val.isEmpty ? 'رقم السند مطلوب' : null,
@@ -134,7 +134,7 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
                     child: DropdownButtonFormField<String>(
                       decoration: const InputDecoration(
                         labelText: 'العملة',
-                        prefixIcon: Icon(Icons.currency_exchange_outlined),
+                        prefixIcon: Icon(FluentIcons.currency),
                       ),
                       initialValue: _selectedCurrency,
                       items: const [
@@ -154,7 +154,7 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
                 textDirection: TextDirection.ltr,
                 decoration: const InputDecoration(
                   labelText: 'المبلغ الإجمالي لتكلفة البضاعة',
-                  prefixIcon: Icon(Icons.attach_money_outlined),
+                  prefixIcon: Icon(FluentIcons.money),
                 ),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (val) {
@@ -171,7 +171,7 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
                 controller: _noteController,
                 decoration: const InputDecoration(
                   labelText: 'بيان/ملاحظات الحركة',
-                  prefixIcon: Icon(Icons.note_outlined),
+                  prefixIcon: Icon(FluentIcons.note_pinned),
                 ),
               ),
 

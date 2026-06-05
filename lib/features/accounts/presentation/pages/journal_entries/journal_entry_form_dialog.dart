@@ -17,6 +17,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/journal_entry_form
 // Widgets
 import 'package:flowcash/features/accounts/presentation/widgets/journal_item_row_form.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class JournalEntryFormDialog extends StatefulWidget {
   final JournalEntryEntity? entry;
 
@@ -87,12 +88,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
           }
           if (state.errorMessage != null &&
               state.errorMessage!.isNotEmpty && state.status == JournalEntryFormStatus.failure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: Colors.red,
-              ),
-            );
+            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
           }
           if (state.editingEntry != null && _descController.text.isEmpty) {
             _descController.text = state.description;
@@ -107,11 +103,11 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
           if (state.status == JournalEntryFormStatus.loading &&
               state.editingEntry != null &&
               state.items.isEmpty) {
-            return AlertDialog(
+            return ContentDialog(
               title: Row(
                 children: [
                   Icon(
-                    isEditing ? Icons.edit_note : Icons.add_task,
+                    isEditing ? FluentIcons.edit_note : FluentIcons.task_add,
                     color: theme.colorScheme.primary,
                   ),
                   const SizedBox(width: 10),
@@ -142,12 +138,12 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                 TextButton(onPressed: null, child: const Text('إلغاء')),
                 ElevatedButton(
                   onPressed: null,
-                  child: const SizedBox(
+                    child: const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(
+                    child: ProgressRing(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      activeColor: Colors.white,
                     ),
                   ),
                 ),
@@ -159,11 +155,11 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
             canShimmer: state.status == JournalEntryFormStatus.loading,
             freezeScreen: state.status == JournalEntryFormStatus.loading,
             period: const Duration(milliseconds: 900),
-            child: AlertDialog(
+            child: ContentDialog(
             title: Row(
-              children: [
+                children: [
                 Icon(
-                  isEditing ? Icons.edit_note : Icons.add_task,
+                  isEditing ? FluentIcons.edit_note : FluentIcons.task_add,
                   color: theme.colorScheme.primary,
                 ),
                 const SizedBox(width: 10),
@@ -188,7 +184,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                           decoration: const InputDecoration(
                             labelText: 'البيان العام للقيد',
                             
-                            prefixIcon: Icon(Icons.description_outlined),
+                            prefixIcon: Icon(FluentIcons.note_pinned),
                           ),
                           onChanged: (val) =>
                               bloc.add(JournalEntryDescriptionChanged(val)),
@@ -206,8 +202,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                             decoration: const InputDecoration(
                               labelText: 'التاريخ',
                               
-                              prefixIcon: Icon(
-                                Icons.calendar_month_outlined,
+                              prefixIcon: Icon(FluentIcons.calendar_settings,
                               ),
                             ),
                             child: Text(
@@ -229,7 +224,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                           decoration: const InputDecoration(
                             labelText: 'العملة',
                             
-                            prefixIcon: Icon(Icons.monetization_on_outlined),
+                            prefixIcon: Icon(FluentIcons.money),
                           ),
                           items: const [
                             DropdownMenuItem(
@@ -273,7 +268,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                           decoration: const InputDecoration(
                             labelText: 'سعر الصرف',
                             
-                            prefixIcon: Icon(Icons.attach_money_outlined),
+                            prefixIcon: Icon(FluentIcons.money),
                           ),
                           onChanged: (val) {
                             final rate = double.tryParse(val) ?? 1.0;
@@ -315,7 +310,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                               JournalItemSide.debit,
                             ),
                           ),
-                          icon: const Icon(Icons.add_circle_outline),
+                          icon: const Icon(FluentIcons.add),
                           label: const Text('إضافة بند مدين'),
                         ),
                       ],
@@ -409,8 +404,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                                       JournalItemSide.credit,
                                     ),
                                   ),
-                                  icon: const Icon(
-                                    Icons.add_circle_outline,
+                                  icon: const Icon(FluentIcons.add,
                                   ),
                                   label: const Text('إضافة بند دائن'),
                                 ),
@@ -493,11 +487,11 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                           children: [
                             Icon(
                               state.isBalanced
-                                  ? Icons.check_circle
-                                  : Icons.warning,
+                                ? FluentIcons.skype_circle_check
+                                : FluentIcons.warning,
                               color: state.isBalanced
-                                  ? Colors.green
-                                  : Colors.orange,
+                                ? Colors.green
+                                : Colors.orange,
                             ),
                             const SizedBox(width: 8),
                             Text(
@@ -565,13 +559,13 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: theme.colorScheme.onPrimary,
                 ),
-                child: state.status == JournalEntryFormStatus.loading
+                        child: state.status == JournalEntryFormStatus.loading
                     ? const SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(
+                        child: ProgressRing(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          activeColor: Colors.white,
                         ),
                       )
                     : const Text('حفظ القيد'),

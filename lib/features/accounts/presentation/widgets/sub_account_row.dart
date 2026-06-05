@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
 class SubAccountRow extends StatelessWidget {
   final SubAccountEntity subAccount;
   final VoidCallback onEdit;
@@ -53,8 +54,7 @@ class SubAccountRow extends StatelessWidget {
                 padding: const EdgeInsetsDirectional.only(top: 4.0, bottom: 4.0),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.subdirectory_arrow_left,
+                    Icon(FluentIcons.double_chevron_left,
                       size: 16,
                       color: Colors.grey,
                     ),
@@ -148,8 +148,7 @@ class SubAccountRow extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(
-                          Icons.receipt_long,
+                        icon: const Icon(FluentIcons.receipt_processing,
                           size: 18,
                           color: Colors.blue,
                         ),
@@ -164,7 +163,7 @@ class SubAccountRow extends StatelessWidget {
                       ),
                       const SizedBox(width: 2),
                       IconButton(
-                        icon: const Icon(Icons.edit, size: 18, color: Colors.orange),
+                        icon: const Icon(FluentIcons.edit, size: 18, color: Colors.orange),
                         tooltip: 'تعديل',
                         onPressed: onEdit,
                         padding: EdgeInsets.zero,
@@ -176,7 +175,7 @@ class SubAccountRow extends StatelessWidget {
                       ),
                       const SizedBox(width: 2),
                       IconButton(
-                        icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                        icon: const Icon(FluentIcons.delete, size: 18, color: Colors.red),
                         tooltip: 'حذف',
                         onPressed: onDelete,
                         padding: EdgeInsets.zero,

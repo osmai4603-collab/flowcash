@@ -6,6 +6,7 @@ import 'package:flowcash/features/system/domain/entities/accounting_period_entit
 import 'package:flowcash/features/system/presentation/bloc/financial_periods/financial_periods_cubit.dart';
 import 'package:flowcash/features/system/presentation/pages/financial_periods/financial_period_form_page.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show InfoBar, ProgressRing, displayInfoBar;
 class FinancialPeriodsPage extends StatelessWidget {
   const FinancialPeriodsPage({Key? key}) : super(key: key);
 
@@ -116,9 +117,7 @@ class FinancialPeriodsPage extends StatelessWidget {
                 onTap: () async {
                   final didUpdate = await _openFinancialPeriodForm(context, item);
                   if (didUpdate == true && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('تم تحديث الفترة المالية')),
-                    );
+                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تم تحديث الفترة المالية')));
                     context.read<FinancialPeriodsBloc>().add(LoadFinancialPeriodsEvent());
                   }
                 },
@@ -161,9 +160,7 @@ class FinancialPeriodsPage extends StatelessWidget {
     if (result != null && context.mounted) {
       context.read<FinancialPeriodsBloc>().add(LoadFinancialPeriodsEvent());
       if (entity == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تمت إضافة الفترة المالية')),
-        );
+        displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تمت إضافة الفترة المالية')));
       }
     }
 
@@ -175,7 +172,7 @@ class FinancialPeriodsPage extends StatelessWidget {
     return BlocBuilder<FinancialPeriodsBloc, FinancialPeriodsState>(
       builder: (context, state) {
         if (state is FinancialPeriodsLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: ProgressRing());
         }
         if (state is FinancialPeriodsFailure) {
           return Center(

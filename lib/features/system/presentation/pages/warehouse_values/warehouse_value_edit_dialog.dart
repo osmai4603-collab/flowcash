@@ -5,6 +5,7 @@ import 'package:flowcash/features/accounts/domain/usecases/sub_account_repositor
 import 'package:flowcash/features/inventory/domain/entities/warehouse_value_entity.dart';
 import 'package:flowcash/features/inventory/domain/usecases/warehouse_value_usecases.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, ProgressRing;
 class WarehouseValueEditDialog extends StatefulWidget {
   const WarehouseValueEditDialog({super.key, required this.value});
 
@@ -99,8 +100,8 @@ class _WarehouseValueEditDialogState extends State<WarehouseValueEditDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return AlertDialog(
-      scrollable: true,
+    return ContentDialog(
+      
       title: const Text('تعديل قيمة المستودع'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -136,7 +137,7 @@ class _WarehouseValueEditDialogState extends State<WarehouseValueEditDialog> {
                 ),
                 const SizedBox(height: 12),
                 if (_isLoadingSubAccount) ...[
-                  const Center(child: CircularProgressIndicator()),
+                  const Center(child: ProgressRing()),
                   const SizedBox(height: 12),
                 ],
                 if (_subAccount != null) ...[
@@ -164,7 +165,7 @@ class _WarehouseValueEditDialogState extends State<WarehouseValueEditDialog> {
               ? const SizedBox(
                   height: 18,
                   width: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: ProgressRing(strokeWidth: 2),
                 )
               : const Text('حفظ'),
         ),

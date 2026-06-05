@@ -6,6 +6,7 @@ import 'package:flowcash/features/currencies/domain/entities/currency_entity.dar
 import 'package:flowcash/features/system/presentation/bloc/currencies/currencies_cubit.dart';
 import 'package:flowcash/features/system/presentation/pages/currencies/currency_form_page.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class CurrenciesPage extends StatelessWidget {
   const CurrenciesPage({Key? key}) : super(key: key);
 
@@ -58,7 +59,7 @@ class CurrenciesPage extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: FilledButton.icon(
                 onPressed: () => _openCurrencyForm(context, null),
-                icon: const Icon(Icons.add),
+                icon: const Icon(FluentIcons.add),
                 label: const Text('إضافة عملة'),
               ),
             ),
@@ -80,7 +81,7 @@ class CurrenciesPage extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: FilledButton.icon(
               onPressed: () => _openCurrencyForm(context, null),
-              icon: const Icon(Icons.add),
+              icon: const Icon(FluentIcons.add),
               label: const Text('إضافة عملة'),
             ),
           ),
@@ -111,9 +112,7 @@ class CurrenciesPage extends StatelessWidget {
                 onTap: () async {
                   final didUpdate = await _openCurrencyForm(context, item);
                   if (didUpdate == true && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('تم تحديث العملة')),
-                    );
+                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تم تحديث العملة')));
                     context.read<CurrenciesBloc>().add(LoadCurrenciesEvent());
                   }
                 },
@@ -156,9 +155,7 @@ class CurrenciesPage extends StatelessWidget {
     if (result != null && context.mounted) {
       context.read<CurrenciesBloc>().add(LoadCurrenciesEvent());
       if (entity == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تمت إضافة العملة')),
-        );
+        displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تمت إضافة العملة')));
       }
     }
 
@@ -170,7 +167,7 @@ class CurrenciesPage extends StatelessWidget {
     return BlocBuilder<CurrenciesBloc, CurrenciesState>(
       builder: (context, state) {
         if (state is CurrenciesLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: ProgressRing());
         }
         if (state is CurrenciesFailure) {
           return Center(

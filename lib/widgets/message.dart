@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:flowcash/core/theme/styles.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
 void error({
   required BuildContext context,
   String title = 'خطأ',
@@ -15,9 +16,8 @@ void error({
   await showDialog(
     context: context,
     builder: (c) {
-      return Dialog(
-        alignment: Alignment.center,
-        child: SizedBox(
+      return ContentDialog(
+        content: SizedBox(
           width: 500.0,
           child: Padding(
             padding: const EdgeInsets.all(5.0),
@@ -32,8 +32,7 @@ void error({
                         child: Row(
                           children: [
                             const SizedBox(width: 5.0),
-                            Icon(
-                              Icons.error_outline,
+                            Icon(FluentIcons.error,
                               size: 25,
                               color: Colors.red.shade500,
                             ),
@@ -48,7 +47,7 @@ void error({
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.close),
+                        icon: Icon(FluentIcons.chrome_close),
                         onPressed: () => Navigator.pop(c),
                       ),
                     ],
@@ -87,9 +86,8 @@ void successMessage({
   await showDialog(
     context: context,
     builder: (c) {
-      return Dialog(
-        alignment: Alignment.center,
-        child: SizedBox(
+      return ContentDialog(
+        content: SizedBox(
           width: 500.0,
           child: Padding(
             padding: const EdgeInsets.all(5.0),
@@ -104,8 +102,7 @@ void successMessage({
                         child: Row(
                           children: [
                             const SizedBox(width: 5.0),
-                            Icon(
-                              Icons.task_alt_outlined,
+                            Icon(FluentIcons.task_list,
                               size: 25,
                               color: ColorScheme.of(context).primary,
                             ),
@@ -120,7 +117,7 @@ void successMessage({
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.close),
+                        icon: Icon(FluentIcons.chrome_close),
                         onPressed: () => Navigator.pop(c),
                       ),
                     ],
@@ -150,8 +147,8 @@ void messageWithPath({
   await showDialog(
     context: context,
     builder: (c) {
-      return Dialog(
-        child: SizedBox(
+      return ContentDialog(
+        content: SizedBox(
           width: 500.0,
           child: Padding(
             padding: const EdgeInsets.all(5.0),
@@ -166,8 +163,7 @@ void messageWithPath({
                         child: Row(
                           children: [
                             const SizedBox(width: 5.0),
-                            Icon(
-                              Icons.task_alt_outlined,
+                            Icon(FluentIcons.task_list,
                               size: 25,
                               color: ColorScheme.of(context).primary,
                             ),
@@ -182,7 +178,7 @@ void messageWithPath({
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.close),
+                        icon: Icon(FluentIcons.chrome_close),
                         onPressed: () => Navigator.pop(c),
                       ),
                     ],
@@ -212,7 +208,7 @@ void messageWithPath({
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30.0),
                     child: OutlinedButton.icon(
-                      icon: Icon(Icons.copy, size: 20),
+                      icon: Icon(FluentIcons.copy, size: 20),
                       label: Text('نسخ المسار', style: Styles.bodyMedium),
                       onPressed: () async {
                         Navigator.pop(c);
@@ -311,8 +307,8 @@ Future<bool> makeSure({
   return await showDialog<bool>(
         context: context,
         builder: (c) {
-          return Dialog(
-            child: SizedBox(
+          return ContentDialog(
+            content: SizedBox(
               width: 400,
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
@@ -327,8 +323,7 @@ Future<bool> makeSure({
                             child: Row(
                               children: [
                                 const SizedBox(width: 5.0),
-                                Icon(
-                                  Icons.balance_outlined,
+                                Icon(FluentIcons.warning,
                                   size: 25,
                                   color: colors.primary,
                                 ),
@@ -343,8 +338,7 @@ Future<bool> makeSure({
                             ),
                           ),
                           IconButton(
-                            icon: Icon(
-                              Icons.close,
+                            icon: Icon(FluentIcons.chrome_close,
                               color: colors.onSurfaceVariant,
                             ),
                             onPressed: () => Navigator.pop(c),
@@ -430,7 +424,7 @@ Future<void> process({
             elevation: 2.0,
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.transparent,
-            child: CircularProgressIndicator(),
+            child: const ProgressRing(),
           ),
         ),
       );

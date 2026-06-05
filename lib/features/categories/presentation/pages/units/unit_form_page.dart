@@ -13,6 +13,7 @@ import 'package:flowcash/features/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show InfoBar, displayInfoBar;
 class UnitFormPage extends StatefulWidget {
   final UnitEntity? unit;
   final CategoryPropertyEntity property;
@@ -47,9 +48,7 @@ class _UnitFormPageState extends State<UnitFormPage> {
             Navigator.pop(context, state.saved);
           }
           if (state.status == UnitFormStatus.failure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.messageError ?? 'حدث خطأ')),
-            );
+            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.messageError ?? 'حدث خطأ')));
           }
         },
         child: BlocBuilder<UnitFormBloc, UnitFormState>(

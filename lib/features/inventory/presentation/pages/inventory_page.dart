@@ -10,6 +10,7 @@ import 'tabs/goods_cost/goods_cost_page.dart';
 import 'tabs/stocktaking/stocktaking_page.dart';
 import 'tabs/inventory_reports/inventory_reports_page.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
 class InventoryTabNotifier extends ChangeNotifier {
   final TabController tabController;
   int? selectedInventoryId;
@@ -62,8 +63,7 @@ class _InventoryPageState extends State<InventoryPage>
         appBar: AppBar(
           title: Row(
             children: [
-              Icon(
-                Icons.warehouse_outlined,
+              Icon(FluentIcons.product,
                 color: theme.colorScheme.primary,
                 size: 28,
               ),
@@ -86,31 +86,31 @@ class _InventoryPageState extends State<InventoryPage>
             unselectedLabelStyle: const TextStyle(fontSize: 14),
             tabs: const [
               Tab(
-                icon: Icon(Icons.inventory_2_outlined),
+                icon: Icon(FluentIcons.product),
                 text: 'قائمة المخزون',
               ),
               Tab(
-                icon: Icon(Icons.swap_horiz_outlined),
+                icon: Icon(FluentIcons.move),
                 text: 'حركات المخزون',
               ),
               Tab(
-                icon: Icon(Icons.local_shipping_outlined),
+                icon: Icon(FluentIcons.shopping_cart),
                 text: 'نقل بين المخازن',
               ),
               Tab(
-                icon: Icon(Icons.playlist_add_check_outlined),
+                icon: Icon(FluentIcons.page_checked_out),
                 text: 'أرصدة افتتاحية',
               ),
               Tab(
-                icon: Icon(Icons.price_check_outlined),
+                icon: Icon(FluentIcons.receipt_check),
                 text: 'تكلفة البضاعة',
               ),
               Tab(
-                icon: Icon(Icons.fact_check_outlined),
+                icon: Icon(FluentIcons.check_list),
                 text: 'جرد المخزون',
               ),
               Tab(
-                icon: Icon(Icons.assessment_outlined),
+                icon: Icon(FluentIcons.assessment_group),
                 text: 'تقارير المخزون',
               ),
             ],

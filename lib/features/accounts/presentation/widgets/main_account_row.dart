@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
 class MainAccountRow extends StatelessWidget {
   final MainAccountEntity mainAccount;
   final bool isExpanded;
@@ -55,9 +56,9 @@ class MainAccountRow extends StatelessWidget {
                 padding: const EdgeInsetsDirectional.only(start: 8.0),
                 child: IconButton(
                   icon: Icon(
-                    isExpanded
-                        ? Icons.keyboard_arrow_down
-                        : Icons.keyboard_arrow_left,
+                  isExpanded
+                    ? FluentIcons.chevron_down
+                    : FluentIcons.chevron_left,
                     size: 20,
                     color: theme.colorScheme.primary,
                   ),
@@ -160,8 +161,7 @@ class MainAccountRow extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      icon: const Icon(
-                        Icons.add_circle_outline,
+                      icon: const Icon(FluentIcons.add,
                         size: 20,
                         color: Colors.green,
                       ),
@@ -173,7 +173,7 @@ class MainAccountRow extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     IconButton(
-                      icon: const Icon(Icons.edit, size: 20, color: Colors.orange),
+                      icon: const Icon(FluentIcons.edit, size: 20, color: Colors.orange),
                       tooltip: 'تعديل',
                       onPressed: onEdit,
                       padding: EdgeInsets.zero,
@@ -182,7 +182,7 @@ class MainAccountRow extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     IconButton(
-                      icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+                      icon: const Icon(FluentIcons.delete, size: 20, color: Colors.red),
                       tooltip: 'حذف',
                       onPressed: onDelete,
                       padding: EdgeInsets.zero,

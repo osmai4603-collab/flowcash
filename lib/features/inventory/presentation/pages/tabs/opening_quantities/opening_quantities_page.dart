@@ -12,6 +12,7 @@ import 'package:flowcash/features/inventory/presentation/blocs/opening_quantitie
 
 import 'opening_quantity_form_dialog.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class OpeningQuantitiesPage extends StatefulWidget {
   const OpeningQuantitiesPage({super.key});
 
@@ -74,16 +75,14 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
       child: BlocConsumer<OpeningQuantitiesBloc, OpeningQuantitiesState>(
         listener: (context, state) {
           if (state.status == OpeningQuantitiesStatus.error && state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage!), backgroundColor: theme.colorScheme.error),
-            );
+            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
           }
         },
         builder: (context, state) {
           final bloc = context.read<OpeningQuantitiesBloc>();
 
           if (state.status == OpeningQuantitiesStatus.loading || _isLoadingMetaData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: ProgressRing());
           }
 
           // Apply client filters
@@ -113,7 +112,7 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'البحث باسم صنف المخزون... 🔍',
-                              prefixIcon: const Icon(Icons.search),
+                              prefixIcon: const Icon(FluentIcons.search),
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                             ),
@@ -122,29 +121,40 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: DropdownButtonFormField<int?>(
-                            decoration: InputDecoration(
-                              hintText: 'كل المخازن 🏢',
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: SizedBox(
+                            height: 40,
+                            child: MenuBar(
+                              children: [
+                                SubmenuButton(
+                                  menuChildren: [
+                                    MenuItemButton(
+                                      onPressed: () => setState(() => _filterWarehouseId = null),
+                                      child: const Text('كل المخازن 🏢'),
+                                    ),
+                                    ...state.warehouses.map(
+                                      (w) => MenuItemButton(
+                                        onPressed: () => setState(() => _filterWarehouseId = w.id),
+                                        child: Text(w.warehouseName),
+                                      ),
+                                    ),
+                                  ],
+                                  child: Text(
+                                    _filterWarehouseId == null
+                                        ? 'كل المخازن 🏢'
+                                        : state.warehouses.where((w) => w.id == _filterWarehouseId).isEmpty
+                                            ? 'كل المخازن 🏢'
+                                            : state.warehouses.where((w) => w.id == _filterWarehouseId).first.warehouseName,
+                                  ),
+                                ),
+                              ],
                             ),
-                            value: _filterWarehouseId,
-                            items: [
-                              const DropdownMenuItem<int?>(value: null, child: Text('كل المخازن 🏢')),
-                              ...state.warehouses.map((w) {
-                                return DropdownMenuItem<int?>(value: w.id, child: Text(w.warehouseName));
-                              }),
-                            ],
-                            onChanged: (val) => setState(() => _filterWarehouseId = val),
                           ),
                         ),
                         const SizedBox(width: 16),
                         ElevatedButton.icon(
                           onPressed: () async {
                             if (state.inventoryItems.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('الرجاء إنشاء أصناف مخزون أولاً')),
-                              );
+                              displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('الرجاء إنشاء أصناف مخزون أولاً')));
                               return;
                             }
                             final result = await showDialog<OpeningQuantityEntity>(
@@ -161,7 +171,7 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                           ),
-                          icon: const Icon(Icons.add),
+                          icon: const Icon(FluentIcons.add),
                           label: const Text('رصيد جديد', style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       ],
@@ -235,11 +245,11 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                                           child: Align(
                                             alignment: Alignment.centerRight,
                                             child: IconButton(
-                                              icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                              icon: const Icon(FluentIcons.delete, color: Colors.red),
                                               onPressed: () {
                                                 showDialog(
                                                   context: context,
-                                                  builder: (context) => AlertDialog(
+                                                  builder: (context) => ContentDialog(
                                                     title: const Text('حذف الرصيد الافتتاحي ⚠️'),
                                                     content: const Text('هل أنت متأكد من رغبتك في حذف هذا الرصيد الافتتاحي؟'),
                                                     actions: [

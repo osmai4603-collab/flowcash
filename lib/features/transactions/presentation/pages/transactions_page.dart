@@ -1,76 +1,50 @@
-import 'package:flutter/material.dart';
+import 'package:fluent_ui/fluent_ui.dart';
 
-class TransactionsPage extends StatefulWidget {
-  const TransactionsPage({super.key});
+class TransactionsDashboard extends StatefulWidget {
+  const TransactionsDashboard({super.key});
 
   @override
-  State<TransactionsPage> createState() => _TransactionsPageState();
+  State<TransactionsDashboard> createState() => _TransactionsDashboardState();
 }
 
-class _TransactionsPageState extends State<TransactionsPage>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
+class _TransactionsDashboardState extends State<TransactionsDashboard> {
+  int _selectedIndex = 0;
 
-  static const List<Tab> _tabs = [
-    Tab(text: 'فواتير المبيعات'),
-    Tab(text: 'فواتير المشتريات'),
-    Tab(text: 'المرتجعات'),
-    Tab(text: 'المصروفات والإيرادات'),
-    Tab(text: 'سندات القبض والصرف'),
-    Tab(text: 'الإيداعات والسحوبات'),
-    Tab(text: 'التقارير المالية'),
+  static const List<String> _titles = [
+    'فواتير المبيعات',
+    'فواتير المشتريات',
+    'المرتجعات',
+    'المصروفات والإيرادات',
+    'سندات القبض والصرف',
+    'الإيداعات والسحوبات',
+    'التقارير المالية',
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('المعاملات المالية'),
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          indicatorWeight: 3,
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-          tabs: _tabs,
+    return ScaffoldPage(
+      header: const PageHeader(
+        title: Row(
+          children: [
+            Icon(FluentIcons.money, size: 20),
+            SizedBox(width: 10),
+            Text('المعاملات المالية'),
+          ],
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              theme.colorScheme.surface,
-              theme.colorScheme.surface.withAlpha(240),
-            ],
+      content: NavigationView(
+        pane: NavigationPane(
+          selected: _selectedIndex,
+          onChanged: (index) => setState(() => _selectedIndex = index),
+          displayMode: PaneDisplayMode.top,
+          items: List<NavigationPaneItem>.generate(
+            _titles.length,
+            (i) => PaneItem(
+              icon: const Icon(FluentIcons.document),
+              title: Text(_titles[i]),
+              body: _TransactionsPlaceholder(title: _titles[i]),
+            ),
           ),
-        ),
-        child: TabBarView(
-          controller: _tabController,
-          physics: const NeverScrollableScrollPhysics(),
-          children: const [
-            _TransactionsPlaceholder(title: 'فواتير المبيعات'),
-            _TransactionsPlaceholder(title: 'فواتير المشتريات'),
-            _TransactionsPlaceholder(title: 'المرتجعات'),
-            _TransactionsPlaceholder(title: 'المصروفات والإيرادات'),
-            _TransactionsPlaceholder(title: 'سندات القبض والصرف'),
-            _TransactionsPlaceholder(title: 'الإيداعات والسحوبات'),
-            _TransactionsPlaceholder(title: 'التقارير المالية'),
-          ],
         ),
       ),
     );
@@ -84,14 +58,15 @@ class _TransactionsPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = FluentTheme.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          // elevation: 4,
+          // shape: RoundedRectangleBorder(
+          //   borderRadius: BorderRadius.circular(16),
+          // ),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -99,7 +74,7 @@ class _TransactionsPlaceholder extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: theme.typography.display,
                 ),
                 const SizedBox(height: 16),
                 const Text(

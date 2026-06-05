@@ -20,6 +20,7 @@ import 'package:flowcash/features/categories/presentation/pages/subcategories/su
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
 class CategoriesDashboardPage extends StatefulWidget {
   const CategoriesDashboardPage({super.key});
 
@@ -107,7 +108,7 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
           TextField(
             controller: searchController,
             decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search),
+              prefixIcon: Icon(FluentIcons.search),
               hintText: 'ابحث عن صنف هنا',
               
             ),
@@ -117,7 +118,7 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
             child: BlocBuilder<CategoriesBloc, CategoriesState>(
               builder: (context, state) {
                 if (state is CategoriesLoadInProgress) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: ProgressRing());
                 }
                 if (state is CategoriesLoadFailure) {
                   return Center(child: TextWidget(text: state.message));
@@ -134,7 +135,7 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
                           .toList();
                   return _buildCategoriesList(context, filtered);
                 }
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: ProgressRing());
               },
             ),
           ),
@@ -299,7 +300,7 @@ class _CategoriesDashboardSubcategoriesTabState extends State<CategoriesDashboar
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: ProgressRing());
         }
         if (snapshot.hasError || snapshot.data == null) {
           return const Center(child: TextWidget(text: 'حدث خطأ أثناء تحميل الأصناف الفرعية'));
@@ -384,7 +385,7 @@ class _CategoriesDashboardMainCategoriesTabState extends State<CategoriesDashboa
             TextField(
               controller: searchController,
               decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: Icon(FluentIcons.search),
                 hintText: 'ابحث عن صنف رئيسي هنا',
                 
               ),
@@ -394,7 +395,7 @@ class _CategoriesDashboardMainCategoriesTabState extends State<CategoriesDashboa
               child: BlocBuilder<MainCategoriesBloc, MainCategoriesState>(
                 builder: (context, state) {
                   if (state is MainCategoriesLoadInProgress || state is MainCategoriesInitial) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: ProgressRing());
                   }
                   if (state is MainCategoriesOperationFailure) {
                     return Center(child: TextWidget(text: state.message ?? 'فشل تحميل الأصناف الرئيسية'));
@@ -483,7 +484,7 @@ class _CategoriesDashboardUnitsTabState extends State<CategoriesDashboardUnitsTa
           TextField(
             controller: searchController,
             decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search),
+              prefixIcon: Icon(FluentIcons.search),
               hintText: 'ابحث عن وحدة هنا',
               
             ),
@@ -494,7 +495,7 @@ class _CategoriesDashboardUnitsTabState extends State<CategoriesDashboardUnitsTa
               future: _unitsFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: ProgressRing());
                 }
                 if (snapshot.hasError) {
                   return const Center(child: TextWidget(text: 'حدث خطأ أثناء تحميل الوحدات'));

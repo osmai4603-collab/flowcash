@@ -14,6 +14,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/sub_account_form/s
 import 'package:flowcash/features/accounts/presentation/blocs/sub_account_form/sub_account_form_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/sub_account_form/sub_account_form_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, InfoBar, ProgressRing, displayInfoBar;
 class SubAccountFormDialog extends StatefulWidget {
   final int mainAccountId;
   final SubAccountEntity? subAccount;
@@ -57,12 +58,7 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
             Navigator.of(context).pop(true);
           }
           if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: Colors.red,
-              ),
-            );
+            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
           }
           if (state.editingSubAccount != null && _nameController.text.isEmpty) {
             _nameController.text = state.accountName;
@@ -84,11 +80,11 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
             canShimmer: state.status == SubAccountFormStatus.loading,
             freezeScreen: state.status == SubAccountFormStatus.loading,
             period: const Duration(milliseconds: 900),
-            child: AlertDialog(
+            child: ContentDialog(
             title: Row(
               children: [
                 Icon(
-                  isEditing ? Icons.edit_note : Icons.add_circle_outline,
+                  isEditing ? Icons.edit : Icons.add,
                   color: theme.colorScheme.primary,
                 ),
                 const SizedBox(width: 10),
@@ -120,7 +116,9 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
-                      ),
+                        ),
+                  
+                      
 
                     // Account Name
                     TextField(
@@ -128,7 +126,7 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                       decoration: const InputDecoration(
                         labelText: 'اسم الحساب الفرعي',
                         
-                        prefixIcon: Icon(Icons.label_important_outline),
+                        prefixIcon: Icon(Icons.info),
                       ),
                       onChanged: (val) => bloc.add(SubAccountNameChanged(val)),
                     ),
@@ -140,7 +138,7 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                       decoration: const InputDecoration(
                         labelText: 'نوع الحساب الفرعي',
                         
-                        prefixIcon: Icon(Icons.account_tree_outlined),
+                        prefixIcon: Icon(Icons.manage_accounts),
                       ),
                       items: state.parentMainAccount == null
                           ? []
@@ -166,7 +164,7 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                       decoration: const InputDecoration(
                         labelText: 'العملة',
                         
-                        prefixIcon: Icon(Icons.monetization_on_outlined),
+                        prefixIcon: Icon(Icons.attach_money),
                       ),
                       items: const [
                         DropdownMenuItem(value: '1', child: Text('ريال يمني')),
@@ -194,7 +192,7 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                       decoration: const InputDecoration(
                         labelText: 'الحد الأقصى للرصيد (اختياري)',
                         
-                        prefixIcon: Icon(Icons.warning_amber_outlined),
+                        prefixIcon: Icon(Icons.warning),
                       ),
                       onChanged: (val) {
                         final numVal = double.tryParse(val);
@@ -238,8 +236,19 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                       ),
                   ],
                 ),
+            
               ),
-            ),
+
+
+
+
+
+
+
+
+                
+              ),
+            
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -257,10 +266,7 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                     ? const SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
                     : const Text('حفظ'),
               ),
@@ -280,7 +286,7 @@ class _SubaccountShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return ContentDialog(
       content: AppShimmer(
         child: SizedBox(
           width: 450,

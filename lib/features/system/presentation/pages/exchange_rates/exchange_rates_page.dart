@@ -6,6 +6,7 @@ import 'package:flowcash/features/currencies/domain/entities/exchange_price_enti
 import 'package:flowcash/features/system/presentation/bloc/exchange_rates/exchange_rates_cubit.dart';
 import 'package:flowcash/features/system/presentation/pages/exchange_rates/exchange_price_form_page.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show InfoBar, ProgressRing, displayInfoBar;
 class ExchangeRatesPage extends StatelessWidget {
   const ExchangeRatesPage({super.key});
 
@@ -58,9 +59,7 @@ class ExchangeRatesPage extends StatelessWidget {
                     builder: (context) => ExchangePriceFormPage(initialValue: item),
                   );
                   if (didUpdate == true && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('تم تحديث سعر الصرف')),
-                    );
+                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تم تحديث سعر الصرف')));
                     context.read<ExchangeRatesBloc>().add(LoadExchangeRatesEvent());
                   }
                 },
@@ -120,7 +119,7 @@ class ExchangeRatesPage extends StatelessWidget {
     return BlocBuilder<ExchangeRatesBloc, ExchangeRatesState>(
       builder: (context, state) {
         if (state is ExchangeRatesLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: ProgressRing());
         }
         if (state is ExchangeRatesFailure) {
           return Center(

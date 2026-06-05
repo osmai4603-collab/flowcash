@@ -18,6 +18,7 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons;
 class MeterUnitDataPage extends StatefulWidget {
   final UnitEntity? unit;
   final CategoryPropertyEntity property;
@@ -151,8 +152,8 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
             if (didPop) return;
             _onBackPressed();
           },
-          child: Dialog(
-            child: SizedBox(
+          child: ContentDialog(
+            content: SizedBox(
               width: 400.0,
               child: Padding(
                 padding: Paddings.mediumAll,
@@ -169,7 +170,7 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
                           Row(
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.arrow_back_outlined),
+                                icon: const Icon(FluentIcons.back),
                                 tooltip: 'رجوع',
                                 onPressed: () => Navigator.pop(context),
                               ),
@@ -180,7 +181,7 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
                                 expanded: true,
                               ),
                               IconButton(
-                                icon: const Icon(Icons.save),
+                                icon: const Icon(FluentIcons.save),
                                 tooltip: 'حفظ البيانات',
                                 onPressed: _onSaveButtonClicked,
                               ),
@@ -314,7 +315,7 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
         hintStyle: Styles.titleSmall.copyWith(color: colors.onSurfaceVariant),
         labelText: 'ال$title',
         labelStyle: Styles.titleMedium.copyWith(color: colors.primary),
-        prefixIcon: Icon(Icons.line_weight_outlined, color: colors.primary),
+        prefixIcon: Icon(FluentIcons.light_weight, color: colors.primary),
       ),
     );
   }

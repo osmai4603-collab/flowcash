@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/system/presentation/bloc/value_counters/value_counters_cubit.dart';
 import 'package:flowcash/features/settings/domain/entities/value_counter_entity.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, ProgressRing;
 class ValueCountersPage extends StatelessWidget {
   const ValueCountersPage({super.key});
 
@@ -112,7 +113,7 @@ class ValueCountersPage extends StatelessWidget {
 
                     await showDialog<void>(
                       context: context,
-                      builder: (ctx) => AlertDialog(
+                      builder: (ctx) => ContentDialog(
                         title: Text(item.counterType.displayName()),
                         content: StatefulBuilder(builder: (ctx2, setState) {
                           return Column(
@@ -207,7 +208,7 @@ class ValueCountersPage extends StatelessWidget {
     return BlocBuilder<ValueCountersBloc, ValueCountersState>(
       builder: (context, state) {
         if (state is ValueCountersLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: ProgressRing());
         }
         if (state is ValueCountersFailure) {
           return Center(

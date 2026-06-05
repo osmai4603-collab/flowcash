@@ -6,6 +6,7 @@ import 'package:flowcash/features/system/presentation/bloc/warehouses/warehouses
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/features/system/presentation/pages/warehouses/warehouse_form_page.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class WarehousesPage extends StatefulWidget {
   const WarehousesPage({super.key});
 
@@ -118,13 +119,11 @@ class _WarehousesPageState extends State<WarehousesPage> {
                   builder: (context) => const WarehouseFormPage(),
                 );
                 if (addedWarehouse != null && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تمت إضافة المستودع')),
-                  );
+                  displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تمت إضافة المستودع')));
                   context.read<WarehousesBloc>().add(LoadWarehousesEvent());
                 }
               },
-              icon: const Icon(Icons.add),
+              icon: const Icon(FluentIcons.add),
               label: const Text('إضافة مستودع'),
             ),
           ),
@@ -172,9 +171,7 @@ class _WarehousesPageState extends State<WarehousesPage> {
                     builder: (context) => WarehouseFormPage(initialValue: item),
                   );
                   if (updatedWarehouse != null && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('تم تحديث بيانات المستودع')),
-                    );
+                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تم تحديث بيانات المستودع')));
                     context.read<WarehousesBloc>().add(LoadWarehousesEvent());
                   }
                 },
@@ -209,7 +206,7 @@ class _WarehousesPageState extends State<WarehousesPage> {
     return BlocBuilder<WarehousesBloc, WarehousesState>(
       builder: (context, state) {
         if (state is WarehousesLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: ProgressRing());
         }
         if (state is WarehousesFailure) {
           return Center(

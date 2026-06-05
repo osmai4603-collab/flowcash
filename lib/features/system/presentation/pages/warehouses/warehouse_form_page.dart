@@ -6,6 +6,7 @@ import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dar
 import 'package:flowcash/features/inventory/domain/usecases/warehouse_usecases.dart';
 import 'package:flowcash/features/system/presentation/bloc/warehouses/warehouse_form_bloc.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
 class WarehouseFormPage extends StatefulWidget {
   const WarehouseFormPage({super.key, this.initialValue});
 
@@ -74,10 +75,10 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
             Navigator.of(context).pop(state.savedEntity);
           }
         },
-        child: AlertDialog(
+        child: ContentDialog(
           constraints: const BoxConstraints(maxWidth: 400, minWidth: 400),
           title: Text(widget.initialValue == null ? 'إضافة مستودع' : 'تعديل المستودع'),
-          scrollable: true,
+          
           content: BlocBuilder<WarehouseFormBloc, WarehouseFormState>(
             builder: (context, state) {
               return Form(
@@ -91,7 +92,7 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
                       decoration: const InputDecoration(
                         labelText: 'اسم المستودع',
                         
-                        prefixIcon: Icon(Icons.store),
+                        prefixIcon: Icon(FluentIcons.store_logo16),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -109,7 +110,7 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
                       decoration: const InputDecoration(
                         labelText: 'العنوان',
                         
-                        prefixIcon: Icon(Icons.location_on),
+                        prefixIcon: Icon(FluentIcons.location),
                       ),
                       onChanged: (value) {
                         context.read<WarehouseFormBloc>().add(WarehouseFormLocationChanged(value));
@@ -121,7 +122,7 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
                       decoration: const InputDecoration(
                         labelText: 'نوع المستودع',
                         
-                        prefixIcon: Icon(Icons.category),
+                        prefixIcon: Icon(FluentIcons.category_classification),
                       ),
                       items: WarehouseType.values.map((warehouseType) {
                         return DropdownMenuItem(
@@ -140,7 +141,7 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
                       decoration: const InputDecoration(
                         labelText: 'المستودع الأب (اختياري)',
                         
-                        prefixIcon: Icon(Icons.account_tree),
+                        prefixIcon: Icon(FluentIcons.account_management),
                       ),
                       items: [
                         const DropdownMenuItem<int?>(
@@ -203,7 +204,7 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
                       ? const SizedBox(
                           height: 18,
                           width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: ProgressRing(strokeWidth: 2),
                         )
                       : const Text('حفظ');
                 },

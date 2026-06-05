@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
+ import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, InfoBar, ProgressRing, displayInfoBar;
 
 // Enums
 import 'package:flowcash/core/enums/main_account_group_enum.dart';
@@ -15,6 +16,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/main_account_form/
 import 'package:flowcash/features/accounts/presentation/blocs/main_account_form/main_account_form_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/main_account_form/main_account_form_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class MainAccountFormDialog extends StatefulWidget {
   final MainAccountEntity? mainAccount;
 
@@ -35,8 +37,8 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
 
+    final theme = Theme.of(context);
     return BlocProvider(
       create: (context) =>
           GetIt.instance<MainAccountFormBloc>()
@@ -47,12 +49,7 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
             Navigator.of(context).pop(true);
           }
           if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: Colors.red,
-              ),
-            );
+            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
           }
           if (state.editingAccount != null && _nameController.text.isEmpty) {
             _nameController.text = state.accountName;
@@ -63,11 +60,11 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
           final isEditing = state.editingAccount != null;
 
           if (state.status == MainAccountFormStatus.loading) {
-            return AlertDialog(
+            return ContentDialog(
               title: Row(
                 children: [
-                  Icon(
-                    isEditing ? Icons.edit_note : Icons.add_business_outlined,
+                      Icon(
+                        isEditing ? FluentIcons.edit_note : FluentIcons.add_work,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(width: 10),
@@ -79,7 +76,7 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                   width: 450,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       ShimmerPlaceholder(height: 48),
                       SizedBox(height: 16),
                       ShimmerPlaceholder(height: 48),
@@ -88,7 +85,6 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                       SizedBox(height: 16),
                       ShimmerPlaceholder(height: 48),
                       SizedBox(height: 16),
-                      ShimmerPlaceholder(height: 48),
                     ],
                   ),
                 ),
@@ -100,9 +96,9 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                   child: const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(
+                    child: ProgressRing(
                       strokeWidth: 2,
-                      color: Colors.white,
+                          activeColor: Colors.white,
                     ),
                   ),
                 ),
@@ -114,11 +110,11 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
             canShimmer: state.status == MainAccountFormStatus.loading,
             freezeScreen: state.status == MainAccountFormStatus.loading,
             period: const Duration(milliseconds: 900),
-            child: AlertDialog(
+            child: ContentDialog(
               title: Row(
                 children: [
                 Icon(
-                  isEditing ? Icons.edit_note : Icons.add_business_outlined,
+                  isEditing ? FluentIcons.edit_note : FluentIcons.add_work,
                   color: theme.colorScheme.primary,
                 ),
                 const SizedBox(width: 10),
@@ -137,9 +133,8 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                       decoration: const InputDecoration(
                         labelText: 'اسم الحساب الرئيسي',
                         
-                        prefixIcon: Icon(Icons.label_important_outline),
+                        prefixIcon: Icon(FluentIcons.important),
                       ),
-                      onChanged: (val) => bloc.add(MainAccountNameChanged(val)),
                     ),
                     const SizedBox(height: 16),
 
@@ -148,8 +143,7 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                       initialValue: state.selectedGroup,
                       decoration: const InputDecoration(
                         labelText: 'مجموعة الحساب العامة',
-                        
-                        prefixIcon: Icon(Icons.folder_shared_outlined),
+                        prefixIcon: Icon(FluentIcons.folder_open),
                       ),
                       // Disable changing group if editing to preserve account number hierarchy
                       items: isEditing
@@ -170,13 +164,12 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                     ),
                     const SizedBox(height: 16),
 
-                    // MainAccountType
                     DropdownButtonFormField<MainAccountType>(
                       initialValue: state.selectedType,
                       decoration: const InputDecoration(
                         labelText: 'نوع الحساب الرئيسي',
                         
-                        prefixIcon: Icon(Icons.account_tree_outlined),
+                        prefixIcon: Icon(FluentIcons.account_management),
                       ),
                       items: state.selectedGroup == null
                           ? []
@@ -195,14 +188,13 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                       },
                     ),
                     const SizedBox(height: 16),
-
-                    // Currency Dropdown
                     DropdownButtonFormField<String>(
+
                       initialValue: state.selectedCurrencyId,
                       decoration: const InputDecoration(
                         labelText: 'العملة الافتراضية',
                         
-                        prefixIcon: Icon(Icons.monetization_on_outlined),
+                        prefixIcon: Icon(FluentIcons.money),
                       ),
                       items: const [
                         DropdownMenuItem(value: '1', child: Text('ريال يمني')),
@@ -223,7 +215,6 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                     // Auto-generated Account Number Info
                     if (state.accountNumber.isNotEmpty)
                       Container(
-                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.primary.withAlpha(20),
                           borderRadius: BorderRadius.circular(6),
@@ -250,11 +241,17 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                                 color: theme.colorScheme.primary,
                               ),
                             ),
+                        
                           ],
+                        
                         ),
                       ),
+                  
                   ],
                 ),
+                
+              
+              
               ),
             ),
             actions: [
@@ -274,9 +271,9 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                     ? const SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(
+                        child: ProgressRing(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          activeColor: Colors.white,
                         ),
                       )
                     : const Text('حفظ'),

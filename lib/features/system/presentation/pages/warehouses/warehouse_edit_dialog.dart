@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/features/inventory/domain/usecases/warehouse_usecases.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, ProgressRing;
 class WarehouseEditDialog extends StatefulWidget {
   const WarehouseEditDialog({super.key, required this.warehouse});
 
@@ -69,7 +70,7 @@ class _WarehouseEditDialogState extends State<WarehouseEditDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return AlertDialog(
+    return ContentDialog(
       title: const Text('تعديل المستودع'),
       content: SingleChildScrollView(
         child: Column(
@@ -128,7 +129,7 @@ class _WarehouseEditDialogState extends State<WarehouseEditDialog> {
               ? const SizedBox(
                   height: 18,
                   width: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: ProgressRing(strokeWidth: 2),
                 )
               : const Text('حفظ التغيير'),
         ),

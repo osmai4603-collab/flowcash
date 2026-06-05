@@ -3,6 +3,7 @@ import 'package:flowcash/widgets/combo_box_form.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_simple_entity.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/journal_entry_form/journal_entry_form_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
 class JournalItemRowForm extends StatefulWidget {
   final int index;
   final JournalItemDraft draft;
@@ -96,7 +97,7 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
               decoration: const InputDecoration(
                 hintText: 'ابحث عن الحساب الفرعي...',
                 
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: Icon(FluentIcons.search),
                 contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               ),
               labelMenu: (opt) => '${opt.accountName} (${opt.accountNumber})',
@@ -126,7 +127,7 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
                     decoration: const InputDecoration(
                       hintText: '0.00',
                       
-                      prefixIcon: Icon(Icons.arrow_downward_outlined),
+                      prefixIcon: Icon(FluentIcons.chevron_down),
                       contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       labelText: 'مدين',
                     ),
@@ -144,7 +145,7 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
                     decoration: const InputDecoration(
                       hintText: '0.00',
                       
-                      prefixIcon: Icon(Icons.arrow_upward_outlined),
+                      prefixIcon: Icon(FluentIcons.chevron_up),
                       contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       labelText: 'دائن',
                     ),
@@ -166,7 +167,7 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
               decoration: const InputDecoration(
                 hintText: 'البيان التفصيلي للبند...',
                 
-                prefixIcon: Icon(Icons.notes_outlined),
+                prefixIcon: Icon(FluentIcons.note_pinned),
                 contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               ),
               onChanged: (val) {
@@ -178,7 +179,7 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
 
           // 5. Delete Button
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            icon: const Icon(FluentIcons.delete, color: Colors.red),
             onPressed: widget.canDelete ? widget.onDelete : null,
           ),
         ],

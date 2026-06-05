@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/navigation_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
 final class HomeSectionItem {
   final HomeSection section;
   final IconData iconData;
@@ -44,35 +45,35 @@ class _HomeDrawer extends StatelessWidget {
   List<HomeSectionItem> get sections => [
     HomeSectionItem(
       section: HomeSection.dashboard,
-      iconData: Icons.dashboard_customize_outlined,
+      iconData: FluentIcons.dashboard_add,
     ),
     HomeSectionItem(
       section: HomeSection.system,
-      iconData: Icons.admin_panel_settings_outlined,
+      iconData: FluentIcons.settings,
     ),
     HomeSectionItem(
       section: HomeSection.databaseAdmin,
-      iconData: Icons.storage_outlined,
+      iconData: FluentIcons.storage_optical,
     ),
     HomeSectionItem(
       section: HomeSection.accounts,
-      iconData: Icons.people_outline,
+      iconData: FluentIcons.people,
     ),
     HomeSectionItem(
       section: HomeSection.inventory,
-      iconData: Icons.local_grocery_store_outlined,
+      iconData: FluentIcons.shopping_cart,
     ),
     HomeSectionItem(
       section: HomeSection.categories,
-      iconData: Icons.category_outlined,
+      iconData: FluentIcons.category_classification,
     ),
     HomeSectionItem(
       section: HomeSection.transactions,
-      iconData: Icons.account_balance_wallet_outlined,
+      iconData: FluentIcons.payment_card,
     ),
     HomeSectionItem(
       section: HomeSection.settings,
-      iconData: Icons.settings_rounded,
+      iconData: FluentIcons.settings,
     ),
   ];
 
@@ -173,35 +174,35 @@ class _BottomNavigationBar extends StatelessWidget {
       },
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.dashboard_customize_outlined),
+          icon: Icon(FluentIcons.dashboard_add),
           label: 'الرئيسية',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.admin_panel_settings_outlined),
+          icon: Icon(FluentIcons.settings),
           label: 'النظام',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.storage_outlined),
+          icon: Icon(FluentIcons.storage_optical),
           label: 'قاعدة البيانات',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.people_outline),
+          icon: Icon(FluentIcons.people),
           label: 'الحسابات',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.local_grocery_store_outlined),
+          icon: Icon(FluentIcons.shopping_cart),
           label: 'المخزون',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.category_outlined),
+          icon: Icon(FluentIcons.category_classification),
           label: 'الفئات',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.account_balance_wallet_outlined),
+          icon: Icon(FluentIcons.payment_card),
           label: 'المعاملات',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.settings_rounded),
+          icon: Icon(FluentIcons.settings),
           label: 'الإعدادات',
         ),
       ],

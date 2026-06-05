@@ -16,6 +16,7 @@ import 'package:flowcash/widgets/my_text_widget.dart';
 
 import 'inventory_item_form_dialog.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class InventoryCatalogPage extends StatefulWidget {
   const InventoryCatalogPage({super.key});
 
@@ -113,17 +114,12 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
         listener: (context, state) {
           if (state.status == CatalogStatus.error &&
               state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: theme.colorScheme.error,
-              ),
-            );
+            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
           }
         },
         builder: (context, state) {
           if (state.status == CatalogStatus.loading || _isLoadingMetaData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: ProgressRing());
           }
 
           final filteredItems = state.items.where((item) {
@@ -154,7 +150,7 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'البحث عن صنف مخزون...',
-                              prefixIcon: const Icon(Icons.search),
+                              prefixIcon: const Icon(FluentIcons.search),
                             ),
                             onChanged: (value) {
                               setState(() {
@@ -166,31 +162,40 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                         const SizedBox(width: 12),
                         Expanded(
                           flex: 2,
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                                hintText: 'كل المخازن',
-                              ),
-                            child: DropdownButton<int?>(
-                              isExpanded: true,
-                              underline: const SizedBox(),
-                              value: _filterWarehouseId,
-                              items: [
-                                const DropdownMenuItem<int?>(
-                                  value: null,
-                                  child: Text('كل المخازن'),
-                                ),
-                                ..._warehouses.map(
-                                  (warehouse) => DropdownMenuItem<int?>(
-                                    value: warehouse.id,
-                                    child: Text(warehouse.warehouseName),
+                          child: SizedBox(
+                            height: 40,
+                            child: MenuBar(
+                              children: [
+                                SubmenuButton(
+                                  menuChildren: [
+                                    MenuItemButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _filterWarehouseId = null;
+                                        });
+                                      },
+                                      child: const Text('كل المخازن'),
+                                    ),
+                                    ..._warehouses.map(
+                                      (warehouse) => MenuItemButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _filterWarehouseId = warehouse.id;
+                                          });
+                                        },
+                                        child: Text(warehouse.warehouseName),
+                                      ),
+                                    ),
+                                  ],
+                                  child: Text(
+                                    _filterWarehouseId == null
+                                        ? 'كل المخازن'
+                                        : _warehouses.where((w) => w.id == _filterWarehouseId).isEmpty
+                                            ? 'كل المخازن'
+                                            : _warehouses.where((w) => w.id == _filterWarehouseId).first.warehouseName,
                                   ),
                                 ),
                               ],
-                              onChanged: (value) {
-                                setState(() {
-                                  _filterWarehouseId = value;
-                                });
-                              },
                             ),
                           ),
                         ),
@@ -217,7 +222,7 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          icon: const Icon(Icons.add),
+                          icon: const Icon(FluentIcons.add),
                           label: const Text(
                             'إضافة مخزون جديد',
                             style: TextStyle(fontWeight: FontWeight.bold),

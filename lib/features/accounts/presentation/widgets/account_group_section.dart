@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flowcash/core/enums/main_account_group_enum.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
 
 class AccountGroupSection extends StatelessWidget {
   final MainAccountGroup group;
@@ -58,7 +59,7 @@ class AccountGroupSection extends StatelessWidget {
               Padding(
                 padding: const EdgeInsetsDirectional.only(start: 4.0),
                 child: Icon(
-                  Icons.folder_open,
+                  FluentIcons.folder_open,
                   size: 22,
                   color: theme.colorScheme.primary,
                 ),

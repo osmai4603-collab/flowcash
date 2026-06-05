@@ -211,7 +211,7 @@ class TransactionDetailPanel extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    icon: Icon(Icons.edit_note_outlined, color: theme.colorScheme.primary),
+                    icon: Icon(Icons.edit, color: theme.colorScheme.primary),
                     label: Text(
                       'تعديل الإذن',
                       style: TextStyle(
@@ -233,7 +233,7 @@ class TransactionDetailPanel extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    icon: const Icon(Icons.delete_sweep_outlined),
+                    icon: const Icon(Icons.delete),
                     label: const Text(
                       'حذف الإذن بالكامل',
                       style: TextStyle(fontWeight: FontWeight.bold),

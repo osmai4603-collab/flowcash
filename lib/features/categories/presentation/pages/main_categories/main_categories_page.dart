@@ -14,6 +14,7 @@ import 'package:flowcash/features/categories/presentation/blocs/main_categories/
 import 'package:flowcash/features/categories/presentation/blocs/main_categories/main_categories_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/main_categories/main_categories_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
 class MainCategoriesPage extends StatelessWidget {
   const MainCategoriesPage({super.key});
 
@@ -262,7 +263,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
                   colors.secondary.withValues(alpha: 0.15),
                 ),
                 controller: searchBarController,
-                leading: const Icon(Icons.search_outlined, color: Colors.white70),
+                leading: const Icon(FluentIcons.search, color: Colors.white70),
                 hintText: 'ابحث عن صنف هنا',
                 textStyle: isDesktop
                     ? WidgetStatePropertyAll(
@@ -283,7 +284,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
                   spacing: Spacings.medium,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.add),
+                      icon: const Icon(FluentIcons.add),
                       tooltip: 'اضافة صنف رئيسي',
                       color: colors.onPrimary,
                       onPressed: () async {
@@ -324,7 +325,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
               builder: (context, state) {
                 if (state is MainCategoriesLoadInProgress ||
                     state is MainCategoriesInitial) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: ProgressRing());
                 }
                 if (state is MainCategoriesLoadSuccess) {
                   return buildColumn(context, state.mainCategories);

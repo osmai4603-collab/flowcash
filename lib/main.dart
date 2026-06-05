@@ -1,7 +1,8 @@
 
+import 'package:flowcash/features/app/presentation/pages/application_fluent.dart';
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flowcash/features/app/presentation/pages/application.dart';
+import 'package:flowcash/features/app/presentation/pages/application_fluent.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -10,7 +11,7 @@ void main() async {
 
   await initDependencies();
 
-  runApp(const Application());
+  runApp(const ApplicationFluent());
 
 
 }

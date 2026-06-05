@@ -17,6 +17,7 @@ import 'package:flowcash/widgets/combo_box_form.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/sub_account_repository_usecases.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, displayInfoBar;
 class InventoryItemFormDialog extends StatefulWidget {
   final InventoryEntity? item;
 
@@ -178,9 +179,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategory == null || _selectedWarehouse == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء اختيار الصنف والمستودع')),
-      );
+      displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('الرجاء اختيار الصنف والمستودع')));
       return;
     }
 
@@ -236,15 +235,12 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Dialog(
+    return ContentDialog(
       constraints: BoxConstraints(
         maxWidth: 600,
         maxHeight: MediaQuery.of(context).size.height * 0.85,
       ),
-
-      shape: RoundedRectangleBorder(borderRadius: Radiuses.largeAll),
-      elevation: 24,
-      child: Padding(
+      content: Padding(
         padding: Paddings.largeAll,
         child: _isLoadingData
             ? _InventoryShimmer()
@@ -264,7 +260,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
           Row(
             children: [
               Icon(
-                _isEdit ? Icons.edit_note : Icons.add_box_outlined,
+                _isEdit ? FluentIcons.edit_note : FluentIcons.add,
                 color: theme.colorScheme.primary,
                 size: 28,
               ),
@@ -279,7 +275,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
               const Spacer(),
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.close),
+                icon: const Icon(FluentIcons.chrome_close),
               ),
             ],
           ),
@@ -302,7 +298,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                           controller: _categoryController,
                           decoration: const InputDecoration(
                             labelText: 'الصنف الأساسي',
-                            prefixIcon: Icon(Icons.category),
+                            prefixIcon: Icon(FluentIcons.category_classification),
                           ),
                           labelMenu: (category) => category.categoryName,
                           labelString: (category) => category.categoryName,
@@ -341,7 +337,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                           controller: _countUnitsController,
                           decoration: InputDecoration(
                             labelText: 'عدد الوحدات الافتراضية',
-                            prefixIcon: const Icon(Icons.format_list_numbered),
+                            prefixIcon: const Icon(FluentIcons.numbered_list_number),
                             suffixIcon: Text(
                               _selectedCategory?.categoryUnit?.unitName ??
                                   'وحدة',
@@ -371,7 +367,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'المستودع/المخزن',
-                        prefixIcon: Icon(Icons.store),
+                        prefixIcon: Icon(FluentIcons.store_logo16),
                       ),
                       initialValue: _selectedWarehouse?.id,
                       items: _warehouses.map((w) {
@@ -417,7 +413,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                       decoration: const InputDecoration(
                         labelText: 'حساب الإيرادات',
 
-                        prefixIcon: Icon(Icons.trending_up),
+                        prefixIcon: Icon(FluentIcons.triangle_up12),
                       ),
                       initialValue: _selectedRevenueAccount?.id,
                       items: _revenueSubAccounts.map((a) {
@@ -442,7 +438,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                       decoration: const InputDecoration(
                         labelText: 'حساب المصروفات',
 
-                        prefixIcon: Icon(Icons.trending_down),
+                        prefixIcon: Icon(FluentIcons.triangle_down12),
                       ),
                       initialValue: _selectedExpenseAccount?.id,
                       items: _expenseSubAccounts.map((a) {
@@ -470,7 +466,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                       decoration: const InputDecoration(
                         labelText: 'حساب مخزون الوارد',
 
-                        prefixIcon: Icon(Icons.move_to_inbox),
+                        prefixIcon: Icon(FluentIcons.move_to_folder),
                       ),
                       initialValue: _selectedIncomeStock?.id,
                       items: _inventorySubAccounts.map((a) {
@@ -495,7 +491,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                       decoration: const InputDecoration(
                         labelText: 'حساب مخزون الصادر',
 
-                        prefixIcon: Icon(Icons.outbox),
+                        prefixIcon: Icon(FluentIcons.toolbox),
                       ),
                       initialValue: _selectedOutcomeStock?.id,
                       items: _inventorySubAccounts.map((a) {
@@ -543,7 +539,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                icon: const Icon(Icons.save_outlined),
+                icon: const Icon(FluentIcons.save),
                 label: Text(_isEdit ? 'حفظ التعديلات' : 'إضافة الصنف'),
               ),
             ],

@@ -6,6 +6,7 @@ import 'package:flowcash/core/usecases/accounting_period_repository_usecases.dar
 import 'package:flowcash/features/system/domain/entities/accounting_period_entity.dart';
 import 'package:flowcash/features/system/presentation/bloc/financial_periods/financial_period_form_bloc.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
 class FinancialPeriodFormPage extends StatefulWidget {
   const FinancialPeriodFormPage({super.key, this.initialValue});
 
@@ -70,10 +71,10 @@ class _FinancialPeriodFormPageState extends State<FinancialPeriodFormPage> {
             Navigator.of(context).pop(state.savedEntity);
           }
         },
-        child: AlertDialog(
+        child: ContentDialog(
           constraints: BoxConstraints(maxWidth: 400, minWidth: 400),
           title: Text(widget.initialValue == null ? 'إضافة فترة مالية' : 'تعديل فترة مالية'),
-          scrollable: true,
+          
           content: BlocBuilder<FinancialPeriodFormBloc, FinancialPeriodFormState>(
             builder: (context, state) {
               return Form(
@@ -86,7 +87,7 @@ class _FinancialPeriodFormPageState extends State<FinancialPeriodFormPage> {
                       controller: _nameController,
                       decoration: const InputDecoration(
                         labelText: 'اسم الفترة',
-                        prefixIcon: Icon(Icons.title),
+                        prefixIcon: Icon(FluentIcons.title),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -143,7 +144,7 @@ class _FinancialPeriodFormPageState extends State<FinancialPeriodFormPage> {
                       controller: _currencyController,
                       decoration: const InputDecoration(
                         labelText: 'العملة',
-                        prefixIcon: Icon(Icons.currency_exchange),
+                        prefixIcon: Icon(FluentIcons.currency),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -160,7 +161,7 @@ class _FinancialPeriodFormPageState extends State<FinancialPeriodFormPage> {
                       controller: _lastPeriodController,
                       decoration: const InputDecoration(
                         labelText: 'معرف الفترة السابقة',
-                        prefixIcon: Icon(Icons.link),
+                        prefixIcon: Icon(FluentIcons.link),
                       ),
                       keyboardType: TextInputType.number,
                       onChanged: (value) => context.read<FinancialPeriodFormBloc>().add(
@@ -172,7 +173,7 @@ class _FinancialPeriodFormPageState extends State<FinancialPeriodFormPage> {
                       controller: _balanceController,
                       decoration: const InputDecoration(
                         labelText: 'الرصيد',
-                        prefixIcon: Icon(Icons.attach_money),
+                        prefixIcon: Icon(FluentIcons.money),
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (value) {
@@ -193,7 +194,7 @@ class _FinancialPeriodFormPageState extends State<FinancialPeriodFormPage> {
                       initialValue: state.inventoryType,
                       decoration: const InputDecoration(
                         labelText: 'نوع الجرد',
-                        prefixIcon: Icon(Icons.inventory),
+                        prefixIcon: Icon(FluentIcons.product),
                       ),
                       items: AccountingInventoryType.values.map((inventoryType) {
                         return DropdownMenuItem(
@@ -241,7 +242,7 @@ class _FinancialPeriodFormPageState extends State<FinancialPeriodFormPage> {
                       ? const SizedBox(
                           height: 18,
                           width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: ProgressRing(strokeWidth: 2),
                         )
                       : const Text('حفظ');
                 },

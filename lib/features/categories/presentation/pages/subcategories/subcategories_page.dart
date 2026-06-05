@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/core/theme/styles.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
 class SubcategoriesPage extends StatefulWidget {
   final MainCategoryEntity mainCategory;
 
@@ -45,7 +46,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             final names = state.generatedCategoryNames!;
             await showDialog<void>(
               context: context,
-              builder: (ctx) => AlertDialog(
+              builder: (ctx) => ContentDialog(
                 title: Text(names.isEmpty ? 'نتيجة التوليد' : 'الأصناف المولدة'),
                 content: SizedBox(
                   width: 400,
@@ -95,8 +96,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                             context,
                           ).secondary.withValues(alpha: 0.25),
                         ),
-                        leading: const Icon(
-                          Icons.search_outlined,
+                        leading: const Icon(FluentIcons.search,
                           color: Colors.white70,
                         ),
                         hintText: 'ابحث عن نوع صنف هنا',
@@ -125,7 +125,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                     child: Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.add, color: Colors.white),
+                          icon: const Icon(FluentIcons.add, color: Colors.white),
                           tooltip: 'اضافة نوع صنف جديد',
                           onPressed: () async {
                             final catalog = await showDialog<SubcategoryEntity>(
@@ -154,7 +154,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             child: BlocBuilder<SubcategoriesBloc, SubcategoriesState>(
               builder: (context, state) {
                 if (state is SubcategoriesLoadInProgress) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: ProgressRing());
                 }
                 if (state is SubcategoriesLoadFailure) {
                   return Center(
@@ -298,8 +298,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                     InkWell(
                       child: Tooltip(
                         message: 'تعريف اصناف ${catalog.catalogName}',
-                        child: Icon(
-                          Icons.generating_tokens,
+                        child: Icon(FluentIcons.generate,
                           color: colors.primary,
                           size: 20,
                         ),
@@ -351,7 +350,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     );
     if (propertyInfos.isEmpty) {
       return InkWell(
-        child: const Icon(Icons.add),
+        child: const Icon(FluentIcons.add),
         onTap: () => _onAddPropertyInfo(context, catalog, property),
       );
     }
@@ -383,7 +382,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             message:
                 'انواع ${property.propertyName} ${catalog.catalogName}\n$values',
             child: IconButton(
-              icon: const Icon(Icons.info, size: 20),
+              icon: const Icon(FluentIcons.info, size: 20),
               onPressed: () => successMessage(
                 context: context,
                 title: '${property.propertyName} (${catalog.catalogName})',
@@ -402,7 +401,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
           InkWell(
             child: Tooltip(
               message: 'اضافة ${property.propertyName} جديد',
-              child: Icon(Icons.add, size: isDesktop ? 20 : 16.00),
+              child: Icon(FluentIcons.add, size: isDesktop ? 20 : 16.00),
             ),
             onTap: () => _onAddPropertyInfo(context, catalog, property),
           ),

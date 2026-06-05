@@ -6,6 +6,7 @@ import 'package:flowcash/features/categories/domain/usecases/category_usecases.d
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/combo_box_form.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
 class TransactionOrderForm extends StatefulWidget {
   final List<InventoryEntity> inventoryItems;
 
@@ -80,17 +81,16 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    return ContentDialog(
       title: Row(
         children: [
-          Icon(Icons.add_shopping_cart_outlined, color: theme.colorScheme.primary),
+          Icon(FluentIcons.shopping_cart, color: theme.colorScheme.primary),
           SizedBox(width: 8),
           Text('إضافة بند جديد للحركة 📦', style: TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
       content: _isLoading
-          ? const SizedBox(height: 150, child: Center(child: CircularProgressIndicator()))
+          ? const SizedBox(height: 150, child: Center(child: const ProgressRing()))
           : Form(
               key: _formKey,
               child: Column(
@@ -101,7 +101,7 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
                     controller: _itemController,
                     decoration: const InputDecoration(
                       labelText: 'اختر الصنف',
-                      prefixIcon: Icon(Icons.inventory_2_outlined),
+                      prefixIcon: Icon(FluentIcons.product),
                     ),
                     labelMenu: (item) => _getInventoryLabel(item),
                     labelString: (item) => _getInventoryLabel(item),
@@ -135,7 +135,7 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
                     textDirection: TextDirection.ltr,
                     decoration: const InputDecoration(
                       labelText: 'الكمية المطلوبة',
-                      prefixIcon: Icon(Icons.format_list_numbered),
+                      prefixIcon: Icon(FluentIcons.numbered_list_number),
                     ),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     validator: (val) {

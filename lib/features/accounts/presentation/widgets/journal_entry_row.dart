@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
 import 'package:intl/intl.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
 class JournalEntryRow extends StatelessWidget {
   final JournalEntryEntity entry;
   final bool isSelected;
@@ -99,12 +100,12 @@ class JournalEntryRow extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.edit, size: 18, color: Colors.orange),
+                    icon: const Icon(FluentIcons.edit, size: 18, color: Colors.orange),
                     onPressed: onEdit,
                     tooltip: 'تعديل القيد',
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                    icon: const Icon(FluentIcons.delete, size: 18, color: Colors.red),
                     onPressed: onDelete,
                     tooltip: 'حذف القيد',
                   ),

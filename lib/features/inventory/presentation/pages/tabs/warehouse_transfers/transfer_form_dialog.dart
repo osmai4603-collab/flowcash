@@ -9,6 +9,7 @@ import 'package:flowcash/features/categories/domain/usecases/category_usecases.d
 import 'package:flowcash/features/injection_container.dart';
 import '../transactions/transaction_order_form.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class TransferFormDialog extends StatefulWidget {
   final List<WarehouseEntity> warehouses;
   final List<InventoryEntity> inventoryItems;
@@ -77,21 +78,15 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedFromWarehouseId == null || _selectedToWarehouseId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء اختيار مستودع الصادر ومستودع الوارد')),
-      );
+      displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('الرجاء اختيار مستودع الصادر ومستودع الوارد')));
       return;
     }
     if (_selectedFromWarehouseId == _selectedToWarehouseId) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('مستودع الصادر ومستودع الوارد متطابقين!')),
-      );
+      displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('مستودع الصادر ومستودع الوارد متطابقين!')));
       return;
     }
     if (_orders.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('يجب إضافة صنف واحد على الأقل للنقل')),
-      );
+      displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('يجب إضافة صنف واحد على الأقل للنقل')));
       return;
     }
 
@@ -132,13 +127,12 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Dialog(
+    return ContentDialog(
       constraints: BoxConstraints(
         maxWidth: 700,
         maxHeight: MediaQuery.of(context).size.height * 0.9,
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
+      content: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
@@ -153,7 +147,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
         child: _isLoadingCategories
             ? const SizedBox(
                 height: 300,
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(child: const ProgressRing()),
               )
             : Form(
                 key: _formKey,
@@ -164,8 +158,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                     // Title
                     Row(
                       children: [
-                        Icon(
-                          Icons.local_shipping_outlined,
+                        Icon(FluentIcons.shopping_cart,
                           color: theme.colorScheme.primary,
                           size: 28,
                         ),
@@ -180,7 +173,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                         const Spacer(),
                         IconButton(
                           onPressed: () => Navigator.of(context).pop(),
-                          icon: const Icon(Icons.close),
+                          icon: const Icon(FluentIcons.chrome_close),
                         ),
                       ],
                     ),
@@ -194,7 +187,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                           child: DropdownButtonFormField<int>(
                             decoration: const InputDecoration(
                               labelText: 'من مستودع (الصادر)',
-                              prefixIcon: Icon(Icons.store),
+                              prefixIcon: Icon(FluentIcons.store_logo16),
                             ),
                             initialValue: _selectedFromWarehouseId,
                             items: widget.warehouses.map((w) {
@@ -214,7 +207,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                           child: DropdownButtonFormField<int>(
                             decoration: const InputDecoration(
                               labelText: 'إلى مستودع (الوارد)',
-                              prefixIcon: Icon(Icons.storefront_outlined),
+                              prefixIcon: Icon(FluentIcons.store_logo16),
                             ),
                             initialValue: _selectedToWarehouseId,
                             items: widget.warehouses.map((w) {
@@ -240,7 +233,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                             textDirection: TextDirection.ltr,
                             decoration: const InputDecoration(
                               labelText: 'رقم السند/الإذن الدفتري',
-                              prefixIcon: Icon(Icons.confirmation_number_outlined),
+                              prefixIcon: Icon(FluentIcons.ticket),
                             ),
                             keyboardType: TextInputType.number,
                             validator: (val) =>
@@ -255,7 +248,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                             controller: _noteController,
                             decoration: const InputDecoration(
                               labelText: 'ملاحظات وتفاصيل عملية النقل',
-                              prefixIcon: Icon(Icons.note_outlined),
+                              prefixIcon: Icon(FluentIcons.note_pinned),
                             ),
                           ),
                         ),
@@ -289,7 +282,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                             backgroundColor: theme.colorScheme.primaryContainer,
                             foregroundColor: theme.colorScheme.onPrimaryContainer,
                           ),
-                          icon: const Icon(Icons.add_shopping_cart, size: 16),
+                          icon: const Icon(FluentIcons.shopping_cart, size: 16),
                           label: const Text('إضافة بند'),
                         ),
                       ],
@@ -332,7 +325,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                                           ),
                                           const SizedBox(width: 16),
                                           IconButton(
-                                            icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                                            icon: const Icon(FluentIcons.remove_link, color: Colors.red),
                                             onPressed: () {
                                               setState(() {
                                                 _orders.removeAt(index);
@@ -363,7 +356,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                           ),
-                          icon: const Icon(Icons.save_outlined),
+                          icon: const Icon(FluentIcons.save),
                           label: const Text('إصدار وإتمام التحويل'),
                         ),
                       ],

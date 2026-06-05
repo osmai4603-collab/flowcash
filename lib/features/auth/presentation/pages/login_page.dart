@@ -8,6 +8,7 @@ import '../bloc/session/session_bloc.dart';
 import '../bloc/session/session_event.dart';
 import '../bloc/session/session_state.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show InfoBar, ProgressRing, displayInfoBar;
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -40,30 +41,20 @@ class _LoginPageState extends State<LoginPage> {
           child: BlocConsumer<SessionBloc, SessionState>(
             listener: (context, state) {
               if (state.status == SessionStatus.authenticated) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
+                displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(
                       'مرحباً بك ${state.currentUser?.userName}!',
                       textAlign: TextAlign.right,
                       style: TextTheme.of(context).titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: colors.onTertiary,
                       ),
-                    ),
-                    backgroundColor: colors.tertiary,
-                  ),
-                );
+                    )));
               }
               if (state.status == SessionStatus.failure) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: SelectableText(
+                displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: SelectableText(
                       state.errorMessage ?? 'فشل تسجيل الدخول',
                       textAlign: TextAlign.right,
-                    ),
-                    backgroundColor: Colors.red,
-                  ),
-                );
+                    )));
               }
             },
             builder: (context, state) {
@@ -77,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     // شعار أو عنوان
                     // const Icon(
-                    //   Icons.account_balance_wallet_rounded,
+                    //   FluentIcons.payment_card,
                     //   size: 80,
                     //   color: Colors.blue,
                     // ),
@@ -127,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                                 textInputAction: TextInputAction.next,
                                 decoration: const InputDecoration(
                                   labelText: 'اسم المستخدم',
-                                  prefixIcon: Icon(Icons.person_outline),
+                                  prefixIcon: Icon(Icons.person),
                                   
                                 ),
                                 textAlign: TextAlign.right,
@@ -142,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                                 onFieldSubmitted: (_) => _onLoginPressed(),
                                 decoration: const InputDecoration(
                                   labelText: 'كلمة المرور',
-                                  prefixIcon: Icon(Icons.lock_outline),
+                                  prefixIcon: Icon(Icons.lock),
                                   hintText: 'ادخل كلمة المرور',
                                 ),
                                 obscureText: true,
@@ -153,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               const SizedBox(height: Spacings.large),
                               if (state.status == SessionStatus.loading)
-                                const Center(child: CircularProgressIndicator())
+                                const Center(child: ProgressRing())
                               else
                                 ElevatedButton(
                                   onPressed: _onLoginPressed,
@@ -195,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
                     //     children: state.users.map((user) {
                     //       return ActionChip(
                     //         label: Text(user.userName),
-                    //         avatar: const Icon(Icons.person, size: 16),
+                    //         avatar: const Icon(FluentIcons.personalize, size: 16),
                     //         onPressed: () {
                     //           _userNameController.text = user.userName;
                     //         },

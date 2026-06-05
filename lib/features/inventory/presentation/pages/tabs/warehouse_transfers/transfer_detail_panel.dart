@@ -102,8 +102,7 @@ class TransferDetailPanel extends StatelessWidget {
                 CircleAvatar(
                   backgroundColor: theme.colorScheme.primary.withAlpha(40),
                   radius: 28,
-                  child: Icon(
-                    Icons.local_shipping_outlined,
+                  child: Icon(Icons.shopping_cart,
                     color: theme.colorScheme.primary,
                     size: 28,
                   ),
@@ -146,28 +145,28 @@ class TransferDetailPanel extends StatelessWidget {
             const SizedBox(height: 16),
             _buildDetailRow(
               context,
-              Icons.logout_outlined,
+              Icons.exit_to_app,
               'مستودع الصادر (من):',
               fromWarehouseName,
               valueColor: Colors.red,
             ),
             _buildDetailRow(
               context,
-              Icons.login_outlined,
+              Icons.input,
               'مستودع الوارد (إلى):',
               toWarehouseName,
               valueColor: Colors.green,
             ),
             _buildDetailRow(
               context,
-              Icons.calendar_today_outlined,
+              Icons.calendar_today,
               'تاريخ وتوقيت النقل:',
               _formatDate(transaction.createdAt),
             ),
             if (transaction.note != null && transaction.note!.isNotEmpty)
               _buildDetailRow(
                 context,
-                Icons.notes_outlined,
+                Icons.note,
                 'ملاحظات النقل:',
                 transaction.note!,
               ),
@@ -236,7 +235,7 @@ class TransferDetailPanel extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              icon: const Icon(Icons.delete_sweep_outlined),
+              icon: const Icon(Icons.delete_forever),
               label: const Text(
                 'إلغاء وعكس عملية التحويل 🔄',
                 style: TextStyle(fontWeight: FontWeight.bold),

@@ -8,6 +8,7 @@ import '../bloc/auth/auth_event.dart';
 import '../bloc/auth/auth_state.dart';
 import '../widgets/user_card.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show ProgressRing;
 class UsersManagementPage extends StatelessWidget {
   const UsersManagementPage({super.key});
 
@@ -20,7 +21,7 @@ class UsersManagementPage extends StatelessWidget {
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             if (state.status == AuthStatus.loading) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: ProgressRing());
             }
             if (state.status == AuthStatus.failure) {
               return Center(
