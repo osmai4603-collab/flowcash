@@ -8,15 +8,36 @@ import '../bloc/auth/auth_event.dart';
 import '../bloc/auth/auth_state.dart';
 import '../widgets/user_card.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' show CommandBar, CommandBarButton, FluentIcons, PageHeader, ProgressRing, ScaffoldPage;
 class UsersManagementPage extends StatelessWidget {
   const UsersManagementPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Users Management')),
-      body: Padding(
+    return ScaffoldPage(
+      header: PageHeader(
+        title: const Text('إدارة المستخدمين'),
+        commandBar: CommandBar(
+          mainAxisAlignment: MainAxisAlignment.end,
+          primaryItems: [
+            CommandBarButton(
+              icon: const Icon(FluentIcons.add),
+              label: const Text('إضافة مستخدم'),
+              onPressed: () {
+                final newUser = ProgramUserEntity(
+                  id: 0,
+                  userName: 'New User',
+                  password: 'pass123',
+                  userType: UserType.user,
+                  warehouseId: 1,
+                );
+                context.read<AuthBloc>().add(AddUserEvent(newUser));
+              },
+            ),
+          ],
+        ),
+      ),
+      content: Padding(
         padding: const EdgeInsets.all(16.0),
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
@@ -38,19 +59,6 @@ class UsersManagementPage extends StatelessWidget {
             );
           },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          final newUser = ProgramUserEntity(
-            id: 0,
-            userName: 'New User',
-            password: 'pass123',
-            userType: UserType.user,
-            warehouseId: 1,
-          );
-          context.read<AuthBloc>().add(AddUserEvent(newUser));
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }

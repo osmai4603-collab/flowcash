@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Tab;
 import 'package:flowcash/core/enums/main_account_type_enum.dart';
 import 'package:flowcash/core/enums/sub_account_type_enum.dart';
+import 'package:fluent_ui/fluent_ui.dart' show CloseButtonVisibilityMode, ScaffoldPage, Tab, TabView;
 
 class AccountTypesManagementPage extends StatefulWidget {
   const AccountTypesManagementPage({super.key});
@@ -9,46 +10,37 @@ class AccountTypesManagementPage extends StatefulWidget {
   State<AccountTypesManagementPage> createState() => _AccountTypesManagementPageState();
 }
 
-class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _innerTabController;
+class _AccountTypesManagementPageState extends State<AccountTypesManagementPage> {
 
   @override
   void initState() {
     super.initState();
-    _innerTabController = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
-    _innerTabController.dispose();
     super.dispose();
   }
 
+  int _currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(48),
-        child: Container(
-          color: theme.colorScheme.surface,
-          child: TabBar(
-            controller: _innerTabController,
-            tabs: const [
-              Tab(text: 'أنواع الحسابات الرئيسية (Main Account Types)'),
-              Tab(text: 'أنواع الحسابات الفرعية (Sub Account Types)'),
-            ],
-            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+    return ScaffoldPage(
+      padding: EdgeInsets.zero,
+      content: TabView(
+        currentIndex: _currentIndex,
+        onChanged: (index) => setState(() => _currentIndex = index),
+        closeButtonVisibility: CloseButtonVisibilityMode.never,
+        tabs: [
+          Tab(
+            text: const Text('أنواع الحسابات الرئيسية (Main Account Types)'),
+            body: _buildMainTypesTable(context),
           ),
-        ),
-      ),
-      body: TabBarView(
-        controller: _innerTabController,
-        children: [
-          _buildMainTypesTable(context),
-          _buildSubTypesTable(context),
+          Tab(
+            text: const Text('أنواع الحسابات الفرعية (Sub Account Types)'),
+            body: _buildSubTypesTable(context),
+          ),
         ],
       ),
     );

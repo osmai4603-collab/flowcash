@@ -135,10 +135,9 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
             return matchesSearch && matchesWarehouse;
           }).toList();
 
-          return Scaffold(
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
                 Padding(
                   padding: Paddings.smallAll,
                   child: SizedBox(
@@ -320,8 +319,7 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                   ),
                 ),
               ],
-            ),
-          );
+            );
         },
       ),
     );

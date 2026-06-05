@@ -6,18 +6,14 @@ import 'package:flowcash/features/currencies/domain/entities/exchange_price_enti
 import 'package:flowcash/features/system/presentation/bloc/exchange_rates/exchange_rates_cubit.dart';
 import 'package:flowcash/features/system/presentation/pages/exchange_rates/exchange_price_form_page.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart'
+    show InfoBar, ProgressRing, displayInfoBar;
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+
 class ExchangeRatesPage extends StatelessWidget {
   const ExchangeRatesPage({super.key});
 
   bool get isDesktop => Platform.isLinux || Platform.isWindows;
-
-  Map<int, TableColumnWidth> get columnWidths => {
-        0: FixedColumnWidth(isDesktop ? 60.0 : 50.0),
-        1: FixedColumnWidth(isDesktop ? 120.0 : 90.0),
-        2: FixedColumnWidth(isDesktop ? 120.0 : 90.0),
-        3: const FlexColumnWidth(0.30),
-      };
 
   Widget buildTable(BuildContext context, List<ExchangePriceEntity> items) {
     final textTheme = Theme.of(context).textTheme;
@@ -29,87 +25,92 @@ class ExchangeRatesPage extends StatelessWidget {
       );
     }
 
+    final dataSource = ExchangeRatesDataGridSource(
+      items: items,
+      textTheme: textTheme,
+      colors: colors,
+    );
+
     return Column(
       children: [
-        Table(
-          border: TableBorder.all(width: 0.50, color: colors.outline),
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          columnWidths: columnWidths,
-          children: [
-            TableRow(
-              decoration: BoxDecoration(color: colors.primaryContainer),
-              children: [
-                headerCell('No.', textTheme, colors),
-                headerCell('من العملة', textTheme, colors),
-                headerCell('إلى العملة', textTheme, colors),
-                headerCell('سعر الصرف', textTheme, colors),
-              ],
-            ),
-          ],
-        ),
         Expanded(
-          child: ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return InkWell(
-                onTap: () async {
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: colors.outline, width: 0.5),
+            ),
+            child: SfDataGrid(
+              source: dataSource,
+              headerRowHeight: 40,
+              rowHeight: 30,
+              gridLinesVisibility: GridLinesVisibility.both,
+              headerGridLinesVisibility: GridLinesVisibility.both,
+              columnWidthMode: ColumnWidthMode.fill,
+              onCellTap: (DataGridCellTapDetails details) async {
+                if (details.rowColumnIndex.rowIndex > 0) {
+                  final item = items[details.rowColumnIndex.rowIndex - 1];
                   final didUpdate = await showDialog<bool>(
                     context: context,
-                    builder: (context) => ExchangePriceFormPage(initialValue: item),
+                    builder: (context) =>
+                        ExchangePriceFormPage(initialValue: item),
                   );
                   if (didUpdate == true && context.mounted) {
-                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تم تحديث سعر الصرف')));
-                    context.read<ExchangeRatesBloc>().add(LoadExchangeRatesEvent());
-                  }
-                },
-                child: Table(
-                  border: TableBorder.all(width: 0.50, color: colors.outline),
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  columnWidths: columnWidths,
-                  children: [
-                    TableRow(
-                      decoration: BoxDecoration(
-                        color: index % 2 != 0 ? colors.primaryContainer : null,
+                    displayInfoBar(
+                      context,
+                      builder: (context, close) => InfoBar(
+                        title: const Text('تنبيه'),
+                        content: Text('تم تحديث سعر الصرف'),
                       ),
-                      children: [
-                        dataCell(item.id.toString(), textTheme),
-                        dataCell(item.fromCurrencyId, textTheme),
-                        dataCell(item.toCurrencyId, textTheme),
-                        dataCell(item.price.toStringAsFixed(4), textTheme),
-                      ],
-                    ),
-                  ],
+                    );
+                    context.read<ExchangeRatesBloc>().add(
+                      LoadExchangeRatesEvent(),
+                    );
+                  }
+                }
+              },
+              columns: [
+                GridColumn(
+                  columnName: 'no',
+                  width: isDesktop ? 60.0 : 50.0,
+                  label: _buildHeaderCell('No.', textTheme, colors),
                 ),
-              );
-            },
+                GridColumn(
+                  columnName: 'from',
+                  width: isDesktop ? 120.0 : 90.0,
+                  label: _buildHeaderCell('من العملة', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'to',
+                  width: isDesktop ? 120.0 : 90.0,
+                  label: _buildHeaderCell('إلى العملة', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'price',
+                  label: _buildHeaderCell('سعر الصرف', textTheme, colors),
+                ),
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget headerCell(String text, TextTheme textTheme, ColorScheme colors) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+  Widget _buildHeaderCell(
+    String text,
+    TextTheme textTheme,
+    ColorScheme colors,
+  ) {
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(color: colors.surfaceContainerHigh),
       child: Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium?.copyWith(
-          color: colors.onPrimaryContainer,
+          color: colors.onSurface,
           fontWeight: FontWeight.bold,
         ),
-      ),
-    );
-  }
-
-  Widget dataCell(String text, TextTheme textTheme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: textTheme.bodyMedium,
       ),
     );
   }
@@ -129,7 +130,9 @@ class ExchangeRatesPage extends StatelessWidget {
                 Text(state.errorMessage),
                 const SizedBox(height: 8),
                 ElevatedButton(
-                  onPressed: () => context.read<ExchangeRatesBloc>().add(LoadExchangeRatesEvent()),
+                  onPressed: () => context.read<ExchangeRatesBloc>().add(
+                    LoadExchangeRatesEvent(),
+                  ),
                   child: const Text('إعادة المحاولة'),
                 ),
               ],
@@ -153,6 +156,52 @@ class ExchangeRatesPage extends StatelessWidget {
         }
         return const SizedBox.shrink();
       },
+    );
+  }
+}
+
+class ExchangeRatesDataGridSource extends DataGridSource {
+  ExchangeRatesDataGridSource({
+    required List<ExchangePriceEntity> items,
+    required this.textTheme,
+    required this.colors,
+  }) {
+    _dataGridRows = items.map<DataGridRow>((item) {
+      return DataGridRow(
+        cells: [
+          DataGridCell<String>(columnName: 'no', value: item.id.toString()),
+          DataGridCell<String>(columnName: 'from', value: item.fromCurrencyId),
+          DataGridCell<String>(columnName: 'to', value: item.toCurrencyId),
+          DataGridCell<String>(
+            columnName: 'price',
+            value: item.price.toStringAsFixed(4),
+          ),
+        ],
+      );
+    }).toList();
+  }
+
+  final TextTheme textTheme;
+  final ColorScheme colors;
+  List<DataGridRow> _dataGridRows = [];
+
+  @override
+  List<DataGridRow> get rows => _dataGridRows;
+
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    return DataGridRowAdapter(
+      cells: row.getCells().map<Widget>((dataGridCell) {
+        return Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(4.0),
+          child: Text(
+            dataGridCell.value.toString(),
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.bodyMedium,
+          ),
+        );
+      }).toList(),
     );
   }
 }

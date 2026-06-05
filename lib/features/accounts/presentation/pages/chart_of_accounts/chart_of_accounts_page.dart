@@ -26,6 +26,7 @@ import 'main_account_form_dialog.dart';
 import 'sub_account_form_dialog.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
+
 class ChartOfAccountsPage extends StatelessWidget {
   const ChartOfAccountsPage({super.key});
 
@@ -56,255 +57,247 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      body: Column(
-        children: [
-          _buildHeader(theme, context),
+    return Column(
+      children: [
+        _buildHeader(theme, context),
 
-          // 📊 Table Header Row
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8.0,
-            ),
-            color: theme.colorScheme.primary.withValues(alpha: 0.10),
-            child: Table(
-              columnWidths: const {
-                0: FixedColumnWidth(60),
-                1: FlexColumnWidth(2),
-                2: FlexColumnWidth(4),
-                3: FlexColumnWidth(2),
-                4: FixedColumnWidth(90),
-                5: FixedColumnWidth(90),
-                6: FixedColumnWidth(90),
-                7: FixedColumnWidth(80),
-                8: FixedColumnWidth(120),
-              },
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: [
-                TableRow(
-                  children: [
-                    const SizedBox(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: const Text(
-                        'رقم الحساب',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+        // 📊 Table Header Row
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          color: theme.colorScheme.primary.withValues(alpha: 0.10),
+          child: Table(
+            columnWidths: const {
+              0: FixedColumnWidth(60),
+              1: FlexColumnWidth(2),
+              2: FlexColumnWidth(4),
+              3: FlexColumnWidth(2),
+              4: FixedColumnWidth(90),
+              5: FixedColumnWidth(90),
+              6: FixedColumnWidth(90),
+              7: FixedColumnWidth(80),
+              8: FixedColumnWidth(120),
+            },
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            children: [
+              TableRow(
+                children: [
+                  const SizedBox(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: const Text(
+                      'رقم الحساب',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: const Text(
-                        'اسم الحساب',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: const Text(
+                      'اسم الحساب',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: const Text(
-                        'نوع الحساب',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: const Text(
+                      'نوع الحساب',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: const Text(
-                        'المدين',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.end,
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: const Text(
+                      'المدين',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.end,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: const Text(
-                        'الدائن',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.end,
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: const Text(
+                      'الدائن',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.end,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: const Text(
-                        'الصافي',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.end,
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: const Text(
+                      'الصافي',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.end,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: const Text(
-                        'العملة',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: const Text(
+                      'العملة',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: const Text(
-                        'الإجراءات',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.end,
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: const Text(
+                      'الإجراءات',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.end,
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
+        ),
 
-          // 🏛️ Chart Tree View
-          Expanded(
-            child: BlocBuilder<ChartOfAccountsBloc, ChartOfAccountsState>(
-              builder: (context, state) {
-                if (state.status == ChartOfAccountsStatus.loading) {
-                  return const Center(child: ProgressRing());
-                }
+        // 🏛️ Chart Tree View
+        Expanded(
+          child: BlocBuilder<ChartOfAccountsBloc, ChartOfAccountsState>(
+            builder: (context, state) {
+              if (state.status == ChartOfAccountsStatus.loading) {
+                return const Center(child: ProgressRing());
+              }
 
-                if (state.status == ChartOfAccountsStatus.failure) {
-                  return Center(
-                    child: Text(
-                      state.errorMessage ?? 'حدث خطأ غير متوقع',
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  );
-                }
+              if (state.status == ChartOfAccountsStatus.failure) {
+                return Center(
+                  child: Text(
+                    state.errorMessage ?? 'حدث خطأ غير متوقع',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                );
+              }
 
-                // Filter & Sort Groups & Main Accounts
-                final groupsToRender = state.selectedGroup != null
-                    ? [state.selectedGroup!]
-                    : MainAccountGroup.values;
+              // Filter & Sort Groups & Main Accounts
+              final groupsToRender = state.selectedGroup != null
+                  ? [state.selectedGroup!]
+                  : MainAccountGroup.values;
 
-                final listItems = <Widget>[];
+              final listItems = <Widget>[];
 
-                for (final group in groupsToRender) {
-                  // Filter main accounts for this group
-                  final groupMainAccs = state.mainAccounts.where((m) {
-                    final isSameGroup = m.mainAccountType.accountType == group;
-                    if (!isSameGroup) return false;
+              for (final group in groupsToRender) {
+                // Filter main accounts for this group
+                final groupMainAccs = state.mainAccounts.where((m) {
+                  final isSameGroup = m.mainAccountType.accountType == group;
+                  if (!isSameGroup) return false;
 
-                    if (_searchQuery.isNotEmpty) {
-                      return m.accountName.contains(_searchQuery) ||
-                          m.accountNumber.contains(_searchQuery);
-                    }
-                    return true;
-                  }).toList();
-
-                  // Sort by account number
-                  groupMainAccs.sort(
-                    (a, b) => a.accountNumber.compareTo(b.accountNumber),
-                  );
-
-                  if (groupMainAccs.isEmpty && _searchQuery.isNotEmpty) {
-                    continue;
+                  if (_searchQuery.isNotEmpty) {
+                    return m.accountName.contains(_searchQuery) ||
+                        m.accountNumber.contains(_searchQuery);
                   }
+                  return true;
+                }).toList();
 
-                  // Render Group Header
+                // Sort by account number
+                groupMainAccs.sort(
+                  (a, b) => a.accountNumber.compareTo(b.accountNumber),
+                );
+
+                if (groupMainAccs.isEmpty && _searchQuery.isNotEmpty) {
+                  continue;
+                }
+
+                // Render Group Header
+                listItems.add(
+                  AccountGroupSection(
+                    group: group,
+                    mainAccounts: groupMainAccs,
+                  ),
+                );
+
+                // Render Main Accounts & Sub Accounts
+                for (final mainAcc in groupMainAccs) {
+                  final isExpanded = _expandedMainAccountIds.contains(
+                    mainAcc.id,
+                  );
+
                   listItems.add(
-                    AccountGroupSection(
-                      group: group,
-                      mainAccounts: groupMainAccs,
+                    MainAccountRow(
+                      mainAccount: mainAcc,
+                      isExpanded: isExpanded,
+                      onToggleExpand: () {
+                        setState(() {
+                          if (isExpanded) {
+                            _expandedMainAccountIds.remove(mainAcc.id);
+                          } else {
+                            _expandedMainAccountIds.add(mainAcc.id);
+                          }
+                        });
+                      },
+                      onAddSubAccount: () =>
+                          _showSubAccountDialog(context, mainAcc.id),
+                      onEdit: () =>
+                          _showMainAccountDialog(context, mainAccount: mainAcc),
+                      onDelete: () {
+                        context.read<ChartOfAccountsBloc>().add(
+                          DeleteMainAccount(mainAcc.id),
+                        );
+                      },
                     ),
                   );
 
-                  // Render Main Accounts & Sub Accounts
-                  for (final mainAcc in groupMainAccs) {
-                    final isExpanded = _expandedMainAccountIds.contains(
-                      mainAcc.id,
+                  // Render Sub Accounts if expanded
+                  if (isExpanded) {
+                    final children = state.subAccounts
+                        .where((s) => s.mainAccountId == mainAcc.id)
+                        .toList();
+                    // Sort by account number
+                    children.sort(
+                      (a, b) => a.accountNumber.compareTo(b.accountNumber),
                     );
 
-                    listItems.add(
-                      MainAccountRow(
-                        mainAccount: mainAcc,
-                        isExpanded: isExpanded,
-                        onToggleExpand: () {
-                          setState(() {
-                            if (isExpanded) {
-                              _expandedMainAccountIds.remove(mainAcc.id);
-                            } else {
-                              _expandedMainAccountIds.add(mainAcc.id);
-                            }
-                          });
-                        },
-                        onAddSubAccount: () =>
-                            _showSubAccountDialog(context, mainAcc.id),
-                        onEdit: () => _showMainAccountDialog(
-                          context,
-                          mainAccount: mainAcc,
-                        ),
-                        onDelete: () {
-                          context.read<ChartOfAccountsBloc>().add(
-                            DeleteMainAccount(mainAcc.id),
-                          );
-                        },
-                      ),
-                    );
-
-                    // Render Sub Accounts if expanded
-                    if (isExpanded) {
-                      final children = state.subAccounts
-                          .where((s) => s.mainAccountId == mainAcc.id)
-                          .toList();
-                      // Sort by account number
-                      children.sort(
-                        (a, b) => a.accountNumber.compareTo(b.accountNumber),
-                      );
-
-                      for (final subAcc in children) {
-                        listItems.add(
-                          SubAccountRow(
+                    for (final subAcc in children) {
+                      listItems.add(
+                        SubAccountRow(
+                          subAccount: subAcc,
+                          onEdit: () => _showSubAccountDialog(
+                            context,
+                            mainAcc.id,
                             subAccount: subAcc,
-                            onEdit: () => _showSubAccountDialog(
+                          ),
+                          onDelete: () {
+                            context.read<ChartOfAccountsBloc>().add(
+                              DeleteSubAccount(subAcc.id),
+                            );
+                          },
+                          onViewStatement: () {
+                            Provider.of<AccountsTabNotifier>(
                               context,
-                              mainAcc.id,
-                              subAccount: subAcc,
-                            ),
-                            onDelete: () {
-                              context.read<ChartOfAccountsBloc>().add(
-                                DeleteSubAccount(subAcc.id),
-                              );
-                            },
-                            onViewStatement: () {
-                              Provider.of<AccountsTabNotifier>(
-                                context,
-                                listen: false,
-                              ).navigateToAccountStatement(subAcc.id);
-                            },
-                          ),
-                        );
-                      }
+                              listen: false,
+                            ).navigateToAccountStatement(subAcc.id);
+                          },
+                        ),
+                      );
+                    }
 
-                      if (children.isEmpty) {
-                        listItems.add(
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            alignment: Alignment.center,
-                            child: Text(
-                              'لا توجد حسابات فرعية مضافة بعد لهذا الحساب.',
-                              style: TextStyle(
-                                color: theme.colorScheme.onSurface.withAlpha(
-                                  120,
-                                ),
-                                fontSize: 13,
-                              ),
+                    if (children.isEmpty) {
+                      listItems.add(
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'لا توجد حسابات فرعية مضافة بعد لهذا الحساب.',
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurface.withAlpha(120),
+                              fontSize: 13,
                             ),
                           ),
-                        );
-                      }
+                        ),
+                      );
                     }
                   }
                 }
+              }
 
-                if (listItems.isEmpty) {
-                  return const Center(
-                    child: Text('لا توجد حسابات مطابقة للبحث الحالي.'),
-                  );
-                }
+              if (listItems.isEmpty) {
+                return const Center(
+                  child: Text('لا توجد حسابات مطابقة للبحث الحالي.'),
+                );
+              }
 
-                return ListView(children: listItems);
-              },
-            ),
+              return ListView(children: listItems);
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -339,7 +332,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                     hintText: 'البحث برقم الحساب أو الاسم...',
                     prefixIcon: const Icon(FluentIcons.search),
                     border: const OutlineInputBorder(),
-                    
+
                     fillColor: theme.colorScheme.surfaceContainerHighest
                         .withAlpha(40),
                     filled: true,
@@ -353,7 +346,8 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
               ),
               BlocBuilder<ChartOfAccountsBloc, ChartOfAccountsState>(
                 builder: (context, state) {
-                  final title = state.selectedGroup?.displayName() ?? 'كل المجموعات';
+                  final title =
+                      state.selectedGroup?.displayName() ?? 'كل المجموعات';
                   return SizedBox(
                     height: 40,
                     child: MenuBar(
@@ -363,8 +357,8 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                             MenuItemButton(
                               onPressed: () {
                                 context.read<ChartOfAccountsBloc>().add(
-                                      FilterChartOfAccounts(null),
-                                    );
+                                  FilterChartOfAccounts(null),
+                                );
                               },
                               child: const Text('كل المجموعات'),
                             ),
@@ -372,8 +366,8 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                               (g) => MenuItemButton(
                                 onPressed: () {
                                   context.read<ChartOfAccountsBloc>().add(
-                                        FilterChartOfAccounts(g),
-                                      );
+                                    FilterChartOfAccounts(g),
+                                  );
                                 },
                                 child: Text(g.displayName()),
                               ),
@@ -405,8 +399,8 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                     icon: const Icon(FluentIcons.refresh),
                     onPressed: () {
                       context.read<ChartOfAccountsBloc>().add(
-                            const LoadChartOfAccounts(),
-                          );
+                        const LoadChartOfAccounts(),
+                      );
                     },
                   ),
                 ],

@@ -14,7 +14,7 @@ import 'package:flowcash/features/categories/presentation/blocs/main_categories/
 import 'package:flowcash/features/categories/presentation/blocs/main_categories/main_categories_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/main_categories/main_categories_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' show CommandBar, CommandBarButton, FluentIcons, PageHeader, ProgressRing, ScaffoldPage, TextBox;
 class MainCategoriesPage extends StatelessWidget {
   const MainCategoriesPage({super.key});
 
@@ -248,67 +248,49 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
   Widget build(BuildContext context) {
     final colors = ColorScheme.of(context);
     final textTheme = TextTheme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return ScaffoldPage(
+      header: PageHeader(
+        title: const Text('الأصناف الرئيسية'),
+        commandBar: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Expanded(child: Text(isDesktop ? 'الأصناف الرئيسية' : '')),
             SizedBox(
-              height: 40.0,
-              width: isDesktop ? 400.0 : 250.0,
-              child: SearchBar(
-                elevation: const WidgetStatePropertyAll(0.0),
-                backgroundColor: WidgetStatePropertyAll(
-                  colors.secondary.withValues(alpha: 0.15),
-                ),
+              width: 300,
+              child: TextBox(
                 controller: searchBarController,
-                leading: const Icon(FluentIcons.search, color: Colors.white70),
-                hintText: 'ابحث عن صنف هنا',
-                textStyle: isDesktop
-                    ? WidgetStatePropertyAll(
-                        textTheme.titleMedium?.copyWith(color: Colors.white),
-                      )
-                    : WidgetStatePropertyAll(
-                        textTheme.titleSmall?.copyWith(color: Colors.white),
-                      ),
-                shape: const WidgetStatePropertyAll(RoundedRectangleBorder()),
+                placeholder: 'ابحث عن صنف هنا...',
+                prefix: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Icon(FluentIcons.search),
+                ),
                 onChanged: (value) => setState(() {}),
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: Paddings.mediumHorizontal,
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  spacing: Spacings.medium,
-                  children: [
-                    IconButton(
-                      icon: const Icon(FluentIcons.add),
-                      tooltip: 'اضافة صنف رئيسي',
-                      color: colors.onPrimary,
-                      onPressed: () async {
-                        final mainCategory =
-                            await showDialog<MainCategoryEntity?>(
-                              context: context,
-                              builder: (_) => const MainCategoryFormPage(),
-                            );
-                        if (mainCategory != null && context.mounted) {
-                          context.read<MainCategoriesBloc>().add(
-                            RefreshMainCategoriesEvent(),
-                          );
-                        }
-                      },
-                    ),
-                  ],
+            const SizedBox(width: 12),
+            CommandBar(
+              primaryItems: [
+                CommandBarButton(
+                  icon: const Icon(FluentIcons.add),
+                  label: const Text('إضافة صنف رئيسي'),
+                  onPressed: () async {
+                    final mainCategory =
+                        await showDialog<MainCategoryEntity?>(
+                          context: context,
+                          builder: (_) => const MainCategoryFormPage(),
+                        );
+                    if (mainCategory != null && context.mounted) {
+                      context.read<MainCategoriesBloc>().add(
+                        RefreshMainCategoriesEvent(),
+                      );
+                    }
+                  },
                 ),
-              ),
+              ],
             ),
           ],
         ),
-        centerTitle: true,
       ),
-      body: BlocListener<MainCategoriesBloc, MainCategoriesState>(
+      content: BlocListener<MainCategoriesBloc, MainCategoriesState>(
         listener: (context, state) {
           if (state is MainCategoriesOperationFailure) {
             error(context: context, toast: state.message ?? 'حدث خطأ');

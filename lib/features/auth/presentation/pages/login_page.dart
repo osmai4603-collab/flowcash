@@ -8,7 +8,7 @@ import '../bloc/session/session_bloc.dart';
 import '../bloc/session/session_event.dart';
 import '../bloc/session/session_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' show InfoBar, ProgressRing, ScaffoldPage, displayInfoBar;
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -33,9 +33,9 @@ class _LoginPageState extends State<LoginPage> {
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width > 600;
     final colors = ColorScheme.of(context);
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: Center(
+    return ScaffoldPage(
+      padding: EdgeInsets.zero,
+      content: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: BlocConsumer<SessionBloc, SessionState>(
