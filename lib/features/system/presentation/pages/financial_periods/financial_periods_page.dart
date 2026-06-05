@@ -1,54 +1,17 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/system/domain/entities/accounting_period_entity.dart';
 import 'package:flowcash/features/system/presentation/bloc/financial_periods/financial_periods_cubit.dart';
 import 'package:flowcash/features/system/presentation/pages/financial_periods/financial_period_form_page.dart';
+import 'package:fluent_ui/fluent_ui.dart'
+    show InfoBar, ProgressRing, displayInfoBar;
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show InfoBar, ProgressRing, displayInfoBar;
 class FinancialPeriodsPage extends StatelessWidget {
-  const FinancialPeriodsPage({Key? key}) : super(key: key);
+  const FinancialPeriodsPage({super.key});
 
   bool get isDesktop => Platform.isLinux || Platform.isWindows;
-
-  Map<int, TableColumnWidth> get columnWidths => {
-        0: FixedColumnWidth(isDesktop ? 70.0 : 55.0),
-        1: FixedColumnWidth(isDesktop ? 180.0 : 120.0),
-        2: FixedColumnWidth(isDesktop ? 120.0 : 90.0),
-        3: FixedColumnWidth(isDesktop ? 120.0 : 90.0),
-        4: const FlexColumnWidth(0.30),
-      };
-
-  Widget headerCell(String text, TextTheme textTheme, ColorScheme colors) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: textTheme.bodyMedium?.copyWith(
-          color: colors.onPrimaryContainer,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget dataCell(String text, TextTheme textTheme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      child: Text(
-        text.isEmpty ? '-' : text,
-        textAlign: TextAlign.center,
-        style: textTheme.bodyMedium,
-      ),
-    );
-  }
-
-  String formatDate(DateTime? date) {
-    if (date == null) return '-';
-    return date.toIso8601String().split('T').first;
-  }
 
   Widget buildTable(BuildContext context, List<AccountingPeriodEntity> items) {
     final textTheme = Theme.of(context).textTheme;
@@ -78,6 +41,12 @@ class FinancialPeriodsPage extends StatelessWidget {
       );
     }
 
+    final dataSource = FinancialPeriodsDataGridSource(
+      items: items,
+      textTheme: textTheme,
+      colors: colors,
+    );
+
     return Column(
       children: [
         Padding(
@@ -91,60 +60,89 @@ class FinancialPeriodsPage extends StatelessWidget {
             ),
           ),
         ),
-        Table(
-          border: TableBorder.all(width: 0.50, color: colors.outline),
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          columnWidths: columnWidths,
-          children: [
-            TableRow(
-              decoration: BoxDecoration(color: colors.primaryContainer),
-              children: [
-                headerCell('المعرف', textTheme, colors),
-                headerCell('اسم الفترة', textTheme, colors),
-                headerCell('من التاريخ', textTheme, colors),
-                headerCell('إلى التاريخ', textTheme, colors),
-                headerCell('العملة', textTheme, colors),
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: colors.outline, width: 0.5),
+            ),
+            child: SfDataGrid(
+              source: dataSource,
+              headerRowHeight: 40,
+              rowHeight: 30,
+              gridLinesVisibility: GridLinesVisibility.both,
+              headerGridLinesVisibility: GridLinesVisibility.both,
+              columnWidthMode: ColumnWidthMode.fill,
+              onCellTap: (DataGridCellTapDetails details) async {
+                if (details.rowColumnIndex.rowIndex > 0) {
+                  final item = items[details.rowColumnIndex.rowIndex - 1];
+                  final didUpdate = await _openFinancialPeriodForm(
+                    context,
+                    item,
+                  );
+                  if (didUpdate == true && context.mounted) {
+                    displayInfoBar(
+                      context,
+                      builder: (context, close) => InfoBar(
+                        title: const Text('تنبيه'),
+                        content: Text('تم تحديث الفترة المالية'),
+                      ),
+                    );
+                    context.read<FinancialPeriodsBloc>().add(
+                      LoadFinancialPeriodsEvent(),
+                    );
+                  }
+                }
+              },
+              columns: [
+                GridColumn(
+                  columnName: 'id',
+                  width: isDesktop ? 70.0 : 55.0,
+                  label: _buildHeaderCell('المعرف', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'name',
+                  width: isDesktop ? 180.0 : 120.0,
+                  label: _buildHeaderCell('اسم الفترة', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'start',
+                  width: isDesktop ? 120.0 : 90.0,
+                  label: _buildHeaderCell('من التاريخ', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'end',
+                  width: isDesktop ? 120.0 : 90.0,
+                  label: _buildHeaderCell('إلى التاريخ', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'currency',
+                  label: _buildHeaderCell('العملة', textTheme, colors),
+                ),
               ],
             ),
-          ],
-        ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return InkWell(
-                onTap: () async {
-                  final didUpdate = await _openFinancialPeriodForm(context, item);
-                  if (didUpdate == true && context.mounted) {
-                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تم تحديث الفترة المالية')));
-                    context.read<FinancialPeriodsBloc>().add(LoadFinancialPeriodsEvent());
-                  }
-                },
-                child: Table(
-                  border: TableBorder.all(width: 0.50, color: colors.outline),
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  columnWidths: columnWidths,
-                  children: [
-                    TableRow(
-                      decoration: BoxDecoration(
-                        color: index.isOdd ? colors.primaryContainer : null,
-                      ),
-                      children: [
-                        dataCell(item.id.toString(), textTheme),
-                        dataCell(item.periodName, textTheme),
-                        dataCell(formatDate(item.dateOfStartPeriod), textTheme),
-                        dataCell(formatDate(item.dateOfEndPeriod), textTheme),
-                        dataCell(item.currencyId, textTheme),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildHeaderCell(
+    String text,
+    TextTheme textTheme,
+    ColorScheme colors,
+  ) {
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(color: colors.primaryContainer),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: textTheme.bodyMedium?.copyWith(
+          color: colors.onPrimaryContainer,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 
@@ -160,7 +158,13 @@ class FinancialPeriodsPage extends StatelessWidget {
     if (result != null && context.mounted) {
       context.read<FinancialPeriodsBloc>().add(LoadFinancialPeriodsEvent());
       if (entity == null) {
-        displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تمت إضافة الفترة المالية')));
+        displayInfoBar(
+          context,
+          builder: (context, close) => InfoBar(
+            title: const Text('تنبيه'),
+            content: Text('تمت إضافة الفترة المالية'),
+          ),
+        );
       }
     }
 
@@ -182,7 +186,9 @@ class FinancialPeriodsPage extends StatelessWidget {
                 Text(state.errorMessage),
                 const SizedBox(height: 8),
                 ElevatedButton(
-                  onPressed: () => context.read<FinancialPeriodsBloc>().add(LoadFinancialPeriodsEvent()),
+                  onPressed: () => context.read<FinancialPeriodsBloc>().add(
+                    LoadFinancialPeriodsEvent(),
+                  ),
                   child: const Text('إعادة المحاولة'),
                 ),
               ],
@@ -192,7 +198,9 @@ class FinancialPeriodsPage extends StatelessWidget {
         if (state is FinancialPeriodsSuccess) {
           return RefreshIndicator(
             onRefresh: () async {
-              context.read<FinancialPeriodsBloc>().add(LoadFinancialPeriodsEvent());
+              context.read<FinancialPeriodsBloc>().add(
+                LoadFinancialPeriodsEvent(),
+              );
             },
             child: Padding(
               padding: const EdgeInsets.all(8),
@@ -206,6 +214,61 @@ class FinancialPeriodsPage extends StatelessWidget {
 
         return const SizedBox.shrink();
       },
+    );
+  }
+}
+
+class FinancialPeriodsDataGridSource extends DataGridSource {
+  FinancialPeriodsDataGridSource({
+    required List<AccountingPeriodEntity> items,
+    required this.textTheme,
+    required this.colors,
+  }) {
+    _dataGridRows = items.map<DataGridRow>((item) {
+      return DataGridRow(
+        cells: [
+          DataGridCell<String>(columnName: 'id', value: item.id.toString()),
+          DataGridCell<String>(columnName: 'name', value: item.periodName),
+          DataGridCell<String>(
+            columnName: 'start',
+            value: formatDate(item.dateOfStartPeriod),
+          ),
+          DataGridCell<String>(
+            columnName: 'end',
+            value: formatDate(item.dateOfEndPeriod),
+          ),
+          DataGridCell<String>(columnName: 'currency', value: item.currencyId),
+        ],
+      );
+    }).toList();
+  }
+
+  final TextTheme textTheme;
+  final ColorScheme colors;
+  List<DataGridRow> _dataGridRows = [];
+
+  String formatDate(DateTime? date) {
+    if (date == null) return '-';
+    return date.toIso8601String().split('T').first;
+  }
+
+  @override
+  List<DataGridRow> get rows => _dataGridRows;
+
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    return DataGridRowAdapter(
+      cells: row.getCells().map<Widget>((dataGridCell) {
+        return Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(4.0),
+          child: Text(
+            dataGridCell.value.toString(),
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.bodyMedium,
+          ),
+        );
+      }).toList(),
     );
   }
 }

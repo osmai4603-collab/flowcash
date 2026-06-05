@@ -35,6 +35,7 @@ class _SystemPageState extends State<SystemPage> {
         title: Text('إعدادات النظام'),
       ),
       content: NavigationView(
+        
         pane: NavigationPane(
           selected: _selectedIndex,
           onChanged: (index) => setState(() => _selectedIndex = index),

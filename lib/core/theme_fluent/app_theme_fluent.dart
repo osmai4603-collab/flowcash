@@ -1,5 +1,6 @@
 import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flowcash/core/theme/radiuses.dart';
+import 'package:flowcash/core/theme/styles.dart';
 import 'package:flowcash/core/theme_fluent/color_scheme_fluent.dart';
 import 'package:flowcash/core/theme_fluent/styles_fluent.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -14,6 +15,10 @@ sealed class ThemesFluent {
     cardColor: const Color(0xFFF0F0F0),
     secondaryColor: ColorSchemesFluent.lightSecondaryColor,
     tertiaryColor: ColorSchemesFluent.lightTertiaryColor,
+    typography: Typography.fromBrightness(
+      brightness: Brightness.dark,
+      color: Colors.black,
+    ),
   );
 
   static FluentThemeData get dark => _buildTheme(
@@ -23,6 +28,10 @@ sealed class ThemesFluent {
     cardColor: const Color(0xFF242424),
     secondaryColor: ColorSchemesFluent.darkSecondaryColor,
     tertiaryColor: ColorSchemesFluent.darkTertiaryColor,
+    typography: Typography.fromBrightness(
+      brightness: Brightness.dark,
+      color: Colors.white,
+    ),
   );
 
   static FluentThemeData _buildTheme({
@@ -32,13 +41,14 @@ sealed class ThemesFluent {
     required Color cardColor,
     required Color secondaryColor,
     required Color tertiaryColor,
+    required Typography typography,
   }) {
     return FluentThemeData(
       brightness: brightness,
       accentColor: accentColor,
       scaffoldBackgroundColor: backgroundColor,
       cardColor: cardColor,
-      typography: StylesFluent.typography,
+      typography: typography,
       menuColor: cardColor,
       activeColor: accentColor,
       dialogTheme: ContentDialogThemeData(
@@ -85,8 +95,6 @@ sealed class ThemesFluent {
           ),
         ),
       ),
-      
-      
     );
   }
 
