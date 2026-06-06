@@ -432,13 +432,13 @@ class [Feature]View extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('...')),
+      appBar: AppBar(title: const fluent.Text('...')),
       body: BlocConsumer<[Feature]Bloc, [Feature]State>(
         listener: (context, state) {
           // التأثيرات الجانبية: SnackBar، تنقل، إغلاق حوار
           if (state.status == [Feature]Status.failure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage ?? '')),
+              SnackBar(content: fluent.Text(state.errorMessage ?? '')),
             );
           }
         },
@@ -463,7 +463,7 @@ class [Feature]View extends StatelessWidget {
       itemBuilder: (context, index) {
         final item = state.items[index];
         return ListTile(
-          title: Text(item.toString()),
+          title: fluent.Text(item.toString()),
         );
       },
     );

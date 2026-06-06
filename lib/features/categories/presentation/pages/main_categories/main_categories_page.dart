@@ -14,7 +14,8 @@ import 'package:flowcash/features/categories/presentation/blocs/main_categories/
 import 'package:flowcash/features/categories/presentation/blocs/main_categories/main_categories_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/main_categories/main_categories_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show CommandBar, CommandBarButton, FluentIcons, PageHeader, ProgressRing, ScaffoldPage, TextBox;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class MainCategoriesPage extends StatelessWidget {
   const MainCategoriesPage({super.key});
 
@@ -23,6 +24,61 @@ class MainCategoriesPage extends StatelessWidget {
     return BlocProvider<MainCategoriesBloc>(
       create: (_) => sl<MainCategoriesBloc>()..add(LoadMainCategoriesEvent()),
       child: const _MainCategoriesView(),
+    );
+  }
+}
+
+class MainCategoryDataGridSource extends DataGridSource {
+  MainCategoryDataGridSource({
+    required List<MainCategoryEntity> items,
+    required this.textTheme,
+    required this.colors,
+    required this.onItemTap,
+    required this.onItemDoubleTap,
+    required this.onItemLongPress,
+  }) {
+    _dataGridRows = items.asMap().entries.map<DataGridRow>((entry) {
+      final index = entry.key;
+      final item = entry.value;
+      return DataGridRow(cells: [
+        DataGridCell<String>(columnName: 'no', value: '${index + 1}'),
+        DataGridCell<String>(columnName: 'name', value: item.name),
+        DataGridCell<String>(columnName: 'unitName', value: item.unitName),
+        DataGridCell<String>(columnName: 'priceUnit', value: item.unitType.fullUnitName),
+        DataGridCell<String>(columnName: 'stockUnit', value: item.unitType.fullUnitName),
+        DataGridCell<String>(columnName: 'type', value: item.type.displayName()),
+        DataGridCell<String>(columnName: 'containerName', value: item.unitName),
+      ]);
+    }).toList();
+  }
+
+  final TextTheme textTheme;
+  final ColorScheme colors;
+  final void Function(MainCategoryEntity) onItemTap;
+  final void Function(MainCategoryEntity) onItemDoubleTap;
+  final void Function(MainCategoryEntity) onItemLongPress;
+
+  List<DataGridRow> _dataGridRows = [];
+
+  @override
+  List<DataGridRow> get rows => _dataGridRows;
+
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    final index = _dataGridRows.indexOf(row);
+    return DataGridRowAdapter(
+      color: index.isEven ? null : colors.surfaceVariant.withOpacity(0.12),
+      cells: row.getCells().map<Widget>((dataGridCell) {
+        return Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(4.0),
+          child: fluent.Text(
+            dataGridCell.value.toString(),
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.bodyMedium,
+          ),
+        );
+      }).toList(),
     );
   }
 }
@@ -57,6 +113,22 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
     };
   }
 
+  Widget _buildHeaderCell(String text, TextTheme textTheme, ColorScheme colors) {
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(color: colors.surfaceContainerHigh),
+      child: fluent.Text(
+        text,
+        textAlign: TextAlign.center,
+        style: textTheme.bodyMedium?.copyWith(
+          color: colors.onSurface,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   Widget buildColumn(
     BuildContext context,
     List<MainCategoryEntity> mainCategories,
@@ -70,61 +142,101 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
     }
     return Column(
       children: [
-        Table(
-          border: TableBorder.all(width: 0.5, color: colors.outlineVariant),
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          columnWidths: getWidths(),
-          children: [
-            TableRow(
-              children: [
-                TextWidget(
-                  text: 'No',
-                  textAlign: TextAlign.center,
-                  textDirection: TextDirection.ltr,
-                    padding: Paddings.xsmallAll,
-                  style: textTheme.labelMedium,
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: colors.outlineVariant, width: 0.5),
+              ),
+              child: SfDataGrid(
+                source: MainCategoryDataGridSource(
+                  items: mainCategories,
+                  textTheme: textTheme,
+                  colors: colors,
+                  onItemTap: (category) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SubcategoriesPage(mainCategory: category),
+                      ),
+                    );
+                  },
+                  onItemDoubleTap: (category) async {
+                    final result = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => MainCategoryUnitDataPage(mainCategory: category),
+                    );
+                    if (result == true && context.mounted) {
+                      context.read<MainCategoriesBloc>().add(
+                        RefreshMainCategoriesEvent(),
+                      );
+                    }
+                  },
+                  onItemLongPress: (category) => _onCategoryLongPressed(context, category),
                 ),
-                TextWidget(
-                  text: 'اسم الصنف',
-                  textAlign: TextAlign.center,
-                    padding: Paddings.xsmallAll,
-                  style: textTheme.labelMedium,
-                ),
-                TextWidget(
-                  text: 'وحدة الصنف',
-                  textAlign: TextAlign.center,
-                    padding: Paddings.xsmallAll,
-                  style: textTheme.labelMedium,
-                ),
-                TextWidget(
-                  text: 'وحدة السعر',
-                  textAlign: TextAlign.center,
-                    padding: Paddings.xsmallAll,
-                  style: textTheme.labelMedium,
-                ),
-                TextWidget(
-                  text: 'وحدة الجرد',
-                  textAlign: TextAlign.center,
-                    padding: Paddings.xsmallAll,
-                  style: textTheme.labelMedium,
-                ),
-                TextWidget(
-                  text: 'نوع الصنف',
-                  textAlign: TextAlign.center,
-                    padding: Paddings.xsmallAll,
-                  style: textTheme.labelMedium,
-                ),
-                TextWidget(
-                  text: 'اسم الحاوية',
-                  textAlign: TextAlign.center,
-                    padding: Paddings.xsmallAll,
-                  style: textTheme.labelMedium,
-                ),
-              ],
+                headerRowHeight: 40,
+                rowHeight: 30,
+                gridLinesVisibility: GridLinesVisibility.both,
+                headerGridLinesVisibility: GridLinesVisibility.both,
+                columnWidthMode: ColumnWidthMode.fill,
+                onCellTap: (details) {
+                  if (details.rowColumnIndex.rowIndex > 0) {
+                    final item = mainCategories[details.rowColumnIndex.rowIndex - 1];
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SubcategoriesPage(mainCategory: item),
+                      ),
+                    );
+                  }
+                },
+                onCellDoubleTap: (details) async {
+                  if (details.rowColumnIndex.rowIndex > 0) {
+                    final item = mainCategories[details.rowColumnIndex.rowIndex - 1];
+                    final result = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => MainCategoryUnitDataPage(mainCategory: item),
+                    );
+                    if (result == true && context.mounted) {
+                      context.read<MainCategoriesBloc>().add(
+                        RefreshMainCategoriesEvent(),
+                      );
+                    }
+                  }
+                },
+                columns: [
+                  GridColumn(
+                    columnName: 'no',
+                    width: isDesktop ? 60.0 : 50.0,
+                    label: _buildHeaderCell('No', textTheme, colors),
+                  ),
+                  GridColumn(
+                    columnName: 'name',
+                    label: _buildHeaderCell('اسم الصنف', textTheme, colors),
+                  ),
+                  GridColumn(
+                    columnName: 'unitName',
+                    label: _buildHeaderCell('وحدة الصنف', textTheme, colors),
+                  ),
+                  GridColumn(
+                    columnName: 'priceUnit',
+                    label: _buildHeaderCell('وحدة السعر', textTheme, colors),
+                  ),
+                  GridColumn(
+                    columnName: 'stockUnit',
+                    label: _buildHeaderCell('وحدة الجرد', textTheme, colors),
+                  ),
+                  GridColumn(
+                    columnName: 'type',
+                    label: _buildHeaderCell('نوع الصنف', textTheme, colors),
+                  ),
+                  GridColumn(
+                    columnName: 'containerName',
+                    label: _buildHeaderCell('اسم الحاوية', textTheme, colors),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-        Expanded(child: listView(context, mainCategories)),
+          ),
       ],
     );
   }
@@ -133,95 +245,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
     BuildContext context,
     List<MainCategoryEntity> categories,
   ) {
-    if (categories.isEmpty) {
-      return const Center(
-        child: TextWidget(
-          text: 'لا يوجد اصناف رئيسية موجود لهذا المدخل',
-          alignment: Alignment.center,
-        ),
-      );
-    }
-    final colors = ColorScheme.of(context);
-    final textTheme = TextTheme.of(context);
-    return ListView.builder(
-      itemCount: categories.length,
-      itemBuilder: (_, index) {
-        final category = categories[index];
-        return InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SubcategoriesPage(mainCategory: category),
-              ),
-            );
-          },
-          onLongPress: () => _onCategoryLongPressed(context, category),
-          onDoubleTap: () async {
-            final result = await showDialog<bool>(
-              context: context,
-              builder: (_) => MainCategoryUnitDataPage(mainCategory: category),
-            );
-            if (result == true && context.mounted) {
-              context.read<MainCategoriesBloc>().add(
-                RefreshMainCategoriesEvent(),
-              );
-            }
-          },
-          child: Table(
-            border: TableBorder.all(width: 0.5, color: colors.outlineVariant),
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            columnWidths: getWidths(),
-            children: [
-              TableRow(
-                decoration: BoxDecoration(
-        
-                color: index % 2 == 0 ? colors.primaryContainer : null,
-                ),
-                children: [
-                  TextWidget(
-                    text: '${index + 1}',
-                    textAlign: TextAlign.center,
-                    textDirection: TextDirection.ltr,
-                    style: textTheme.labelMedium,
-                  ),
-                  TextWidget(
-                    text: category.name,
-                    padding: Paddings.xsmallAll,
-                    style: textTheme.bodySmall,
-                  ),
-                  TextWidget(
-                    text: category.unitName,
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodySmall,
-                  ),
-                  TextWidget(
-                    text: category.unitType.fullUnitName,
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodySmall,
-                  ),
-                  TextWidget(
-                    text: category.unitType.fullUnitName,
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodySmall,
-                  ),
-                  TextWidget(
-                    text: category.type.displayName(),
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodySmall,
-                  ),
-                  TextWidget(
-                    text: category.unitName,
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    return const SizedBox.shrink();
   }
 
   Widget listView(
@@ -239,7 +263,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
                         category.name.contains(searchBarController.text),
                   )
                   .toList();
-        return buildListViewOfTable(context, categories);
+        return buildColumn(context, categories);
       },
     );
   }
@@ -248,30 +272,30 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
   Widget build(BuildContext context) {
     final colors = ColorScheme.of(context);
     final textTheme = TextTheme.of(context);
-    return ScaffoldPage(
-      header: PageHeader(
-        title: const Text('الأصناف الرئيسية'),
+    return fluent.ScaffoldPage(
+      header: fluent.PageHeader(
+        title: const fluent.Text('الأصناف الرئيسية'),
         commandBar: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             SizedBox(
               width: 300,
-              child: TextBox(
+              child: fluent.TextBox(
                 controller: searchBarController,
                 placeholder: 'ابحث عن صنف هنا...',
                 prefix: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Icon(FluentIcons.search),
+                  child: Icon(fluent.FluentIcons.search),
                 ),
                 onChanged: (value) => setState(() {}),
               ),
             ),
             const SizedBox(width: 12),
-            CommandBar(
+            fluent.CommandBar(
               primaryItems: [
-                CommandBarButton(
-                  icon: const Icon(FluentIcons.add),
-                  label: const Text('إضافة صنف رئيسي'),
+                fluent.CommandBarButton(
+                  icon: const Icon(fluent.FluentIcons.add),
+                  label: const fluent.Text('إضافة صنف رئيسي'),
                   onPressed: () async {
                     final mainCategory =
                         await showDialog<MainCategoryEntity?>(
@@ -307,13 +331,13 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
               builder: (context, state) {
                 if (state is MainCategoriesLoadInProgress ||
                     state is MainCategoriesInitial) {
-                  return const Center(child: ProgressRing());
+                  return const Center(child: fluent.ProgressRing());
                 }
                 if (state is MainCategoriesLoadSuccess) {
                   return buildColumn(context, state.mainCategories);
                 }
                 if (state is MainCategoriesOperationFailure) {
-                  return Center(child: Text(state.message ?? 'حدث خطأ'));
+                  return Center(child: fluent.Text(state.message ?? 'حدث خطأ'));
                 }
                 return const SizedBox.shrink();
               },

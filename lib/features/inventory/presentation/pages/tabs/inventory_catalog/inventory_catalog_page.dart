@@ -16,7 +16,7 @@ import 'package:flowcash/widgets/my_text_widget.dart';
 
 import 'inventory_item_form_dialog.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class InventoryCatalogPage extends StatefulWidget {
   const InventoryCatalogPage({super.key});
 
@@ -114,12 +114,12 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
         listener: (context, state) {
           if (state.status == CatalogStatus.error &&
               state.errorMessage != null) {
-            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
+            fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(state.errorMessage!)));
           }
         },
         builder: (context, state) {
           if (state.status == CatalogStatus.loading || _isLoadingMetaData) {
-            return const Center(child: ProgressRing());
+            return const Center(child: fluent.ProgressRing());
           }
 
           final filteredItems = state.items.where((item) {
@@ -149,7 +149,7 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'البحث عن صنف مخزون...',
-                              prefixIcon: const Icon(FluentIcons.search),
+                              prefixIcon: const Icon(fluent.FluentIcons.search),
                             ),
                             onChanged: (value) {
                               setState(() {
@@ -173,7 +173,7 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                                           _filterWarehouseId = null;
                                         });
                                       },
-                                      child: const Text('كل المخازن'),
+                                      child: const fluent.Text('كل المخازن'),
                                     ),
                                     ..._warehouses.map(
                                       (warehouse) => MenuItemButton(
@@ -182,11 +182,11 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                                             _filterWarehouseId = warehouse.id;
                                           });
                                         },
-                                        child: Text(warehouse.warehouseName),
+                                        child: fluent.Text(warehouse.warehouseName),
                                       ),
                                     ),
                                   ],
-                                  child: Text(
+                                  child: fluent.Text(
                                     _filterWarehouseId == null
                                         ? 'كل المخازن'
                                         : _warehouses.where((w) => w.id == _filterWarehouseId).isEmpty
@@ -221,8 +221,8 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          icon: const Icon(FluentIcons.add),
-                          label: const Text(
+                          icon: const Icon(fluent.FluentIcons.add),
+                          label: const fluent.Text(
                             'إضافة مخزون جديد',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
@@ -327,7 +327,7 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
 
   Center _buildEmptyInventory(TextTheme textTheme) {
     return Center(
-      child: Text(
+      child: fluent.Text(
         'لا توجد أصناف تطابق معايير البحث ⚠️',
         style: textTheme.bodyLarge?.copyWith(color: Colors.grey),
         textAlign: TextAlign.center,

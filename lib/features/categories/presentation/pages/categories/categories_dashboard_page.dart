@@ -20,7 +20,7 @@ import 'package:flowcash/features/categories/presentation/pages/subcategories/su
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class CategoriesDashboardPage extends StatefulWidget {
   const CategoriesDashboardPage({super.key});
 
@@ -46,7 +46,7 @@ class _CategoriesDashboardPageState extends State<CategoriesDashboardPage> {
       length: 4,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(isDesktop ? 'لوحة إدارة التصنيفات' : 'التصنيفات'),
+          title: fluent.Text(isDesktop ? 'لوحة إدارة التصنيفات' : 'التصنيفات'),
           centerTitle: true,
           bottom:  TabBar(
             isScrollable: true,
@@ -108,7 +108,7 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
           TextField(
             controller: searchController,
             decoration: const InputDecoration(
-              prefixIcon: Icon(FluentIcons.search),
+              prefixIcon: Icon(fluent.FluentIcons.search),
               hintText: 'ابحث عن صنف هنا',
               
             ),
@@ -118,7 +118,7 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
             child: BlocBuilder<CategoriesBloc, CategoriesState>(
               builder: (context, state) {
                 if (state is CategoriesLoadInProgress) {
-                  return const Center(child: ProgressRing());
+                  return const Center(child: fluent.ProgressRing());
                 }
                 if (state is CategoriesLoadFailure) {
                   return Center(child: TextWidget(text: state.message));
@@ -135,7 +135,7 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
                           .toList();
                   return _buildCategoriesList(context, filtered);
                 }
-                return const Center(child: ProgressRing());
+                return const Center(child: fluent.ProgressRing());
               },
             ),
           ),
@@ -169,27 +169,27 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
               children: const [
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('No', textAlign: TextAlign.center),
+                  child: fluent.Text('No', textAlign: TextAlign.center),
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('الرقم', textAlign: TextAlign.center),
+                  child: fluent.Text('الرقم', textAlign: TextAlign.center),
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('الصنف', textAlign: TextAlign.center),
+                  child: fluent.Text('الصنف', textAlign: TextAlign.center),
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('الوحدة', textAlign: TextAlign.center),
+                  child: fluent.Text('الوحدة', textAlign: TextAlign.center),
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('نوع التعريف', textAlign: TextAlign.center),
+                  child: fluent.Text('نوع التعريف', textAlign: TextAlign.center),
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('الباركود', textAlign: TextAlign.center),
+                  child: fluent.Text('الباركود', textAlign: TextAlign.center),
                 ),
               ],
             ),
@@ -220,27 +220,27 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text('${index + 1}', textAlign: TextAlign.center, style: textTheme.bodyMedium),
+                        child: fluent.Text('${index + 1}', textAlign: TextAlign.center, style: textTheme.bodyMedium),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(category.categoryNumber, textAlign: TextAlign.center, style: textTheme.bodyMedium),
+                        child: fluent.Text(category.categoryNumber, textAlign: TextAlign.center, style: textTheme.bodyMedium),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(category.categoryName, style: textTheme.bodyMedium),
+                        child: fluent.Text(category.categoryName, style: textTheme.bodyMedium),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(category.categoryUnit?.unitName ?? 'غير معرف', textAlign: TextAlign.center, style: textTheme.bodyMedium),
+                        child: fluent.Text(category.categoryUnit?.unitName ?? 'غير معرف', textAlign: TextAlign.center, style: textTheme.bodyMedium),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(category.categoryType.displayName(), textAlign: TextAlign.center, style: textTheme.bodyMedium),
+                        child: fluent.Text(category.categoryType.displayName(), textAlign: TextAlign.center, style: textTheme.bodyMedium),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(category.barcode ?? 'غير معرف', textAlign: TextAlign.center, style: textTheme.bodyMedium),
+                        child: fluent.Text(category.barcode ?? 'غير معرف', textAlign: TextAlign.center, style: textTheme.bodyMedium),
                       ),
                     ],
                   ),
@@ -300,7 +300,7 @@ class _CategoriesDashboardSubcategoriesTabState extends State<CategoriesDashboar
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: ProgressRing());
+          return const Center(child: fluent.ProgressRing());
         }
         if (snapshot.hasError || snapshot.data == null) {
           return const Center(child: TextWidget(text: 'حدث خطأ أثناء تحميل الأصناف الفرعية'));
@@ -323,9 +323,9 @@ class _CategoriesDashboardSubcategoriesTabState extends State<CategoriesDashboar
             final subcategory = data.subcategories[index];
             final mainName = data.mainCategoryNames[subcategory.mainCategoryId] ?? 'غير معروف';
             return ListTile(
-              title: Text(subcategory.catalogName),
-              subtitle: Text('الصنف الرئيسي: $mainName'),
-              trailing: Text(subcategory.catalogNumber ?? '-'),
+              title: fluent.Text(subcategory.catalogName),
+              subtitle: fluent.Text('الصنف الرئيسي: $mainName'),
+              trailing: fluent.Text(subcategory.catalogNumber ?? '-'),
             );
           },
         );
@@ -385,7 +385,7 @@ class _CategoriesDashboardMainCategoriesTabState extends State<CategoriesDashboa
             TextField(
               controller: searchController,
               decoration: const InputDecoration(
-                prefixIcon: Icon(FluentIcons.search),
+                prefixIcon: Icon(fluent.FluentIcons.search),
                 hintText: 'ابحث عن صنف رئيسي هنا',
                 
               ),
@@ -395,7 +395,7 @@ class _CategoriesDashboardMainCategoriesTabState extends State<CategoriesDashboa
               child: BlocBuilder<MainCategoriesBloc, MainCategoriesState>(
                 builder: (context, state) {
                   if (state is MainCategoriesLoadInProgress || state is MainCategoriesInitial) {
-                    return const Center(child: ProgressRing());
+                    return const Center(child: fluent.ProgressRing());
                   }
                   if (state is MainCategoriesOperationFailure) {
                     return Center(child: TextWidget(text: state.message ?? 'فشل تحميل الأصناف الرئيسية'));
@@ -415,9 +415,9 @@ class _CategoriesDashboardMainCategoriesTabState extends State<CategoriesDashboa
                       itemBuilder: (context, index) {
                         final category = categories[index];
                         return ListTile(
-                          title: Text(category.name),
-                          subtitle: Text(category.unitType.fullUnitName),
-                          trailing: Text(category.type.displayName()),
+                          title: fluent.Text(category.name),
+                          subtitle: fluent.Text(category.unitType.fullUnitName),
+                          trailing: fluent.Text(category.type.displayName()),
                           onTap: () {
                             Navigator.push(
                               context,
@@ -484,7 +484,7 @@ class _CategoriesDashboardUnitsTabState extends State<CategoriesDashboardUnitsTa
           TextField(
             controller: searchController,
             decoration: const InputDecoration(
-              prefixIcon: Icon(FluentIcons.search),
+              prefixIcon: Icon(fluent.FluentIcons.search),
               hintText: 'ابحث عن وحدة هنا',
               
             ),
@@ -495,7 +495,7 @@ class _CategoriesDashboardUnitsTabState extends State<CategoriesDashboardUnitsTa
               future: _unitsFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: ProgressRing());
+                  return const Center(child: fluent.ProgressRing());
                 }
                 if (snapshot.hasError) {
                   return const Center(child: TextWidget(text: 'حدث خطأ أثناء تحميل الوحدات'));
@@ -513,9 +513,9 @@ class _CategoriesDashboardUnitsTabState extends State<CategoriesDashboardUnitsTa
                   itemBuilder: (context, index) {
                     final unit = filtered[index];
                     return ListTile(
-                      title: Text(unit.unitName),
-                      subtitle: Text(unit.unitType.fullUnitName),
-                      trailing: Text('أبعاد: ${unit.length}×${unit.width}×${unit.thickness}'),
+                      title: fluent.Text(unit.unitName),
+                      subtitle: fluent.Text(unit.unitType.fullUnitName),
+                      trailing: fluent.Text('أبعاد: ${unit.length}×${unit.width}×${unit.thickness}'),
                     );
                   },
                 );

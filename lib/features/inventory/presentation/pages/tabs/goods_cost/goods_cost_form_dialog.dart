@@ -3,7 +3,7 @@ import 'package:flowcash/features/inventory/domain/entities/goods_cost_entity.da
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class GoodsCostFormDialog extends StatefulWidget {
   final List<WarehouseEntity> warehouses;
 
@@ -68,7 +68,7 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return ContentDialog(
+    return fluent.ContentDialog(
       content: Container(
         width: 500,
         padding: const EdgeInsets.all(24),
@@ -88,9 +88,9 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
             children: [
               Row(
                 children: [
-                  Icon(FluentIcons.receipt_check, color: theme.colorScheme.primary, size: 28),
+                  Icon(fluent.FluentIcons.receipt_check, color: theme.colorScheme.primary, size: 28),
                   const SizedBox(width: 8),
-                  const Text('تسجيل تكلفة بضاعة جديدة 💰', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const fluent.Text('تسجيل تكلفة بضاعة جديدة 💰', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ],
               ),
               const Divider(height: 24),
@@ -99,13 +99,13 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
               DropdownButtonFormField<int>(
                 decoration: const InputDecoration(
                   labelText: 'اختر المستودع الرئيسي',
-                  prefixIcon: Icon(FluentIcons.store_logo16),
+                  prefixIcon: Icon(fluent.FluentIcons.store_logo16),
                 ),
                 initialValue: _selectedWarehouseId,
                 items: widget.warehouses.map((w) {
                   return DropdownMenuItem<int>(
                     value: w.id,
-                    child: Text(w.warehouseName),
+                    child: fluent.Text(w.warehouseName),
                   );
                 }).toList(),
                 onChanged: (val) => setState(() => _selectedWarehouseId = val),
@@ -123,7 +123,7 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
                       textDirection: TextDirection.ltr,
                       decoration: const InputDecoration(
                         labelText: 'رقم السند/الفاتورة',
-                        prefixIcon: Icon(FluentIcons.ticket),
+                        prefixIcon: Icon(fluent.FluentIcons.ticket),
                       ),
                       keyboardType: TextInputType.number,
                       validator: (val) => val == null || val.isEmpty ? 'رقم السند مطلوب' : null,
@@ -134,12 +134,12 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
                     child: DropdownButtonFormField<String>(
                       decoration: const InputDecoration(
                         labelText: 'العملة',
-                        prefixIcon: Icon(FluentIcons.currency),
+                        prefixIcon: Icon(fluent.FluentIcons.currency),
                       ),
                       initialValue: _selectedCurrency,
                       items: const [
-                        DropdownMenuItem(value: 'SAR', child: Text('SAR (ريال)')),
-                        DropdownMenuItem(value: 'USD', child: Text('USD (دولار)')),
+                        DropdownMenuItem(value: 'SAR', child: fluent.Text('SAR (ريال)')),
+                        DropdownMenuItem(value: 'USD', child: fluent.Text('USD (دولار)')),
                       ],
                       onChanged: (val) => setState(() => _selectedCurrency = val ?? 'SAR'),
                     ),
@@ -154,7 +154,7 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
                 textDirection: TextDirection.ltr,
                 decoration: const InputDecoration(
                   labelText: 'المبلغ الإجمالي لتكلفة البضاعة',
-                  prefixIcon: Icon(FluentIcons.money),
+                  prefixIcon: Icon(fluent.FluentIcons.money),
                 ),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (val) {
@@ -171,7 +171,7 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
                 controller: _noteController,
                 decoration: const InputDecoration(
                   labelText: 'بيان/ملاحظات الحركة',
-                  prefixIcon: Icon(FluentIcons.note_pinned),
+                  prefixIcon: Icon(fluent.FluentIcons.note_pinned),
                 ),
               ),
 
@@ -179,14 +179,14 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(
+                  fluent.Button(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('إلغاء'),
+                    child: const fluent.Text('إلغاء'),
                   ),
                   const SizedBox(width: 12),
-                  ElevatedButton(
+                  fluent.FilledButton(
                     onPressed: _submit,
-                    child: const Text('تسجيل التكلفة'),
+                    child: const fluent.Text('تسجيل التكلفة'),
                   ),
                 ],
               ),

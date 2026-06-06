@@ -15,7 +15,7 @@ import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class SubcategoryFormPage extends StatefulWidget {
   final int mainCategoryId;
   final SubcategoryEntity? subcategory;
@@ -60,7 +60,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
   @override
   Widget build(BuildContext context) {
     final textTheme = TextTheme.of(context);
-    return ContentDialog(
+    return fluent.ContentDialog(
       constraints: const BoxConstraints(maxWidth: 500),
       content: Padding(
         padding: Paddings.mediumAll,
@@ -104,7 +104,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                       Row(
                         children: [
                           IconButton(
-                            icon: Icon(FluentIcons.back),
+                            icon: Icon(fluent.FluentIcons.back),
                             tooltip: 'رجوع',
                             onPressed: () => Navigator.pop(context),
                           ),
@@ -115,7 +115,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                             textAlign: TextAlign.center,
                           ),
                           IconButton(
-                            icon: const Icon(FluentIcons.save),
+                            icon: const Icon(fluent.FluentIcons.save),
                             tooltip: 'حفظ البيانات',
                             onPressed: _onSaveButtonClicked,
                           ),
@@ -144,8 +144,8 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                             vertical: 12.0,
                           ),
                           hintText: 'ادخل اسم النوع',
-                          label: Text('اسم النوع'),
-                          prefixIcon: Icon(FluentIcons.category_classification),
+                          label: fluent.Text('اسم النوع'),
+                          prefixIcon: Icon(fluent.FluentIcons.category_classification),
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -195,12 +195,12 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
             decoration: InputDecoration(
               labelText: property.property.propertyName,
               hintText: 'حدد نوع ${property.property.propertyName}',
-              prefixIcon: const Icon(FluentIcons.category_classification),
+              prefixIcon: const Icon(fluent.FluentIcons.category_classification),
             ),
             items: property.subcatgoriesUnits.map((catalogUnit) {
               return DropdownMenuItem<UnitEntity>(
                 value: catalogUnit.unit,
-                child: Text(catalogUnit.unitName()),
+                child: fluent.Text(catalogUnit.unitName()),
               );
             }).toList(),
             validator: (value) {
@@ -236,7 +236,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                 ),
               ),
             ),
-            icon: Icon(FluentIcons.add, color: colors.onSurface),
+            icon: Icon(fluent.FluentIcons.add, color: colors.onSurface),
             tooltip: 'إضافة ${property.property.propertyName} جديد',
             onPressed: () => _onAddNewSubcategoryUnit(property),
           ),
@@ -282,7 +282,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                     Row(
                       children: [
                         IconButton(
-                          icon: Icon(FluentIcons.add, color: colors.onSurface),
+                          icon: Icon(fluent.FluentIcons.add, color: colors.onSurface),
                           tooltip:
                               'اضافة ${property.property.propertyName} جديد',
                           onPressed: () async {
@@ -382,7 +382,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                   child: IconButton(
                                     splashRadius: 10,
                                     tooltip: 'ازالة',
-                                    icon: Icon(FluentIcons.remove_link,
+                                    icon: Icon(fluent.FluentIcons.remove_link,
                                       color: Colors.red.shade400,
                                       size: 16,
                                     ),
@@ -415,17 +415,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                       }).toList(),
                     ),
                     const SizedBox(height: 20),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: colors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: Radiuses.smallAll,
-                        ),
-                        padding: EdgeInsets.symmetric(
-                          vertical: isDesktop ? 12 : 5,
-                          horizontal: isDesktop ? 20 : 10,
-                        ),
-                      ),
+                    fluent.FilledButton(
                       onPressed: () async {
                         final selectedUnitIds = selectedList
                             .whereType<SubcategoryUnit>()
@@ -467,7 +457,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                           availableUnits.first,
                         ]);
                       },
-                      child: Text(
+                      child: fluent.Text(
                         'تحديد ${property.property.propertyName} جديد',
                         style: TextStyle(
                           fontSize: 17,
@@ -482,7 +472,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
               if (formState.hasError)
                 Padding(
                   padding: const EdgeInsets.only(top: 5, right: 12),
-                  child: Text(
+                  child: fluent.Text(
                     formState.errorText!,
                     style: TextStyle(color: colors.error, fontSize: 12),
                   ),

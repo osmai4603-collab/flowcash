@@ -8,7 +8,7 @@ import '../bloc/settings/settings_event.dart';
 import '../bloc/settings/settings_state.dart';
 import '../widgets/setting_tile.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class CompanyInfoPage extends StatelessWidget {
   const CompanyInfoPage({super.key});
 
@@ -17,16 +17,16 @@ class CompanyInfoPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => GetIt.instance<SettingsBloc>()..add(LoadSettingsEvent()),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Company Info')),
+        appBar: AppBar(title: const fluent.Text('Company Info')),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: BlocBuilder<SettingsBloc, SettingsState>(
             builder: (context, state) {
               if (state.status == SettingsStatus.loading) {
-                return const Center(child: ProgressRing());
+                return const Center(child: fluent.ProgressRing());
               }
               if (state.status == SettingsStatus.failure) {
-                return Center(child: Text(state.errorMessage ?? 'Failed to load company info'));
+                return Center(child: fluent.Text(state.errorMessage ?? 'Failed to load company info'));
               }
               final companyValues = state.values.where((value) => value.valueType == AppValueType.companyName || value.valueType == AppValueType.companyAddress).toList();
               if (companyValues.isEmpty) {

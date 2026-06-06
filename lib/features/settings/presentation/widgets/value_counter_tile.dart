@@ -1,5 +1,6 @@
 import 'package:flowcash/features/settings/domain/entities/value_counter_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class ValueCounterTile extends StatelessWidget {
   final ValueCounterEntity counter;
@@ -19,20 +20,20 @@ class ValueCounterTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  fluent.Text(
                     counter.counterType.displayName(),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
-                  Text('Count: ${counter.count}'),
-                  Text('Format: ${counter.formatValue}'),
-                  Text('Type: ${counter.counterType.displayName()}'),
+                  fluent.Text('Count: ${counter.count}'),
+                  fluent.Text('Format: ${counter.formatValue}'),
+                  fluent.Text('Type: ${counter.counterType.displayName()}'),
                 ],
               ),
             ),
-            ElevatedButton(
+            fluent.FilledButton(
               onPressed: onIncrement,
-              child: const Text('Increment'),
+              child: const fluent.Text('Increment'),
             ),
           ],
         ),

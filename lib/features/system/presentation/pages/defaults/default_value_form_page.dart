@@ -4,7 +4,7 @@ import 'package:flowcash/features/system/domain/entities/value_entity.dart';
 import 'package:flowcash/core/enums/value_type_enum.dart';
 import 'package:flowcash/features/system/presentation/bloc/defaults/default_value_form_cubit.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class DefaultValueFormPage extends StatefulWidget {
   final ValueEntity? initialValue;
 
@@ -17,23 +17,27 @@ class DefaultValueFormPage extends StatefulWidget {
 class _DefaultValueFormPageState extends State<DefaultValueFormPage> {
   final _formKey = GlobalKey<FormState>();
   late ValueType _selectedType;
+  late TextEditingController _typeController;
   late TextEditingController _valueController;
 
   @override
   void initState() {
     super.initState();
     _selectedType = widget.initialValue?.valueType ?? ValueType.values.first;
+    _typeController = TextEditingController(text: _selectedType.displayName());
     _valueController = TextEditingController(text: widget.initialValue?.value?.toString() ?? _selectedType.defaultValue);
   }
 
   @override
   void dispose() {
+    _typeController.dispose();
     _valueController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    
     return BlocProvider(
       create: (_) => DefaultValueFormCubit(initial: widget.initialValue),
       child: BlocListener<DefaultValueFormCubit, DefaultValueFormState>(
@@ -42,47 +46,70 @@ class _DefaultValueFormPageState extends State<DefaultValueFormPage> {
             Navigator.of(context).pop(state.value);
           }
         },
-        child: ContentDialog(
-          constraints: const BoxConstraints(maxWidth: 500, minWidth: 500),
-          title: Text(widget.initialValue == null ? 'إضافة قيمة' : 'تعديل قيمة'),
+        child: fluent.ContentDialog(
+          constraints: const BoxConstraints(maxWidth: 400, minWidth: 400),
+          title: fluent.Text(widget.initialValue == null ? 'إضافة قيمة' : 'تعديل قيمة'),
           content: Form(
             key: _formKey,
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  DropdownButtonFormField<ValueType>(
-                    initialValue: _selectedType,
-                    decoration: const InputDecoration(labelText: 'نوع القيمة', prefixIcon: Icon(FluentIcons.category_classification)),
-                    items: ValueType.values
-                        .map((e) => DropdownMenuItem(value: e, child: Text(e.displayName())))
-                        .toList(),
-                    onChanged: (v) {
-                      if (v == null) return;
-                      setState(() {
-                        _selectedType = v;
-                        if (_valueController.text.isEmpty) {
-                          _valueController.text = v.defaultValue;
+                  fluent.InfoLabel(
+                    label: 'نوع القيمة',
+                    child: fluent.AutoSuggestBox<ValueType>.form(
+                      controller: _typeController,
+                      items: ValueType.values.map((e) {
+                        return fluent.AutoSuggestBoxItem<ValueType>(
+                          value: e,
+                          label: e.displayName(),
+                        );
+                      }).toList(),
+                      leadingIcon: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: fluent.Icon(fluent.FluentIcons.category_classification),
+                      ),
+                      placeholder: 'حدد نوع القيمة',
+                      validator: (text) {
+                        if (text == null || text.isEmpty) {
+                          return 'الرجاء اختيار نوع القيمة';
                         }
-                      });
-                    },
+                        return null;
+                      },
+                      onSelected: (item) {
+                        _typeController.text = item.label;
+                        setState(() {
+                          _selectedType = item.value!;
+                          if (_valueController.text.isEmpty) {
+                            _valueController.text = _selectedType.defaultValue;
+                          }
+                        });
+                      },
+                      noResultsFoundBuilder: (_) => const fluent.Text('لا توجد قيم'),
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _valueController,
-                    decoration: const InputDecoration(labelText: 'القيمة', prefixIcon: Icon(FluentIcons.number)),
-                    validator: (v) => (v == null || v.isEmpty) ? 'الرجاء إدخال قيمة' : null,
+                  fluent.InfoLabel(
+                    label: 'القيمة',
+                    child: fluent.TextFormBox(
+                      controller: _valueController,
+                      prefix: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: fluent.Icon(fluent.FluentIcons.number),
+                      ),
+                      validator: (v) => (v == null || v.isEmpty) ? 'الرجاء إدخال قيمة' : null,
+                    ),
                   ),
                 ],
               ),
             ),
           ),
           actions: [
-            TextButton(
+            fluent.Button(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('إلغاء'),
+              child: const fluent.Text('إلغاء'),
             ),
-            ElevatedButton(
+            fluent.FilledButton(
               onPressed: () {
                 if (!_formKey.currentState!.validate()) return;
                 final value = ValueEntity(
@@ -92,7 +119,7 @@ class _DefaultValueFormPageState extends State<DefaultValueFormPage> {
                 );
                 context.read<DefaultValueFormCubit>().submit(value);
               },
-              child: const Text('حفظ'),
+              child: const fluent.Text('حفظ'),
             ),
           ],
         ),

@@ -7,6 +7,7 @@ import 'package:flowcash/features/transactions/presentation/blocs/financial_tran
 import 'package:flowcash/features/transactions/presentation/blocs/financial_transactions/financial_transactions_event.dart';
 import 'package:flowcash/features/transactions/presentation/blocs/financial_transactions/financial_transactions_state.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 // removed fluent_ui usage from this file; using Material dialogs and icons
 class ExpensesRevenuesTab extends StatefulWidget {
@@ -59,8 +60,8 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
                   // Segmented Switch
                   SegmentedButton<bool>(
                     segments: const [
-                      ButtonSegment(value: false, label: Text('المصروفات'), icon: Icon(Icons.arrow_circle_down)),
-                      ButtonSegment(value: true, label: Text('الإيرادات'), icon: Icon(Icons.arrow_circle_up)),
+                      ButtonSegment(value: false, label: fluent.Text('المصروفات'), icon: Icon(Icons.arrow_circle_down)),
+                      ButtonSegment(value: true, label: fluent.Text('الإيرادات'), icon: Icon(Icons.arrow_circle_up)),
                     ],
                     selected: {_isRevenueFilter},
                     onSelectionChanged: (val) {
@@ -98,7 +99,7 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.add),
-                    label: Text(_isRevenueFilter ? 'إضافة إيراد جديد' : 'إضافة مصروف جديد'),
+                    label: fluent.Text(_isRevenueFilter ? 'إضافة إيراد جديد' : 'إضافة مصروف جديد'),
                   ),
                 ],
               ),
@@ -159,11 +160,11 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
               text: '${_isRevenueFilter ? "إيراد" : "مصروف"} رقم #${t.billNumber}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text('التاريخ: ${t.createdAt.toString().split(' ')[0]} | البيان: ${t.note ?? "بدون بيان"}'),
+            subtitle: fluent.Text('التاريخ: ${t.createdAt.toString().split(' ')[0]} | البيان: ${t.note ?? "بدون بيان"}'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                fluent.Text(
                   '${t.offerAmount} \$',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -181,7 +182,7 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (blocContext) => Scaffold(
-                      appBar: AppBar(title: Text('${_isRevenueFilter ? "إيراد" : "مصروف"} #${t.billNumber}')),
+                      appBar: AppBar(title: fluent.Text('${_isRevenueFilter ? "إيراد" : "مصروف"} #${t.billNumber}')),
                       body: BlocProvider.value(
                         value: context.read<FinancialTransactionsBloc>(),
                         child: BlocBuilder<FinancialTransactionsBloc, FinancialTransactionsState>(
@@ -225,7 +226,7 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                fluent.Text(
                   'تفاصيل الحركة المالية #${t.billNumber}',
                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
@@ -254,8 +255,8 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.grey)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          fluent.Text(label, style: const TextStyle(color: Colors.grey)),
+          fluent.Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -265,20 +266,19 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('حذف الحركة المالية'),
-        content: const Text('هل أنت متأكد من رغبتك في حذف هذه الحركة المالية نهائياً؟'),
+        title: const fluent.Text('حذف الحركة المالية'),
+        content: const fluent.Text('هل أنت متأكد من رغبتك في حذف هذه الحركة المالية نهائياً؟'),
         actions: [
-          TextButton(
+          fluent.Button(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('إلغاء'),
+            child: const fluent.Text('إلغاء'),
           ),
-          ElevatedButton(
+          fluent.FilledButton(
             onPressed: () {
               context.read<FinancialTransactionsBloc>().add(DeleteFinancialTransactionEvent(id));
               Navigator.pop(dialogContext);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            child: const Text('حذف'),
+            child: const fluent.Text('حذف'),
           ),
         ],
       ),
@@ -294,7 +294,7 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(_isRevenueFilter ? 'إضافة إيراد جديد' : 'إضافة مصروف جديد'),
+        title: fluent.Text(_isRevenueFilter ? 'إضافة إيراد جديد' : 'إضافة مصروف جديد'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -322,11 +322,11 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
           ),
         ),
         actions: [
-          TextButton(
+          fluent.Button(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('إلغاء'),
+            child: const fluent.Text('إلغاء'),
           ),
-          ElevatedButton(
+          fluent.FilledButton(
             onPressed: () {
               final amt = double.tryParse(amountController.text) ?? 0.0;
               final num = int.tryParse(billNumController.text) ?? 1;
@@ -348,7 +348,7 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
               context.read<FinancialTransactionsBloc>().add(AddFinancialTransactionEvent(newTransaction));
               Navigator.pop(dialogContext);
             },
-            child: const Text('حفظ'),
+            child: const fluent.Text('حفظ'),
           ),
         ],
       ),

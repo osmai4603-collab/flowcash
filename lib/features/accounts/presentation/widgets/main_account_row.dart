@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class MainAccountRow extends StatelessWidget {
   final MainAccountEntity mainAccount;
   final bool isExpanded;
@@ -57,8 +57,8 @@ class MainAccountRow extends StatelessWidget {
                 child: IconButton(
                   icon: Icon(
                   isExpanded
-                    ? FluentIcons.chevron_down
-                    : FluentIcons.chevron_left,
+                    ? fluent.FluentIcons.chevron_down
+                    : fluent.FluentIcons.chevron_left,
                     size: 20,
                     color: theme.colorScheme.primary,
                   ),
@@ -69,7 +69,7 @@ class MainAccountRow extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsetsDirectional.only(top: 4.0, bottom: 4.0, start: 8),
-                child: Text(
+                child: fluent.Text(
                   mainAccount.accountNumber,
                   style: const TextStyle(
                     fontFamily: 'monospace',
@@ -80,7 +80,7 @@ class MainAccountRow extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Text(
+                child: fluent.Text(
                   mainAccount.accountName,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
@@ -96,7 +96,7 @@ class MainAccountRow extends StatelessWidget {
                     color: theme.colorScheme.secondaryContainer.withAlpha(100),
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Text(
+                  child: fluent.Text(
                     mainAccount.mainAccountType.displayName(),
                     style: TextStyle(
                       fontSize: 12,
@@ -109,7 +109,7 @@ class MainAccountRow extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Text(
+                child: fluent.Text(
                   mainAccount.incrementsBalance.toStringAsFixed(2),
                   style: TextStyle(
                     color: Colors.green.shade700,
@@ -121,7 +121,7 @@ class MainAccountRow extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Text(
+                child: fluent.Text(
                   mainAccount.decrementsBalance.toStringAsFixed(2),
                   style: TextStyle(
                     color: Colors.red.shade700,
@@ -133,7 +133,7 @@ class MainAccountRow extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Text(
+                child: fluent.Text(
                   netBalance.toStringAsFixed(2),
                   style: TextStyle(
                     color: netBalance >= 0
@@ -147,7 +147,7 @@ class MainAccountRow extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Text(
+                child: fluent.Text(
                   mainAccount.currencyId == '1'
                       ? 'ر.ي'
                       : (mainAccount.currencyId == '2' ? 'ر.س' : '\$'),
@@ -161,7 +161,7 @@ class MainAccountRow extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      icon: const Icon(FluentIcons.add,
+                      icon: const Icon(fluent.FluentIcons.add,
                         size: 20,
                         color: Colors.green,
                       ),
@@ -173,7 +173,7 @@ class MainAccountRow extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     IconButton(
-                      icon: const Icon(FluentIcons.edit, size: 20, color: Colors.orange),
+                      icon: const Icon(fluent.FluentIcons.edit, size: 20, color: Colors.orange),
                       tooltip: 'تعديل',
                       onPressed: onEdit,
                       padding: EdgeInsets.zero,
@@ -182,7 +182,7 @@ class MainAccountRow extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     IconButton(
-                      icon: const Icon(FluentIcons.delete, size: 20, color: Colors.red),
+                      icon: const Icon(fluent.FluentIcons.delete, size: 20, color: Colors.red),
                       tooltip: 'حذف',
                       onPressed: onDelete,
                       padding: EdgeInsets.zero,

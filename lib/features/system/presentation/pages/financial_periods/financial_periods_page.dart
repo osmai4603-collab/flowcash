@@ -4,8 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/system/domain/entities/accounting_period_entity.dart';
 import 'package:flowcash/features/system/presentation/bloc/financial_periods/financial_periods_cubit.dart';
 import 'package:flowcash/features/system/presentation/pages/financial_periods/financial_period_form_page.dart';
-import 'package:fluent_ui/fluent_ui.dart'
-    show InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class FinancialPeriodsPage extends StatelessWidget {
@@ -28,13 +27,13 @@ class FinancialPeriodsPage extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: () => _openFinancialPeriodForm(context, null),
                 icon: const Icon(Icons.add),
-                label: const Text('إضافة فترة مالية'),
+                label: const fluent.Text('إضافة فترة مالية'),
               ),
             ),
           ),
           Expanded(
             child: Center(
-              child: Text('لا توجد فترات مالية', style: textTheme.bodyLarge),
+              child: fluent.Text('لا توجد فترات مالية', style: textTheme.bodyLarge),
             ),
           ),
         ],
@@ -56,7 +55,7 @@ class FinancialPeriodsPage extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: () => _openFinancialPeriodForm(context, null),
               icon: const Icon(Icons.add),
-              label: const Text('إضافة فترة مالية'),
+              label: const fluent.Text('إضافة فترة مالية'),
             ),
           ),
         ),
@@ -80,11 +79,11 @@ class FinancialPeriodsPage extends StatelessWidget {
                     item,
                   );
                   if (didUpdate == true && context.mounted) {
-                    displayInfoBar(
+                    fluent.displayInfoBar(
                       context,
-                      builder: (context, close) => InfoBar(
-                        title: const Text('تنبيه'),
-                        content: Text('تم تحديث الفترة المالية'),
+                      builder: (context, close) => fluent.InfoBar(
+                        title: const fluent.Text('تنبيه'),
+                        content: fluent.Text('تم تحديث الفترة المالية'),
                       ),
                     );
                     context.read<FinancialPeriodsBloc>().add(
@@ -135,7 +134,7 @@ class FinancialPeriodsPage extends StatelessWidget {
       alignment: Alignment.center,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(color: colors.surfaceContainerHigh),
-      child: Text(
+      child: fluent.Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium?.copyWith(
@@ -158,11 +157,11 @@ class FinancialPeriodsPage extends StatelessWidget {
     if (result != null && context.mounted) {
       context.read<FinancialPeriodsBloc>().add(LoadFinancialPeriodsEvent());
       if (entity == null) {
-        displayInfoBar(
+        fluent.displayInfoBar(
           context,
-          builder: (context, close) => InfoBar(
-            title: const Text('تنبيه'),
-            content: Text('تمت إضافة الفترة المالية'),
+          builder: (context, close) => fluent.InfoBar(
+            title: const fluent.Text('تنبيه'),
+            content: fluent.Text('تمت إضافة الفترة المالية'),
           ),
         );
       }
@@ -176,20 +175,20 @@ class FinancialPeriodsPage extends StatelessWidget {
     return BlocBuilder<FinancialPeriodsBloc, FinancialPeriodsState>(
       builder: (context, state) {
         if (state is FinancialPeriodsLoading) {
-          return const Center(child: ProgressRing());
+          return const Center(child: fluent.ProgressRing());
         }
         if (state is FinancialPeriodsFailure) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(state.errorMessage),
+                fluent.Text(state.errorMessage),
                 const SizedBox(height: 8),
-                ElevatedButton(
+                fluent.FilledButton(
                   onPressed: () => context.read<FinancialPeriodsBloc>().add(
                     LoadFinancialPeriodsEvent(),
                   ),
-                  child: const Text('إعادة المحاولة'),
+                  child: const fluent.Text('إعادة المحاولة'),
                 ),
               ],
             ),
@@ -262,7 +261,7 @@ class FinancialPeriodsDataGridSource extends DataGridSource {
         return Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(4.0),
-          child: Text(
+          child: fluent.Text(
             dataGridCell.value.toString(),
             overflow: TextOverflow.ellipsis,
             style: textTheme.bodyMedium,

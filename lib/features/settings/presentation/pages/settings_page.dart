@@ -12,7 +12,7 @@ import '../bloc/settings/settings_event.dart';
 import '../bloc/settings/settings_state.dart';
 import '../widgets/setting_tile.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -45,8 +45,8 @@ class _SettingsPageState extends State<SettingsPage> {
     await showDialog<void>(
       context: context,
       builder: (context) {
-        return ContentDialog(
-          title: Text(title),
+        return fluent.ContentDialog(
+          title: fluent.Text(title),
           content: SingleChildScrollView(
             child: ColorPicker(
               pickerColor: currentColor,
@@ -57,16 +57,16 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           actions: [
-            TextButton(
+            fluent.Button(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('إلغاء'),
+              child: const fluent.Text('إلغاء'),
             ),
-            ElevatedButton(
+            fluent.FilledButton(
               onPressed: () {
                 onColorChanged(selectedColor);
                 Navigator.of(context).pop();
               },
-              child: const Text('حفظ'),
+              child: const fluent.Text('حفظ'),
             ),
           ],
         );
@@ -130,7 +130,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return BlocProvider(
       create: (_) => GetIt.instance<SettingsBloc>()..add(LoadSettingsEvent()),
       child: Scaffold(
-        appBar: AppBar(title: const Text('الإعدادات')),
+        appBar: AppBar(title: const fluent.Text('الإعدادات')),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: BlocBuilder<SettingsBloc, SettingsState>(
@@ -140,7 +140,7 @@ class _SettingsPageState extends State<SettingsPage> {
               }
               if (state.status == SettingsStatus.failure) {
                 return Center(
-                  child: Text(state.errorMessage ?? 'فشل تحميل الإعدادات'),
+                  child: fluent.Text(state.errorMessage ?? 'فشل تحميل الإعدادات'),
                 );
               }
 
@@ -148,30 +148,30 @@ class _SettingsPageState extends State<SettingsPage> {
                 builder: (context, appState) {
                   return ListView(
                     children: [
-                      const Text(
+                      const fluent.Text(
                         'المظهر',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       RadioListTile<ThemeMode>(
-                        title: const Text('وضع النظام'),
+                        title: const fluent.Text('وضع النظام'),
                         value: ThemeMode.system,
                         groupValue: appState.appData.themeMode,
                         onChanged: _onThemeModeChanged,
                       ),
                       RadioListTile<ThemeMode>(
-                        title: const Text('الوضع الفاتح'),
+                        title: const fluent.Text('الوضع الفاتح'),
                         value: ThemeMode.light,
                         groupValue: appState.appData.themeMode,
                         onChanged: _onThemeModeChanged,
                       ),
                       RadioListTile<ThemeMode>(
-                        title: const Text('الوضع الداكن'),
+                        title: const fluent.Text('الوضع الداكن'),
                         value: ThemeMode.dark,
                         groupValue: appState.appData.themeMode,
                         onChanged: _onThemeModeChanged,
                       ),
                       const SizedBox(height: 24),
-                      const Text(
+                      const fluent.Text(
                         'اللغة',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
@@ -184,11 +184,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         items: const [
                           DropdownMenuItem(
                             value: Locale('ar', 'YE'),
-                            child: Text('العربية'),
+                            child: fluent.Text('العربية'),
                           ),
                           DropdownMenuItem(
                             value: Locale('en', 'US'),
-                            child: Text('English'),
+                            child: fluent.Text('English'),
                           ),
                         ],
                         onChanged: (locale) {
@@ -198,12 +198,12 @@ class _SettingsPageState extends State<SettingsPage> {
                         },
                       ),
                       const SizedBox(height: 24),
-                      const Text(
+                      const fluent.Text(
                         'ألوان المظهر',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 12),
-                      const Text(
+                      const fluent.Text(
                         'الوضع الفاتح',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
@@ -224,7 +224,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         onTap: () => _pickColor('اختر اللون الثالثي للوضع الفاتح', _lightTertiaryColor, _updateLightTertiaryColor),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
+                      const fluent.Text(
                         'الوضع الداكن',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
@@ -248,7 +248,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       const Divider(),
                       const SizedBox(height: 12),
                       if (state.values.isEmpty)
-                        const Center(child: Text('لا توجد إعدادات إضافية.'))
+                        const Center(child: fluent.Text('لا توجد إعدادات إضافية.'))
                       else
                         ...state.values.map((value) {
                           return SettingTile(
@@ -279,7 +279,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return ListTile(
       onTap: onTap,
       leading: CircleAvatar(backgroundColor: color),
-      title: Text(title),
+      title: fluent.Text(title),
       trailing: const Icon(Icons.chevron_right),
     );
   }

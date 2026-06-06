@@ -7,6 +7,7 @@ import 'package:flowcash/features/transactions/presentation/blocs/bills/bills_bl
 import 'package:flowcash/features/transactions/presentation/blocs/bills/bills_event.dart';
 import 'package:flowcash/features/transactions/presentation/blocs/bills/bills_state.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 // removed fluent_ui usage from this file; using Material dialogs and icons
 class SalesTab extends StatefulWidget {
@@ -70,8 +71,8 @@ class _SalesTabState extends State<SalesTab> {
                   // Filter Switch (Sales / Returns)
                   SegmentedButton<bool>(
                     segments: const [
-                      ButtonSegment(value: false, label: Text('المبيعات'), icon: Icon(Icons.shopping_cart)),
-                      ButtonSegment(value: true, label: Text('المرتجع'), icon: Icon(Icons.open_in_new)),
+                      ButtonSegment(value: false, label: fluent.Text('المبيعات'), icon: Icon(Icons.shopping_cart)),
+                      ButtonSegment(value: true, label: fluent.Text('المرتجع'), icon: Icon(Icons.open_in_new)),
                     ],
                     selected: {_isReturnFilter},
                     onSelectionChanged: (val) {
@@ -109,7 +110,7 @@ class _SalesTabState extends State<SalesTab> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.add),
-                    label: Text(_isReturnFilter ? 'مرتجع مبيعات جديد' : 'فاتورة مبيعات جديدة'),
+                    label: fluent.Text(_isReturnFilter ? 'مرتجع مبيعات جديد' : 'فاتورة مبيعات جديدة'),
                   ),
                 ],
               ),
@@ -168,12 +169,12 @@ class _SalesTabState extends State<SalesTab> {
               text: 'فاتورة رقم #${bill.billNumber}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text('التاريخ: ${bill.createdAt.toString().split(' ')[0]} | المبلغ: ${bill.offerAmount} \$'),
+            subtitle: fluent.Text('التاريخ: ${bill.createdAt.toString().split(' ')[0]} | المبلغ: ${bill.offerAmount} \$'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Chip(
-                  label: Text(bill.isCash ? 'نقداً' : 'آجل'),
+                  label: fluent.Text(bill.isCash ? 'نقداً' : 'آجل'),
                   backgroundColor: bill.isCash ? Colors.green.shade50 : Colors.orange.shade50,
                   labelStyle: TextStyle(color: bill.isCash ? Colors.green.shade800 : Colors.orange.shade800, fontWeight: FontWeight.bold),
                 ),
@@ -188,7 +189,7 @@ class _SalesTabState extends State<SalesTab> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (blocContext) => Scaffold(
-                      appBar: AppBar(title: Text('تفاصيل فاتورة #${bill.billNumber}')),
+                      appBar: AppBar(title: fluent.Text('تفاصيل فاتورة #${bill.billNumber}')),
                       body: BlocProvider.value(
                         value: context.read<BillsBloc>(),
                         child: BlocBuilder<BillsBloc, BillsState>(
@@ -232,7 +233,7 @@ class _SalesTabState extends State<SalesTab> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                fluent.Text(
                   'تفاصيل فاتورة #${bill.billNumber}',
                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
@@ -250,7 +251,7 @@ class _SalesTabState extends State<SalesTab> {
             _buildInfoRow('التاريخ:', bill.createdAt.toString()),
             if (bill.note != null) _buildInfoRow('ملاحظات:', bill.note!),
             const SizedBox(height: 16),
-            Text(
+            fluent.Text(
               '📦 الأصناف والبنود المشمولة',
               style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
@@ -267,9 +268,9 @@ class _SalesTabState extends State<SalesTab> {
                     final order = orders[index];
                     return ListTile(
                       dense: true,
-                      title: Text('صنف #${order.categoryId}'),
-                      subtitle: Text('الكمية: ${order.countUnits}'),
-                      trailing: Text('${order.totalPrice} \$'),
+                      title: fluent.Text('صنف #${order.categoryId}'),
+                      subtitle: fluent.Text('الكمية: ${order.countUnits}'),
+                      trailing: fluent.Text('${order.totalPrice} \$'),
                     );
                   },
                 ),
@@ -287,8 +288,8 @@ class _SalesTabState extends State<SalesTab> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.grey)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          fluent.Text(label, style: const TextStyle(color: Colors.grey)),
+          fluent.Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -298,20 +299,19 @@ class _SalesTabState extends State<SalesTab> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('حذف الفاتورة'),
-        content: const Text('هل أنت متأكد من رغبتك في حذف هذه الفاتورة نهائياً؟'),
+        title: const fluent.Text('حذف الفاتورة'),
+        content: const fluent.Text('هل أنت متأكد من رغبتك في حذف هذه الفاتورة نهائياً؟'),
         actions: [
-          TextButton(
+          fluent.Button(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('إلغاء'),
+            child: const fluent.Text('إلغاء'),
           ),
-          ElevatedButton(
+          fluent.FilledButton(
             onPressed: () {
               context.read<BillsBloc>().add(DeleteBillEvent(id));
               Navigator.pop(dialogContext);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            child: const Text('حذف'),
+            child: const fluent.Text('حذف'),
           ),
         ],
       ),
@@ -328,7 +328,7 @@ class _SalesTabState extends State<SalesTab> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: Text(_isReturnFilter ? 'إضافة مرتجع مبيعات' : 'إضافة فاتورة مبيعات جديدة'),
+          title: fluent.Text(_isReturnFilter ? 'إضافة مرتجع مبيعات' : 'إضافة فاتورة مبيعات جديدة'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -351,14 +351,14 @@ class _SalesTabState extends State<SalesTab> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('طريقة الدفع:'),
+                    const fluent.Text('طريقة الدفع:'),
                     ChoiceChip(
-                      label: const Text('نقداً'),
+                      label: const fluent.Text('نقداً'),
                       selected: isCash,
                       onSelected: (val) => setState(() => isCash = true),
                     ),
                     ChoiceChip(
-                      label: const Text('آجل'),
+                      label: const fluent.Text('آجل'),
                       selected: !isCash,
                       onSelected: (val) => setState(() => isCash = false),
                     ),
@@ -368,11 +368,11 @@ class _SalesTabState extends State<SalesTab> {
             ),
           ),
           actions: [
-            TextButton(
+            fluent.Button(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('إلغاء'),
+              child: const fluent.Text('إلغاء'),
             ),
-            ElevatedButton(
+            fluent.FilledButton(
               onPressed: () {
                 final amt = double.tryParse(amountController.text) ?? 0.0;
                 final num = int.tryParse(billNumController.text) ?? 1;
@@ -394,7 +394,7 @@ class _SalesTabState extends State<SalesTab> {
                 context.read<BillsBloc>().add(AddBillEvent(bill: newBill, orders: const []));
                 Navigator.pop(dialogContext);
               },
-              child: const Text('حفظ'),
+              child: const fluent.Text('حفظ'),
             ),
           ],
         ),

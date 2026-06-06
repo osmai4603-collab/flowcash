@@ -7,7 +7,7 @@ import 'package:flowcash/features/categories/domain/usecases/category_usecases.d
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/combo_box_form.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class OpeningQuantityFormDialog extends StatefulWidget {
   final List<InventoryEntity> inventoryItems;
   final List<WarehouseEntity> warehouses;
@@ -93,7 +93,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return ContentDialog(
+    return fluent.ContentDialog(
       content: Container(
         width: 500,
         padding: const EdgeInsets.all(24),
@@ -106,7 +106,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
           ),
         ),
         child: _isLoading
-            ? const SizedBox(height: 200, child: Center(child: const ProgressRing()))
+            ? const SizedBox(height: 200, child: Center(child: fluent.ProgressRing()))
             : Form(
                 key: _formKey,
                 child: Column(
@@ -115,9 +115,9 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                   children: [
                     Row(
                       children: [
-                        Icon(FluentIcons.page_checked_out, color: theme.colorScheme.primary, size: 28),
+                        Icon(fluent.FluentIcons.page_checked_out, color: theme.colorScheme.primary, size: 28),
                         const SizedBox(width: 8),
-                        const Text('إضافة رصيد افتتاحي 📊', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        const fluent.Text('إضافة رصيد افتتاحي 📊', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       ],
                     ),
                     const Divider(height: 24),
@@ -127,7 +127,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                       controller: _inventoryItemController,
                       decoration: const InputDecoration(
                         labelText: 'اختر صنف المخزون',
-                        prefixIcon: Icon(FluentIcons.product),
+                        prefixIcon: Icon(fluent.FluentIcons.product),
                       ),
                       labelMenu: (item) => _getInventoryLabel(item),
                       labelString: (item) => _getInventoryLabel(item),
@@ -159,13 +159,13 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                     DropdownButtonFormField<int>(
                       decoration: const InputDecoration(
                         labelText: 'اختر المستودع',
-                        prefixIcon: Icon(FluentIcons.store_logo16),
+                        prefixIcon: Icon(fluent.FluentIcons.store_logo16),
                       ),
                       initialValue: _selectedWarehouseId,
                       items: widget.warehouses.map((w) {
                         return DropdownMenuItem<int>(
                           value: w.id,
-                          child: Text(w.warehouseName),
+                          child: fluent.Text(w.warehouseName),
                         );
                       }).toList(),
                       onChanged: (val) => setState(() => _selectedWarehouseId = val),
@@ -182,7 +182,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                             textDirection: TextDirection.ltr,
                             decoration: const InputDecoration(
                               labelText: 'الكمية الافتتاحية',
-                              prefixIcon: Icon(FluentIcons.numbered_list_number),
+                              prefixIcon: Icon(fluent.FluentIcons.numbered_list_number),
                             ),
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             validator: (val) => val == null || val.isEmpty ? 'الكمية مطلوبة' : null,
@@ -195,7 +195,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                             textDirection: TextDirection.ltr,
                             decoration: const InputDecoration(
                               labelText: 'إجمالي التكلفة الدفترية',
-                              prefixIcon: Icon(FluentIcons.money),
+                              prefixIcon: Icon(fluent.FluentIcons.money),
                             ),
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             validator: (val) => val == null || val.isEmpty ? 'التكلفة مطلوبة' : null,
@@ -208,14 +208,14 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        TextButton(
+                        fluent.Button(
                           onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('إلغاء'),
+                          child: const fluent.Text('إلغاء'),
                         ),
                         const SizedBox(width: 12),
-                        ElevatedButton(
+                        fluent.FilledButton(
                           onPressed: _submit,
-                          child: const Text('حفظ الرصيد الافتتاحي'),
+                          child: const fluent.Text('حفظ الرصيد الافتتاحي'),
                         ),
                       ],
                     ),

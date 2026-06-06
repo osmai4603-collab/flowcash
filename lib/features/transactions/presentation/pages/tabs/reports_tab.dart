@@ -6,7 +6,7 @@ import 'package:flowcash/features/transactions/presentation/blocs/financial_tran
 import 'package:flowcash/features/transactions/presentation/blocs/financial_transactions/financial_transactions_state.dart';
 import 'package:flowcash/core/enums/histories_group_enum.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class ReportsTab extends StatelessWidget {
   const ReportsTab({super.key});
@@ -127,12 +127,12 @@ class ReportsTab extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          const fluent.Text(
                             'صافي التدفق المالي (الربح / الخسارة التقريبية)',
                             style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
-                          Text(
+                          fluent.Text(
                             '$netCashFlow \$',
                             style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
                           ),
@@ -181,7 +181,7 @@ class ReportsTab extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                fluent.Text(
                   title,
                   style: const TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.bold),
                 ),
@@ -192,7 +192,7 @@ class ReportsTab extends StatelessWidget {
                 ),
               ],
             ),
-            Text(
+            fluent.Text(
               value,
               style: TextStyle(
                 fontSize: 22,

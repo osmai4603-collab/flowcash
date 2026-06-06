@@ -16,7 +16,7 @@ import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, InfoBar, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class MainCategoryFormPage extends StatefulWidget {
   final int? id;
   const MainCategoryFormPage({super.key, this.id});
@@ -163,7 +163,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
           if (didPop) return;
           _onBackPressed();
         },
-        child: ContentDialog(
+        child: fluent.ContentDialog(
           constraints: BoxConstraints(maxWidth: 500),
           content: Padding(
             padding: Paddings.mediumAll,
@@ -174,7 +174,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                     Navigator.of(context).pop(state.entity);
                   }
                   if (state.status == MainCategoryFormStatus.failure) {
-                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(
+                    fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(
                           state.messageError ?? 'حدث خطأ في حفظ الصنف',
                         )));
                   }
@@ -240,7 +240,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   cursorHeight: 20.0,
                   decoration: InputDecoration(
                     hintText: 'ادخل اسم الصنف الرئيسي',
-                    label: Text('اسم الصنف'),
+                    label: fluent.Text('اسم الصنف'),
                     prefixIcon: Icon(Icons.category),
                   ),
                   onChanged: (value) {
@@ -265,7 +265,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   cursorHeight: 20.0,
                   decoration: InputDecoration(
                     hintText: 'ادخل اسم الوحدة',
-                    label: Text('اسم الوحدة'),
+                    label: fluent.Text('اسم الوحدة'),
                     prefixIcon: Icon(Icons.radio_button_unchecked,
                       color: colors.primary,
                     ),
@@ -286,7 +286,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
               Expanded(
                 child: DropdownButtonFormField<UnitType>(
                   initialValue: unitSelected,
-                  disabledHint: Text(
+                  disabledHint: fluent.Text(
                     'لا يوجد وحدات معرفة',
                     style: textTheme.labelMedium,
                   ),
@@ -299,8 +299,8 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                     return null;
                   },
                   decoration: InputDecoration(
-                    label: Text('الوحدة'),
-                    hint: Text('حدد وحدة الصنف'),
+                    label: fluent.Text('الوحدة'),
+                    hint: fluent.Text('حدد وحدة الصنف'),
 
                     prefixIcon: Icon(Icons.merge_type),
                   ),
@@ -312,9 +312,9 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(unit.fullUnitName),
+                          fluent.Text(unit.fullUnitName),
                           const SizedBox(width: 10),
-                          Text(
+                          fluent.Text(
                             unit.symbolUnit,
                             style: textTheme.bodyMedium?.copyWith(
                               color: colors.onSurfaceVariant,
@@ -336,7 +336,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                 child: DropdownButtonFormField<CategoryDefineType>(
                   initialValue: categoryTypeSelected,
                   decoration: InputDecoration(
-                    label: Text('نوع الصنف'),
+                    label: fluent.Text('نوع الصنف'),
 
                     prefixIcon: Icon(Icons.radio_button_unchecked,
                       color: colors.primary,
@@ -346,7 +346,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   items: CategoryDefineType.values.map((type) {
                     return DropdownMenuItem<CategoryDefineType>(
                       value: type,
-                      child: Text(type.displayName()),
+                      child: fluent.Text(type.displayName()),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -356,7 +356,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                       _bloc.add(MainCategoryTypeChangedEvent(value));
                     }
                   },
-                  disabledHint: Text('لا يوجد انواع اصناف '),
+                  disabledHint: fluent.Text('لا يوجد انواع اصناف '),
                 ),
               ),
             ],
@@ -400,15 +400,10 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                 if (properties.isEmpty)
                   const TextWidget(text: 'لا يوجد اي خصائص'),
                 const SizedBox(height: Spacings.medium),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: ColorScheme.of(context).primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: Radiuses.xsmallAll,
-                    ),
-                  ),
+                fluent.FilledButton(
+                  
                   onPressed: _onAddNewProperty,
-                  child: Text(
+                  child: fluent.Text(
                     'اضافة خصائص جديدة',
                     style: textTheme.labelLarge?.copyWith(
                       fontSize: 17,
@@ -451,7 +446,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   cursorHeight: 20.0,
                   decoration: InputDecoration(
                     hintText: 'ادخل اسم الخاصية',
-                    label: Text('اسم الخاصية'),
+                    label: fluent.Text('اسم الخاصية'),
                     prefixIcon: Icon(Icons.category),
                   ),
                   onChanged: (_) => _markChanged(),
@@ -462,15 +457,15 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   initialValue: property.unitTypeSelected,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.merge_type),
-                    label: Text('نوع الوحدة'),
-                    hint: Text('حدد نوع الوحدة'),
+                    label: fluent.Text('نوع الوحدة'),
+                    hint: fluent.Text('حدد نوع الوحدة'),
                   ),
-                  disabledHint: Text('لا يوجد اي وحدات متاحة'),
+                  disabledHint: fluent.Text('لا يوجد اي وحدات متاحة'),
                   isExpanded: true,
                   items: getPropertiesTypes(property).map((unitType) {
                     return DropdownMenuItem<UnitType>(
                       value: unitType,
-                      child: Text(unitType.propertyData),
+                      child: fluent.Text(unitType.propertyData),
                     );
                   }).toList(),
                   onChanged: (unitType) {

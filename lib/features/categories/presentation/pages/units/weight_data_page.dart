@@ -17,7 +17,7 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class WeightUnitDataPage extends StatefulWidget {
   final CategoryPropertyEntity property;
   final UnitEntity? unit;
@@ -118,7 +118,7 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
             if (didPop) return;
             _onBackPressed();
           },
-          child: ContentDialog(
+          child: fluent.ContentDialog(
             constraints: const BoxConstraints(maxWidth: 350),
             content: Padding(
               padding: Paddings.mediumAll,
@@ -137,7 +137,7 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                           child: Row(
                             children: [
                               IconButton(
-                                icon: const Icon(FluentIcons.back),
+                                icon: const Icon(fluent.FluentIcons.back),
                                 tooltip: 'رجوع',
                                 onPressed: () => Navigator.pop(context),
                               ),
@@ -148,7 +148,7 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                                 expanded: true,
                               ),
                               IconButton(
-                                icon: const Icon(FluentIcons.save),
+                                icon: const Icon(fluent.FluentIcons.save),
                                 tooltip: 'حفظ البيانات',
                                 onPressed: _onSaveButtonClicked,
                               ),
@@ -212,7 +212,7 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                                       width: 0.20,
                                     ),
                                   ),
-                                  prefixIcon: Icon(FluentIcons.light_weight,
+                                  prefixIcon: Icon(fluent.FluentIcons.light_weight,
                                     color: colors.primary,
                                   ),
                                 ),
@@ -222,16 +222,16 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                             Expanded(
                               child: DropdownButtonFormField<String>(
                                 initialValue: measureUnitSelected,
-                                disabledHint: const Text('لا يوجد وحدات معرفة'),
+                                disabledHint: const fluent.Text('لا يوجد وحدات معرفة'),
                                 decoration: const InputDecoration(
                                   labelText: 'الوحدة',
                                   hintText: 'حدد الوحدة',
-                                  prefixIcon: Icon(FluentIcons.unite_shape),
+                                  prefixIcon: Icon(fluent.FluentIcons.unite_shape),
                                 ),
                                 items: measuresUnits.map((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
-                                    child: Text(
+                                    child: fluent.Text(
                                       value,
                                       style: Styles.titleMedium,
                                     ),

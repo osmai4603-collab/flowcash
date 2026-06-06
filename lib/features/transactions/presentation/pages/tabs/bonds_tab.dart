@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/core/enums/histories_group_enum.dart';
 import 'package:flowcash/features/transactions/domain/entities/financial_bond_entity.dart';
@@ -59,8 +61,8 @@ class _BondsTabState extends State<BondsTab> {
                   // Segmented Switch
                   SegmentedButton<bool>(
                     segments: const [
-                      ButtonSegment(value: false, label: Text('سندات القبض'), icon: Icon(Icons.download)),
-                      ButtonSegment(value: true, label: Text('سندات الصرف'), icon: Icon(Icons.upload)),
+                      ButtonSegment(value: false, label: fluent.Text('سندات القبض'), icon: Icon(Icons.download)),
+                      ButtonSegment(value: true, label: fluent.Text('سندات الصرف'), icon: Icon(Icons.upload)),
                     ],
                     selected: {_isPaidFilter},
                     onSelectionChanged: (val) {
@@ -98,7 +100,7 @@ class _BondsTabState extends State<BondsTab> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.add),
-                    label: Text(_isPaidFilter ? 'إضافة سند صرف جديد' : 'إضافة سند قبض جديد'),
+                    label: fluent.Text(_isPaidFilter ? 'إضافة سند صرف جديد' : 'إضافة سند قبض جديد'),
                   ),
                 ],
               ),
@@ -159,11 +161,11 @@ class _BondsTabState extends State<BondsTab> {
               text: '${_isPaidFilter ? "سند صرف" : "سند قبض"} رقم #${b.billNumber}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text('التاريخ: ${b.createdAt.toString().split(' ')[0]} | البيان: ${b.note ?? "بدون بيان"}'),
+            subtitle: fluent.Text('التاريخ: ${b.createdAt.toString().split(' ')[0]} | البيان: ${b.note ?? "بدون بيان"}'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                fluent.Text(
                   '${b.offerAmount} \$',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -181,7 +183,7 @@ class _BondsTabState extends State<BondsTab> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (blocContext) => Scaffold(
-                      appBar: AppBar(title: Text('${_isPaidFilter ? "سند صرف" : "سند قبض"} #${b.billNumber}')),
+                      appBar: AppBar(title: fluent.Text('${_isPaidFilter ? "سند صرف" : "سند قبض"} #${b.billNumber}')),
                       body: BlocProvider.value(
                         value: context.read<FinancialBondsBloc>(),
                         child: BlocBuilder<FinancialBondsBloc, FinancialBondsState>(
@@ -225,7 +227,7 @@ class _BondsTabState extends State<BondsTab> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                fluent.Text(
                   'تفاصيل السند المالي #${b.billNumber}',
                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
@@ -254,8 +256,8 @@ class _BondsTabState extends State<BondsTab> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.grey)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          fluent.Text(label, style: const TextStyle(color: Colors.grey)),
+          fluent.Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -265,20 +267,19 @@ class _BondsTabState extends State<BondsTab> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('حذف السند'),
-        content: const Text('هل أنت متأكد من رغبتك في حذف هذا السند نهائياً؟'),
+        title: const fluent.Text('حذف السند'),
+        content: const fluent.Text('هل أنت متأكد من رغبتك في حذف هذا السند نهائياً؟'),
         actions: [
-          TextButton(
+          fluent.Button(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('إلغاء'),
+            child: const fluent.Text('إلغاء'),
           ),
-          ElevatedButton(
+          fluent.FilledButton(
             onPressed: () {
               context.read<FinancialBondsBloc>().add(DeleteFinancialBondEvent(id));
               Navigator.pop(dialogContext);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            child: const Text('حذف'),
+            child: const fluent.Text('حذف'),
           ),
         ],
       ),
@@ -294,7 +295,7 @@ class _BondsTabState extends State<BondsTab> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(_isPaidFilter ? 'إضافة سند صرف جديد' : 'إضافة سند قبض جديد'),
+        title: fluent.Text(_isPaidFilter ? 'إضافة سند صرف جديد' : 'إضافة سند قبض جديد'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -322,11 +323,11 @@ class _BondsTabState extends State<BondsTab> {
           ),
         ),
         actions: [
-          TextButton(
+          fluent.Button(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('إلغاء'),
+            child: const fluent.Text('إلغاء'),
           ),
-          ElevatedButton(
+          fluent.FilledButton(
             onPressed: () {
               final amt = double.tryParse(amountController.text) ?? 0.0;
               final num = int.tryParse(billNumController.text) ?? 1;
@@ -348,7 +349,7 @@ class _BondsTabState extends State<BondsTab> {
               context.read<FinancialBondsBloc>().add(AddFinancialBondEvent(newBond));
               Navigator.pop(dialogContext);
             },
-            child: const Text('حفظ'),
+            child: const fluent.Text('حفظ'),
           ),
         ],
       ),

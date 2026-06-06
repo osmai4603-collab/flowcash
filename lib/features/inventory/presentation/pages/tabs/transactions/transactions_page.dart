@@ -15,7 +15,7 @@ import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 import 'transaction_form_dialog.dart';
 import 'transaction_detail_panel.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({super.key});
 
@@ -81,7 +81,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
         listener: (context, state) {
           if (state.status == TransactionsStatus.error &&
               state.errorMessage != null) {
-            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
+            fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(state.errorMessage!)));
           }
         },
         builder: (context, state) {
@@ -89,7 +89,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
           if (state.status == TransactionsStatus.loading ||
               _isLoadingMetaData) {
-            return const Center(child: ProgressRing());
+            return const Center(child: fluent.ProgressRing());
           }
 
           // Apply client-side search & filtering
@@ -155,7 +155,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                   decoration: InputDecoration(
                                     hintText:
                                         'البحث برقم السند أو البيان... 🔍',
-                                    prefixIcon: const Icon(FluentIcons.search),
+                                    prefixIcon: const Icon(fluent.FluentIcons.search),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
@@ -184,18 +184,18 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                             onPressed: () => setState(
                                               () => _filterType = null,
                                             ),
-                                            child: const Text('كل الأنواع 📋'),
+                                            child: const fluent.Text('كل الأنواع 📋'),
                                           ),
                                           ...InventoryTransactionType.values.map(
                                             (type) => MenuItemButton(
                                               onPressed: () => setState(
                                                 () => _filterType = type,
                                               ),
-                                              child: Text(type.displayName()),
+                                              child: fluent.Text(type.displayName()),
                                             ),
                                           ),
                                         ],
-                                        child: Text(
+                                        child: fluent.Text(
                                           _filterType == null
                                               ? 'كل الأنواع'
                                               : _filterType!.displayName().toString(),
@@ -238,8 +238,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                icon: const Icon(FluentIcons.add),
-                                label: const Text(
+                                icon: const Icon(fluent.FluentIcons.add),
+                                label: const fluent.Text(
                                   'إصدار إذن',
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
@@ -262,7 +262,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                             child: const Row(
                               children: [
                                 Expanded(
-                                  child: Text(
+                                  child: fluent.Text(
                                     'رقم السند 🧾',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -270,7 +270,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                   ),
                                 ),
                                 Expanded(
-                                  child: Text(
+                                  child: fluent.Text(
                                     'نوع الحركة 📋',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -278,7 +278,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                   ),
                                 ),
                                 Expanded(
-                                  child: Text(
+                                  child: fluent.Text(
                                     'المستودع الرئيسي 🏢',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -286,7 +286,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                   ),
                                 ),
                                 Expanded(
-                                  child: Text(
+                                  child: fluent.Text(
                                     'تاريخ الإصدار 📅',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -294,7 +294,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                   ),
                                 ),
                                 Expanded(
-                                  child: Text(
+                                  child: fluent.Text(
                                     'البيان/ملاحظة 📝',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -310,7 +310,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                           Expanded(
                             child: filteredTransactions.isEmpty
                                 ? const Center(
-                                    child: Text(
+                                    child: fluent.Text(
                                       'لا توجد أذون حركات تطابق معايير البحث ⚠️',
                                       style: TextStyle(
                                         fontSize: 16,
@@ -368,7 +368,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                             child: Row(
                                               children: [
                                                 Expanded(
-                                                  child: Text(
+                                                  child: fluent.Text(
                                                     '#${t.billNumber}',
                                                     style: const TextStyle(
                                                       fontWeight:
@@ -377,7 +377,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                                   ),
                                                 ),
                                                 Expanded(
-                                                  child: Text(
+                                                  child: fluent.Text(
                                                     t.transactionType
                                                         .displayName(),
                                                     style: TextStyle(
@@ -390,7 +390,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                                   ),
                                                 ),
                                                 Expanded(
-                                                  child: Text(
+                                                  child: fluent.Text(
                                                     _getWarehouseName(
                                                       t.warehouseId,
                                                       state.warehouses,
@@ -398,12 +398,12 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                                   ),
                                                 ),
                                                 Expanded(
-                                                  child: Text(
+                                                  child: fluent.Text(
                                                     _formatDate(t.createdAt),
                                                   ),
                                                 ),
                                                 Expanded(
-                                                  child: Text(
+                                                  child: fluent.Text(
                                                     t.note ?? '──',
                                                     maxLines: 1,
                                                     overflow:
@@ -437,12 +437,12 @@ class _TransactionsPageState extends State<TransactionsPage> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(FluentIcons.one_note_doc_type,
+                                Icon(fluent.FluentIcons.one_note_doc_type,
                                   size: 48,
                                   color: Colors.grey,
                                 ),
                                 SizedBox(height: 16),
-                                Text(
+                                fluent.Text(
                                   'الرجاء اختيار إذن حركة من القائمة اليسرى لعرض كامل تفاصيل البنود والكميات وحالات الإدخال/الإخراج.',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(color: Colors.grey),
@@ -481,17 +481,17 @@ class _TransactionsPageState extends State<TransactionsPage> {
                           onDelete: () {
                             showDialog(
                               context: context,
-                              builder: (context) => ContentDialog(
-                                title: const Text('تأكيد حذف إذن الحركة ⚠️'),
-                                content: const Text(
+                              builder: (context) => fluent.ContentDialog(
+                                title: const fluent.Text('تأكيد حذف إذن الحركة ⚠️'),
+                                content: const fluent.Text(
                                   'هل أنت متأكد من رغبتك في حذف بطاقة إذن الحركة المخزنية هذه وبنودها نهائياً؟',
                                 ),
                                 actions: [
-                                  TextButton(
+                                  fluent.Button(
                                     onPressed: () => Navigator.pop(context),
-                                    child: const Text('إلغاء'),
+                                    child: const fluent.Text('إلغاء'),
                                   ),
-                                  ElevatedButton(
+                                  fluent.FilledButton(
                                     onPressed: () {
                                       bloc.add(
                                         DeleteTransactionEvent(
@@ -500,12 +500,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                       );
                                       Navigator.pop(context);
                                     },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: theme.colorScheme.error,
-                                      foregroundColor:
-                                          theme.colorScheme.onError,
-                                    ),
-                                    child: const Text('حذف إذن الحركة'),
+                                    child: const fluent.Text('حذف إذن الحركة'),
                                   ),
                                 ],
                               ),

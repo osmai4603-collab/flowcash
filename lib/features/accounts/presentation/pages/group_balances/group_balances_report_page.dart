@@ -8,7 +8,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/group_balances/gro
 import 'package:flowcash/features/accounts/presentation/blocs/group_balances/group_balances_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/group_balances/group_balances_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class GroupBalancesReportPage extends StatefulWidget {
   const GroupBalancesReportPage({super.key});
 
@@ -71,10 +71,10 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                 decoration: InputDecoration(
                                   labelText: 'من تاريخ',
                                   border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(FluentIcons.calendar_settings),
+                                  prefixIcon: const Icon(fluent.FluentIcons.calendar_settings),
                                   suffixIcon: _startDate != null
                                       ? IconButton(
-                                          icon: const Icon(FluentIcons.clear, size: 18),
+                                          icon: const Icon(fluent.FluentIcons.clear, size: 18),
                                           onPressed: () {
                                             setState(() {
                                               _startDate = null;
@@ -83,7 +83,7 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                         )
                                       : null,
                                 ),
-                                child: Text(
+                                child: fluent.Text(
                                   _startDate != null ? DateFormat('yyyy-MM-dd').format(_startDate!) : 'البداية',
                                 ),
                               ),
@@ -99,10 +99,10 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                 decoration: InputDecoration(
                                   labelText: 'إلى تاريخ',
                                   border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(FluentIcons.calendar_settings),
+                                  prefixIcon: const Icon(fluent.FluentIcons.calendar_settings),
                                   suffixIcon: _endDate != null
                                       ? IconButton(
-                                          icon: const Icon(FluentIcons.clear, size: 18),
+                                          icon: const Icon(fluent.FluentIcons.clear, size: 18),
                                           onPressed: () {
                                             setState(() {
                                               _endDate = null;
@@ -111,7 +111,7 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                         )
                                       : null,
                                 ),
-                                child: Text(
+                                child: fluent.Text(
                                   _endDate != null ? DateFormat('yyyy-MM-dd').format(_endDate!) : 'النهاية',
                                 ),
                               ),
@@ -127,8 +127,8 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                     endDate: _endDate,
                                   ));
                             },
-                            icon: const Icon(FluentIcons.chart),
-                            label: const Text('عرض التقرير'),
+                            icon: const Icon(fluent.FluentIcons.chart),
+                            label: const fluent.Text('عرض التقرير'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: theme.colorScheme.primary,
                               foregroundColor: theme.colorScheme.onPrimary,
@@ -140,7 +140,7 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
 
                           // Refresh Button
                           IconButton(
-                            icon: const Icon(FluentIcons.refresh),
+                            icon: const Icon(fluent.FluentIcons.refresh),
                             tooltip: 'إعادة تحميل البيانات',
                             onPressed: () {
                               context.read<GroupBalancesBloc>().add(LoadGroupBalances(
@@ -157,9 +157,9 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                     // 2. Main Content
                     Expanded(
                       child: state.status == GroupBalancesStatus.loading
-                          ? const Center(child: ProgressRing())
+                          ? const Center(child: fluent.ProgressRing())
                           : state.status == GroupBalancesStatus.failure
-                              ? Center(child: Text('خطأ في تحميل التقرير: ${state.errorMessage}'))
+                              ? Center(child: fluent.Text('خطأ في تحميل التقرير: ${state.errorMessage}'))
                               : _buildReportContent(context, state),
                     ),
                   ],
@@ -262,23 +262,23 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            fluent.Text(
                               group.displayName(),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
-                            Icon(FluentIcons.folder,
+                            Icon(fluent.FluentIcons.folder,
                               color: theme.colorScheme.primary.withAlpha(180),
                               size: 20,
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Text(
+                        fluent.Text(
                           '$count حسابات فرعية',
                           style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(120), fontSize: 12),
                         ),
                         const SizedBox(height: 12),
-                        Text(
+                        fluent.Text(
                           net.toStringAsFixed(2),
                           style: TextStyle(
                             fontSize: 18,
@@ -299,9 +299,9 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
         // Detail Table Title
         Row(
           children: [
-            Icon(FluentIcons.list, color: theme.colorScheme.primary),
+            Icon(fluent.FluentIcons.list, color: theme.colorScheme.primary),
             const SizedBox(width: 8),
-            Text(
+            fluent.Text(
               _selectedGroupFilter == null
                   ? 'تفاصيل أرصدة جميع المجموعات'
                   : 'تفاصيل أرصدة مجموعة: ${_selectedGroupFilter!.displayName()}',
@@ -309,13 +309,13 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
             ),
             const Spacer(),
             if (_selectedGroupFilter != null)
-              TextButton(
+              fluent.Button(
                 onPressed: () {
                   setState(() {
                     _selectedGroupFilter = null;
                   });
                 },
-                child: const Text('عرض الكل'),
+                child: const fluent.Text('عرض الكل'),
               ),
           ],
         ),
@@ -341,12 +341,12 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                   ),
                   child: Row(
                     children: const [
-                      Expanded(flex: 3, child: Text('رقم الحساب', style: TextStyle(fontWeight: FontWeight.bold))),
-                      Expanded(flex: 5, child: Text('اسم الحساب', style: TextStyle(fontWeight: FontWeight.bold))),
-                      Expanded(flex: 3, child: Text('المجموعة الرئيسية', style: TextStyle(fontWeight: FontWeight.bold))),
-                      Expanded(flex: 2, child: Text('مدين (وارد)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
-                      Expanded(flex: 2, child: Text('دائن (صادر)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
-                      Expanded(flex: 2, child: Text('صافي الرصيد', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
+                      Expanded(flex: 3, child: fluent.Text('رقم الحساب', style: TextStyle(fontWeight: FontWeight.bold))),
+                      Expanded(flex: 5, child: fluent.Text('اسم الحساب', style: TextStyle(fontWeight: FontWeight.bold))),
+                      Expanded(flex: 3, child: fluent.Text('المجموعة الرئيسية', style: TextStyle(fontWeight: FontWeight.bold))),
+                      Expanded(flex: 2, child: fluent.Text('مدين (وارد)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
+                      Expanded(flex: 2, child: fluent.Text('دائن (صادر)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
+                      Expanded(flex: 2, child: fluent.Text('صافي الرصيد', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
                     ],
                   ),
                 ),
@@ -354,7 +354,7 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                 // Table Items
                 Expanded(
                   child: displayedSubs.isEmpty
-                      ? const Center(child: Text('لا توجد حسابات فرعية لعرضها'))
+                      ? const Center(child: fluent.Text('لا توجد حسابات فرعية لعرضها'))
                       : ListView.builder(
                           itemCount: displayedSubs.length,
                           itemBuilder: (context, index) {
@@ -376,16 +376,16 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                 children: [
                                   Expanded(
                                     flex: 3,
-                                    child: Text(
+                                    child: fluent.Text(
                                       sub.accountNumber,
                                       style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold),
                                     ),
                                   ),
-                                  Expanded(flex: 5, child: Text(sub.accountName)),
-                                  Expanded(flex: 3, child: Text(groupName, style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(120)))),
+                                  Expanded(flex: 5, child: fluent.Text(sub.accountName)),
+                                  Expanded(flex: 3, child: fluent.Text(groupName, style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(120)))),
                                   Expanded(
                                     flex: 2,
-                                    child: Text(
+                                    child: fluent.Text(
                                       debit > 0 ? debit.toStringAsFixed(2) : '-',
                                       style: const TextStyle(color: Colors.green),
                                       textAlign: TextAlign.end,
@@ -393,7 +393,7 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                   ),
                                   Expanded(
                                     flex: 2,
-                                    child: Text(
+                                    child: fluent.Text(
                                       credit > 0 ? credit.toStringAsFixed(2) : '-',
                                       style: const TextStyle(color: Colors.red),
                                       textAlign: TextAlign.end,
@@ -401,7 +401,7 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                   ),
                                   Expanded(
                                     flex: 2,
-                                    child: Text(
+                                    child: fluent.Text(
                                       net.toStringAsFixed(2),
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,

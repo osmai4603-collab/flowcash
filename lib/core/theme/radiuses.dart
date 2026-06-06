@@ -20,4 +20,8 @@ sealed class Radiuses {
   static const BorderRadius xlargeAll = BorderRadius.all(
     Radius.circular(xlarge),
   );
+
+  static const BorderRadius none =BorderRadius.all(
+    Radius.circular(0),
+  );
 }

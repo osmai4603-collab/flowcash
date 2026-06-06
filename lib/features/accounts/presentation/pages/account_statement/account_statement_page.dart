@@ -10,7 +10,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/account_statement/
 import 'package:flowcash/features/accounts/presentation/blocs/account_statement/account_statement_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/account_statement/account_statement_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class AccountStatementPage extends StatefulWidget {
   const AccountStatementPage({super.key});
 
@@ -168,10 +168,10 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                               decoration: InputDecoration(
                                 labelText: 'اختر الحساب الفرعي',
                                 border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(FluentIcons.personalize),
+                                prefixIcon: const Icon(fluent.FluentIcons.personalize),
                                 suffixIcon: _selectedAccount != null
                                     ? IconButton(
-                                        icon: const Icon(FluentIcons.clear),
+                                        icon: const Icon(fluent.FluentIcons.clear),
                                         onPressed: () {
                                           fieldTextEditingController.clear();
                                           setState(() {
@@ -196,10 +196,10 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                             decoration: InputDecoration(
                               labelText: 'من تاريخ',
                               border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(FluentIcons.calendar_settings),
+                              prefixIcon: const Icon(fluent.FluentIcons.calendar_settings),
                               suffixIcon: _startDate != null
                                   ? IconButton(
-                                      icon: const Icon(FluentIcons.clear, size: 18),
+                                      icon: const Icon(fluent.FluentIcons.clear, size: 18),
                                       onPressed: () {
                                         setState(() {
                                           _startDate = null;
@@ -208,7 +208,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                     )
                                   : null,
                             ),
-                            child: Text(
+                            child: fluent.Text(
                               _startDate != null ? DateFormat('yyyy-MM-dd').format(_startDate!) : 'الكل',
                             ),
                           ),
@@ -225,10 +225,10 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                             decoration: InputDecoration(
                               labelText: 'إلى تاريخ',
                               border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(FluentIcons.calendar_settings),
+                              prefixIcon: const Icon(fluent.FluentIcons.calendar_settings),
                               suffixIcon: _endDate != null
                                   ? IconButton(
-                                      icon: const Icon(FluentIcons.clear, size: 18),
+                                      icon: const Icon(fluent.FluentIcons.clear, size: 18),
                                       onPressed: () {
                                         setState(() {
                                           _endDate = null;
@@ -237,7 +237,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                     )
                                   : null,
                             ),
-                            child: Text(
+                            child: fluent.Text(
                               _endDate != null ? DateFormat('yyyy-MM-dd').format(_endDate!) : 'الكل',
                             ),
                           ),
@@ -256,8 +256,8 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                       endDate: _endDate,
                                     ));
                               },
-                        icon: const Icon(FluentIcons.receipt_processing),
-                        label: const Text('عرض الكشف'),
+                        icon: const Icon(fluent.FluentIcons.receipt_processing),
+                        label: const fluent.Text('عرض الكشف'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: theme.colorScheme.primary,
                           foregroundColor: theme.colorScheme.onPrimary,
@@ -279,9 +279,9 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(FluentIcons.search, size: 72, color: theme.colorScheme.onSurface.withAlpha(50)),
+                              Icon(fluent.FluentIcons.search, size: 72, color: theme.colorScheme.onSurface.withAlpha(50)),
                               const SizedBox(height: 16),
-                              Text(
+                              fluent.Text(
                                 'يرجى تحديد حساب فرعي وتاريخ ثم النقر على عرض الكشف',
                                 style: TextStyle(fontSize: 16, color: theme.colorScheme.onSurface.withAlpha(150)),
                               ),
@@ -291,12 +291,12 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                       }
 
                       if (state.status == AccountStatementStatus.loading) {
-                        return const Center(child: ProgressRing());
+                        return const Center(child: fluent.ProgressRing());
                       }
 
                       if (state.status == AccountStatementStatus.failure) {
                         return Center(
-                          child: Text('خطأ في تحميل كشف الحساب: ${state.errorMessage}',
+                          child: fluent.Text('خطأ في تحميل كشف الحساب: ${state.errorMessage}',
                               style: const TextStyle(color: Colors.red, fontSize: 16)),
                         );
                       }
@@ -333,12 +333,12 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      fluent.Text(
                                         'كشف حساب: ${state.subAccount!.accountName}',
                                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                       ),
                                       const SizedBox(height: 4),
-                                      Text(
+                                      fluent.Text(
                                         'رقم الحساب: ${state.subAccount!.accountNumber} | النوع: ${state.subAccount!.subAccountType.name}',
                                         style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(150)),
                                       ),
@@ -347,12 +347,12 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      Text(
+                                      fluent.Text(
                                         'الرصيد الافتتاحي: ${state.openingBalance.toStringAsFixed(2)}',
                                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                       ),
                                       const SizedBox(height: 4),
-                                      Text(
+                                      fluent.Text(
                                         'العملة: ${_selectedAccount?.currencyName ?? "عملة غير محددة"}',
                                         style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(150)),
                                       ),
@@ -371,12 +371,12 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                               ),
                               child: Row(
                                 children: const [
-                                  Expanded(flex: 2, child: Text('التاريخ', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Expanded(flex: 2, child: Text('الرقم المرجعي', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Expanded(flex: 4, child: Text('البيان التفصيلي', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Expanded(flex: 2, child: Text('مدين (وارد)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
-                                  Expanded(flex: 2, child: Text('دائن (صادر)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
-                                  Expanded(flex: 2, child: Text('الرصيد التراكمي', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
+                                  Expanded(flex: 2, child: fluent.Text('التاريخ', style: TextStyle(fontWeight: FontWeight.bold))),
+                                  Expanded(flex: 2, child: fluent.Text('الرقم المرجعي', style: TextStyle(fontWeight: FontWeight.bold))),
+                                  Expanded(flex: 4, child: fluent.Text('البيان التفصيلي', style: TextStyle(fontWeight: FontWeight.bold))),
+                                  Expanded(flex: 2, child: fluent.Text('مدين (وارد)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
+                                  Expanded(flex: 2, child: fluent.Text('دائن (صادر)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
+                                  Expanded(flex: 2, child: fluent.Text('الرصيد التراكمي', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
                                 ],
                               ),
                             ),
@@ -384,7 +384,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                             // Ledger Scrollable Data Rows
                             Expanded(
                               child: state.items.isEmpty
-                                  ? const Center(child: Text('لا توجد معاملات مسجلة في هذه الفترة'))
+                                  ? const Center(child: fluent.Text('لا توجد معاملات مسجلة في هذه الفترة'))
                                   : ListView.builder(
                                       itemCount: state.items.length,
                                       itemBuilder: (context, idx) {
@@ -405,12 +405,12 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                           ),
                                           child: Row(
                                             children: [
-                                              Expanded(flex: 2, child: Text(dateStr)),
-                                              Expanded(flex: 2, child: Text(refNum, style: const TextStyle(fontFamily: 'monospace'))),
-                                              Expanded(flex: 4, child: Text(item.lineDescription ?? entry?.description ?? '')),
+                                              Expanded(flex: 2, child: fluent.Text(dateStr)),
+                                              Expanded(flex: 2, child: fluent.Text(refNum, style: const TextStyle(fontFamily: 'monospace'))),
+                                              Expanded(flex: 4, child: fluent.Text(item.lineDescription ?? entry?.description ?? '')),
                                               Expanded(
                                                 flex: 2,
-                                                child: Text(
+                                                child: fluent.Text(
                                                   item.debit > 0 ? item.debit.toStringAsFixed(2) : '-',
                                                   style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
                                                   textAlign: TextAlign.end,
@@ -418,7 +418,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                               ),
                                               Expanded(
                                                 flex: 2,
-                                                child: Text(
+                                                child: fluent.Text(
                                                   item.credit > 0 ? item.credit.toStringAsFixed(2) : '-',
                                                   style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
                                                   textAlign: TextAlign.end,
@@ -426,7 +426,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                               ),
                                               Expanded(
                                                 flex: 2,
-                                                child: Text(
+                                                child: fluent.Text(
                                                   runningBalance.toStringAsFixed(2),
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.bold,
@@ -453,11 +453,11 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
+                                  fluent.Text(
                                     'إجمالي الفترة:  مدين: ${totalDebit.toStringAsFixed(2)}  |  دائن: ${totalCredit.toStringAsFixed(2)}',
                                     style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  Text(
+                                  fluent.Text(
                                     'الرصيد الختامي: ${runningBalance.toStringAsFixed(2)}',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w900,

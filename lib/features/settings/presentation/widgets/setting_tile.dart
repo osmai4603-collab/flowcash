@@ -67,7 +67,7 @@ class _SettingTileState extends State<SettingTile> {
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,
-              child: ElevatedButton(
+              child: FilledButton(
                 onPressed: _save,
                 child: const Text('Save'),
               ),

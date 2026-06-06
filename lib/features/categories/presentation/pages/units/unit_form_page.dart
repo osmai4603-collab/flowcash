@@ -13,7 +13,7 @@ import 'package:flowcash/features/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show InfoBar, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class UnitFormPage extends StatefulWidget {
   final UnitEntity? unit;
   final CategoryPropertyEntity property;
@@ -48,13 +48,13 @@ class _UnitFormPageState extends State<UnitFormPage> {
             Navigator.pop(context, state.saved);
           }
           if (state.status == UnitFormStatus.failure) {
-            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.messageError ?? 'حدث خطأ')));
+            fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(state.messageError ?? 'حدث خطأ')));
           }
         },
         child: BlocBuilder<UnitFormBloc, UnitFormState>(
           builder: (context, state) {
             if (state.status == UnitFormStatus.failure) {
-              return Center(child: Text(state.messageError ?? 'حدث خطأ'));
+              return Center(child: fluent.Text(state.messageError ?? 'حدث خطأ'));
             }
             if (state.status == UnitFormStatus.initial ||
                 state.status == UnitFormStatus.saving ||

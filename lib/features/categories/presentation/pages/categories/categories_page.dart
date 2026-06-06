@@ -1,5 +1,8 @@
 import 'dart:io';
+import 'package:flowcash/core/theme/radiuses.dart';
+import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_state.dart';
@@ -11,7 +14,9 @@ import 'package:flowcash/widgets/message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show InfoBar, ProgressRing, displayInfoBar, FluentIcons;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
 
@@ -32,216 +37,122 @@ class _CategoriesPageState extends State<CategoriesPage> {
     });
   }
 
-  Map<int, TableColumnWidth> getWidths() {
-    return {
-      0: FixedColumnWidth(isDesktop ? 45.0 : 40.0),
-      1: FixedColumnWidth(isDesktop ? 70 : 55),
-      2: const FlexColumnWidth(0.70),
-      3: FixedColumnWidth(isDesktop ? 70 : 55),
-      4: FixedColumnWidth(isDesktop ? 100 : 80),
-      5: const FlexColumnWidth(0.30),
-    };
-  }
-
   Widget listView(List<CategoryEntity> categories) {
-    final textTheme = TextTheme.of(context);
-    final colors = ColorScheme.of(context);
-    return Column(
-      children: [
-        Table(
-          border: TableBorder.all(width: 0.50, color: colors.outline),
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          columnWidths: getWidths(),
-          children: [
-            TableRow(
-              children: [
-                TextWidget(
-                  text: 'No',
-                  textAlign: TextAlign.center,
-                  textDirection: TextDirection.ltr,
-                  padding: const EdgeInsets.all(4),
-                  style: textTheme.bodyMedium,
-                ),
-                TextWidget(
-                  text: 'الرقم',
-                  textAlign: TextAlign.center,
-                  padding: const EdgeInsets.all(4),
-                  style: textTheme.bodyMedium,
-                ),
-                TextWidget(
-                  text: 'الصنف',
-                  textAlign: TextAlign.center,
-                  padding: const EdgeInsets.all(4),
-                  style: textTheme.bodyMedium,
-                ),
-                TextWidget(
-                  text: 'الوحدة',
-                  textAlign: TextAlign.center,
-                  padding: const EdgeInsets.all(2),
-                  style: textTheme.bodyMedium,
-                ),
-                TextWidget(
-                  text: 'نوع تعريف الصنف',
-                  textAlign: TextAlign.center,
-                  padding: const EdgeInsets.all(2),
-                  style: textTheme.bodyMedium,
-                ),
-                TextWidget(
-                  text: 'الباركود',
-                  textAlign: TextAlign.center,
-                  padding: const EdgeInsets.all(4),
-                  style: textTheme.bodyMedium,
-                ),
-              ],
+    final textTheme = Theme.of(context).textTheme;
+    final colors = Theme.of(context).colorScheme;
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: searchBarController,
+      builder: (_, edit, child) {
+        final filtered = searchBarController.text.isEmpty
+            ? categories
+            : categories
+                  .where(
+                    (category) => category.categoryName.contains(
+                      searchBarController.text,
+                    ),
+                  )
+                  .toList();
+
+        if (filtered.isEmpty) {
+          return Center(
+            child: fluent.Text('لا يوجد اصناف موجودة', style: textTheme.bodyLarge),
+          );
+        }
+
+        final dataSource = CategoryDataGridSource(
+          items: filtered,
+          textTheme: textTheme,
+          colors: colors,
+          onItemTap: _onUpdateCategoryPressed,
+          onItemLongPress: _onDeleteCategoryPressed,
+        );
+
+        return SfDataGrid(
+          source: dataSource,
+          headerRowHeight: 40,
+          rowHeight: 30,
+          gridLinesVisibility: GridLinesVisibility.both,
+          headerGridLinesVisibility: GridLinesVisibility.both,
+          columnWidthMode: ColumnWidthMode.fill,
+          onCellTap: (DataGridCellTapDetails details) {
+            if (details.rowColumnIndex.rowIndex > 0) {
+              final item = filtered[details.rowColumnIndex.rowIndex - 1];
+              _onUpdateCategoryPressed(item);
+            }
+          },
+          columns: [
+            GridColumn(
+              columnName: 'no',
+              width: isDesktop ? 60.0 : 50.0,
+              label: _buildHeaderCell('No', textTheme, colors),
+            ),
+            GridColumn(
+              columnName: 'categoryNumber',
+              width: isDesktop ? 80.0 : 60.0,
+              label: _buildHeaderCell('الرقم', textTheme, colors),
+            ),
+            GridColumn(
+              columnName: 'categoryName',
+              label: _buildHeaderCell('الصنف', textTheme, colors),
+            ),
+            GridColumn(
+              columnName: 'unitName',
+              width: isDesktop ? 90.0 : 70.0,
+              label: _buildHeaderCell('الوحدة', textTheme, colors),
+            ),
+            GridColumn(
+              columnName: 'type',
+              width: isDesktop ? 140.0 : 100.0,
+              label: _buildHeaderCell('نوع تعريف الصنف', textTheme, colors),
+            ),
+            GridColumn(
+              columnName: 'barcode',
+              label: _buildHeaderCell('الباركود', textTheme, colors),
             ),
           ],
-        ),
-        Expanded(
-          child: ValueListenableBuilder(
-            valueListenable: searchBarController,
-            builder: (_, edit, child) {
-              final filtered = searchBarController.text.isEmpty
-                  ? categories
-                  : categories
-                        .where(
-                          (category) => category.categoryName.contains(
-                            searchBarController.text,
-                          ),
-                        )
-                        .toList();
-              return buildListView(filtered);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildListView(List<CategoryEntity> categories) {
-    final textTheme = TextTheme.of(context);
-    final colors = ColorScheme.of(context);
-    if (categories.isEmpty) {
-      return Container(
-        alignment: Alignment.center,
-        child: Text('لا يوجد اصناف موجودة', style: textTheme.bodyLarge),
-      );
-    }
-    return ListView.builder(
-      itemCount: categories.length,
-      itemBuilder: (context, index) {
-        final category = categories[index];
-        return InkWell(
-          onTap: () => _onUpdateCategoryPressed(category),
-          onLongPress: () => _onDeleteCategoryPressed(category),
-          child: Table(
-            border: TableBorder.all(width: 0.50, color: colors.outline),
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            columnWidths: getWidths(),
-            children: [
-              TableRow(
-                decoration: BoxDecoration(
-                  color: index % 2 == 0 ? colors.primaryContainer : null,
-                ),
-                children: [
-                  TextWidget(
-                    text: '${index + 1}',
-                    textAlign: TextAlign.center,
-                    textDirection: TextDirection.ltr,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 8.0,
-                    ),
-                    style: textTheme.labelMedium,
-                  ),
-                  TextWidget(
-                    text: category.categoryNumber,
-                    textAlign: TextAlign.center,
-                    padding: const EdgeInsets.all(4),
-                    style: textTheme.labelMedium,
-                  ),
-                  TextWidget(
-                    text: category.categoryName,
-                    padding: const EdgeInsets.all(4),
-                    style: textTheme.labelMedium,
-                  ),
-                  TextWidget(
-                    text: category.categoryUnit?.unitName ?? 'غير معرف',
-                    textAlign: TextAlign.center,
-                    padding: const EdgeInsets.all(2),
-                    style: textTheme.labelMedium,
-                  ),
-                  TextWidget(
-                    text: category.categoryType.displayName(),
-                    textAlign: TextAlign.center,
-                    padding: const EdgeInsets.all(2),
-                    style: textTheme.labelMedium,
-                  ),
-                  TextWidget(
-                    text: category.barcode ?? 'غير معرف',
-                    textAlign: TextAlign.end,
-                    textDirection: TextDirection.ltr,
-                    padding: const EdgeInsets.all(4),
-                    style: textTheme.labelMedium,
-                  ),
-                ],
-              ),
-            ],
-          ),
         );
       },
     );
   }
 
+  Widget _buildHeaderCell(
+    String text,
+    TextTheme textTheme,
+    ColorScheme colors,
+  ) {
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(color: colors.surfaceContainerHigh),
+      child: fluent.Text(
+        text,
+        textAlign: TextAlign.center,
+        style: textTheme.bodyMedium?.copyWith(
+          color: colors.onSurface,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colors = ColorScheme.of(context);
-    final textTheme = TextTheme.of(context);
     return BlocListener<CategoriesBloc, CategoriesState>(
       listener: (context, state) {
         if (state is CategoriesLoadFailure) {
           error(context: context, toast: state.message);
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(child: Text(isDesktop ? 'الأصناف' : '')),
-              SizedBox(
-                height: 40.0,
-                width: isDesktop ? 400.0 : 250.0,
-                child: SearchBar(
-                  elevation: const WidgetStatePropertyAll(0.0),
-                  backgroundColor: WidgetStatePropertyAll(
-                    colors.secondary.withValues(alpha: 0.25),
-                  ),
-                  controller: searchBarController,
-                  leading: const Icon(
-                    FluentIcons.search,
-                    color: Colors.white70,
-                  ),
-                  hintText: 'ابحث عن صنف هنا',
-                  textStyle: isDesktop
-                      ? WidgetStatePropertyAll(
-                          textTheme.titleMedium?.copyWith(color: Colors.white),
-                        )
-                      : WidgetStatePropertyAll(
-                          textTheme.titleSmall?.copyWith(color: Colors.white),
-                        ),
-                  shape: const WidgetStatePropertyAll(RoundedRectangleBorder()),
-                ),
-              ),
-              const Expanded(child: SizedBox(height: 20)),
-            ],
-          ),
-          centerTitle: true,
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(35),
+      child: fluent.ScaffoldPage(
+        header: fluent.PageHeader(
+          title: Row(children: [const fluent.Text('الأصناف')]),
+          commandBar: SizedBox(
+            height: 30,
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Center(
                 child: Row(
+                  spacing: Spacings.small,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     BlocBuilder<CategoriesBloc, CategoriesState>(
@@ -264,59 +175,32 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                   .toList();
                         return Tooltip(
                           message: 'عدد الأصناف',
-                          child: TextWidget(
-                            text: filtered.length.toString(),
-                            style: textTheme.bodyLarge?.copyWith(
-                              color: Colors.white,
-                            ),
-                          ),
+                          child: TextWidget(text: filtered.length.toString()),
                         );
                       },
                     ),
-                    const SizedBox(width: 10),
                     IconButton(
                       tooltip: 'الاصناف الرئيسية',
-                      icon: Icon(
-                        FluentIcons.add,
-                        size: 26,
-                        color: colors.onPrimary,
-                      ),
+                      icon: Icon(fluent.FluentIcons.add),
                       onPressed: () {
                         context.go(AppRouteKeys.mainCategories);
                       },
                     ),
-                    const SizedBox(width: 10),
                     IconButton(
                       tooltip: 'إعادة تحميل الأصناف',
-                      icon: Icon(
-                        FluentIcons.refresh,
-                        size: 26,
-                        color: colors.onPrimary,
-                      ),
+                      icon: Icon(fluent.FluentIcons.refresh),
                       onPressed: () => context.read<CategoriesBloc>().add(
                         LoadCategoriesEvent(),
                       ),
                     ),
-                    const SizedBox(width: 10),
                     IconButton(
                       tooltip: 'اضافة صنف جديد',
-                      color: colors.onPrimary,
-                      icon: const Icon(
-                        FluentIcons.add,
-                        size: 26,
-                        color: Colors.white,
-                      ),
+                      icon: const Icon(fluent.FluentIcons.add),
                       onPressed: _onAddNewCategoryPressed,
                     ),
-                    const SizedBox(width: 10),
                     IconButton(
                       tooltip: 'طباعة بيانات الأصناف',
-                      color: colors.onPrimary,
-                      icon: Icon(
-                        FluentIcons.print,
-                        size: 26,
-                        color: colors.onPrimary,
-                      ),
+                      icon: Icon(fluent.FluentIcons.print),
                       onPressed: () async {},
                     ),
                   ],
@@ -325,23 +209,29 @@ class _CategoriesPageState extends State<CategoriesPage> {
             ),
           ),
         ),
-        body: Align(
-          alignment: Alignment.topCenter,
-          child: Container(
-            width: 1000,
-            padding: const EdgeInsets.all(2),
-            child: BlocBuilder<CategoriesBloc, CategoriesState>(
-              builder: (context, state) {
-                if (state is CategoriesLoadInProgress) {
-                  return const Center(child: ProgressRing());
-                }
-                if (state is CategoriesLoadSuccess) {
-                  return listView(state.categories);
-                }
-                return const Center(child: Text('لا يوجد اصناف موجودة'));
-              },
+        content: Column(
+          children: [
+            Expanded(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  width: 1000,
+                  padding: const EdgeInsets.all(2),
+                  child: BlocBuilder<CategoriesBloc, CategoriesState>(
+                    builder: (context, state) {
+                      if (state is CategoriesLoadInProgress) {
+                        return const Center(child: fluent.ProgressRing());
+                      }
+                      if (state is CategoriesLoadSuccess) {
+                        return listView(state.categories);
+                      }
+                      return const Center(child: Text('لا يوجد اصناف موجودة'));
+                    },
+                  ),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -373,7 +263,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
   }
 
   void showSnackBar(BuildContext context, String s) {
-    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(s)));
+    fluent.displayInfoBar(
+      context,
+      builder: (context, close) =>
+          fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(s)),
+    );
   }
 
   void _onUpdateCategoryPressed(CategoryEntity category) async {
@@ -387,5 +281,132 @@ class _CategoriesPageState extends State<CategoriesPage> {
         InjectCategoryEvent(updatedCategory),
       );
     }
+  }
+}
+
+class CategoryDataGridSource extends DataGridSource {
+  CategoryDataGridSource({
+    required List<CategoryEntity> items,
+    required this.textTheme,
+    required this.colors,
+    required this.onItemTap,
+    required this.onItemLongPress,
+  }) {
+    _dataGridRows = items.asMap().entries.map<DataGridRow>((entry) {
+      final index = entry.key;
+      final category = entry.value;
+      return DataGridRow(
+        cells: [
+          DataGridCell<String>(columnName: 'no', value: '${index + 1}'),
+          DataGridCell<String>(
+            columnName: 'categoryNumber',
+            value: category.categoryNumber,
+          ),
+          DataGridCell<String>(
+            columnName: 'categoryName',
+            value: category.categoryName,
+          ),
+          DataGridCell<String>(
+            columnName: 'unitName',
+            value: category.categoryUnit?.unitName ?? 'غير معرف',
+          ),
+          DataGridCell<String>(
+            columnName: 'type',
+            value: category.categoryType.displayName(),
+          ),
+          DataGridCell<String>(
+            columnName: 'barcode',
+            value: category.barcode ?? 'غير معرف',
+          ),
+        ],
+      );
+    }).toList();
+  }
+
+  final TextTheme textTheme;
+  final ColorScheme colors;
+  final void Function(CategoryEntity) onItemTap;
+  final void Function(CategoryEntity) onItemLongPress;
+
+  List<DataGridRow> _dataGridRows = [];
+
+  @override
+  List<DataGridRow> get rows => _dataGridRows;
+
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    final index = _dataGridRows.indexOf(row);
+    return DataGridRowAdapter(
+      color: index.isEven ? null : colors.surfaceVariant.withOpacity(0.12),
+      cells: row.getCells().map<Widget>((dataGridCell) {
+        return Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(4.0),
+          child: fluent.Text(
+            dataGridCell.value.toString(),
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.bodyMedium,
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class MainCategoriesDataGridSource extends DataGridSource {
+  MainCategoriesDataGridSource({
+    required List<MainCategoryEntity> items,
+    required this.textTheme,
+    required this.colors,
+  }) {
+    _dataGridRows = items.map<DataGridRow>((item) {
+      return DataGridRow(
+        cells: [
+          DataGridCell<String>(columnName: 'no', value: item.id.toString()),
+          DataGridCell<String>(columnName: 'name', value: item.name),
+          DataGridCell<String>(columnName: 'unitName', value: item.unitName),
+          DataGridCell<String>(
+            columnName: 'priceUnit',
+            value: item.unitType.fullUnitName,
+          ),
+          DataGridCell<String>(
+            columnName: 'stockUnit',
+            value: item.unitType.fullUnitName,
+          ),
+          DataGridCell<String>(
+            columnName: 'type',
+            value: item.type.displayName(),
+          ),
+          DataGridCell<String>(
+            columnName: 'containerName',
+            value: item.unitName,
+          ),
+        ],
+      );
+    }).toList();
+  }
+
+  final TextTheme textTheme;
+  final ColorScheme colors;
+  List<DataGridRow> _dataGridRows = [];
+
+  @override
+  List<DataGridRow> get rows => _dataGridRows;
+
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    return DataGridRowAdapter(
+      cells: row.getCells().map<Widget>((dataGridCell) {
+        return Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(8.0),
+          child: fluent.Text(
+            dataGridCell.value.toString(),
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.bodyMedium,
+          ),
+        );
+      }).toList(),
+    );
   }
 }

@@ -8,7 +8,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/trial_balance/tria
 import 'package:flowcash/features/accounts/presentation/blocs/trial_balance/trial_balance_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/trial_balance/trial_balance_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class TrialBalancePage extends StatefulWidget {
   const TrialBalancePage({super.key});
 
@@ -73,11 +73,11 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                                 decoration: InputDecoration(
                                   labelText: 'من تاريخ',
                                   border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(FluentIcons.calendar_settings,
+                                  prefixIcon: const Icon(fluent.FluentIcons.calendar_settings,
                                   ),
                                   suffixIcon: _startDate != null
                                       ? IconButton(
-                                          icon: const Icon(FluentIcons.clear,
+                                          icon: const Icon(fluent.FluentIcons.clear,
                                             size: 18,
                                           ),
                                           onPressed: () {
@@ -88,7 +88,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                                         )
                                       : null,
                                 ),
-                                child: Text(
+                                child: fluent.Text(
                                   _startDate != null
                                       ? DateFormat(
                                           'yyyy-MM-dd',
@@ -108,11 +108,11 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                                 decoration: InputDecoration(
                                   labelText: 'إلى تاريخ',
                                   border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(FluentIcons.calendar_settings,
+                                  prefixIcon: const Icon(fluent.FluentIcons.calendar_settings,
                                   ),
                                   suffixIcon: _endDate != null
                                       ? IconButton(
-                                          icon: const Icon(FluentIcons.clear,
+                                          icon: const Icon(fluent.FluentIcons.clear,
                                             size: 18,
                                           ),
                                           onPressed: () {
@@ -123,7 +123,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                                         )
                                       : null,
                                 ),
-                                child: Text(
+                                child: fluent.Text(
                                   _endDate != null
                                       ? DateFormat(
                                           'yyyy-MM-dd',
@@ -145,8 +145,8 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                                 ),
                               );
                             },
-                            icon: const Icon(FluentIcons.compare),
-                            label: const Text('تحديث الميزان'),
+                            icon: const Icon(fluent.FluentIcons.compare),
+                            label: const fluent.Text('تحديث الميزان'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: theme.colorScheme.primary,
                               foregroundColor: theme.colorScheme.onPrimary,
@@ -164,7 +164,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
 
                           // Refresh Button
                           IconButton(
-                            icon: const Icon(FluentIcons.refresh),
+                            icon: const Icon(fluent.FluentIcons.refresh),
                             tooltip: 'إعادة تحميل البيانات',
                             onPressed: () {
                               context.read<TrialBalanceBloc>().add(
@@ -183,10 +183,10 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                     // 2. Trial Balance Content
                     Expanded(
                       child: state.status == TrialBalanceStatus.loading
-                          ? const Center(child: ProgressRing())
+                          ? const Center(child: fluent.ProgressRing())
                           : state.status == TrialBalanceStatus.failure
                           ? Center(
-                              child: Text(
+                              child: fluent.Text(
                                 'خطأ في تحميل ميزان المراجعة: ${state.errorMessage}',
                               ),
                             )
@@ -280,28 +280,28 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
               children: const [
                 Expanded(
                   flex: 3,
-                  child: Text(
+                  child: fluent.Text(
                     'رقم الحساب',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 Expanded(
                   flex: 5,
-                  child: Text(
+                  child: fluent.Text(
                     'اسم الحساب',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 Expanded(
                   flex: 2,
-                  child: Text(
+                  child: fluent.Text(
                     'النوع',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 Expanded(
                   flex: 2,
-                  child: Text(
+                  child: fluent.Text(
                     'أرصدة مدينة',
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.end,
@@ -309,7 +309,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                 ),
                 Expanded(
                   flex: 2,
-                  child: Text(
+                  child: fluent.Text(
                     'أرصدة دائنة',
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.end,
@@ -342,12 +342,12 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                       color: theme.colorScheme.primaryContainer.withAlpha(20),
                       child: Row(
                         children: [
-                          Icon(FluentIcons.folder_open,
+                          Icon(fluent.FluentIcons.folder_open,
                             size: 18,
                             color: theme.colorScheme.primary,
                           ),
                           const SizedBox(width: 8),
-                          Text(
+                          fluent.Text(
                             group.displayName(),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
@@ -384,7 +384,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                               flex: 3,
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 16.0),
-                                child: Text(
+                                child: fluent.Text(
                                   sub.accountNumber,
                                   style: const TextStyle(
                                     fontFamily: 'monospace',
@@ -393,10 +393,10 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                                 ),
                               ),
                             ),
-                            Expanded(flex: 5, child: Text(sub.accountName)),
+                            Expanded(flex: 5, child: fluent.Text(sub.accountName)),
                             Expanded(
                               flex: 2,
-                              child: Text(
+                              child: fluent.Text(
                                 sub.subAccountType.name,
                                 style: TextStyle(
                                   color: theme.colorScheme.onSurface.withAlpha(
@@ -408,7 +408,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                             ),
                             Expanded(
                               flex: 2,
-                              child: Text(
+                              child: fluent.Text(
                                 bal['debit']! > 0
                                     ? bal['debit']!.toStringAsFixed(2)
                                     : '-',
@@ -418,7 +418,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                             ),
                             Expanded(
                               flex: 2,
-                              child: Text(
+                              child: fluent.Text(
                                 bal['credit']! > 0
                                     ? bal['credit']!.toStringAsFixed(2)
                                     : '-',
@@ -450,14 +450,14 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                         children: [
                           const Expanded(
                             flex: 10,
-                            child: Text(
+                            child: fluent.Text(
                               'إجمالي المجموعة',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                           Expanded(
                             flex: 2,
-                            child: Text(
+                            child: fluent.Text(
                               summary['debit']! > 0
                                   ? summary['debit']!.toStringAsFixed(2)
                                   : '-',
@@ -470,7 +470,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                           ),
                           Expanded(
                             flex: 2,
-                            child: Text(
+                            child: fluent.Text(
                               summary['credit']! > 0
                                   ? summary['credit']!.toStringAsFixed(2)
                                   : '-',
@@ -508,12 +508,12 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                 Row(
                   children: [
                     Icon(
-                      isBalanced ? FluentIcons.skype_circle_check : FluentIcons.error,
+                      isBalanced ? fluent.FluentIcons.skype_circle_check : fluent.FluentIcons.error,
                       color: isBalanced ? Colors.green : Colors.red,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
-                    Text(
+                    fluent.Text(
                       isBalanced ? 'الميزان متوازن' : 'الميزان غير متوازن',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -522,7 +522,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                     ),
                     if (!isBalanced) ...[
                       const SizedBox(width: 12),
-                      Text(
+                      fluent.Text(
                         'الفرق: ${(grandTotalDebit - grandTotalCredit).abs().toStringAsFixed(2)}',
                         style: const TextStyle(
                           color: Colors.red,
@@ -535,7 +535,7 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                 const Spacer(),
 
                 // Totals
-                Text(
+                fluent.Text(
                   'الإجمالي العام:  مدين: ${grandTotalDebit.toStringAsFixed(2)}  |  دائن: ${grandTotalCredit.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontWeight: FontWeight.w900,

@@ -7,8 +7,7 @@ import 'package:flowcash/features/system/presentation/pages/defaults/default_val
 import 'package:flowcash/features/system/domain/entities/value_entity.dart';
 import 'package:flutter/material.dart';
 
-import 'package:fluent_ui/fluent_ui.dart'
-    show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class DefaultsPage extends StatelessWidget {
@@ -50,11 +49,11 @@ class DefaultsPage extends StatelessWidget {
                         DefaultValueFormPage(initialValue: valueEntity),
                   );
                   if (didUpdate != null && context.mounted) {
-                    displayInfoBar(
+                    fluent.displayInfoBar(
                       context,
-                      builder: (context, close) => InfoBar(
-                        title: const Text('تنبيه'),
-                        content: Text('تم تحديث القيمة'),
+                      builder: (context, close) => fluent.InfoBar(
+                        title: const fluent.Text('تنبيه'),
+                        content: fluent.Text('تم تحديث القيمة'),
                       ),
                     );
                     context.read<DefaultsBloc>().add(LoadDefaultsEvent());
@@ -93,7 +92,7 @@ class DefaultsPage extends StatelessWidget {
       alignment: Alignment.center,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(color: colors.surfaceContainerHigh),
-      child: Text(
+      child: fluent.Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium?.copyWith(
@@ -109,19 +108,19 @@ class DefaultsPage extends StatelessWidget {
     return BlocBuilder<DefaultsBloc, DefaultsState>(
       builder: (context, state) {
         if (state is DefaultsLoading) {
-          return const Center(child: ProgressRing());
+          return const Center(child: fluent.ProgressRing());
         }
         if (state is DefaultsFailure) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(state.errorMessage),
+                fluent.Text(state.errorMessage),
                 const SizedBox(height: 8),
-                ElevatedButton(
+                fluent.FilledButton(
                   onPressed: () =>
                       context.read<DefaultsBloc>().add(LoadDefaultsEvent()),
-                  child: const Text('إعادة المحاولة'),
+                  child: const fluent.Text('إعادة المحاولة'),
                 ),
               ],
             ),
@@ -161,18 +160,18 @@ class DefaultsPage extends StatelessWidget {
                         DefaultValueFormPage(initialValue: null),
                   );
                   if (result != null && context.mounted) {
-                    displayInfoBar(
+                    fluent.displayInfoBar(
                       context,
-                      builder: (context, close) => InfoBar(
-                        title: const Text('تنبيه'),
-                        content: Text('تمت إضافة القيمة'),
+                      builder: (context, close) => fluent.InfoBar(
+                        title: const fluent.Text('تنبيه'),
+                        content: fluent.Text('تمت إضافة القيمة'),
                       ),
                     );
                     context.read<DefaultsBloc>().add(LoadDefaultsEvent());
                   }
                 },
-                icon: const Icon(FluentIcons.add),
-                label: const Text('إضافة'),
+                icon: const Icon(fluent.FluentIcons.add),
+                label: const fluent.Text('إضافة'),
               ),
             ],
           ),
@@ -188,7 +187,7 @@ class DefaultsPage extends StatelessWidget {
 
   Widget buildEmpty(BuildContext context) {
     return Center(
-      child: Text(
+      child: fluent.Text(
         'لا توجد قيم افتراضية',
         style: Theme.of(context).textTheme.bodyLarge,
       ),
@@ -230,7 +229,7 @@ class DefaultsDataGridSource extends DataGridSource {
         return Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(4.0),
-          child: Text(
+          child: fluent.Text(
             dataGridCell.value.toString(),
             overflow: TextOverflow.ellipsis,
             style: textTheme.bodyMedium,

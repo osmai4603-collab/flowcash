@@ -21,7 +21,7 @@ import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class CategoriesDashboard extends StatefulWidget {
   const CategoriesDashboard({super.key});
 
@@ -86,7 +86,7 @@ class _CategoriesDashboardCategoriesTabState
           TextField(
             controller: searchController,
             decoration: const InputDecoration(
-              prefixIcon: Icon(FluentIcons.search),
+              prefixIcon: Icon(fluent.FluentIcons.search),
               hintText: 'ابحث عن صنف هنا',
             ),
           ),
@@ -95,7 +95,7 @@ class _CategoriesDashboardCategoriesTabState
             child: BlocBuilder<CategoriesBloc, CategoriesState>(
               builder: (context, state) {
                 if (state is CategoriesLoadInProgress) {
-                  return const Center(child: ProgressRing());
+                  return const Center(child: fluent.ProgressRing());
                 }
                 if (state is CategoriesLoadFailure) {
                   return Center(child: TextWidget(text: state.message));
@@ -119,7 +119,7 @@ class _CategoriesDashboardCategoriesTabState
                             .toList();
                   return _buildCategoriesList(context, filtered);
                 }
-                return const Center(child: ProgressRing());
+                return const Center(child: fluent.ProgressRing());
               },
             ),
           ),
@@ -193,7 +193,7 @@ class _CategoriesDashboardCategoriesTabState
       color: colors.primaryContainer,
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      child: Text(
+      child: fluent.Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.labelMedium?.copyWith(
@@ -234,7 +234,7 @@ class _CategoryDataSource extends DataGridSource {
         return Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: Text(
+          child: fluent.Text(
             val,
             style: textTheme.bodyMedium,
           ),
@@ -293,7 +293,7 @@ class _CategoriesDashboardSubcategoriesTabState
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: ProgressRing());
+          return const Center(child: fluent.ProgressRing());
         }
         if (snapshot.hasError || snapshot.data == null) {
           return const Center(
@@ -320,9 +320,9 @@ class _CategoriesDashboardSubcategoriesTabState
                 data.mainCategoryNames[subcategory.mainCategoryId] ??
                 'غير معروف';
             return ListTile(
-              title: Text(subcategory.catalogName),
-              subtitle: Text('الصنف الرئيسي: $mainName'),
-              trailing: Text(subcategory.catalogNumber ?? '-'),
+              title: fluent.Text(subcategory.catalogName),
+              subtitle: fluent.Text('الصنف الرئيسي: $mainName'),
+              trailing: fluent.Text(subcategory.catalogNumber ?? '-'),
             );
           },
         );
@@ -386,7 +386,7 @@ class _CategoriesDashboardMainCategoriesTabState
             TextField(
               controller: searchController,
               decoration: const InputDecoration(
-                prefixIcon: Icon(FluentIcons.search),
+                prefixIcon: Icon(fluent.FluentIcons.search),
                 hintText: 'ابحث عن صنف رئيسي هنا',
               ),
             ),
@@ -396,7 +396,7 @@ class _CategoriesDashboardMainCategoriesTabState
                 builder: (context, state) {
                   if (state is MainCategoriesLoadInProgress ||
                       state is MainCategoriesInitial) {
-                    return const Center(child: ProgressRing());
+                    return const Center(child: fluent.ProgressRing());
                   }
                   if (state is MainCategoriesOperationFailure) {
                     return Center(
@@ -426,9 +426,9 @@ class _CategoriesDashboardMainCategoriesTabState
                       itemBuilder: (context, index) {
                         final category = categories[index];
                         return ListTile(
-                          title: Text(category.name),
-                          subtitle: Text(category.unitType.fullUnitName),
-                          trailing: Text(category.type.displayName()),
+                          title: fluent.Text(category.name),
+                          subtitle: fluent.Text(category.unitType.fullUnitName),
+                          trailing: fluent.Text(category.type.displayName()),
                           onTap: () {
                             Navigator.push(
                               context,
@@ -500,7 +500,7 @@ class _CategoriesDashboardUnitsTabState
           TextField(
             controller: searchController,
             decoration: const InputDecoration(
-              prefixIcon: Icon(FluentIcons.search),
+              prefixIcon: Icon(fluent.FluentIcons.search),
               hintText: 'ابحث عن وحدة هنا',
             ),
           ),
@@ -510,7 +510,7 @@ class _CategoriesDashboardUnitsTabState
               future: _unitsFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: ProgressRing());
+                  return const Center(child: fluent.ProgressRing());
                 }
                 if (snapshot.hasError) {
                   return const Center(
@@ -535,9 +535,9 @@ class _CategoriesDashboardUnitsTabState
                   itemBuilder: (context, index) {
                     final unit = filtered[index];
                     return ListTile(
-                      title: Text(unit.unitName),
-                      subtitle: Text(unit.unitType.fullUnitName),
-                      trailing: Text(
+                      title: fluent.Text(unit.unitName),
+                      subtitle: fluent.Text(unit.unitType.fullUnitName),
+                      trailing: fluent.Text(
                         'أبعاد: ${unit.length}×${unit.width}×${unit.thickness}',
                       ),
                     );

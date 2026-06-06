@@ -8,21 +8,21 @@ import '../bloc/auth/auth_event.dart';
 import '../bloc/auth/auth_state.dart';
 import '../widgets/user_card.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show CommandBar, CommandBarButton, FluentIcons, PageHeader, ProgressRing, ScaffoldPage;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class UsersManagementPage extends StatelessWidget {
   const UsersManagementPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldPage(
-      header: PageHeader(
-        title: const Text('إدارة المستخدمين'),
-        commandBar: CommandBar(
+    return fluent.ScaffoldPage(
+      header: fluent.PageHeader(
+        title: const fluent.Text('إدارة المستخدمين'),
+        commandBar: fluent.CommandBar(
           mainAxisAlignment: MainAxisAlignment.end,
           primaryItems: [
-            CommandBarButton(
-              icon: const Icon(FluentIcons.add),
-              label: const Text('إضافة مستخدم'),
+            fluent.CommandBarButton(
+              icon: const Icon(fluent.FluentIcons.add),
+              label: const fluent.Text('إضافة مستخدم'),
               onPressed: () {
                 final newUser = ProgramUserEntity(
                   id: 0,
@@ -42,11 +42,11 @@ class UsersManagementPage extends StatelessWidget {
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             if (state.status == AuthStatus.loading) {
-              return const Center(child: ProgressRing());
+              return const Center(child: fluent.ProgressRing());
             }
             if (state.status == AuthStatus.failure) {
               return Center(
-                child: Text(state.errorMessage ?? 'Failed to load users'),
+                child: fluent.Text(state.errorMessage ?? 'Failed to load users'),
               );
             }
             if (state.users.isEmpty) {

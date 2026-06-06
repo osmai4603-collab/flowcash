@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/core/theme/styles.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class SubcategoriesPage extends StatefulWidget {
   final MainCategoryEntity mainCategory;
 
@@ -46,24 +46,24 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             final names = state.generatedCategoryNames!;
             await showDialog<void>(
               context: context,
-              builder: (ctx) => ContentDialog(
-                title: Text(names.isEmpty ? 'نتيجة التوليد' : 'الأصناف المولدة'),
+              builder: (ctx) => fluent.ContentDialog(
+                title: fluent.Text(names.isEmpty ? 'نتيجة التوليد' : 'الأصناف المولدة'),
                 content: SizedBox(
                   width: 400,
                   child: names.isEmpty
-                      ? const Text('لا يوجد اصناف تم توليدها')
+                      ? const fluent.Text('لا يوجد اصناف تم توليدها')
                       : SingleChildScrollView(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
-                            children: names.map((n) => Text('• $n')).toList(),
+                            children: names.map((n) => fluent.Text('• $n')).toList(),
                           ),
                         ),
                 ),
                 actions: [
-                  TextButton(
+                  fluent.Button(
                     onPressed: () => Navigator.of(ctx).pop(),
-                    child: const Text('حسناً'),
+                    child: const fluent.Text('حسناً'),
                   ),
                 ],
               ),
@@ -83,7 +83,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(child: Text(widget.mainCategory.name)),
+                Expanded(child: fluent.Text(widget.mainCategory.name)),
                 SizedBox(
                   height: 40.0,
                   width: isDesktop ? 400.0 : 250.0,
@@ -96,7 +96,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                             context,
                           ).secondary.withValues(alpha: 0.25),
                         ),
-                        leading: const Icon(FluentIcons.search,
+                        leading: const Icon(fluent.FluentIcons.search,
                           color: Colors.white70,
                         ),
                         hintText: 'ابحث عن نوع صنف هنا',
@@ -125,7 +125,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                     child: Row(
                       children: [
                         IconButton(
-                          icon: const Icon(FluentIcons.add, color: Colors.white),
+                          icon: const Icon(fluent.FluentIcons.add, color: Colors.white),
                           tooltip: 'اضافة نوع صنف جديد',
                           onPressed: () async {
                             final catalog = await showDialog<SubcategoryEntity>(
@@ -154,11 +154,11 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             child: BlocBuilder<SubcategoriesBloc, SubcategoriesState>(
               builder: (context, state) {
                 if (state is SubcategoriesLoadInProgress) {
-                  return const Center(child: ProgressRing());
+                  return const Center(child: fluent.ProgressRing());
                 }
                 if (state is SubcategoriesLoadFailure) {
                   return Center(
-                    child: Text(state.message),
+                    child: fluent.Text(state.message),
                   );
                 }
                 if (state is SubcategoriesLoadSuccess) {
@@ -298,7 +298,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                     InkWell(
                       child: Tooltip(
                         message: 'تعريف اصناف ${catalog.catalogName}',
-                        child: Icon(FluentIcons.generate,
+                        child: Icon(fluent.FluentIcons.generate,
                           color: colors.primary,
                           size: 20,
                         ),
@@ -350,7 +350,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     );
     if (propertyInfos.isEmpty) {
       return InkWell(
-        child: const Icon(FluentIcons.add),
+        child: const Icon(fluent.FluentIcons.add),
         onTap: () => _onAddPropertyInfo(context, catalog, property),
       );
     }
@@ -382,7 +382,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             message:
                 'انواع ${property.propertyName} ${catalog.catalogName}\n$values',
             child: IconButton(
-              icon: const Icon(FluentIcons.info, size: 20),
+              icon: const Icon(fluent.FluentIcons.info, size: 20),
               onPressed: () => successMessage(
                 context: context,
                 title: '${property.propertyName} (${catalog.catalogName})',
@@ -401,7 +401,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
           InkWell(
             child: Tooltip(
               message: 'اضافة ${property.propertyName} جديد',
-              child: Icon(FluentIcons.add, size: isDesktop ? 20 : 16.00),
+              child: Icon(fluent.FluentIcons.add, size: isDesktop ? 20 : 16.00),
             ),
             onTap: () => _onAddPropertyInfo(context, catalog, property),
           ),

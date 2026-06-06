@@ -6,8 +6,7 @@ import 'package:flowcash/features/currencies/domain/entities/exchange_price_enti
 import 'package:flowcash/features/system/presentation/bloc/exchange_rates/exchange_rates_cubit.dart';
 import 'package:flowcash/features/system/presentation/pages/exchange_rates/exchange_price_form_page.dart';
 
-import 'package:fluent_ui/fluent_ui.dart'
-    show InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ExchangeRatesPage extends StatelessWidget {
@@ -21,7 +20,7 @@ class ExchangeRatesPage extends StatelessWidget {
 
     if (items.isEmpty) {
       return Center(
-        child: Text('لا يوجد أسعار صرف', style: textTheme.bodyLarge),
+        child: fluent.Text('لا يوجد أسعار صرف', style: textTheme.bodyLarge),
       );
     }
 
@@ -54,11 +53,11 @@ class ExchangeRatesPage extends StatelessWidget {
                         ExchangePriceFormPage(initialValue: item),
                   );
                   if (didUpdate == true && context.mounted) {
-                    displayInfoBar(
+                    fluent.displayInfoBar(
                       context,
-                      builder: (context, close) => InfoBar(
-                        title: const Text('تنبيه'),
-                        content: Text('تم تحديث سعر الصرف'),
+                      builder: (context, close) => fluent.InfoBar(
+                        title: const fluent.Text('تنبيه'),
+                        content: fluent.Text('تم تحديث سعر الصرف'),
                       ),
                     );
                     context.read<ExchangeRatesBloc>().add(
@@ -104,7 +103,7 @@ class ExchangeRatesPage extends StatelessWidget {
       alignment: Alignment.center,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(color: colors.surfaceContainerHigh),
-      child: Text(
+      child: fluent.Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium?.copyWith(
@@ -120,20 +119,20 @@ class ExchangeRatesPage extends StatelessWidget {
     return BlocBuilder<ExchangeRatesBloc, ExchangeRatesState>(
       builder: (context, state) {
         if (state is ExchangeRatesLoading) {
-          return const Center(child: ProgressRing());
+          return const Center(child: fluent.ProgressRing());
         }
         if (state is ExchangeRatesFailure) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(state.errorMessage),
+                fluent.Text(state.errorMessage),
                 const SizedBox(height: 8),
-                ElevatedButton(
+                fluent.FilledButton(
                   onPressed: () => context.read<ExchangeRatesBloc>().add(
                     LoadExchangeRatesEvent(),
                   ),
-                  child: const Text('إعادة المحاولة'),
+                  child: const fluent.Text('إعادة المحاولة'),
                 ),
               ],
             ),
@@ -195,7 +194,7 @@ class ExchangeRatesDataGridSource extends DataGridSource {
         return Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(4.0),
-          child: Text(
+          child: fluent.Text(
             dataGridCell.value.toString(),
             overflow: TextOverflow.ellipsis,
             style: textTheme.bodyMedium,

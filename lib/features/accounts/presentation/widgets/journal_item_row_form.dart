@@ -3,7 +3,7 @@ import 'package:flowcash/widgets/combo_box_form.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_simple_entity.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/journal_entry_form/journal_entry_form_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class JournalItemRowForm extends StatefulWidget {
   final int index;
   final JournalItemDraft draft;
@@ -94,11 +94,14 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
             flex: 4,
             child: ComboBoxForm<SubAccountSimpleEntity>(
               controller: _accountController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'ابحث عن الحساب الفرعي...',
                 
-                prefixIcon: Icon(FluentIcons.search),
-                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: fluent.Icon(fluent.FluentIcons.search),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               ),
               labelMenu: (opt) => '${opt.accountName} (${opt.accountNumber})',
               labelString: (opt) => opt.accountName,
@@ -124,11 +127,14 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
                     controller: _debitController,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     textDirection: TextDirection.ltr,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: '0.00',
                       
-                      prefixIcon: Icon(FluentIcons.chevron_down),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: fluent.Icon(fluent.FluentIcons.chevron_down),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       labelText: 'مدين',
                     ),
                     autovalidateMode: AutovalidateMode.always,
@@ -142,11 +148,14 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
                     controller: _creditController,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     textDirection: TextDirection.ltr,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: '0.00',
                       
-                      prefixIcon: Icon(FluentIcons.chevron_up),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: fluent.Icon(fluent.FluentIcons.chevron_up),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       labelText: 'دائن',
                     ),
                     autovalidateMode: AutovalidateMode.always,
@@ -164,11 +173,14 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
             flex: 4,
             child: TextFormField(
               controller: _descController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'البيان التفصيلي للبند...',
                 
-                prefixIcon: Icon(FluentIcons.note_pinned),
-                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: fluent.Icon(fluent.FluentIcons.note_pinned),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               ),
               onChanged: (val) {
                 widget.onChanged(lineDescription: val);
@@ -179,7 +191,7 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
 
           // 5. Delete Button
           IconButton(
-            icon: const Icon(FluentIcons.delete, color: Colors.red),
+            icon: const fluent.Icon(fluent.FluentIcons.delete, color: Colors.red),
             onPressed: widget.canDelete ? widget.onDelete : null,
           ),
         ],

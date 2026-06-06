@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flowcash/core/enums/category_type_enum.dart';
+import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
@@ -13,7 +14,8 @@ import 'package:flowcash/features/categories/presentation/blocs/category_form/ca
 import 'package:flowcash/widgets/message.dart';
 import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class CategoryFormPage extends StatelessWidget {
   final CategoryEntity? category;
   const CategoryFormPage({super.key, this.category});
@@ -109,79 +111,79 @@ class _CategoryFormPageState extends State<_CategoryForm> {
           if (didPop) return;
           _onBackPressed();
         },
-        child: ContentDialog(
+        child: fluent.ContentDialog(
           constraints: BoxConstraints(
             maxWidth: isDesktop ? 500.0 : double.infinity,
           ),
+          title: Row(
+            children: [
+              IconButton(
+                icon: Icon(fluent.FluentIcons.back_to_window),
+                tooltip: 'رجوع',
+                onPressed: _onBackPressed,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: fluent.Text(
+                    'بيانات الصنف',
+                    textAlign: TextAlign.center,
+                    style: textTheme.titleMedium,
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: Icon(fluent.FluentIcons.save),
+                tooltip: 'حفظ البيانات',
+                onPressed: () => _onSaveButtonClicked(context),
+              ),
+            ],
+          ),
           content: SingleChildScrollView(
-            child: Padding(
-              padding: Spacings.mediumPadding,
-              child: BlocBuilder<CategoryFormBloc, CategoryFormState>(
-                builder: (context, state) {
-                  if (state.status == CategoryFormStatus.initial ||
-                      state.status == CategoryFormStatus.saving) {
-                    return AppShimmer(
-                      child: Column(
-                        spacing: Spacings.medium,
-                        children: [
-                          ShimmerPlaceholder(height: 50),
-                          ShimmerPlaceholder(),
-                          Row(
-                            spacing: Spacings.medium,
-                            children: [
-                              Expanded(child: ShimmerPlaceholder()),
-                              Expanded(child: ShimmerPlaceholder()),
-                            ],
-                          ),
-                          Row(
-                            spacing: Spacings.medium,
-                            children: [
-                              Expanded(child: ShimmerPlaceholder()),
-                              Expanded(child: ShimmerPlaceholder()),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  }
+            child: BlocBuilder<CategoryFormBloc, CategoryFormState>(
+              builder: (context, state) {
+                if (state.status == CategoryFormStatus.initial ||
+                    state.status == CategoryFormStatus.saving) {
+                  return AppShimmer(
+                    child: Column(
+                      spacing: Spacings.medium,
+                      children: [
+                        ShimmerPlaceholder(height: 50),
+                        ShimmerPlaceholder(),
+                        Row(
+                          spacing: Spacings.medium,
+                          children: [
+                            Expanded(child: ShimmerPlaceholder()),
+                            Expanded(child: ShimmerPlaceholder()),
+                          ],
+                        ),
+                        Row(
+                          spacing: Spacings.medium,
+                          children: [
+                            Expanded(child: ShimmerPlaceholder()),
+                            Expanded(child: ShimmerPlaceholder()),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }
 
-                  return ShimmerLoadingWidget(
-                    canShimmer:
-                        state.status == CategoryFormStatus.saving ||
-                        state.status == CategoryFormStatus.initial,
-                    freezeScreen: state.status == CategoryFormStatus.saving,
-                    period: const Duration(milliseconds: 900),
-                    child: Form(
-                      key: _formKey,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      child: Column(
-                        spacing: Spacings.medium,
-                        children: [
-                          Row(
-                            children: [
-                              IconButton(
-                                icon: Icon(FluentIcons.back),
-                                tooltip: 'رجوع',
-                                onPressed: _onBackPressed,
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'بيانات الصنف',
-                                    textAlign: TextAlign.center,
-                                    style: textTheme.titleMedium,
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(FluentIcons.save),
-                                tooltip: 'حفظ البيانات',
-                                onPressed: () => _onSaveButtonClicked(context),
-                              ),
-                            ],
-                          ),
-                          TextFormField(
+                return ShimmerLoadingWidget(
+                  canShimmer:
+                      state.status == CategoryFormStatus.saving ||
+                      state.status == CategoryFormStatus.initial,
+                  freezeScreen: state.status == CategoryFormStatus.saving,
+                  period: const Duration(milliseconds: 900),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: Column(
+                      spacing: Spacings.medium,
+                      children: [
+                        fluent.InfoLabel(
+                          label: 'اسم الصنف',
+                          child: fluent.TextFormBox(
                             textInputAction: TextInputAction.next,
                             initialValue: state.categoryName,
                             style: textTheme.bodyLarge,
@@ -189,17 +191,22 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                             cursorHeight: 20.0,
                             onChanged: _onCategoryNameChanged,
                             validator: categoryNameValidator,
-                            decoration: InputDecoration(
-                              hintText: 'ادخل اسم الصنف',
-                              labelText: 'اسم الصنف',
-                              prefixIcon: Icon(FluentIcons.category_classification),
+                            placeholder: 'ادخل اسم الصنف',
+
+                            prefix: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(fluent.FluentIcons.category_classification),
                             ),
                           ),
-                          Row(
-                            spacing: Spacings.medium,
-                            children: [
-                              Expanded(
-                                child: TextFormField(
+                        ),
+                        Row(
+                          spacing: Spacings.medium,
+                          children: [
+                            Expanded(
+                              child: fluent.InfoLabel(
+                                label: 'رقم الصنف',
+                                child: fluent.TextFormBox(
+                                  placeholder: 'رقم الصنف',
                                   readOnly: true,
                                   textInputAction: TextInputAction.next,
                                   initialValue: state.categoryNumber,
@@ -207,27 +214,30 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   cursorHeight: 20.0,
                                   textDirection: .ltr,
                                   validator: categoryNumberValidator,
-                                  decoration: InputDecoration(
-                                    hintText: 'رقم الصنف',
-                                    hintStyle: textTheme.labelLarge?.copyWith(
-                                      color: colors.onSurfaceVariant,
-                                    ),
-                                    label: Text(
-                                      'رقم الصنف',
-                                      style: textTheme.labelLarge,
-                                    ),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(FluentIcons.refresh,
-                                        color: colors.primary,
-                                      ),
-                                      tooltip: 'تحديث رقم الصنف',
+                                  suffix: Tooltip(
+                                    message: 'تحديث رقم الصنف',
+                                    child: IconButton(
+                                      iconSize: 20,
                                       onPressed: _generateCategoryNumber,
+                                      icon: Icon(
+                                        fluent.FluentIcons.refresh,
+                                        color: colors.onSurfaceVariant,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                              Expanded(
-                                child: TextFormField(
+                            ),
+                            Expanded(
+                              child: fluent.InfoLabel(
+                                label: 'الباركود',
+                                child: fluent.TextFormBox(
+                                  placeholder: 'ادخل رمز الباركود',
+                                  prefix: IconButton(
+                                    icon: Icon(fluent.FluentIcons.q_r_code),
+                                    tooltip: 'قراء ماسح الباركود',
+                                    onPressed: _scanBarcode,
+                                  ),
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.number,
                                   textDirection: TextDirection.ltr,
@@ -240,70 +250,52 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   ],
                                   onChanged: onBarcodeChanged,
                                   validator: barcodeValidator,
-                                  decoration: InputDecoration(
-                                    hintText: 'ادخل رمز الباركود',
-                                    hintStyle: textTheme.titleSmall?.copyWith(
-                                      color: colors.onSurfaceVariant,
-                                    ),
-                                    labelText: 'الباركود',
-                                    prefixIcon: IconButton(
-                                      icon: Icon(FluentIcons.q_r_code),
-                                      tooltip: 'قراء ماسح الباركود',
-                                      onPressed: _scanBarcode,
-                                    ),
-                                  ),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
 
-                          if (!state.hasRequests)
-                            Row(
-                              spacing: Spacings.medium,
-                              children: [
-                                Expanded(
+                        if (!state.hasRequests)
+                          Row(
+                            spacing: Spacings.medium,
+                            children: [
+                              Expanded(
+                                child: fluent.InfoLabel(
+                                  label: 'الوحدة',
                                   child: Tooltip(
                                     message:
                                         'نوع وحدة الصنف: ${state.selectedUnit?.unitType.fullUnitName ?? 'غير محدد'}',
-                                    child: DropdownButtonFormField<UnitEntity>(
-                                      initialValue: state.selectedUnit,
-                                      disabledHint: Text(
+                                    child: fluent.ComboBox<UnitEntity>(
+                                      value: state.selectedUnit,
+                                      disabledPlaceholder: fluent.Text(
                                         'لا يوجد وحدات معرفة',
                                         style: textTheme.labelMedium,
                                       ),
-                                      hint: Text(
+                                      placeholder: fluent.Text(
                                         'حدد وحدة الصنف',
                                         style: textTheme.labelMedium,
                                       ),
                                       isExpanded: true,
-                                      icon: Icon(FluentIcons.chevron_down,
+                                      icon: Icon(
+                                        fluent.FluentIcons.chevron_down,
                                         color: colors.onSurfaceVariant,
                                       ),
-                                      decoration: InputDecoration(
-                                        prefixIcon: Icon(FluentIcons.unite_shape),
-                                        label: Text(
-                                          'الوحدة',
-                                          style: textTheme.labelLarge,
-                                        ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 12.0,
-                                            ),
-                                      ),
+
                                       style: textTheme.bodyLarge,
                                       items: state.units.map((unit) {
-                                        return DropdownMenuItem<UnitEntity>(
+                                        return fluent.  ComboBoxItem<UnitEntity>(
                                           value: unit,
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(
+                                              fluent.Text(
                                                 unit.unitType.fullUnitName,
                                                 style: textTheme.bodyLarge,
                                               ),
                                               const SizedBox(width: 10),
-                                              Text(
+                                              fluent.Text(
                                                 unit.unitType.symbolUnit,
                                                 style: textTheme.bodyMedium
                                                     ?.copyWith(
@@ -321,7 +313,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                             return Align(
                                               alignment: AlignmentDirectional
                                                   .centerStart,
-                                              child: Text(
+                                              child: fluent.Text(
                                                 unit.unitType.fullUnitName,
                                                 style: textTheme.bodyLarge,
                                               ),
@@ -330,57 +322,47 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                     ),
                                   ),
                                 ),
-                                Expanded(
-                                  child:
-                                      DropdownButtonFormField<
-                                        CategoryDefineType
-                                      >(
-                                        initialValue:
-                                            state.selectedCategoryType,
-                                        decoration: InputDecoration(
-                                          prefixIcon: Icon(FluentIcons.type_script_language),
-                                          label: Text(
-                                            'النوع',
-                                            style: textTheme.labelLarge,
-                                          ),
+                              ),
+                              Expanded(
+                                child: fluent.InfoLabel(
+                                  label: 'النوع',
+                                  child:  fluent.ComboBox<CategoryDefineType>(
+                                    value: state.selectedCategoryType,
+
+                                    isExpanded: true,
+                                    icon: Icon(
+                                      fluent.FluentIcons.chevron_down,
+                                      color: colors.onSurfaceVariant,
+                                    ),
+                                    style: textTheme.bodyLarge,
+                                    items: CategoryDefineType.values.map((
+                                      categoryType,
+                                    ) {
+                                      return fluent.  ComboBoxItem<CategoryDefineType>(
+                                        value: categoryType,
+                                        child: fluent.Text(
+                                          categoryType.displayName(),
+                                          style: textTheme.titleSmall,
                                         ),
-                                        isExpanded: true,
-                                        icon: Icon(FluentIcons.chevron_down,
-                                          color: colors.onSurfaceVariant,
-                                        ),
-                                        style: textTheme.bodyLarge,
-                                        items: CategoryDefineType.values.map((
-                                          categoryType,
-                                        ) {
-                                          return DropdownMenuItem<
-                                            CategoryDefineType
-                                          >(
-                                            value: categoryType,
-                                            child: Text(
-                                              categoryType.displayName(),
-                                              style: textTheme.titleSmall,
-                                            ),
-                                          );
-                                        }).toList(),
-                                        onChanged: (belongGroup) {
-                                          if (belongGroup == null) return;
-                                          context.read<CategoryFormBloc>().add(
-                                            ChangeCategoryTypeEvent(
-                                              belongGroup,
-                                            ),
-                                          );
-                                          _markChanged();
-                                        },
-                                      ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (belongGroup) {
+                                      if (belongGroup == null) return;
+                                      context.read<CategoryFormBloc>().add(
+                                        ChangeCategoryTypeEvent(belongGroup),
+                                      );
+                                      _markChanged();
+                                    },
+                                  ),
                                 ),
-                              ],
-                            ),
-                        ],
-                      ),
+                              ),
+                            ],
+                          ),
+                      ],
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ),
         ),

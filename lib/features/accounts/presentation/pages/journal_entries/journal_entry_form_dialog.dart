@@ -17,7 +17,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/journal_entry_form
 // Widgets
 import 'package:flowcash/features/accounts/presentation/widgets/journal_item_row_form.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class JournalEntryFormDialog extends StatefulWidget {
   final JournalEntryEntity? entry;
 
@@ -88,7 +88,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
           }
           if (state.errorMessage != null &&
               state.errorMessage!.isNotEmpty && state.status == JournalEntryFormStatus.failure) {
-            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
+              fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(state.errorMessage!)));
           }
           if (state.editingEntry != null && _descController.text.isEmpty) {
             _descController.text = state.description;
@@ -103,15 +103,15 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
           if (state.status == JournalEntryFormStatus.loading &&
               state.editingEntry != null &&
               state.items.isEmpty) {
-            return ContentDialog(
+            return fluent.ContentDialog(
               title: Row(
                 children: [
                   Icon(
-                    isEditing ? FluentIcons.edit_note : FluentIcons.task_add,
+                    isEditing ? fluent.FluentIcons.edit_note : fluent.FluentIcons.task_add,
                     color: theme.colorScheme.primary,
                   ),
                   const SizedBox(width: 10),
-                  Text(
+                  fluent.Text(
                     isEditing ? 'جاري تحميل القيد' : 'جاري إعداد القيد',
                   ),
                 ],
@@ -135,13 +135,13 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                 ),
               ),
               actions: [
-                TextButton(onPressed: null, child: const Text('إلغاء')),
-                ElevatedButton(
+                fluent.Button(onPressed: null, child: const fluent.Text('إلغاء')),
+                fluent.FilledButton(
                   onPressed: null,
                     child: const SizedBox(
                     height: 20,
                     width: 20,
-                    child: ProgressRing(
+                    child: fluent.ProgressRing(
                       strokeWidth: 2,
                       activeColor: Colors.white,
                     ),
@@ -155,15 +155,15 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
             canShimmer: state.status == JournalEntryFormStatus.loading,
             freezeScreen: state.status == JournalEntryFormStatus.loading,
             period: const Duration(milliseconds: 900),
-            child: ContentDialog(
+            child: fluent.ContentDialog(
             title: Row(
                 children: [
                 Icon(
-                  isEditing ? FluentIcons.edit_note : FluentIcons.task_add,
+                  isEditing ? fluent.FluentIcons.edit_note : fluent.FluentIcons.task_add,
                   color: theme.colorScheme.primary,
                 ),
                 const SizedBox(width: 10),
-                Text(
+                fluent.Text(
                   isEditing ? 'تعديل قيد يومية' : 'إنشاء قيد يومية جديد',
                 ),
               ],
@@ -184,7 +184,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                           decoration: const InputDecoration(
                             labelText: 'البيان العام للقيد',
                             
-                            prefixIcon: Icon(FluentIcons.note_pinned),
+                            prefixIcon: Icon(fluent.FluentIcons.note_pinned),
                           ),
                           onChanged: (val) =>
                               bloc.add(JournalEntryDescriptionChanged(val)),
@@ -202,10 +202,10 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                             decoration: const InputDecoration(
                               labelText: 'التاريخ',
                               
-                              prefixIcon: Icon(FluentIcons.calendar_settings,
+                              prefixIcon: Icon(fluent.FluentIcons.calendar_settings,
                               ),
                             ),
-                            child: Text(
+                            child: fluent.Text(
                               formattedDate,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w500,
@@ -224,20 +224,20 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                           decoration: const InputDecoration(
                             labelText: 'العملة',
                             
-                            prefixIcon: Icon(FluentIcons.money),
+                            prefixIcon: Icon(fluent.FluentIcons.money),
                           ),
                           items: const [
                             DropdownMenuItem(
                               value: '1',
-                              child: Text('ريال يمني'),
+                              child: fluent.Text('ريال يمني'),
                             ),
                             DropdownMenuItem(
                               value: '2',
-                              child: Text('ريال سعودي'),
+                              child: fluent.Text('ريال سعودي'),
                             ),
                             DropdownMenuItem(
                               value: '3',
-                              child: Text('دولار أمريكي'),
+                              child: fluent.Text('دولار أمريكي'),
                             ),
                           ],
                           onChanged: (currId) {
@@ -268,7 +268,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                           decoration: const InputDecoration(
                             labelText: 'سعر الصرف',
                             
-                            prefixIcon: Icon(FluentIcons.money),
+                            prefixIcon: Icon(fluent.FluentIcons.money),
                           ),
                           onChanged: (val) {
                             final rate = double.tryParse(val) ?? 1.0;
@@ -300,18 +300,17 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        const fluent.Text(
                           'المدينون',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        TextButton.icon(
+                        fluent.FilledButton(
                           onPressed: () => bloc.add(
                             const AddJournalItemField(
                               JournalItemSide.debit,
                             ),
                           ),
-                          icon: const Icon(FluentIcons.add),
-                          label: const Text('إضافة بند مدين'),
+                          child: const fluent.Text('إضافة بند مدين'),
                         ),
                       ],
                     ),
@@ -392,21 +391,21 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                               mainAxisAlignment:
                                   MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
+                                const fluent.Text(
                                   'الدائنون',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                TextButton.icon(
+                                fluent.FilledButton(
                                   onPressed: () => bloc.add(
                                     const AddJournalItemField(
                                       JournalItemSide.credit,
                                     ),
                                   ),
-                                  icon: const Icon(FluentIcons.add,
-                                  ),
-                                  label: const Text('إضافة بند دائن'),
+                                  // icon: const Icon(fluent.FluentIcons.add,
+                                  // ),
+                                  child: const fluent.Text('إضافة بند دائن'),
                                 ),
                               ],
                             ),
@@ -487,14 +486,14 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                           children: [
                             Icon(
                               state.isBalanced
-                                ? FluentIcons.skype_circle_check
-                                : FluentIcons.warning,
+                                ? fluent.FluentIcons.skype_circle_check
+                                : fluent.FluentIcons.warning,
                               color: state.isBalanced
                                 ? Colors.green
                                 : Colors.orange,
                             ),
                             const SizedBox(width: 8),
-                            Text(
+                            fluent.Text(
                               state.isBalanced
                                   ? 'القيد متزن'
                                   : 'القيد غير متزن',
@@ -511,7 +510,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                         // Totals summary display
                         Row(
                           children: [
-                            Text(
+                            fluent.Text(
                               'إجمالي المدين: ${state.totalDebit.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -519,7 +518,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                               ),
                             ),
                             const SizedBox(width: 24),
-                            Text(
+                            fluent.Text(
                               'إجمالي الدائن: ${state.totalCredit.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -528,7 +527,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                             ),
                             if (!state.isBalanced) ...[
                               const SizedBox(width: 24),
-                              Text(
+                              fluent.Text(
                                 'الفرق: ${state.difference.toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -545,30 +544,27 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
               ),
             ),
             actions: [
-              TextButton(
+              fluent.Button(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('إلغاء'),
+                child: const fluent.Text('إلغاء'),
               ),
-              ElevatedButton(
+              fluent.FilledButton(
                 onPressed:
                     state.status == JournalEntryFormStatus.loading ||
                         !state.isBalanced
                     ? null
                     : () => bloc.add(const SubmitJournalEntryForm()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: theme.colorScheme.onPrimary,
-                ),
+                
                         child: state.status == JournalEntryFormStatus.loading
                     ? const SizedBox(
                         height: 20,
                         width: 20,
-                        child: ProgressRing(
+                        child: fluent.ProgressRing(
                           strokeWidth: 2,
                           activeColor: Colors.white,
                         ),
                       )
-                    : const Text('حفظ القيد'),
+                    : const fluent.Text('حفظ القيد'),
               ),
             ],
             ),

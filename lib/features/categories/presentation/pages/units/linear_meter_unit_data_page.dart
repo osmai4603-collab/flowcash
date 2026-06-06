@@ -17,7 +17,7 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class LinearMeterUnitDataPage extends StatefulWidget {
   final CategoryPropertyEntity property;
   final UnitEntity? unit;
@@ -119,7 +119,7 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
             if (didPop) return;
             _onBackPressed();
           },
-          child: ContentDialog(
+          child: fluent.ContentDialog(
             constraints: const BoxConstraints(maxWidth: 400),
             content: Padding(
               padding: Paddings.mediumAll,
@@ -230,7 +230,7 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
                                 items: measuresUnits.map((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
-                                    child: Text(
+                                    child: fluent.Text(
                                       value,
                                       style: Styles.titleMedium,
                                     ),

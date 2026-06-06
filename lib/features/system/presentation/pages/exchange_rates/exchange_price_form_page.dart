@@ -5,7 +5,7 @@ import 'package:flowcash/features/currencies/domain/entities/exchange_price_enti
 import 'package:flowcash/features/currencies/domain/usecases/exchange_price_repository_usecases.dart';
 import 'package:flowcash/features/system/presentation/bloc/exchange_rates/exchange_price_form_bloc.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class ExchangePriceFormPage extends StatefulWidget {
   const ExchangePriceFormPage({super.key, this.initialValue});
 
@@ -51,8 +51,8 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
             Navigator.of(context).pop(state.savedEntity);
           }
         },
-        child: ContentDialog(
-          title: Text(widget.initialValue == null ? 'إضافة سعر صرف' : 'تعديل سعر صرف'),
+        child: fluent.ContentDialog(
+          title: fluent.Text(widget.initialValue == null ? 'إضافة سعر صرف' : 'تعديل سعر صرف'),
           
           content: BlocBuilder<ExchangePriceFormBloc, ExchangePriceFormState>(
             builder: (context, state) {
@@ -62,63 +62,72 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    TextFormField(
-                      controller: _fromCurrencyController,
-                      decoration: const InputDecoration(
-                        labelText: 'من العملة',
-                        prefixIcon: Icon(Icons.arrow_back),
+                    fluent.InfoLabel(
+                      label: 'من العملة',
+                      child: fluent.TextFormBox(
+                        controller: _fromCurrencyController,
+                        prefix: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.arrow_back),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'الرجاء إدخال رمز العملة المرسلة';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) => context.read<ExchangePriceFormBloc>().add(
+                              ExchangePriceFromCurrencyChanged(value),
+                            ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'الرجاء إدخال رمز العملة المرسلة';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) => context.read<ExchangePriceFormBloc>().add(
-                            ExchangePriceFromCurrencyChanged(value),
-                          ),
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _toCurrencyController,
-                      decoration: const InputDecoration(
-                        labelText: 'إلى العملة',
-                        prefixIcon: Icon(Icons.arrow_forward),
+                    fluent.InfoLabel(
+                      label: 'إلى العملة',
+                      child: fluent.TextFormBox(
+                        controller: _toCurrencyController,
+                        prefix: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.arrow_forward),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'الرجاء إدخال رمز العملة المستقبلة';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) => context.read<ExchangePriceFormBloc>().add(
+                              ExchangePriceToCurrencyChanged(value),
+                            ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'الرجاء إدخال رمز العملة المستقبلة';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) => context.read<ExchangePriceFormBloc>().add(
-                            ExchangePriceToCurrencyChanged(value),
-                          ),
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _priceController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(
-                        labelText: 'سعر الصرف',
-                        prefixIcon: Icon(Icons.receipt_long),
+                    fluent.InfoLabel(
+                      label: 'سعر الصرف',
+                      child: fluent.TextFormBox(
+                        controller: _priceController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        prefix: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.receipt_long),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'الرجاء إدخال سعر الصرف';
+                          }
+                          if (double.tryParse(value.trim()) == null) {
+                            return 'الرجاء إدخال قيمة رقمية';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) => context.read<ExchangePriceFormBloc>().add(
+                              ExchangePriceValueChanged(value),
+                            ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'الرجاء إدخال سعر الصرف';
-                        }
-                        if (double.tryParse(value.trim()) == null) {
-                          return 'الرجاء إدخال قيمة رقمية';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) => context.read<ExchangePriceFormBloc>().add(
-                            ExchangePriceValueChanged(value),
-                          ),
                     ),
                     if (state.errorMessage != null) ...[
                       const SizedBox(height: 12),
-                      Text(
+                      fluent.Text(
                         state.errorMessage!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.error,
@@ -131,11 +140,11 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
             },
           ),
           actions: [
-            TextButton(
+            fluent.Button(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('إلغاء'),
+              child: const fluent.Text('إلغاء'),
             ),
-            FilledButton(
+            fluent.FilledButton(
               onPressed: () {
                 if (!_formKey.currentState!.validate()) return;
                 context.read<ExchangePriceFormBloc>().add(const ExchangePriceFormSubmitted());
@@ -146,9 +155,9 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
                       ? const SizedBox(
                           height: 18,
                           width: 18,
-                          child: ProgressRing(strokeWidth: 2),
+                          child: fluent.ProgressRing(strokeWidth: 2),
                         )
-                      : const Text('حفظ');
+                      : const fluent.Text('حفظ');
                 },
               ),
             ),

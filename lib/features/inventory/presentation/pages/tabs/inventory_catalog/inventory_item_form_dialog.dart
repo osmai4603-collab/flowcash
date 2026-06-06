@@ -17,7 +17,7 @@ import 'package:flowcash/widgets/combo_box_form.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/sub_account_repository_usecases.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class InventoryItemFormDialog extends StatefulWidget {
   final InventoryEntity? item;
 
@@ -57,14 +57,13 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
             a.subAccountType.mainAccountType == MainAccountType.servicesRevenues)
         .toList();
   }
-
-  List<SubAccountEntity> get _expenseSubAccounts {
+    List<SubAccountEntity> get _expenseSubAccounts {
     return _subAccounts
-        .where((a) => a.subAccountType.mainAccountType == MainAccountType.costOfSales ||
-            a.subAccountType.mainAccountType == MainAccountType.buys || 
-            a.subAccountType.mainAccountType == MainAccountType.buysReturn)
-        .toList();
-  }
+      .where((a) => a.subAccountType.mainAccountType == MainAccountType.costOfSales ||
+        a.subAccountType.mainAccountType == MainAccountType.buys || 
+        a.subAccountType.mainAccountType == MainAccountType.buysReturn)
+      .toList();
+    }
 
   // Loaded data lists
   List<CategoryEntity> _categories = [];
@@ -157,8 +156,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
             _selectedWarehouse = _warehouses.first;
           }
 
-          _isLoadingData = false;
-        });
+                        });
       }
     } catch (e) {
       if (mounted) {
@@ -176,15 +174,25 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
     super.dispose();
   }
 
+  Widget _buildResponsiveFieldRow({required Widget first, Widget? second}) {
+    return Row(
+      children: [
+        Expanded(child: first),
+        const SizedBox(width: 12),
+        Expanded(child: second ?? const SizedBox.shrink()),
+      ],
+    );
+  }
+
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategory == null || _selectedWarehouse == null) {
-      displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('الرجاء اختيار الصنف والمستودع')));
+      fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('الرجاء اختيار الصنف والمستودع')));
       return;
     }
 
     final countUnits = double.tryParse(_countUnitsController.text) ?? 1.0;
-
+                        
     final resultItem = InventoryItemEntity(
       id: _isEdit ? widget.item!.id : 0,
       categoryId: _selectedCategory!.id,
@@ -201,41 +209,12 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
     Navigator.of(context).pop(resultItem);
   }
 
-  Widget _buildResponsiveFieldRow({
-    required Widget first,
-    required Widget second,
-    double spacing = 16,
-  }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth < 480) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              first,
-              SizedBox(height: spacing),
-              second,
-            ],
-          );
-        }
-
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: first),
-            SizedBox(width: spacing),
-            Expanded(child: second),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return ContentDialog(
+    return fluent.ContentDialog(
       constraints: BoxConstraints(
         maxWidth: 600,
         maxHeight: MediaQuery.of(context).size.height * 0.85,
@@ -256,16 +235,15 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Title
           Row(
             children: [
               Icon(
-                _isEdit ? FluentIcons.edit_note : FluentIcons.add,
+                _isEdit ? fluent.FluentIcons.edit_note : fluent.FluentIcons.add,
                 color: theme.colorScheme.primary,
                 size: 28,
               ),
               const SizedBox(width: 10),
-              Text(
+              fluent.Text(
                 _isEdit ? 'تعديل بيانات صنف المخزون' : 'إضافة صنف جديد للمخزون',
                 style: const TextStyle(
                   fontSize: 20,
@@ -275,7 +253,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
               const Spacer(),
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(FluentIcons.chrome_close),
+                icon: const fluent.Icon(fluent.FluentIcons.chrome_close),
               ),
             ],
           ),
@@ -294,67 +272,77 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                     children: [
                       Expanded(
                         flex: 4,
-                        child: ComboBoxForm<CategoryEntity>(
-                          controller: _categoryController,
-                          decoration: const InputDecoration(
-                            labelText: 'الصنف الأساسي',
-                            prefixIcon: Icon(FluentIcons.category_classification),
-                          ),
-                          labelMenu: (category) => category.categoryName,
-                          labelString: (category) => category.categoryName,
-                          itemsBuilder: (value) {
-                            final search = value.trim().toLowerCase();
-                            return _categories.where((category) {
-                              return category.categoryName
-                                  .toLowerCase()
-                                  .contains(search);
-                            }).toList();
-                          },
-                          onSelectedItem: (category) {
-                            setState(() {
-                              _selectedCategory = category;
-                            });
-                          },
-                          onChanged: (value) {
-                            if (_selectedCategory != null &&
-                                _selectedCategory!.categoryName != value) {
+                        child: fluent.InfoLabel(
+                          label: 'الصنف الأساسي',
+                          child: ComboBoxForm<CategoryEntity>(
+                            controller: _categoryController,
+                            decoration: InputDecoration(
+                              labelText: 'الصنف الأساسي',
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: fluent.Icon(fluent.FluentIcons.category_classification),
+                              ),
+                            ),
+                            labelMenu: (category) => category.categoryName,
+                            labelString: (category) => category.categoryName,
+                            itemsBuilder: (value) {
+                              final search = value.trim().toLowerCase();
+                              return _categories.where((category) {
+                                return category.categoryName
+                                    .toLowerCase()
+                                    .contains(search);
+                              }).toList();
+                            },
+                            onSelectedItem: (category) {
                               setState(() {
-                                _selectedCategory = null;
+                                _selectedCategory = category;
                               });
-                            }
-                          },
-                          validator: (_) => _selectedCategory == null
-                              ? 'مطلوب اختيار الصنف'
-                              : null,
+                            },
+                            onChanged: (value) {
+                              if (_selectedCategory != null &&
+                                  _selectedCategory!.categoryName != value) {
+                                setState(() {
+                                  _selectedCategory = null;
+                                });
+                              }
+                            },
+                            validator: (_) => _selectedCategory == null
+                                ? 'مطلوب اختيار الصنف'
+                                : null,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         flex: 2,
-                        child: TextFormField(
-                          autovalidateMode: AutovalidateMode.always,
-                          textDirection: TextDirection.ltr,
-                          controller: _countUnitsController,
-                          decoration: InputDecoration(
-                            labelText: 'عدد الوحدات الافتراضية',
-                            prefixIcon: const Icon(FluentIcons.numbered_list_number),
-                            suffixIcon: Text(
-                              _selectedCategory?.categoryUnit?.unitName ??
-                                  'وحدة',
+                        child: fluent.InfoLabel(
+                          label: 'عدد الوحدات الافتراضية',
+                          child: fluent.TextFormBox(
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            textDirection: TextDirection.ltr,
+                            controller: _countUnitsController,
+                            
+                            prefix: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: fluent.Icon(fluent.FluentIcons.numbered_list_number),
                             ),
+                            suffix: fluent.Text(
+                              _selectedCategory?.categoryUnit?.unitName ?? 'وحدة',
+                            ),
+                            suffixMode: fluent.OverlayVisibilityMode.always,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            validator: (val) {
+                              if (val == null || val.isEmpty) {
+                                return 'مطلوب';
+                              }
+                              if (double.tryParse(val) == null) {
+                                return 'قيمة غير صالحة';
+                              }
+                              return null;
+                            },
                           ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          validator: (val) {
-                            if (val == null || val.isEmpty) {
-                              return 'مطلوب';
-                            }
-                            if (double.tryParse(val) == null) {
-                              return 'قيمة غير صالحة';
-                            }
-                            return null;
-                          },
                         ),
                       ),
                     ],
@@ -363,28 +351,56 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                   // 2. Warehouse & Count Units Row (costType removed)
                   _buildResponsiveFieldRow(
                     second: const SizedBox.shrink(),
-                    first: DropdownButtonFormField<int>(
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'المستودع/المخزن',
-                        prefixIcon: Icon(FluentIcons.store_logo16),
-                      ),
+                    first: FormField<int>(
+                      key: ValueKey(_selectedWarehouse?.id),
                       initialValue: _selectedWarehouse?.id,
-                      items: _warehouses.map((w) {
-                        return DropdownMenuItem<int>(
-                          value: w.id,
-                          child: Text(w.warehouseName),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) =>
+                          value == null ? 'مطلوب اختيار المستودع' : null,
+                      builder: (field) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            fluent.InfoLabel(
+                              label: 'المستودع/المخزن',
+                              child: fluent.ComboBox<int>(
+                                value: _selectedWarehouse?.id,
+                                placeholder: const fluent.Text('اختر المستودع'),
+                                isExpanded: true,
+                                icon: const fluent.Icon(
+                                  fluent.FluentIcons.chevron_down,
+                                ),
+                                items: _warehouses.map((w) {
+                                  return fluent.ComboBoxItem<int>(
+                                    value: w.id,
+                                    child: fluent.Text(w.warehouseName),
+                                  );
+                                }).toList(),
+                                onChanged: (val) {
+                                  setState(() {
+                                    _selectedWarehouse = val == null
+                                        ? null
+                                        : _warehouses.firstWhere(
+                                            (w) => w.id == val);
+                                    field.didChange(val);
+                                  });
+                                },
+                              ),
+                            ),
+                            if (field.hasError)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: fluent.Text(
+                                  field.errorText!,
+                                  style: TextStyle(
+                                    color: theme.colorScheme.error,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
                         );
-                      }).toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          _selectedWarehouse = val == null
-                              ? null
-                              : _warehouses.firstWhere((w) => w.id == val);
-                        });
                       },
-                      validator: (val) =>
-                          val == null ? 'مطلوب اختيار المستودع' : null,
                     ),
                   ),
 
@@ -392,14 +408,14 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      const fluent.Text(
                         'الحسابات المالية المرتبطة بالمخزون',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Text(
+                      const fluent.Text(
                         'اختر الحسابات المالية الدفترية المناسبة لتوجيه حركات المخزون تلقائياً:',
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
@@ -408,108 +424,152 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
 
                   // 3. Accounts Selection Grid
                   _buildResponsiveFieldRow(
-                    first: DropdownButtonFormField<int>(
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'حساب الإيرادات',
-
-                        prefixIcon: Icon(FluentIcons.triangle_up12),
-                      ),
+                    first: FormField<int>(
+                      key: ValueKey(_selectedRevenueAccount?.id),
                       initialValue: _selectedRevenueAccount?.id,
-                      items: _revenueSubAccounts.map((a) {
-                        return DropdownMenuItem<int>(
-                          value: a.id,
-                          child: Text('${a.accountName} (${a.accountNumber})'),
+                      builder: (field) {
+                        return fluent.InfoLabel(
+                          label: 'حساب الإيرادات',
+                          child: fluent.ComboBox<int>(
+                            value: _selectedRevenueAccount?.id,
+                            placeholder:
+                                const fluent.Text('اختر حساب الإيرادات'),
+                            disabledPlaceholder:
+                                const fluent.Text('لا يوجد حسابات متاحة'),
+                            isExpanded: true,
+                            icon: const fluent.Icon(
+                              fluent.FluentIcons.chevron_down,
+                            ),
+                            items: _revenueSubAccounts.map((a) {
+                              return fluent.ComboBoxItem<int>(
+                                value: a.id,
+                                child: fluent.Text('${a.accountName} (${a.accountNumber})'),
+                              );
+                            }).toList(),
+                            onChanged: _revenueSubAccounts.isEmpty
+                                ? null
+                                : (val) => setState(() {
+                                    _selectedRevenueAccount = val == null
+                                        ? null
+                                        : _revenueSubAccounts.firstWhere(
+                                            (a) => a.id == val,
+                                          );
+                                    field.didChange(val);
+                                  }),
+                          ),
                         );
-                      }).toList(),
-                      onChanged: _revenueSubAccounts.isEmpty
-                          ? null
-                          : (val) => setState(() {
-                              _selectedRevenueAccount = val == null
-                                  ? null
-                                  : _revenueSubAccounts.firstWhere(
-                                      (a) => a.id == val,
-                                    );
-                            }),
-                      disabledHint: const Text('لا يوجد حسابات متاحة'),
+                      },
                     ),
-                    second: DropdownButtonFormField<int>(
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'حساب المصروفات',
-
-                        prefixIcon: Icon(FluentIcons.triangle_down12),
-                      ),
+                    second: FormField<int>(
+                      key: ValueKey(_selectedExpenseAccount?.id),
                       initialValue: _selectedExpenseAccount?.id,
-                      items: _expenseSubAccounts.map((a) {
-                        return DropdownMenuItem<int>(
-                          value: a.id,
-                          child: Text('${a.accountName} (${a.accountNumber})'),
+                      builder: (field) {
+                        return fluent.InfoLabel(
+                          label: 'حساب المصروفات',
+                          child: fluent.ComboBox<int>(
+                            value: _selectedExpenseAccount?.id,
+                            placeholder:
+                                const fluent.Text('اختر حساب المصروفات'),
+                            disabledPlaceholder:
+                                const fluent.Text('لا يوجد حسابات متاحة'),
+                            isExpanded: true,
+                            icon: const fluent.Icon(
+                              fluent.FluentIcons.chevron_down,
+                            ),
+                            items: _expenseSubAccounts.map((a) {
+                              return fluent.ComboBoxItem<int>(
+                                value: a.id,
+                                child: fluent.Text('${a.accountName} (${a.accountNumber})'),
+                              );
+                            }).toList(),
+                            onChanged: _expenseSubAccounts.isEmpty
+                                ? null
+                                : (val) => setState(() {
+                                    _selectedExpenseAccount = val == null
+                                        ? null
+                                        : _expenseSubAccounts.firstWhere(
+                                            (a) => a.id == val,
+                                          );
+                                    field.didChange(val);
+                                  }),
+                          ),
                         );
-                      }).toList(),
-                      onChanged: _expenseSubAccounts.isEmpty
-                          ? null
-                          : (val) => setState(() {
-                              _selectedExpenseAccount = val == null
-                                  ? null
-                                  : _expenseSubAccounts.firstWhere(
-                                      (a) => a.id == val,
-                                    );
-                            }),
-                      disabledHint: const Text('لا يوجد حسابات متاحة'),
+                      },
                     ),
                   ),
 
                   _buildResponsiveFieldRow(
-                    first: DropdownButtonFormField<int>(
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'حساب مخزون الوارد',
-
-                        prefixIcon: Icon(FluentIcons.move_to_folder),
-                      ),
+                    first: FormField<int>(
+                      key: ValueKey(_selectedIncomeStock?.id),
                       initialValue: _selectedIncomeStock?.id,
-                      items: _inventorySubAccounts.map((a) {
-                        return DropdownMenuItem<int>(
-                          value: a.id,
-                          child: Text('${a.accountName} (${a.accountNumber})'),
+                      builder: (field) {
+                        return fluent.InfoLabel(
+                          label: 'حساب مخزون الوارد',
+                          child: fluent.ComboBox<int>(
+                            value: _selectedIncomeStock?.id,
+                            placeholder:
+                                const fluent.Text('اختر حساب مخزون الوارد'),
+                            disabledPlaceholder:
+                                const fluent.Text('لا يوجد حسابات متاحة'),
+                            isExpanded: true,
+                            icon: const fluent.Icon(
+                              fluent.FluentIcons.chevron_down,
+                            ),
+                            items: _inventorySubAccounts.map((a) {
+                              return fluent.ComboBoxItem<int>(
+                                value: a.id,
+                                child: fluent.Text('${a.accountName} (${a.accountNumber})'),
+                              );
+                            }).toList(),
+                            onChanged: _inventorySubAccounts.isEmpty
+                                ? null
+                                : (val) => setState(() {
+                                    _selectedIncomeStock = val == null
+                                        ? null
+                                        : _inventorySubAccounts.firstWhere(
+                                            (a) => a.id == val,
+                                          );
+                                    field.didChange(val);
+                                  }),
+                          ),
                         );
-                      }).toList(),
-                      onChanged: _inventorySubAccounts.isEmpty
-                          ? null
-                          : (val) => setState(() {
-                              _selectedIncomeStock = val == null
-                                  ? null
-                                  : _inventorySubAccounts.firstWhere(
-                                      (a) => a.id == val,
-                                    );
-                            }),
-                      disabledHint: const Text('لا يوجد حسابات متاحة'),
+                      },
                     ),
-                    second: DropdownButtonFormField<int>(
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'حساب مخزون الصادر',
-
-                        prefixIcon: Icon(FluentIcons.toolbox),
-                      ),
+                    second: FormField<int>(
+                      key: ValueKey(_selectedOutcomeStock?.id),
                       initialValue: _selectedOutcomeStock?.id,
-                      items: _inventorySubAccounts.map((a) {
-                        return DropdownMenuItem<int>(
-                          value: a.id,
-                          child: Text('${a.accountName} (${a.accountNumber})'),
+                      builder: (field) {
+                        return fluent.InfoLabel(
+                          label: 'حساب مخزون الصارد',
+                          child: fluent.ComboBox<int>(
+                            value: _selectedOutcomeStock?.id,
+                            placeholder:
+                                const fluent.Text('اختر حساب مخزون الصادر'),
+                            disabledPlaceholder:
+                                const fluent.Text('لا يوجد حسابات متاحة'),
+                            isExpanded: true,
+                            icon: const fluent.Icon(
+                              fluent.FluentIcons.chevron_down,
+                            ),
+                            items: _inventorySubAccounts.map((a) {
+                              return fluent.ComboBoxItem<int>(
+                                value: a.id,
+                                child: fluent.Text('${a.accountName} (${a.accountNumber})'),
+                              );
+                            }).toList(),
+                            onChanged: _inventorySubAccounts.isEmpty
+                                ? null
+                                : (val) => setState(() {
+                                    _selectedOutcomeStock = val == null
+                                        ? null
+                                        : _inventorySubAccounts.firstWhere(
+                                            (a) => a.id == val,
+                                          );
+                                    field.didChange(val);
+                                  }),
+                          ),
                         );
-                      }).toList(),
-                      onChanged: _inventorySubAccounts.isEmpty
-                          ? null
-                          : (val) => setState(() {
-                              _selectedOutcomeStock = val == null
-                                  ? null
-                                  : _inventorySubAccounts.firstWhere(
-                                      (a) => a.id == val,
-                                    );
-                            }),
-                      disabledHint: const Text('لا يوجد حسابات متاحة'),
+                      },
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -523,9 +583,9 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextButton(
+              fluent.Button(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('إلغاء'),
+                child: const fluent.Text('إلغاء'),
               ),
               const SizedBox(width: 12),
               ElevatedButton.icon(
@@ -539,8 +599,8 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                icon: const Icon(FluentIcons.save),
-                label: Text(_isEdit ? 'حفظ التعديلات' : 'إضافة الصنف'),
+                icon: fluent.Icon(fluent.FluentIcons.save),
+                label: fluent.Text(_isEdit ? 'حفظ التعديلات' : 'إضافة الصنف'),
               ),
             ],
           ),

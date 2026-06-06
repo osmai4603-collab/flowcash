@@ -9,7 +9,7 @@ import 'package:flowcash/features/inventory/presentation/blocs/goods_cost/goods_
 
 import 'goods_cost_form_dialog.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class GoodsCostPage extends StatefulWidget {
   const GoodsCostPage({super.key});
 
@@ -42,14 +42,14 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
       child: BlocConsumer<GoodsCostBloc, GoodsCostState>(
         listener: (context, state) {
           if (state.status == GoodsCostStatus.error && state.errorMessage != null) {
-            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
+            fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(state.errorMessage!)));
           }
         },
         builder: (context, state) {
           final bloc = context.read<GoodsCostBloc>();
 
           if (state.status == GoodsCostStatus.loading) {
-            return const Center(child: ProgressRing());
+            return const Center(child: fluent.ProgressRing());
           }
 
           // Apply client filters
@@ -80,7 +80,7 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'البحث برقم السند أو البيان... 🔍',
-                              prefixIcon: const Icon(FluentIcons.search),
+                              prefixIcon: const Icon(fluent.FluentIcons.search),
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                             ),
@@ -97,16 +97,16 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
                                   menuChildren: [
                                     MenuItemButton(
                                       onPressed: () => setState(() => _filterWarehouseId = null),
-                                      child: const Text('كل المخازن 🏢'),
+                                      child: const fluent.Text('كل المخازن 🏢'),
                                     ),
                                     ...state.warehouses.map(
                                       (w) => MenuItemButton(
                                         onPressed: () => setState(() => _filterWarehouseId = w.id),
-                                        child: Text(w.warehouseName),
+                                        child: fluent.Text(w.warehouseName),
                                       ),
                                     ),
                                   ],
-                                  child: Text(
+                                  child: fluent.Text(
                                     _filterWarehouseId == null
                                         ? 'كل المخازن 🏢'
                                         : state.warehouses.where((w) => w.id == _filterWarehouseId).isEmpty
@@ -134,8 +134,8 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                           ),
-                          icon: const Icon(FluentIcons.add),
-                          label: const Text('تسجيل تكلفة', style: TextStyle(fontWeight: FontWeight.bold)),
+                          icon: const Icon(fluent.FluentIcons.add),
+                          label: const fluent.Text('تسجيل تكلفة', style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -150,13 +150,13 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
                       ),
                       child: const Row(
                         children: [
-                          Expanded(child: Text('رقم السند 🧾', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(child: Text('المستودع الرئيسي 🏢', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(child: Text('مبلغ التكلفة 💰', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(child: Text('العملة 💱', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(child: Text('تاريخ الإصدار 📅', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 2, child: Text('البيان والملاحظات 📝', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(child: Text('الإجراءات ⚙️', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(child: fluent.Text('رقم السند 🧾', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(child: fluent.Text('المستودع الرئيسي 🏢', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(child: fluent.Text('مبلغ التكلفة 💰', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(child: fluent.Text('العملة 💱', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(child: fluent.Text('تاريخ الإصدار 📅', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 2, child: fluent.Text('البيان والملاحظات 📝', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(child: fluent.Text('الإجراءات ⚙️', style: TextStyle(fontWeight: FontWeight.bold))),
                         ],
                       ),
                     ),
@@ -166,7 +166,7 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
                     Expanded(
                       child: filteredCosts.isEmpty
                           ? const Center(
-                              child: Text(
+                              child: fluent.Text(
                                 'لا توجد قيود تكاليف بضائع مسجلة ⚠️',
                                 style: TextStyle(fontSize: 16, color: Colors.grey),
                               ),
@@ -187,56 +187,52 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
                                     child: Row(
                                       children: [
                                         Expanded(
-                                          child: Text(
+                                          child: fluent.Text(
                                             '#${cost.billNumber}',
                                             style: const TextStyle(fontWeight: FontWeight.bold),
                                           ),
                                         ),
                                         Expanded(
-                                          child: Text(_getWarehouseName(cost.warehouseId, state.warehouses)),
+                                          child: fluent.Text(_getWarehouseName(cost.warehouseId, state.warehouses)),
                                         ),
                                         Expanded(
-                                          child: Text(
+                                          child: fluent.Text(
                                             '${cost.offerAmount.toStringAsFixed(2)}',
                                             style: const TextStyle(fontWeight: FontWeight.bold),
                                           ),
                                         ),
                                         Expanded(
-                                          child: Text(cost.currencyId),
+                                          child: fluent.Text(cost.currencyId),
                                         ),
                                         Expanded(
-                                          child: Text(_formatDate(cost.createdAt)),
+                                          child: fluent.Text(_formatDate(cost.createdAt)),
                                         ),
                                         Expanded(
                                           flex: 2,
-                                          child: Text(cost.note ?? '──', maxLines: 1, overflow: TextOverflow.ellipsis),
+                                          child: fluent.Text(cost.note ?? '──', maxLines: 1, overflow: TextOverflow.ellipsis),
                                         ),
                                         Expanded(
                                           child: Align(
                                             alignment: Alignment.centerRight,
                                             child: IconButton(
-                                              icon: const Icon(FluentIcons.delete, color: Colors.red),
+                                              icon: const Icon(fluent.FluentIcons.delete, color: Colors.red),
                                               onPressed: () {
                                                 showDialog(
                                                   context: context,
-                                                  builder: (context) => ContentDialog(
-                                                    title: const Text('حذف قيد التكلفة ⚠️'),
-                                                    content: const Text('هل أنت متأكد من رغبتك في حذف قيد تكلفة البضاعة هذا؟'),
+                                                  builder: (context) => fluent.ContentDialog(
+                                                    title: const fluent.Text('حذف قيد التكلفة ⚠️'),
+                                                    content: const fluent.Text('هل أنت متأكد من رغبتك في حذف قيد تكلفة البضاعة هذا؟'),
                                                     actions: [
-                                                      TextButton(
+                                                      fluent.Button(
                                                         onPressed: () => Navigator.pop(context),
-                                                        child: const Text('إلغاء'),
+                                                        child: const fluent.Text('إلغاء'),
                                                       ),
-                                                      ElevatedButton(
+                                                      fluent.FilledButton(
                                                         onPressed: () {
                                                           bloc.add(DeleteGoodsCostEvent(cost.id));
                                                           Navigator.pop(context);
                                                         },
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor: theme.colorScheme.error,
-                                                          foregroundColor: theme.colorScheme.onError,
-                                                        ),
-                                                        child: const Text('تأكيد الحذف'),
+                                                        child: const fluent.Text('تأكيد الحذف'),
                                                       ),
                                                     ],
                                                   ),
@@ -264,8 +260,8 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('إجمالي تكاليف البضاعة المباعة الكلي:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text(
+                          const fluent.Text('إجمالي تكاليف البضاعة المباعة الكلي:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          fluent.Text(
                             '${grandTotalCost.toStringAsFixed(2)} SAR',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,

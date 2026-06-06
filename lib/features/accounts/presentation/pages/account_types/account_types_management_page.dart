@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Tab;
 import 'package:flowcash/core/enums/main_account_type_enum.dart';
 import 'package:flowcash/core/enums/sub_account_type_enum.dart';
-import 'package:fluent_ui/fluent_ui.dart' show CloseButtonVisibilityMode, ScaffoldPage, Tab, TabView;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class AccountTypesManagementPage extends StatefulWidget {
   const AccountTypesManagementPage({super.key});
@@ -26,19 +26,19 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldPage(
+    return fluent.ScaffoldPage(
       padding: EdgeInsets.zero,
-      content: TabView(
+      content: fluent.TabView(
         currentIndex: _currentIndex,
         onChanged: (index) => setState(() => _currentIndex = index),
-        closeButtonVisibility: CloseButtonVisibilityMode.never,
+        closeButtonVisibility: fluent.CloseButtonVisibilityMode.never,
         tabs: [
-          Tab(
-            text: const Text('أنواع الحسابات الرئيسية (Main Account Types)'),
+          fluent.Tab(
+            text: const fluent.Text('أنواع الحسابات الرئيسية (Main Account Types)'),
             body: _buildMainTypesTable(context),
           ),
-          Tab(
-            text: const Text('أنواع الحسابات الفرعية (Sub Account Types)'),
+          fluent.Tab(
+            text: const fluent.Text('أنواع الحسابات الفرعية (Sub Account Types)'),
             body: _buildSubTypesTable(context),
           ),
         ],
@@ -57,7 +57,7 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
         children: [
           const Padding(
             padding: EdgeInsets.only(bottom: 12.0),
-            child: Text(
+            child: fluent.Text(
               'أنواع الحسابات الرئيسية المرجعية المحددة في النظام (للعرض فقط)',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
@@ -79,12 +79,12 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                       color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
                       child: Row(
                         children: const [
-                          Expanded(flex: 2, child: Text('رقم النوع', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 4, child: Text('الاسم المعروض', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 3, child: Text('المجموعة', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 2, child: Text('حالة الزيادة', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 2, child: Text('حالة النقصان', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 3, child: Text('نوع الفترة', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 2, child: fluent.Text('رقم النوع', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 4, child: fluent.Text('الاسم المعروض', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 3, child: fluent.Text('المجموعة', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 2, child: fluent.Text('حالة الزيادة', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 2, child: fluent.Text('حالة النقصان', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 3, child: fluent.Text('نوع الفترة', style: TextStyle(fontWeight: FontWeight.bold))),
                         ],
                       ),
                     ),
@@ -106,7 +106,7 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                           children: [
                             Expanded(
                               flex: 2,
-                              child: Text(
+                              child: fluent.Text(
                                 type.accountNumber,
                                 style: const TextStyle(
                                   fontFamily: 'monospace',
@@ -114,31 +114,31 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                                 ),
                               ),
                             ),
-                            Expanded(flex: 4, child: Text(type.displayName())),
+                            Expanded(flex: 4, child: fluent.Text(type.displayName())),
                             Expanded(
                               flex: 3,
                               child: Chip(
-                                label: Text(type.accountType.displayName(), style: const TextStyle(fontSize: 12)),
+                                label: fluent.Text(type.accountType.displayName(), style: const TextStyle(fontSize: 12)),
                                 backgroundColor: theme.colorScheme.primaryContainer.withAlpha(50),
                               ),
                             ),
                             Expanded(
                               flex: 2,
-                              child: Text(
+                              child: fluent.Text(
                                 type.incrementName,
                                 style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
                               ),
                             ),
                             Expanded(
                               flex: 2,
-                              child: Text(
+                              child: fluent.Text(
                                 type.decrementName,
                                 style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                               ),
                             ),
                             Expanded(
                               flex: 3,
-                              child: Text(
+                              child: fluent.Text(
                                 type.isPeriodPermanent ? 'دائمة (Permanent)' : 'مؤقتة (Temporary)',
                                 style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(150)),
                               ),
@@ -168,7 +168,7 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
         children: [
           const Padding(
             padding: EdgeInsets.only(bottom: 12.0),
-            child: Text(
+            child: fluent.Text(
               'أنواع الحسابات الفرعية المرجعية المحددة في النظام (للعرض فقط)',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
@@ -190,11 +190,11 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                       color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
                       child: Row(
                         children: const [
-                          Expanded(flex: 4, child: Text('الاسم المفرد', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 4, child: Text('الاسم الجمع', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 4, child: Text('الحساب الرئيسي الأب', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 3, child: Text('نوع الشخص', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 2, child: Text('نوع الحساب', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 4, child: fluent.Text('الاسم المفرد', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 4, child: fluent.Text('الاسم الجمع', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 4, child: fluent.Text('الحساب الرئيسي الأب', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 3, child: fluent.Text('نوع الشخص', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(flex: 2, child: fluent.Text('نوع الحساب', style: TextStyle(fontWeight: FontWeight.bold))),
                         ],
                       ),
                     ),
@@ -214,12 +214,12 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                         ),
                         child: Row(
                           children: [
-                            Expanded(flex: 4, child: Text(type.accountName)),
-                            Expanded(flex: 4, child: Text(type.totalName)),
-                            Expanded(flex: 4, child: Text(type.mainAccountType.displayName())),
+                            Expanded(flex: 4, child: fluent.Text(type.accountName)),
+                            Expanded(flex: 4, child: fluent.Text(type.totalName)),
+                            Expanded(flex: 4, child: fluent.Text(type.mainAccountType.displayName())),
                             Expanded(
                               flex: 3,
-                              child: Text(
+                              child: fluent.Text(
                                 type.personType.name,
                                 style: const TextStyle(fontFamily: 'monospace'),
                               ),
@@ -227,7 +227,7 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                             Expanded(
                               flex: 2,
                               child: Chip(
-                                label: Text(
+                                label: fluent.Text(
                                   type.isDefault ? 'افتراضي' : 'مخصص',
                                   style: TextStyle(
                                     fontSize: 11,

@@ -8,7 +8,7 @@ import 'package:flowcash/features/inventory/presentation/blocs/stocktaking/stock
 import 'package:flowcash/features/inventory/presentation/blocs/stocktaking/stocktaking_event.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/stocktaking/stocktaking_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class StocktakingPage extends StatefulWidget {
   const StocktakingPage({super.key});
 
@@ -72,14 +72,14 @@ class _StocktakingPageState extends State<StocktakingPage> {
         listener: (context, state) {
           if (state.status == StocktakingStatus.error &&
               state.errorMessage != null) {
-            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
+            fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(state.errorMessage!)));
           }
         },
         builder: (context, state) {
           final bloc = context.read<StocktakingBloc>();
 
           if (state.status == StocktakingStatus.loading || _isLoadingMetaData) {
-            return const Center(child: ProgressRing());
+            return const Center(child: fluent.ProgressRing());
           }
 
           // Apply client filters
@@ -130,7 +130,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'البحث باسم صنف المخزون... 🔍',
-                              prefixIcon: const Icon(FluentIcons.search),
+                              prefixIcon: const Icon(fluent.FluentIcons.search),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -152,16 +152,16 @@ class _StocktakingPageState extends State<StocktakingPage> {
                                   menuChildren: [
                                     MenuItemButton(
                                       onPressed: () => setState(() => _filterWarehouseId = null),
-                                      child: const Text('كل المخازن 🏢'),
+                                      child: const fluent.Text('كل المخازن 🏢'),
                                     ),
                                     ...state.warehouses.map(
                                       (w) => MenuItemButton(
                                         onPressed: () => setState(() => _filterWarehouseId = w.id),
-                                        child: Text(w.warehouseName),
+                                        child: fluent.Text(w.warehouseName),
                                       ),
                                     ),
                                   ],
-                                  child: Text(
+                                  child: fluent.Text(
                                     _filterWarehouseId == null
                                         ? 'كل المخازن 🏢'
                                         : state.warehouses.where((w) => w.id == _filterWarehouseId).isEmpty
@@ -184,8 +184,8 @@ class _StocktakingPageState extends State<StocktakingPage> {
                               vertical: 14,
                             ),
                           ),
-                          icon: const Icon(FluentIcons.sync),
-                          label: const Text('إعادة تحميل القياسات'),
+                          icon: const Icon(fluent.FluentIcons.sync),
+                          label: const fluent.Text('إعادة تحميل القياسات'),
                         ),
                       ],
                     ),
@@ -205,37 +205,37 @@ class _StocktakingPageState extends State<StocktakingPage> {
                         children: [
                           Expanded(
                             flex: 2,
-                            child: Text(
+                            child: fluent.Text(
                               'اسم صنف المخزون 📦',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                           Expanded(
-                            child: Text(
+                            child: fluent.Text(
                               'المستودع الرئيسي 🏢',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                           Expanded(
-                            child: Text(
+                            child: fluent.Text(
                               'الكمية الدفترية 📘',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                           Expanded(
-                            child: Text(
+                            child: fluent.Text(
                               'الكمية الفعلية ✏️',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                           Expanded(
-                            child: Text(
+                            child: fluent.Text(
                               'الفارق الحسابي 🔢',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                           Expanded(
-                            child: Text(
+                            child: fluent.Text(
                               'الحالة 💡',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
@@ -249,7 +249,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
                     Expanded(
                       child: filteredItems.isEmpty
                           ? const Center(
-                              child: Text(
+                              child: fluent.Text(
                                 'لا توجد أصناف مخزنية جارية ⚠️',
                                 style: TextStyle(
                                   fontSize: 16,
@@ -298,7 +298,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
                                         // Category Name
                                         Expanded(
                                           flex: 2,
-                                          child: Text(
+                                          child: fluent.Text(
                                             _getInventoryName(item.categoryId),
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -308,7 +308,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
 
                                         // Warehouse
                                         Expanded(
-                                          child: Text(
+                                          child: fluent.Text(
                                             _getWarehouseName(
                                               item.storeId,
                                               state.warehouses,
@@ -318,7 +318,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
 
                                         // Book count
                                         Expanded(
-                                          child: Text(
+                                          child: fluent.Text(
                                             book.toString(),
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -363,7 +363,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
 
                                         // Difference
                                         Expanded(
-                                          child: Text(
+                                          child: fluent.Text(
                                             diff == 0
                                                 ? '0.0'
                                                 : (diff > 0
@@ -378,7 +378,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
 
                                         // Status
                                         Expanded(
-                                          child: Text(
+                                          child: fluent.Text(
                                             statusLabel,
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -437,7 +437,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
   Widget _buildStatSummary(String label, int val, Color color) {
     return Column(
       children: [
-        Text(
+        fluent.Text(
           label,
           style: const TextStyle(
             fontWeight: FontWeight.w600,
@@ -446,7 +446,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
+        fluent.Text(
           val.toString(),
           style: TextStyle(
             fontWeight: FontWeight.bold,

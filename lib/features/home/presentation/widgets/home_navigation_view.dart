@@ -1,3 +1,4 @@
+import 'package:flowcash/core/theme/radiuses.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/navigation_state.dart';
@@ -10,9 +11,12 @@ class HomeNavigationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavigationView(
-      titleBar: const TitleBar(
-        title: Text('نظام التدفق المالي'),
-        isBackButtonVisible: false,
+      // titleBar: const TitleBar(
+      //   title: Text('نظام التدفق المالي'),
+      //   isBackButtonVisible: false,
+      // ),
+      contentShape: RoundedRectangleBorder(
+        borderRadius: Radiuses.none,
       ),
       pane: NavigationPane(
         selected: navigationShell.currentIndex,

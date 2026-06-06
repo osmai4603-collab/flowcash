@@ -1,8 +1,10 @@
+import 'package:flowcash/core/theme/paddings.dart';
+import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
- import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 // Enums
 import 'package:flowcash/core/enums/main_account_group_enum.dart';
@@ -16,7 +18,6 @@ import 'package:flowcash/features/accounts/presentation/blocs/main_account_form/
 import 'package:flowcash/features/accounts/presentation/blocs/main_account_form/main_account_form_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/main_account_form/main_account_form_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, InfoBar, ProgressRing, displayInfoBar;
 class MainAccountFormDialog extends StatefulWidget {
   final MainAccountEntity? mainAccount;
 
@@ -27,6 +28,7 @@ class MainAccountFormDialog extends StatefulWidget {
 }
 
 class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
+  final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
 
   @override
@@ -37,7 +39,6 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
 
   @override
   Widget build(BuildContext context) {
-
     final theme = Theme.of(context);
     return BlocProvider(
       create: (context) =>
@@ -49,7 +50,13 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
             Navigator.of(context).pop(true);
           }
           if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
-            displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(state.errorMessage!)));
+            fluent.displayInfoBar(
+              context,
+              builder: (context, close) => fluent.InfoBar(
+                title: const fluent.Text('تنبيه'),
+                content: fluent.Text(state.errorMessage!),
+              ),
+            );
           }
           if (state.editingAccount != null && _nameController.text.isEmpty) {
             _nameController.text = state.accountName;
@@ -60,15 +67,21 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
           final isEditing = state.editingAccount != null;
 
           if (state.status == MainAccountFormStatus.loading) {
-            return ContentDialog(
+            return fluent.ContentDialog(
               title: Row(
                 children: [
-                      Icon(
-                        isEditing ? FluentIcons.edit_note : FluentIcons.add_work,
+                  fluent.Icon(
+                    isEditing
+                        ? fluent.FluentIcons.edit_note
+                        : fluent.FluentIcons.add_work,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(width: 10),
-                  Text(isEditing ? 'جاري تحميل نموذج الحساب' : 'جاري إنشاء نموذج الحساب'),
+                  fluent.Text(
+                    isEditing
+                        ? 'جاري تحميل نموذج الحساب'
+                        : 'جاري إنشاء نموذج الحساب',
+                  ),
                 ],
               ),
               content: AppShimmer(
@@ -90,15 +103,15 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                 ),
               ),
               actions: [
-                TextButton(onPressed: null, child: const Text('إلغاء')),
-                ElevatedButton(
+                fluent.Button(onPressed: null, child: const fluent.Text('إلغاء')),
+                fluent.FilledButton(
                   onPressed: null,
                   child: const SizedBox(
                     height: 20,
                     width: 20,
-                    child: ProgressRing(
+                    child: fluent.ProgressRing(
                       strokeWidth: 2,
-                          activeColor: Colors.white,
+                      activeColor: Colors.white,
                     ),
                   ),
                 ),
@@ -110,175 +123,336 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
             canShimmer: state.status == MainAccountFormStatus.loading,
             freezeScreen: state.status == MainAccountFormStatus.loading,
             period: const Duration(milliseconds: 900),
-            child: ContentDialog(
+            child: fluent.ContentDialog(
               title: Row(
                 children: [
-                Icon(
-                  isEditing ? FluentIcons.edit_note : FluentIcons.add_work,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(width: 10),
-                Text(isEditing ? 'تعديل حساب رئيسي' : 'إضافة حساب رئيسي جديد'),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: SizedBox(
-                width: 450,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Account Name
-                    TextField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'اسم الحساب الرئيسي',
-                        
-                        prefixIcon: Icon(FluentIcons.important),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // MainAccountGroup
-                    DropdownButtonFormField<MainAccountGroup>(
-                      initialValue: state.selectedGroup,
-                      decoration: const InputDecoration(
-                        labelText: 'مجموعة الحساب العامة',
-                        prefixIcon: Icon(FluentIcons.folder_open),
-                      ),
-                      // Disable changing group if editing to preserve account number hierarchy
-                      items: isEditing
-                          ? null
-                          : MainAccountGroup.values.map((group) {
-                              return DropdownMenuItem(
-                                value: group,
-                                child: Text(group.displayName()),
-                              );
-                            }).toList(),
-                      onChanged: isEditing
-                          ? null
-                          : (group) {
-                              if (group != null) {
-                                bloc.add(MainAccountGroupChanged(group));
+                  fluent.Icon(
+                    isEditing
+                        ? fluent.FluentIcons.edit_note
+                        : fluent.FluentIcons.add_work,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 10),
+                  fluent.Text(
+                    isEditing ? 'تعديل حساب رئيسي' : 'إضافة حساب رئيسي جديد',
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: SizedBox(
+                  width: 450,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      spacing: Spacings.medium,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Account Name
+                        fluent.InfoLabel(
+                          label: 'اسم الحساب الرئيسي',
+                          child: fluent.TextFormBox(
+                            placeholder: 'ادخل اسم الحساب الرئيسي',
+                            controller: _nameController,
+                            prefix: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8.0),
+                              child: fluent.Icon(
+                                fluent.FluentIcons.account_activity,
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'الرجاء إدخال اسم الحساب الرئيسي';
                               }
+                              return null;
                             },
-                    ),
-                    const SizedBox(height: 16),
-
-                    DropdownButtonFormField<MainAccountType>(
-                      initialValue: state.selectedType,
-                      decoration: const InputDecoration(
-                        labelText: 'نوع الحساب الرئيسي',
-                        
-                        prefixIcon: Icon(FluentIcons.account_management),
-                      ),
-                      items: state.selectedGroup == null
-                          ? []
-                          : MainAccountType.whereMainAccount(
-                              state.selectedGroup!,
-                            ).map((type) {
-                              return DropdownMenuItem(
-                                value: type,
-                                child: Text(type.displayName()),
-                              );
-                            }).toList(),
-                      onChanged: (type) {
-                        if (type != null) {
-                          bloc.add(MainAccountTypeChanged(type));
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-
-                      initialValue: state.selectedCurrencyId,
-                      decoration: const InputDecoration(
-                        labelText: 'العملة الافتراضية',
-                        
-                        prefixIcon: Icon(FluentIcons.money),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: '1', child: Text('ريال يمني')),
-                        DropdownMenuItem(value: '2', child: Text('ريال سعودي')),
-                        DropdownMenuItem(
-                          value: '3',
-                          child: Text('دولار أمريكي'),
-                        ),
-                      ],
-                      onChanged: (currId) {
-                        if (currId != null) {
-                          bloc.add(MainAccountCurrencyChanged(currId));
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Auto-generated Account Number Info
-                    if (state.accountNumber.isNotEmpty)
-                      Container(
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withAlpha(20),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(
-                            color: theme.colorScheme.primary.withAlpha(50),
+                            onChanged: (value) =>
+                                bloc.add(MainAccountNameChanged(value)),
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                        Row(
+                          crossAxisAlignment: .start,
+                          spacing: Spacings.medium,
                           children: [
-                            Text(
-                              'رقم الحساب المتولد تلقائياً:',
-                              style: TextStyle(
-                                color: theme.colorScheme.primary,
-                                fontWeight: FontWeight.bold,
+                            Expanded(
+                              child: FormField<MainAccountGroup>(
+                                key: ValueKey(state.selectedGroup),
+                                initialValue: state.selectedGroup,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                validator: (value) => value == null
+                                    ? 'مطلوب اختيار مجموعة الحساب'
+                                    : null,
+                                builder: (field) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      fluent.InfoLabel(
+                                        label: 'مجموعة الحساب العامة',
+                                        child: fluent.ComboBox<MainAccountGroup>(
+                                          value: state.selectedGroup,
+                                          placeholder: const fluent.Text(
+                                            'اختر مجموعة الحساب',
+                                          ),
+                                          disabledPlaceholder: const fluent.Text(
+                                            'غير متاح للتعديل',
+                                          ),
+                                          isExpanded: true,
+                                          icon: const fluent.Icon(
+                                            fluent.FluentIcons.chevron_down,
+                                          ),
+                                          items: isEditing
+                                              ? state.selectedGroup == null
+                                                    ? []
+                                                    : [
+                                                        fluent.ComboBoxItem(
+                                                          value: state
+                                                              .selectedGroup,
+                                                          child: fluent.Text(
+                                                            state.selectedGroup!
+                                                                .displayName(),
+                                                          ),
+                                                        ),
+                                                      ]
+                                              : MainAccountGroup.values.map((
+                                                  group,
+                                                ) {
+                                                  return fluent.ComboBoxItem(
+                                                    value: group,
+                                                    child: fluent.Text(
+                                                      group.displayName(),
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                          onChanged: isEditing
+                                              ? null
+                                              : (group) {
+                                                  if (group != null) {
+                                                    field.didChange(group);
+                                                    bloc.add(
+                                                      MainAccountGroupChanged(
+                                                        group,
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                        ),
+                                      ),
+                                      if (field.hasError)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 6,
+                                          ),
+                                          child: fluent.Text(
+                                            field.errorText!,
+                                            style: TextStyle(
+                                              color: theme.colorScheme.error,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
                               ),
                             ),
-                            Text(
-                              state.accountNumber,
-                              style: TextStyle(
-                                fontFamily: 'monospace',
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: theme.colorScheme.primary,
+                            Expanded(
+                              child: FormField<MainAccountType>(
+                                key: ValueKey(state.selectedType),
+                                initialValue: state.selectedType,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                validator: (value) => value == null
+                                    ? 'مطلوب اختيار نوع الحساب'
+                                    : null,
+                                builder: (field) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      fluent.InfoLabel(
+                                        label: 'نوع الحساب الرئيسي',
+                                        child: fluent.ComboBox<MainAccountType>(
+                                          value: state.selectedType,
+                                          placeholder: const fluent.Text(
+                                            'اختر نوع الحساب الرئيسي',
+                                          ),
+                                          disabledPlaceholder: const fluent.Text(
+                                            'حدد مجموعة أولاً',
+                                          ),
+                                          isExpanded: true,
+                                          icon: const fluent.Icon(
+                                            fluent.FluentIcons.chevron_down,
+                                          ),
+                                          items: state.selectedGroup == null
+                                              ? []
+                                              : MainAccountType.whereMainAccount(
+                                                  state.selectedGroup!,
+                                                ).map((type) {
+                                                  return fluent.ComboBoxItem(
+                                                    value: type,
+                                                    child: fluent.Text(
+                                                      type.displayName(),
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                          onChanged: (type) {
+                                            if (type != null) {
+                                              field.didChange(type);
+                                              bloc.add(
+                                                MainAccountTypeChanged(type),
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      if (field.hasError)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 6,
+                                          ),
+                                          child: fluent.Text(
+                                            field.errorText!,
+                                            style: TextStyle(
+                                              color: theme.colorScheme.error,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
                               ),
                             ),
-                        
                           ],
-                        
                         ),
-                      ),
-                  
-                  ],
-                ),
-                
-              
-              
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('إلغاء'),
-              ),
-              ElevatedButton(
-                onPressed: state.status == MainAccountFormStatus.loading
-                    ? null
-                    : () => bloc.add(const SubmitMainAccountForm()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: theme.colorScheme.onPrimary,
-                ),
-                child: state.status == MainAccountFormStatus.loading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: ProgressRing(
-                          strokeWidth: 2,
-                          activeColor: Colors.white,
+
+                        FormField<String>(
+                          key: ValueKey(state.selectedCurrencyId),
+                          initialValue: state.selectedCurrencyId,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) =>
+                              value == null ? 'مطلوب اختيار العملة' : null,
+                          builder: (field) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                fluent.InfoLabel(
+                                  label: 'العملة الافتراضية',
+                                  child: fluent.ComboBox<String>(
+                                    value: state.selectedCurrencyId,
+                                    placeholder: const fluent.Text(
+                                      'اختر العملة الافتراضية',
+                                    ),
+                                    isExpanded: true,
+                                    icon: const fluent.Icon(
+                                      fluent.FluentIcons.chevron_down,
+                                    ),
+                                    items: const [
+                                      fluent.ComboBoxItem(
+                                        value: '1',
+                                        child: fluent.Text('ريال يمني'),
+                                      ),
+                                      fluent.ComboBoxItem(
+                                        value: '2',
+                                        child: fluent.Text('ريال سعودي'),
+                                      ),
+                                      fluent.ComboBoxItem(
+                                        value: '3',
+                                        child: fluent.Text('دولار أمريكي'),
+                                      ),
+                                    ],
+                                    onChanged: (currId) {
+                                      if (currId != null) {
+                                        field.didChange(currId);
+                                        bloc.add(
+                                          MainAccountCurrencyChanged(currId),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ),
+                                if (field.hasError)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 6),
+                                    child: fluent.Text(
+                                      field.errorText!,
+                                      style: TextStyle(
+                                        color: theme.colorScheme.error,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
                         ),
-                      )
-                    : const Text('حفظ'),
+
+                        // Auto-generated Account Number Info
+                        if (state.accountNumber.isNotEmpty)
+                          Container(
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primary.withAlpha(20),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: theme.colorScheme.primary.withAlpha(50),
+                              ),
+                            ),
+
+                            padding: Paddings.xsmallAll,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                fluent.Text(
+                                  'رقم الحساب المتولد تلقائياً:',
+                                  style: TextStyle(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                fluent.Text(
+                                  state.accountNumber,
+                                  style: TextStyle(
+                                    fontFamily: 'monospace',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ],
+              actions: [
+                fluent.Button(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const fluent.Text('إلغاء'),
+                ),
+                fluent.FilledButton(
+                  onPressed: state.status == MainAccountFormStatus.loading
+                      ? null
+                      : () {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            bloc.add(const SubmitMainAccountForm());
+                          }
+                        },
+                  child: state.status == MainAccountFormStatus.loading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: fluent.ProgressRing(
+                            strokeWidth: 2,
+                            activeColor: Colors.white,
+                          ),
+                        )
+                      : const fluent.Text('حفظ'),
+                ),
+              ],
             ),
           );
         },

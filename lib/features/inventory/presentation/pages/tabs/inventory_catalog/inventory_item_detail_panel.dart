@@ -4,7 +4,7 @@ import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dar
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class InventoryItemDetailPanel extends StatelessWidget {
   final InventoryEntity item;
   final List<CategoryEntity> categories;
@@ -93,7 +93,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  fluent.Text(
                     _getCategoryName(item.categoryId),
                     style: const TextStyle(
                       fontSize: 20,
@@ -101,7 +101,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
+                  fluent.Text(
                     'المعرف الرقمي: #${item.id}',
                     style: TextStyle(
                       fontSize: 12,
@@ -116,7 +116,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
               const SizedBox(height: 16),
 
               // 1. Details Section
-              const Text(
+              const fluent.Text(
                 '📦 تفاصيل البطاقة التعريفية',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -140,7 +140,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
               const SizedBox(height: 16),
 
               // 2. Linked Financial Accounts Section
-              const Text(
+              const fluent.Text(
                 '💼 الحسابات المالية المرتبطة',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -193,7 +193,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
                       icon: Icon(Icons.edit,
                         color: theme.colorScheme.primary,
                       ),
-                      label: Text(
+                      label: fluent.Text(
                         'تعديل الصنف',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -215,7 +215,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
                         ),
                       ),
                       icon: const Icon(Icons.delete_forever),
-                      label: const Text(
+                      label: const fluent.Text(
                         'حذف البطاقة',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
@@ -244,7 +244,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
           Icon(icon, size: 20, color: theme.colorScheme.primary.withAlpha(180)),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
+            child: fluent.Text(
               label,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
@@ -256,7 +256,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Flexible(
-            child: Text(
+            child: fluent.Text(
               value,
               style: const TextStyle(fontWeight: FontWeight.bold),
               softWrap: true,
@@ -286,7 +286,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
             children: [
               Icon(icon, size: 16, color: accentColor),
               const SizedBox(width: 8),
-              Text(
+              fluent.Text(
                 label,
                 style: TextStyle(
                   fontSize: 13,
@@ -299,7 +299,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
           const SizedBox(height: 6),
           Padding(
             padding: const EdgeInsets.only(right: 24.0),
-            child: Text(
+            child: fluent.Text(
               value,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),

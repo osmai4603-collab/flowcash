@@ -73,7 +73,7 @@ class _PaletteWidgetState extends State<PaletteWidget> {
                   portraitOnly: true,
                   displayThumbColor: true,
                 ),
-                TextButton(
+                ElevatedButton(
                   child: const TextWidget(
                     text: 'حفظ بيانات اللون',
                   ),

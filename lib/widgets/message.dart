@@ -7,7 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:flowcash/core/theme/styles.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 void error({
   required BuildContext context,
   String title = 'خطأ',
@@ -16,7 +16,7 @@ void error({
   await showDialog(
     context: context,
     builder: (c) {
-      return ContentDialog(
+      return fluent.ContentDialog(
         content: SizedBox(
           width: 500.0,
           child: Padding(
@@ -32,12 +32,12 @@ void error({
                         child: Row(
                           children: [
                             const SizedBox(width: 5.0),
-                            Icon(FluentIcons.error,
+                            Icon(fluent.FluentIcons.error,
                               size: 25,
                               color: Colors.red.shade500,
                             ),
                             const SizedBox(width: 10),
-                            Text(
+                            fluent.Text(
                               title,
                               style: Styles.titleMedium.copyWith(
                                 color: Colors.red.shade500,
@@ -47,7 +47,7 @@ void error({
                         ),
                       ),
                       IconButton(
-                        icon: Icon(FluentIcons.chrome_close),
+                        icon: Icon(fluent.FluentIcons.chrome_close),
                         onPressed: () => Navigator.pop(c),
                       ),
                     ],
@@ -86,7 +86,7 @@ void successMessage({
   await showDialog(
     context: context,
     builder: (c) {
-      return ContentDialog(
+      return fluent.ContentDialog(
         content: SizedBox(
           width: 500.0,
           child: Padding(
@@ -102,12 +102,12 @@ void successMessage({
                         child: Row(
                           children: [
                             const SizedBox(width: 5.0),
-                            Icon(FluentIcons.task_list,
+                            Icon(fluent.FluentIcons.task_list,
                               size: 25,
                               color: ColorScheme.of(context).primary,
                             ),
                             const SizedBox(width: 10),
-                            Text(
+                            fluent.Text(
                               title,
                               style: Styles.titleMedium.copyWith(
                                 color: ColorScheme.of(context).primary,
@@ -117,7 +117,7 @@ void successMessage({
                         ),
                       ),
                       IconButton(
-                        icon: Icon(FluentIcons.chrome_close),
+                        icon: Icon(fluent.FluentIcons.chrome_close),
                         onPressed: () => Navigator.pop(c),
                       ),
                     ],
@@ -125,7 +125,7 @@ void successMessage({
                   const SizedBox(height: 5),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Text(toast, style: Styles.titleSmall),
+                    child: fluent.Text(toast, style: Styles.titleSmall),
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -147,7 +147,7 @@ void messageWithPath({
   await showDialog(
     context: context,
     builder: (c) {
-      return ContentDialog(
+      return fluent.ContentDialog(
         content: SizedBox(
           width: 500.0,
           child: Padding(
@@ -163,12 +163,12 @@ void messageWithPath({
                         child: Row(
                           children: [
                             const SizedBox(width: 5.0),
-                            Icon(FluentIcons.task_list,
+                            Icon(fluent.FluentIcons.task_list,
                               size: 25,
                               color: ColorScheme.of(context).primary,
                             ),
                             const SizedBox(width: 10),
-                            Text(
+                            fluent.Text(
                               title,
                               style: Styles.titleMedium.copyWith(
                                 color: ColorScheme.of(context).primary,
@@ -178,7 +178,7 @@ void messageWithPath({
                         ),
                       ),
                       IconButton(
-                        icon: Icon(FluentIcons.chrome_close),
+                        icon: Icon(fluent.FluentIcons.chrome_close),
                         onPressed: () => Navigator.pop(c),
                       ),
                     ],
@@ -189,7 +189,7 @@ void messageWithPath({
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
+                        fluent.Text(
                           toast,
                           style: Styles.bodyMedium.copyWith(
                             fontWeight: FontWeight.w600,
@@ -208,8 +208,8 @@ void messageWithPath({
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30.0),
                     child: OutlinedButton.icon(
-                      icon: Icon(FluentIcons.copy, size: 20),
-                      label: Text('نسخ المسار', style: Styles.bodyMedium),
+                      icon: Icon(fluent.FluentIcons.copy, size: 20),
+                      label: fluent.Text('نسخ المسار', style: Styles.bodyMedium),
                       onPressed: () async {
                         Navigator.pop(c);
                         await Clipboard.setData(ClipboardData(text: path));
@@ -307,7 +307,7 @@ Future<bool> makeSure({
   return await showDialog<bool>(
         context: context,
         builder: (c) {
-          return ContentDialog(
+          return fluent.ContentDialog(
             content: SizedBox(
               width: 400,
               child: Padding(
@@ -323,12 +323,12 @@ Future<bool> makeSure({
                             child: Row(
                               children: [
                                 const SizedBox(width: 5.0),
-                                Icon(FluentIcons.warning,
+                                Icon(fluent.FluentIcons.warning,
                                   size: 25,
                                   color: colors.primary,
                                 ),
                                 const SizedBox(width: 10),
-                                Text(
+                                fluent.Text(
                                   title,
                                   style: Styles.titleMedium.copyWith(
                                     color: colors.primary,
@@ -338,7 +338,7 @@ Future<bool> makeSure({
                             ),
                           ),
                           IconButton(
-                            icon: Icon(FluentIcons.chrome_close,
+                            icon: Icon(fluent.FluentIcons.chrome_close,
                               color: colors.onSurfaceVariant,
                             ),
                             onPressed: () => Navigator.pop(c),
@@ -348,7 +348,7 @@ Future<bool> makeSure({
                       const SizedBox(height: 5),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                        child: Text(
+                        child: fluent.Text(
                           content,
                           style: textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.bold,
@@ -375,7 +375,7 @@ Future<bool> makeSure({
                                   autofocus: okAutoFocus,
                                   onPressed: () => Navigator.pop(c, true),
 
-                                  child: const Align(child: Text('تأكيد')),
+                                  child: const Align(child: fluent.Text('تأكيد')),
                                 ),
                               ),
                               const SizedBox(width: 40),
@@ -388,7 +388,7 @@ Future<bool> makeSure({
                                     autofocus: cancelAutoFocus,
                                     onPressed: () =>
                                       Navigator.pop(c, false),
-                                  child: const Align(child: Text('إلغاء')),
+                                  child: const Align(child: fluent.Text('إلغاء')),
                                 ),
                               ),
                             ],
@@ -424,7 +424,7 @@ Future<void> process({
             elevation: 2.0,
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.transparent,
-            child: const ProgressRing(),
+            child: fluent.ProgressRing(),
           ),
         ),
       );

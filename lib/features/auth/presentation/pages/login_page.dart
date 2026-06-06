@@ -8,7 +8,7 @@ import '../bloc/session/session_bloc.dart';
 import '../bloc/session/session_event.dart';
 import '../bloc/session/session_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show InfoBar, ProgressRing, ScaffoldPage, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width > 600;
     final colors = ColorScheme.of(context);
-    return ScaffoldPage(
+    return fluent.ScaffoldPage(
       padding: EdgeInsets.zero,
       content: Center(
         child: SingleChildScrollView(
@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
           child: BlocConsumer<SessionBloc, SessionState>(
             listener: (context, state) {
               if (state.status == SessionStatus.authenticated) {
-                displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text(
+                fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(
                       'مرحباً بك ${state.currentUser?.userName}!',
                       textAlign: TextAlign.right,
                       style: TextTheme.of(context).titleMedium?.copyWith(
@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
                     )));
               }
               if (state.status == SessionStatus.failure) {
-                displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: SelectableText(
+                fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: SelectableText(
                       state.errorMessage ?? 'فشل تسجيل الدخول',
                       textAlign: TextAlign.right,
                     )));
@@ -73,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
                     //   color: Colors.blue,
                     // ),
                     // const SizedBox(height: 24),
-                    Text(
+                    fluent.Text(
                       'تدفق كاش',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineMedium
@@ -83,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    fluent.Text(
                       'نظام إدارة التدفقات النقدية',
                       textAlign: TextAlign.center,
                       style: Theme.of(
@@ -106,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text(
+                              fluent.Text(
                                 'تسجيل الدخول',
                                 style: Theme.of(context).textTheme.titleLarge
                                     ?.copyWith(fontWeight: FontWeight.bold),
@@ -144,19 +144,12 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               const SizedBox(height: Spacings.large),
                               if (state.status == SessionStatus.loading)
-                                const Center(child: ProgressRing())
+                                const Center(child: fluent.ProgressRing())
                               else
-                                ElevatedButton(
+                                fluent.FilledButton(
                                   onPressed: _onLoginPressed,
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: const Text(
+                                  
+                                  child: const fluent.Text(
                                     'دخول',
                                     style: TextStyle(
                                       fontSize: 18,
@@ -174,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     // // قائمة المستخدمين (اختياري، متاح فقط في وضع التطوير أو للتجربة)
                     // if (state.users.isNotEmpty) ...[
-                    //   const Text(
+                    //   const fluent.Text(
                     //     'المستخدمين المسجلين في النظام',
                     //     textAlign: TextAlign.center,
                     //     style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
@@ -185,8 +178,8 @@ class _LoginPageState extends State<LoginPage> {
                     //     spacing: 8,
                     //     children: state.users.map((user) {
                     //       return ActionChip(
-                    //         label: Text(user.userName),
-                    //         avatar: const Icon(FluentIcons.personalize, size: 16),
+                    //         label: fluent.Text(user.userName),
+                    //         avatar: const Icon(fluent.FluentIcons.personalize, size: 16),
                     //         onPressed: () {
                     //           _userNameController.text = user.userName;
                     //         },

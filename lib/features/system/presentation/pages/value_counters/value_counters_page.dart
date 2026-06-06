@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/system/presentation/bloc/value_counters/value_counters_cubit.dart';
 import 'package:flowcash/features/settings/domain/entities/value_counter_entity.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ValueCountersPage extends StatelessWidget {
@@ -19,7 +19,7 @@ class ValueCountersPage extends StatelessWidget {
 
     if (items.isEmpty) {
       return Center(
-        child: Text('لا يوجد عدادات قيمة', style: textTheme.bodyLarge),
+        child: fluent.Text('لا يوجد عدادات قيمة', style: textTheme.bodyLarge),
       );
     }
 
@@ -62,45 +62,45 @@ class ValueCountersPage extends StatelessWidget {
 
                     await showDialog<void>(
                       context: context,
-                      builder: (ctx) => ContentDialog(
-                        title: Text(item.counterType.displayName()),
+                      builder: (ctx) => fluent.ContentDialog(
+                        title: fluent.Text(item.counterType.displayName()),
                         content: StatefulBuilder(
                           builder: (ctx2, setState) {
                             return Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
+                                fluent.Text(
                                   'تعديل جميع الحقول ماعدا المعرف ونوع العداد',
                                 ),
                                 const SizedBox(height: 16),
-                                TextField(
-                                  controller: countController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
-                                    labelText: 'القيمة',
+                                fluent.InfoLabel(
+                                  label: 'القيمة',
+                                  child: fluent.TextFormBox(
+                                    controller: countController,
+                                    keyboardType: TextInputType.number,
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                TextField(
-                                  controller: maxController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
-                                    labelText: 'الحد الأقصى',
+                                fluent.InfoLabel(
+                                  label: 'الحد الأقصى',
+                                  child: fluent.TextFormBox(
+                                    controller: maxController,
+                                    keyboardType: TextInputType.number,
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                TextField(
-                                  controller: incrementController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
-                                    labelText: 'قيمة الزيادة',
+                                fluent.InfoLabel(
+                                  label: 'قيمة الزيادة',
+                                  child: fluent.TextFormBox(
+                                    controller: incrementController,
+                                    keyboardType: TextInputType.number,
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                TextField(
-                                  controller: formatController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'تنسيق القيمة',
+                                fluent.InfoLabel(
+                                  label: 'تنسيق القيمة',
+                                  child: fluent.TextFormBox(
+                                    controller: formatController,
                                   ),
                                 ),
                               ],
@@ -108,13 +108,13 @@ class ValueCountersPage extends StatelessWidget {
                           },
                         ),
                         actions: [
-                          TextButton(
+                          fluent.Button(
                             onPressed: () {
                               Navigator.of(ctx).pop();
                             },
-                            child: const Text('إلغاء'),
+                            child: const fluent.Text('إلغاء'),
                           ),
-                          ElevatedButton(
+                          fluent.FilledButton(
                             onPressed: () {
                               final newCount = int.tryParse(
                                 countController.text,
@@ -140,7 +140,7 @@ class ValueCountersPage extends StatelessWidget {
                               }
                               Navigator.of(ctx).pop();
                             },
-                            child: const Text('حفظ'),
+                            child: const fluent.Text('حفظ'),
                           ),
                         ],
                       ),
@@ -180,7 +180,7 @@ class ValueCountersPage extends StatelessWidget {
       alignment: Alignment.center,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(color: colors.surfaceContainerHigh),
-      child: Text(
+      child: fluent.Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium?.copyWith(
@@ -196,20 +196,20 @@ class ValueCountersPage extends StatelessWidget {
     return BlocBuilder<ValueCountersBloc, ValueCountersState>(
       builder: (context, state) {
         if (state is ValueCountersLoading) {
-          return const Center(child: ProgressRing());
+          return Center(child: fluent.ProgressRing());
         }
         if (state is ValueCountersFailure) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(state.errorMessage),
+                fluent.Text(state.errorMessage),
                 const SizedBox(height: 8),
-                ElevatedButton(
+                fluent.FilledButton(
                   onPressed: () => context.read<ValueCountersBloc>().add(
                     LoadValueCountersEvent(),
                   ),
-                  child: const Text('إعادة المحاولة'),
+                  child: const fluent.Text('إعادة المحاولة'),
                 ),
               ],
             ),
@@ -299,7 +299,7 @@ class ValueCountersDataGridSource extends DataGridSource {
         return Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(4.0),
-          child: Text(
+          child: fluent.Text(
             dataGridCell.value.toString(),
             overflow: TextOverflow.ellipsis,
             style: textTheme.bodyMedium,

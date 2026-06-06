@@ -6,7 +6,7 @@ import 'package:flowcash/features/categories/domain/usecases/category_usecases.d
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/combo_box_form.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class TransactionOrderForm extends StatefulWidget {
   final List<InventoryEntity> inventoryItems;
 
@@ -81,16 +81,16 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return ContentDialog(
+    return fluent.ContentDialog(
       title: Row(
         children: [
-          Icon(FluentIcons.shopping_cart, color: theme.colorScheme.primary),
+          Icon(fluent.FluentIcons.shopping_cart, color: theme.colorScheme.primary),
           SizedBox(width: 8),
-          Text('إضافة بند جديد للحركة 📦', style: TextStyle(fontWeight: FontWeight.bold)),
+          fluent.Text('إضافة بند جديد للحركة 📦', style: TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
       content: _isLoading
-          ? const SizedBox(height: 150, child: Center(child: const ProgressRing()))
+          ? const SizedBox(height: 150, child: Center(child: fluent.ProgressRing()))
           : Form(
               key: _formKey,
               child: Column(
@@ -101,7 +101,7 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
                     controller: _itemController,
                     decoration: const InputDecoration(
                       labelText: 'اختر الصنف',
-                      prefixIcon: Icon(FluentIcons.product),
+                      prefixIcon: Icon(fluent.FluentIcons.product),
                     ),
                     labelMenu: (item) => _getInventoryLabel(item),
                     labelString: (item) => _getInventoryLabel(item),
@@ -135,7 +135,7 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
                     textDirection: TextDirection.ltr,
                     decoration: const InputDecoration(
                       labelText: 'الكمية المطلوبة',
-                      prefixIcon: Icon(FluentIcons.numbered_list_number),
+                      prefixIcon: Icon(fluent.FluentIcons.numbered_list_number),
                     ),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     validator: (val) {
@@ -149,13 +149,13 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
               ),
             ),
       actions: [
-        TextButton(
+        fluent.Button(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('إلغاء'),
+          child: const fluent.Text('إلغاء'),
         ),
-        ElevatedButton(
+        fluent.FilledButton(
           onPressed: _submit,
-          child: const Text('إضافة البند'),
+          child: const fluent.Text('إضافة البند'),
         ),
       ],
     );

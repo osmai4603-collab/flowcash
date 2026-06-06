@@ -5,7 +5,7 @@ import 'package:flowcash/features/currencies/domain/entities/currency_entity.dar
 import 'package:flowcash/features/currencies/domain/usecases/currency_repository_usecases.dart';
 import 'package:flowcash/features/system/presentation/bloc/currencies/currency_form_bloc.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class CurrencyFormPage extends StatefulWidget {
   const CurrencyFormPage({super.key, this.initialValue});
 
@@ -45,6 +45,7 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    
     return BlocProvider(
       create: (_) => CurrencyFormBloc(
         initialValue: widget.initialValue,
@@ -57,8 +58,8 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
             Navigator.of(context).pop(state.savedEntity);
           }
         },
-        child: ContentDialog(
-          title: Text(widget.initialValue == null ? 'إضافة عملة' : 'تعديل عملة'),
+        child: fluent.ContentDialog(
+          title: fluent.Text(widget.initialValue == null ? 'إضافة عملة' : 'تعديل عملة'),
           
           content: BlocBuilder<CurrencyFormBloc, CurrencyFormState>(
             builder: (context, state) {
@@ -68,84 +69,99 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    TextFormField(
-                      controller: _idController,
-                      decoration: const InputDecoration(
-                        labelText: 'المعرف',
-                        prefixIcon: Icon(FluentIcons.lock12),
+                    fluent.InfoLabel(
+                      label: 'المعرف',
+                      child: fluent.TextFormBox(
+                        controller: _idController,
+                        prefix: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: fluent.Icon(fluent.FluentIcons.lock12),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'الرجاء إدخال معرف العملة';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) => context.read<CurrencyFormBloc>().add(
+                              CurrencyFormIdChanged(value),
+                            ),
+                        enabled: widget.initialValue == null,
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'الرجاء إدخال معرف العملة';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) => context.read<CurrencyFormBloc>().add(
-                            CurrencyFormIdChanged(value),
-                          ),
-                      enabled: widget.initialValue == null,
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'الاسم',
-                        prefixIcon: Icon(FluentIcons.text_field),
+                    fluent.InfoLabel(
+                      label: 'الاسم',
+                      child: fluent.TextFormBox(
+                        controller: _nameController,
+                        prefix: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: fluent.Icon(fluent.FluentIcons.text_field),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'الرجاء إدخال اسم العملة';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) => context.read<CurrencyFormBloc>().add(
+                              CurrencyFormNameChanged(value),
+                            ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'الرجاء إدخال اسم العملة';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) => context.read<CurrencyFormBloc>().add(
-                            CurrencyFormNameChanged(value),
-                          ),
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _symbolController,
-                      decoration: const InputDecoration(
-                        labelText: 'الرمز',
-                        prefixIcon: Icon(FluentIcons.label),
+                    fluent.InfoLabel(
+                      label: 'الرمز',
+                      child: fluent.TextFormBox(
+                        controller: _symbolController,
+                        prefix: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: fluent.Icon(fluent.FluentIcons.label),
+                        ),
+                        onChanged: (value) => context.read<CurrencyFormBloc>().add(
+                              CurrencyFormSymbolChanged(value),
+                            ),
                       ),
-                      onChanged: (value) => context.read<CurrencyFormBloc>().add(
-                            CurrencyFormSymbolChanged(value),
-                          ),
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _fullSymbolController,
-                      decoration: const InputDecoration(
-                        labelText: 'الرمز الكامل',
-                        prefixIcon: Icon(FluentIcons.important),
+                    fluent.InfoLabel(
+                      label: 'الرمز الكامل',
+                      child: fluent.TextFormBox(
+                        controller: _fullSymbolController,
+                        prefix: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: fluent.Icon(fluent.FluentIcons.important),
+                        ),
+                        onChanged: (value) => context.read<CurrencyFormBloc>().add(
+                              CurrencyFormFullSymbolChanged(value),
+                            ),
                       ),
-                      onChanged: (value) => context.read<CurrencyFormBloc>().add(
-                            CurrencyFormFullSymbolChanged(value),
-                          ),
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _countryController,
-                      decoration: const InputDecoration(
-                        labelText: 'البلد',
-                        prefixIcon: Icon(FluentIcons.public_folder),
+                    fluent.InfoLabel(
+                      label: 'البلد',
+                      child: fluent.TextFormBox(
+                        controller: _countryController,
+                        prefix: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: fluent.Icon(fluent.FluentIcons.public_folder),
+                        ),
+                        onChanged: (value) => context.read<CurrencyFormBloc>().add(
+                              CurrencyFormCountryChanged(value),
+                            ),
                       ),
-                      onChanged: (value) => context.read<CurrencyFormBloc>().add(
-                            CurrencyFormCountryChanged(value),
-                          ),
                     ),
                     const SizedBox(height: 12),
-                    SwitchListTile(
-                      title: const Text('محدد'),
-                      value: state.selected,
+                    fluent.ToggleSwitch(
+                      content: const fluent.Text('محدد'),
+                      checked: state.selected,
                       onChanged: (value) => context.read<CurrencyFormBloc>().add(
                             CurrencyFormSelectedChanged(value),
                           ),
                     ),
                     if (state.errorMessage != null) ...[
                       const SizedBox(height: 12),
-                      Text(
+                      fluent.Text(
                         state.errorMessage!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.error,
@@ -158,11 +174,11 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
             },
           ),
           actions: [
-            TextButton(
+            fluent.Button(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('إلغاء'),
+              child: const fluent.Text('إلغاء'),
             ),
-            FilledButton(
+            fluent.FilledButton(
               onPressed: () {
                 if (!_formKey.currentState!.validate()) return;
                 context.read<CurrencyFormBloc>().add(const CurrencyFormSubmitted());
@@ -173,9 +189,9 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                       ? const SizedBox(
                           height: 18,
                           width: 18,
-                          child: ProgressRing(strokeWidth: 2),
+                          child: fluent.ProgressRing(strokeWidth: 2),
                         )
-                      : const Text('حفظ');
+                      : const fluent.Text('حفظ');
                 },
               ),
             ),

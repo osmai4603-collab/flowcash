@@ -7,7 +7,7 @@ import 'package:flowcash/features/system/presentation/bloc/warehouse_values/ware
 import 'package:flowcash/features/system/presentation/pages/warehouse_values/warehouse_value_form_page.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class WarehouseValuesPage extends StatelessWidget {
   const WarehouseValuesPage({super.key});
 
@@ -16,20 +16,20 @@ class WarehouseValuesPage extends StatelessWidget {
     return BlocBuilder<WarehouseValuesBloc, WarehouseValuesState>(
       builder: (context, state) {
         if (state is WarehouseValuesLoading) {
-          return const Center(child: ProgressRing());
+          return const Center(child: fluent.ProgressRing());
         }
         if (state is WarehouseValuesFailure) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(state.errorMessage),
+                fluent.Text(state.errorMessage),
                 const SizedBox(height: 8),
-                ElevatedButton(
+                fluent.FilledButton(
                   onPressed: () => context.read<WarehouseValuesBloc>().add(
                     LoadWarehouseValuesEvent(),
                   ),
-                  child: const Text('إعادة المحاولة'),
+                  child: const fluent.Text('إعادة المحاولة'),
                 ),
               ],
             ),
@@ -73,14 +73,14 @@ class WarehouseValuesPage extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: FilledButton.icon(
                 onPressed: () => _openWarehouseValueForm(context, null),
-                icon: const Icon(FluentIcons.add),
-                label: const Text('إضافة قيمة'),
+                icon: const Icon(fluent.FluentIcons.add),
+                label: const fluent.Text('إضافة قيمة'),
               ),
             ),
           ),
           Expanded(
             child: Center(
-              child: Text('لا توجد قيم مستودع', style: textTheme.bodyLarge),
+              child: fluent.Text('لا توجد قيم مستودع', style: textTheme.bodyLarge),
             ),
           ),
         ],
@@ -101,8 +101,8 @@ class WarehouseValuesPage extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: FilledButton.icon(
               onPressed: () => _openWarehouseValueForm(context, null),
-              icon: const Icon(FluentIcons.add),
-              label: const Text('إضافة قيمة'),
+              icon: const Icon(fluent.FluentIcons.add),
+              label: const fluent.Text('إضافة قيمة'),
             ),
           ),
         ),
@@ -126,7 +126,7 @@ class WarehouseValuesPage extends StatelessWidget {
                     item,
                   );
                   if (didUpdate == true && context.mounted) {
-                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تم تحديث قيمة المستودع')));
+                    fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('تم تحديث قيمة المستودع')));
                     context.read<WarehouseValuesBloc>().add(
                       LoadWarehouseValuesEvent(),
                     );
@@ -177,7 +177,7 @@ class WarehouseValuesPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.primaryContainer,
       ),
-      child: Text(
+      child: fluent.Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium?.copyWith(
@@ -200,7 +200,7 @@ class WarehouseValuesPage extends StatelessWidget {
     if (result != null && context.mounted) {
       context.read<WarehouseValuesBloc>().add(LoadWarehouseValuesEvent());
       if (entity == null) {
-        displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تمت إضافة قيمة المستودع')));
+        fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('تمت إضافة قيمة المستودع')));
       }
     }
 
@@ -241,7 +241,7 @@ class WarehouseValuesDataGridSource extends DataGridSource {
         return Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(4.0),
-          child: Text(
+          child: fluent.Text(
             dataGridCell.value.toString(),
             overflow: TextOverflow.ellipsis,
             style: textTheme.bodyMedium,

@@ -6,7 +6,8 @@ import 'package:flowcash/features/currencies/domain/entities/currency_entity.dar
 import 'package:flowcash/features/system/presentation/bloc/currencies/currencies_cubit.dart';
 import 'package:flowcash/features/system/presentation/pages/currencies/currency_form_page.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class CurrenciesPage extends StatelessWidget {
   const CurrenciesPage({Key? key}) : super(key: key);
 
@@ -22,8 +23,8 @@ class CurrenciesPage extends StatelessWidget {
 
   Widget headerCell(String text, TextTheme textTheme, ColorScheme colors) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      child: Text(
+      padding: const EdgeInsets.all(4),
+      child: fluent.Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium?.copyWith(
@@ -36,8 +37,8 @@ class CurrenciesPage extends StatelessWidget {
 
   Widget dataCell(String text, TextTheme textTheme) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      child: Text(
+      padding: const EdgeInsets.all(4),
+      child: fluent.Text(
         text.isEmpty ? '-' : text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium,
@@ -59,19 +60,25 @@ class CurrenciesPage extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: FilledButton.icon(
                 onPressed: () => _openCurrencyForm(context, null),
-                icon: const Icon(FluentIcons.add),
-                label: const Text('إضافة عملة'),
+                icon: const Icon(fluent.FluentIcons.add),
+                label: const fluent.Text('إضافة عملة'),
               ),
             ),
           ),
           Expanded(
             child: Center(
-              child: Text('لا توجد عملات', style: textTheme.bodyLarge),
+              child: fluent.Text('لا توجد عملات', style: textTheme.bodyLarge),
             ),
           ),
         ],
       );
     }
+
+    final dataSource = CurrenciesDataGridSource(
+      items: items,
+      textTheme: textTheme,
+      colors: colors,
+    );
 
     return Column(
       children: [
@@ -81,62 +88,58 @@ class CurrenciesPage extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: FilledButton.icon(
               onPressed: () => _openCurrencyForm(context, null),
-              icon: const Icon(FluentIcons.add),
-              label: const Text('إضافة عملة'),
+              icon: const Icon(fluent.FluentIcons.add),
+              label: const fluent.Text('إضافة عملة'),
             ),
           ),
         ),
-        Table(
-          border: TableBorder.all(width: 0.50, color: colors.outline),
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          columnWidths: columnWidths,
-          children: [
-            TableRow(
-              decoration: BoxDecoration(color: colors.primaryContainer),
-              children: [
-                headerCell('المعرف', textTheme, colors),
-                headerCell('الاسم', textTheme, colors),
-                headerCell('الرمز', textTheme, colors),
-                headerCell('الرمز الكامل', textTheme, colors),
-                headerCell('البلد', textTheme, colors),
-              ],
-            ),
-          ],
-        ),
         Expanded(
-          child: ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return InkWell(
-                onTap: () async {
+          child: Container(
+            decoration: BoxDecoration(border: Border.all(color: colors.outline, width: 0.5)),
+            child: SfDataGrid(
+              source: dataSource,
+              headerRowHeight: 40,
+              rowHeight: 30,
+              gridLinesVisibility: GridLinesVisibility.both,
+              headerGridLinesVisibility: GridLinesVisibility.both,
+              columnWidthMode: ColumnWidthMode.fill,
+              onCellTap: (DataGridCellTapDetails details) async {
+                if (details.rowColumnIndex.rowIndex > 0) {
+                  final item = items[details.rowColumnIndex.rowIndex - 1];
                   final didUpdate = await _openCurrencyForm(context, item);
                   if (didUpdate == true && context.mounted) {
-                    displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تم تحديث العملة')));
+                    fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('تم تحديث العملة')));
                     context.read<CurrenciesBloc>().add(LoadCurrenciesEvent());
                   }
-                },
-                child: Table(
-                  border: TableBorder.all(width: 0.50, color: colors.outline),
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  columnWidths: columnWidths,
-                  children: [
-                    TableRow(
-                      decoration: BoxDecoration(
-                        color: index.isOdd ? colors.primaryContainer : null,
-                      ),
-                      children: [
-                        dataCell(item.id, textTheme),
-                        dataCell(item.name, textTheme),
-                        dataCell(item.symbol, textTheme),
-                        dataCell(item.fullSymbol, textTheme),
-                        dataCell(item.country, textTheme),
-                      ],
-                    ),
-                  ],
+                }
+              },
+              columns: [
+                GridColumn(
+                  columnName: 'id',
+                  width: isDesktop ? 90.0 : 70.0,
+                  label: headerCell('المعرف', textTheme, colors),
                 ),
-              );
-            },
+                GridColumn(
+                  columnName: 'name',
+                  width: isDesktop ? 140.0 : 100.0,
+                  label: headerCell('الاسم', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'symbol',
+                  width: isDesktop ? 100.0 : 80.0,
+                  label: headerCell('الرمز', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'fullSymbol',
+                  width: isDesktop ? 140.0 : 100.0,
+                  label: headerCell('الرمز الكامل', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'country',
+                  label: headerCell('البلد', textTheme, colors),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -155,7 +158,7 @@ class CurrenciesPage extends StatelessWidget {
     if (result != null && context.mounted) {
       context.read<CurrenciesBloc>().add(LoadCurrenciesEvent());
       if (entity == null) {
-        displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تمت إضافة العملة')));
+        fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('تمت إضافة العملة')));
       }
     }
 
@@ -167,18 +170,18 @@ class CurrenciesPage extends StatelessWidget {
     return BlocBuilder<CurrenciesBloc, CurrenciesState>(
       builder: (context, state) {
         if (state is CurrenciesLoading) {
-          return const Center(child: ProgressRing());
+          return const Center(child: fluent.ProgressRing());
         }
         if (state is CurrenciesFailure) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(state.errorMessage),
+                fluent.Text(state.errorMessage),
                 const SizedBox(height: 8),
-                ElevatedButton(
+                fluent.FilledButton(
                   onPressed: () => context.read<CurrenciesBloc>().add(LoadCurrenciesEvent()),
-                  child: const Text('إعادة المحاولة'),
+                  child: const fluent.Text('إعادة المحاولة'),
                 ),
               ],
             ),
@@ -201,6 +204,50 @@ class CurrenciesPage extends StatelessWidget {
         }
         return const SizedBox.shrink();
       },
+    );
+  }
+}
+
+class CurrenciesDataGridSource extends DataGridSource {
+  CurrenciesDataGridSource({
+    required List<CurrencyEntity> items,
+    required this.textTheme,
+    required this.colors,
+  }) {
+    _dataGridRows = items.map<DataGridRow>((item) {
+      return DataGridRow(cells: [
+        DataGridCell<String>(columnName: 'id', value: item.id),
+        DataGridCell<String>(columnName: 'name', value: item.name),
+        DataGridCell<String>(columnName: 'symbol', value: item.symbol),
+        DataGridCell<String>(columnName: 'fullSymbol', value: item.fullSymbol),
+        DataGridCell<String>(columnName: 'country', value: item.country),
+      ]);
+    }).toList();
+  }
+
+  final TextTheme textTheme;
+  final ColorScheme colors;
+  List<DataGridRow> _dataGridRows = [];
+
+  @override
+  List<DataGridRow> get rows => _dataGridRows;
+
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    final index = _dataGridRows.indexOf(row);
+    return DataGridRowAdapter(
+      color: index.isEven ? null : colors.surfaceVariant.withOpacity(0.12),
+      cells: row.getCells().map<Widget>((dataGridCell) {
+        return Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(4.0),
+          child: fluent.Text(
+            dataGridCell.value.toString(),
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.bodyMedium,
+          ),
+        );
+      }).toList(),
     );
   }
 }

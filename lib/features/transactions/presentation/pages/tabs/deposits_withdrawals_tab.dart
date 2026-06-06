@@ -7,6 +7,7 @@ import 'package:flowcash/features/transactions/presentation/blocs/financial_tran
 import 'package:flowcash/features/transactions/presentation/blocs/financial_transactions/financial_transactions_event.dart';
 import 'package:flowcash/features/transactions/presentation/blocs/financial_transactions/financial_transactions_state.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 // removed fluent_ui usage from this file; using Material dialogs and icons
 class DepositsWithdrawalsTab extends StatefulWidget {
@@ -59,8 +60,8 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
                   // Segmented Switch
                   SegmentedButton<bool>(
                     segments: const [
-                      ButtonSegment(value: false, label: Text('عمليات الإيداع'), icon: Icon(Icons.move_to_inbox)),
-                      ButtonSegment(value: true, label: Text('عمليات السحب'), icon: Icon(Icons.build)),
+                      ButtonSegment(value: false, label: fluent.Text('عمليات الإيداع'), icon: Icon(Icons.move_to_inbox)),
+                      ButtonSegment(value: true, label: fluent.Text('عمليات السحب'), icon: Icon(Icons.build)),
                     ],
                     selected: {_isWithdrawFilter},
                     onSelectionChanged: (val) {
@@ -98,7 +99,7 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.add),
-                    label: Text(_isWithdrawFilter ? 'إضافة عملية سحب جديدة' : 'إضافة عملية إيداع جديدة'),
+                    label: fluent.Text(_isWithdrawFilter ? 'إضافة عملية سحب جديدة' : 'إضافة عملية إيداع جديدة'),
                   ),
                 ],
               ),
@@ -159,11 +160,11 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
               text: '${_isWithdrawFilter ? "عملية سحب" : "عملية إيداع"} رقم #${t.billNumber}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text('التاريخ: ${t.createdAt.toString().split(' ')[0]} | البيان: ${t.note ?? "بدون بيان"}'),
+            subtitle: fluent.Text('التاريخ: ${t.createdAt.toString().split(' ')[0]} | البيان: ${t.note ?? "بدون بيان"}'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                fluent.Text(
                   '${t.offerAmount} \$',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -181,7 +182,7 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (blocContext) => Scaffold(
-                      appBar: AppBar(title: Text('${_isWithdrawFilter ? "عملية سحب" : "عملية إيداع"} #${t.billNumber}')),
+                      appBar: AppBar(title: fluent.Text('${_isWithdrawFilter ? "عملية سحب" : "عملية إيداع"} #${t.billNumber}')),
                       body: BlocProvider.value(
                         value: context.read<FinancialTransactionsBloc>(),
                         child: BlocBuilder<FinancialTransactionsBloc, FinancialTransactionsState>(
@@ -225,7 +226,7 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                fluent.Text(
                   'تفاصيل العملية المالي #${t.billNumber}',
                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
@@ -254,8 +255,8 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.grey)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          fluent.Text(label, style: const TextStyle(color: Colors.grey)),
+          fluent.Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -265,20 +266,19 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('حذف العملية'),
-        content: const Text('هل أنت متأكد من رغبتك في حذف هذه العملية نهائياً؟'),
+        title: const fluent.Text('حذف العملية'),
+        content: const fluent.Text('هل أنت متأكد من رغبتك في حذف هذه العملية نهائياً؟'),
         actions: [
-          TextButton(
+          fluent.Button(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('إلغاء'),
+            child: const fluent.Text('إلغاء'),
           ),
-          ElevatedButton(
+          fluent.FilledButton(
             onPressed: () {
               context.read<FinancialTransactionsBloc>().add(DeleteFinancialTransactionEvent(id));
               Navigator.pop(dialogContext);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            child: const Text('حذف'),
+            child: const fluent.Text('حذف'),
           ),
         ],
       ),
@@ -294,7 +294,7 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(_isWithdrawFilter ? 'إضافة عملية سحب جديدة' : 'إضافة عملية إيداع جديدة'),
+        title: fluent.Text(_isWithdrawFilter ? 'إضافة عملية سحب جديدة' : 'إضافة عملية إيداع جديدة'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -322,11 +322,11 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
           ),
         ),
         actions: [
-          TextButton(
+          fluent.Button(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('إلغاء'),
+            child: const fluent.Text('إلغاء'),
           ),
-          ElevatedButton(
+          fluent.FilledButton(
             onPressed: () {
               final amt = double.tryParse(amountController.text) ?? 0.0;
               final num = int.tryParse(billNumController.text) ?? 1;
@@ -348,7 +348,7 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
               context.read<FinancialTransactionsBloc>().add(AddFinancialTransactionEvent(newTransaction));
               Navigator.pop(dialogContext);
             },
-            child: const Text('حفظ'),
+            child: const fluent.Text('حفظ'),
           ),
         ],
       ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Colors, Text;
 import 'package:go_router/go_router.dart';
 import '../bloc/navigation_state.dart';
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, NavigationPane, NavigationView, PaneDisplayMode, PaneItem, Text;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class MainScreen extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -10,50 +10,50 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NavigationView(
-      pane: NavigationPane(
+    return fluent.NavigationView(
+      pane: fluent.NavigationPane(
         selected: navigationShell.currentIndex,
         onChanged: (index) => navigationShell.goBranch(index),
-        displayMode: PaneDisplayMode.auto,
+        displayMode: fluent.PaneDisplayMode.auto,
         items: [
-          PaneItem(
-            icon: const Icon(FluentIcons.dashboard_add),
-            title: Text(HomeSection.dashboard.displayName()),
+          fluent.PaneItem(
+            icon: const Icon(fluent.FluentIcons.dashboard_add),
+            title: fluent.Text(HomeSection.dashboard.displayName()),
             body: navigationShell,
           ),
-          PaneItem(
-            icon: const Icon(FluentIcons.settings),
-            title: Text(HomeSection.system.displayName()),
+          fluent.PaneItem(
+            icon: const Icon(fluent.FluentIcons.settings),
+            title: fluent.Text(HomeSection.system.displayName()),
             body: navigationShell,
           ),
-          PaneItem(
-            icon: const Icon(FluentIcons.storage_optical),
-            title: Text(HomeSection.databaseAdmin.displayName()),
+          fluent.PaneItem(
+            icon: const Icon(fluent.FluentIcons.storage_optical),
+            title: fluent.Text(HomeSection.databaseAdmin.displayName()),
             body: navigationShell,
           ),
-          PaneItem(
-            icon: const Icon(FluentIcons.people),
-            title: Text(HomeSection.accounts.displayName()),
+          fluent.PaneItem(
+            icon: const Icon(fluent.FluentIcons.people),
+            title: fluent.Text(HomeSection.accounts.displayName()),
             body: navigationShell,
           ),
-          PaneItem(
-            icon: const Icon(FluentIcons.shopping_cart),
-            title: Text(HomeSection.inventory.displayName()),
+          fluent.PaneItem(
+            icon: const Icon(fluent.FluentIcons.shopping_cart),
+            title: fluent.Text(HomeSection.inventory.displayName()),
             body: navigationShell,
           ),
-          PaneItem(
-            icon: const Icon(FluentIcons.category_classification),
-            title: Text(HomeSection.categories.displayName()),
+          fluent.PaneItem(
+            icon: const Icon(fluent.FluentIcons.category_classification),
+            title: fluent.Text(HomeSection.categories.displayName()),
             body: navigationShell,
           ),
-          PaneItem(
-            icon: const Icon(FluentIcons.payment_card),
-            title: Text(HomeSection.transactions.displayName()),
+          fluent.PaneItem(
+            icon: const Icon(fluent.FluentIcons.payment_card),
+            title: fluent.Text(HomeSection.transactions.displayName()),
             body: navigationShell,
           ),
-          PaneItem(
-            icon: const Icon(FluentIcons.settings),
-            title: Text(HomeSection.settings.displayName()),
+          fluent.PaneItem(
+            icon: const Icon(fluent.FluentIcons.settings),
+            title: fluent.Text(HomeSection.settings.displayName()),
             body: navigationShell,
           ),
         ],

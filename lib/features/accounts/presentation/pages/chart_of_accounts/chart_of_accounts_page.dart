@@ -1,3 +1,4 @@
+import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +26,7 @@ import 'package:flowcash/features/accounts/presentation/widgets/sub_account_row.
 import 'main_account_form_dialog.dart';
 import 'sub_account_form_dialog.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class ChartOfAccountsPage extends StatelessWidget {
   const ChartOfAccountsPage({super.key});
@@ -84,28 +85,28 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                   const SizedBox(),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: const Text(
+                    child: const fluent.Text(
                       'رقم الحساب',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: const Text(
+                    child: const fluent.Text(
                       'اسم الحساب',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: const Text(
+                    child: const fluent.Text(
                       'نوع الحساب',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: const Text(
+                    child: const fluent.Text(
                       'المدين',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.end,
@@ -113,7 +114,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: const Text(
+                    child: const fluent.Text(
                       'الدائن',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.end,
@@ -121,7 +122,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: const Text(
+                    child: const fluent.Text(
                       'الصافي',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.end,
@@ -129,7 +130,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: const Text(
+                    child: const fluent.Text(
                       'العملة',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
@@ -137,7 +138,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: const Text(
+                    child: const fluent.Text(
                       'الإجراءات',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.end,
@@ -154,12 +155,12 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
           child: BlocBuilder<ChartOfAccountsBloc, ChartOfAccountsState>(
             builder: (context, state) {
               if (state.status == ChartOfAccountsStatus.loading) {
-                return const Center(child: ProgressRing());
+                return Center(child: fluent.ProgressRing());
               }
 
               if (state.status == ChartOfAccountsStatus.failure) {
                 return Center(
-                  child: Text(
+                  child: fluent.Text(
                     state.errorMessage ?? 'حدث خطأ غير متوقع',
                     style: const TextStyle(color: Colors.red),
                   ),
@@ -273,7 +274,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           alignment: Alignment.center,
-                          child: Text(
+                          child: fluent.Text(
                             'لا توجد حسابات فرعية مضافة بعد لهذا الحساب.',
                             style: TextStyle(
                               color: theme.colorScheme.onSurface.withAlpha(120),
@@ -289,7 +290,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
 
               if (listItems.isEmpty) {
                 return const Center(
-                  child: Text('لا توجد حسابات مطابقة للبحث الحالي.'),
+                  child: fluent.Text('لا توجد حسابات مطابقة للبحث الحالي.'),
                 );
               }
 
@@ -327,16 +328,26 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'البحث برقم الحساب أو الاسم...',
-                    prefixIcon: const Icon(FluentIcons.search),
-                    border: const OutlineInputBorder(),
-
-                    fillColor: theme.colorScheme.surfaceContainerHighest
-                        .withAlpha(40),
-                    filled: true,
+                child: fluent.TextBox(
+                  
+                  decoration: WidgetStateProperty.all(
+                    BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: theme.colorScheme.onSurface.withAlpha(80),
+                      ),
+                    ),
                   ),
+                  prefix: Padding(
+                    
+                    padding: const EdgeInsets.all(8.0),
+                    child: const Icon(fluent.FluentIcons.search),
+                  ),
+                  
+                  placeholder: 'البحث برقم الحساب أو الاسم...',
+                  
+                  padding: Paddings.smallAll,
                   onChanged: (val) {
                     setState(() {
                       _searchQuery = val.trim();
@@ -360,7 +371,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                                   FilterChartOfAccounts(null),
                                 );
                               },
-                              child: const Text('كل المجموعات'),
+                              child: const fluent.Text('كل المجموعات'),
                             ),
                             ...MainAccountGroup.values.map(
                               (g) => MenuItemButton(
@@ -369,34 +380,34 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                                     FilterChartOfAccounts(g),
                                   );
                                 },
-                                child: Text(g.displayName()),
+                                child: fluent.Text(g.displayName()),
                               ),
                             ),
                           ],
-                          child: Text(title),
+                          child: fluent.Text(title),
                         ),
                       ],
                     ),
                   );
                 },
               ),
-              Row(
+              fluent.CommandBar(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton.icon(
+                primaryItems: [
+                  fluent.CommandBarButton(
                     onPressed: () {
                       _showMainAccountDialog(context);
                     },
-                    icon: const Icon(FluentIcons.add),
-                    label: const Text('إضافة حساب رئيسي'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: theme.colorScheme.onPrimary,
-                    ),
+                    icon: const Icon(fluent.FluentIcons.add),
+                    label: const fluent.Text('إضافة حساب رئيسي'),
+                    // style: fluent.CommandBarButton.styleFrom(
+                    //   backgroundColor: theme.colorScheme.primary,
+                    //   foregroundColor: theme.colorScheme.onPrimary,
+                    // ),
                   ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(FluentIcons.refresh),
+                  fluent.CommandBarButton(
+                    icon: const Icon(fluent.FluentIcons.refresh),
+                    label: const fluent.Text('تحديث'),
                     onPressed: () {
                       context.read<ChartOfAccountsBloc>().add(
                         const LoadChartOfAccounts(),

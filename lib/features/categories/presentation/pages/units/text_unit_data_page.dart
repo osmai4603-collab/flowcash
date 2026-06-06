@@ -15,7 +15,7 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class TextUnitDataPage extends StatefulWidget {
   final CategoryPropertyEntity property;
   final UnitEntity? unit;
@@ -109,7 +109,7 @@ class _TextUnitDataPageState extends State<TextUnitDataPage> {
             if (didPop) return;
             _onBackPressed();
           },
-          child: ContentDialog(
+          child: fluent.ContentDialog(
             constraints: const BoxConstraints(maxWidth: 400.0),
             content: Padding(
               padding: Paddings.mediumAll,

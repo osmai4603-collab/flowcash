@@ -10,7 +10,7 @@ import 'package:flowcash/features/injection_container.dart';
 
 import 'transaction_order_form.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class TransactionFormDialog extends StatefulWidget {
   final InventoryTransactionEntity? transaction;
   final List<InventoryTransactionOrderEntity>? initialOrders;
@@ -95,11 +95,11 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedWarehouseId == null) {
-      displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('الرجاء اختيار مستودع الحركة')));
+      fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('الرجاء اختيار مستودع الحركة')));
       return;
     }
     if (_orders.isEmpty) {
-      displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('يجب إضافة بند واحد على الأقل للحركة')));
+      fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('يجب إضافة بند واحد على الأقل للحركة')));
       return;
     }
 
@@ -124,7 +124,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ContentDialog(
+    return fluent.ContentDialog(
       constraints: BoxConstraints(
         maxWidth: 700,
         maxHeight: MediaQuery.of(context).size.height * 0.9,
@@ -132,7 +132,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
       content: _isLoadingCategories
           ? const SizedBox(
               height: 300,
-              child: Center(child: const ProgressRing()),
+              child: Center(child: fluent.ProgressRing()),
             )
           : Form(
               key: _formKey,
@@ -149,7 +149,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                         size: 28,
                       ),
                       const SizedBox(width: 10),
-                      Text(
+                      fluent.Text(
                         _isEdit ? 'تعديل إذن/حركة المخزن' : 'إنشاء إذن/حركة مخزنية جديدة',
                         style: const TextStyle(
                           fontSize: 20,
@@ -179,7 +179,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                           items: InventoryTransactionType.values.map((type) {
                             return DropdownMenuItem<InventoryTransactionType>(
                               value: type,
-                              child: Text(type.displayName()),
+                              child: fluent.Text(type.displayName()),
                             );
                           }).toList(),
                           onChanged: _isEdit
@@ -204,7 +204,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                           items: widget.warehouses.map((w) {
                             return DropdownMenuItem<int>(
                               value: w.id,
-                              child: Text(w.warehouseName),
+                              child: fluent.Text(w.warehouseName),
                             );
                           }).toList(),
                           onChanged: (val) => setState(() => _selectedWarehouseId = val),
@@ -251,7 +251,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      const fluent.Text(
                         '📦 بنود الحركة المخزنية (الأصناف والدفعات)',
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
@@ -274,7 +274,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                           foregroundColor: theme.colorScheme.onPrimaryContainer,
                         ),
                         icon: const Icon(Icons.playlist_add, size: 16),
-                        label: const Text('إضافة بند'),
+                        label: const fluent.Text('إضافة بند'),
                       ),
                     ],
                   ),
@@ -289,7 +289,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                       ),
                       child: _orders.isEmpty
                           ? const Center(
-                              child: Text(
+                              child: fluent.Text(
                                 'لا توجد أصناف مضافة في هذا الإذن حتى الآن. 📥',
                                 style: TextStyle(color: Colors.grey),
                               ),
@@ -303,14 +303,14 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                                   elevation: 0,
                                   color: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
                                   child: ListTile(
-                                    title: Text(
+                                    title: fluent.Text(
                                       _getInventoryLabel(order.inventoryId),
                                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                     ),
                                     trailing: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text(
+                                        fluent.Text(
                                           'الكمية: ${order.countUnits}',
                                           style: const TextStyle(fontWeight: FontWeight.bold),
                                         ),
@@ -337,9 +337,9 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(
+                      fluent.Button(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('إلغاء'),
+                        child: const fluent.Text('إلغاء'),
                       ),
                       const SizedBox(width: 12),
                       ElevatedButton.icon(
@@ -348,7 +348,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         ),
                         icon: const Icon(Icons.save),
-                        label: Text(_isEdit ? 'حفظ إذن الحركة' : 'حفظ وإصدار الإذن'),
+                        label: fluent.Text(_isEdit ? 'حفظ إذن الحركة' : 'حفظ وإصدار الإذن'),
                       ),
                     ],
                   ),

@@ -9,7 +9,7 @@ import 'package:flowcash/features/accounts/presentation/widgets/journal_entry_ro
 import 'package:flowcash/features/accounts/presentation/widgets/journal_entry_detail_panel.dart';
 import 'package:flowcash/features/accounts/presentation/pages/journal_entries/journal_entry_form_dialog.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class JournalEntriesPage extends StatefulWidget {
   const JournalEntriesPage({super.key});
 
@@ -56,27 +56,24 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
       context: context,
       builder: (context) => Material(
         color: Colors.transparent,
-        child: ContentDialog(
+        child: fluent.ContentDialog(
           title: Row(
             children: const [
-              Icon(FluentIcons.warning, color: Colors.red),
+              Icon(fluent.FluentIcons.warning, color: Colors.red),
               SizedBox(width: 10),
-              Text('تأكيد الحذف'),
+              fluent.Text('تأكيد الحذف'),
             ],
           ),
-          content: Text('هل أنت متأكد من رغبتك في حذف القيد رقم "${entry.referenceNumber}"؟ سيتم حذف جميع البنود المرتبطة به وتعديل أرصدة الحسابات.'),
+          content: fluent.Text('هل أنت متأكد من رغبتك في حذف القيد رقم "${entry.referenceNumber}"؟ سيتم حذف جميع البنود المرتبطة به وتعديل أرصدة الحسابات.'),
           actions: [
-            TextButton(
+            fluent.Button(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('إلغاء'),
+              child: const fluent.Text('إلغاء'),
             ),
-            ElevatedButton(
+            fluent.FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('حذف قيد اليومية'),
+              
+              child: const fluent.Text('حذف قيد اليومية'),
             ),
           ],
         ),
@@ -125,7 +122,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Row(
                           children: [
-                            Icon(FluentIcons.search, color: theme.colorScheme.onSurface.withAlpha(120)),
+                            Icon(fluent.FluentIcons.search, color: theme.colorScheme.onSurface.withAlpha(120)),
                             const SizedBox(width: 8),
                             Expanded(
                               child: TextField(
@@ -139,7 +136,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                             ),
                             if (_searchQuery.isNotEmpty)
                               IconButton(
-                                icon: const Icon(FluentIcons.clear, size: 18),
+                                icon: const Icon(fluent.FluentIcons.clear, size: 18),
                                 onPressed: () => _searchController.clear(),
                               ),
                           ],
@@ -151,8 +148,8 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                     // Add Entry button
                     ElevatedButton.icon(
                       onPressed: () => _showEntryDialog(context),
-                      icon: const Icon(FluentIcons.add),
-                      label: const Text('إضافة قيد جديد'),
+                      icon: const Icon(fluent.FluentIcons.add),
+                      label: const fluent.Text('إضافة قيد جديد'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.colorScheme.primary,
                         foregroundColor: theme.colorScheme.onPrimary,
@@ -167,7 +164,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
 
                     // Refresh Button
                     IconButton(
-                      icon: const Icon(FluentIcons.refresh),
+                      icon: const Icon(fluent.FluentIcons.refresh),
                       tooltip: 'إعادة تحميل البيانات',
                       onPressed: () => context.read<JournalEntriesBloc>().add(const LoadJournalEntries()),
                     ),
@@ -206,12 +203,12 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                                 ),
                                 child: Row(
                                   children: [
-                                    const Expanded(flex: 2, child: Text('الرقم المرجعي', style: TextStyle(fontWeight: FontWeight.bold))),
-                                    const Expanded(flex: 4, child: Text('البيان العام للقيد', style: TextStyle(fontWeight: FontWeight.bold))),
-                                    const Expanded(flex: 2, child: Text('التاريخ', style: TextStyle(fontWeight: FontWeight.bold))),
-                                    const Expanded(flex: 1, child: Text('العملة', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center)),
-                                    const Expanded(flex: 2, child: Text('المبلغ الأساسي', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
-                                    const Expanded(flex: 2, child: Text('التحكم', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
+                                    const Expanded(flex: 2, child: fluent.Text('الرقم المرجعي', style: TextStyle(fontWeight: FontWeight.bold))),
+                                    const Expanded(flex: 4, child: fluent.Text('البيان العام للقيد', style: TextStyle(fontWeight: FontWeight.bold))),
+                                    const Expanded(flex: 2, child: fluent.Text('التاريخ', style: TextStyle(fontWeight: FontWeight.bold))),
+                                    const Expanded(flex: 1, child: fluent.Text('العملة', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center)),
+                                    const Expanded(flex: 2, child: fluent.Text('المبلغ الأساسي', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
+                                    const Expanded(flex: 2, child: fluent.Text('التحكم', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
                                   ],
                                 ),
                               ),
@@ -219,11 +216,11 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                               // Items List
                               Expanded(
                                 child: state.status == JournalEntriesStatus.loading
-                                    ? const Center(child: ProgressRing())
+                                    ? const Center(child: fluent.ProgressRing())
                                     : state.status == JournalEntriesStatus.failure
-                                        ? Center(child: Text('خطأ في تحميل القيود: ${state.errorMessage}'))
+                                        ? Center(child: fluent.Text('خطأ في تحميل القيود: ${state.errorMessage}'))
                                         : filteredEntries.isEmpty
-                                            ? const Center(child: Text('لا توجد قيود يومية مسجلة'))
+                                            ? const Center(child: fluent.Text('لا توجد قيود يومية مسجلة'))
                                             : ListView.builder(
                                                 itemCount: filteredEntries.length,
                                                 itemBuilder: (context, index) {
@@ -262,12 +259,12 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(FluentIcons.note_pinned,
+                                      Icon(fluent.FluentIcons.note_pinned,
                                         size: 64,
                                         color: theme.colorScheme.onSurface.withAlpha(50),
                                       ),
                                       const SizedBox(height: 16),
-                                      Text(
+                                      fluent.Text(
                                         'يرجى تحديد قيد يومية لعرض التفاصيل',
                                         style: TextStyle(
                                           fontSize: 16,

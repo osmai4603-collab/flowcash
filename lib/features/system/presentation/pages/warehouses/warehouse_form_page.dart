@@ -6,7 +6,7 @@ import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dar
 import 'package:flowcash/features/inventory/domain/usecases/warehouse_usecases.dart';
 import 'package:flowcash/features/system/presentation/bloc/warehouses/warehouse_form_bloc.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ContentDialog, FluentIcons, ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class WarehouseFormPage extends StatefulWidget {
   const WarehouseFormPage({super.key, this.initialValue});
 
@@ -20,6 +20,8 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _locationController;
+  late final TextEditingController _warehouseTypeController;
+  late final TextEditingController _parentWarehouseController;
   final List<WarehouseEntity> _parentWarehouses = [];
   bool _isLoadingParents = true;
   String? _parentLoadError;
@@ -29,6 +31,10 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.initialValue?.warehouseName ?? '');
     _locationController = TextEditingController(text: widget.initialValue?.location ?? '');
+    _warehouseTypeController = TextEditingController(
+      text: widget.initialValue?.warehouseType.displayName() ?? '',
+    );
+    _parentWarehouseController = TextEditingController();
     _loadParentWarehouses();
   }
 
@@ -44,10 +50,15 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
       },
       (warehouses) {
         if (!mounted) return;
+        final parentRoots = warehouses.where((warehouse) => warehouse.parentId == null).toList();
+        final selectedParent = parentRoots.where((warehouse) => warehouse.id == widget.initialValue?.parentId).toList();
+        if (selectedParent.isNotEmpty) {
+          _parentWarehouseController.text = '${selectedParent.first.warehouseName} (${selectedParent.first.id})';
+        }
         setState(() {
           _parentWarehouses
             ..clear()
-            ..addAll(warehouses.where((warehouse) => warehouse.parentId == null));
+            ..addAll(parentRoots);
           _isLoadingParents = false;
         });
       },
@@ -58,6 +69,8 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
   void dispose() {
     _nameController.dispose();
     _locationController.dispose();
+    _warehouseTypeController.dispose();
+    _parentWarehouseController.dispose();
     super.dispose();
   }
 
@@ -75,9 +88,9 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
             Navigator.of(context).pop(state.savedEntity);
           }
         },
-        child: ContentDialog(
+        child: fluent.ContentDialog(
           constraints: const BoxConstraints(maxWidth: 400, minWidth: 400),
-          title: Text(widget.initialValue == null ? 'إضافة مستودع' : 'تعديل المستودع'),
+          title: fluent.Text(widget.initialValue == null ? 'إضافة مستودع' : 'تعديل المستودع'),
           
           content: BlocBuilder<WarehouseFormBloc, WarehouseFormState>(
             builder: (context, state) {
@@ -87,79 +100,92 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'اسم المستودع',
-                        
-                        prefixIcon: Icon(FluentIcons.store_logo16),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'الرجاء إدخال اسم المستودع';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        context.read<WarehouseFormBloc>().add(WarehouseFormNameChanged(value));
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _locationController,
-                      decoration: const InputDecoration(
-                        labelText: 'العنوان',
-                        
-                        prefixIcon: Icon(FluentIcons.location),
-                      ),
-                      onChanged: (value) {
-                        context.read<WarehouseFormBloc>().add(WarehouseFormLocationChanged(value));
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<WarehouseType>(
-                      initialValue: state.warehouse.warehouseType,
-                      decoration: const InputDecoration(
-                        labelText: 'نوع المستودع',
-                        
-                        prefixIcon: Icon(FluentIcons.category_classification),
-                      ),
-                      items: WarehouseType.values.map((warehouseType) {
-                        return DropdownMenuItem(
-                          value: warehouseType,
-                          child: Text(warehouseType.displayName()),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value == null) return;
-                        context.read<WarehouseFormBloc>().add(WarehouseFormTypeChanged(value));
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<int?>(
-                      initialValue: state.warehouse.parentId,
-                      decoration: const InputDecoration(
-                        labelText: 'المستودع الأب (اختياري)',
-                        
-                        prefixIcon: Icon(FluentIcons.account_management),
-                      ),
-                      items: [
-                        const DropdownMenuItem<int?>(
-                          value: null,
-                          child: Text('لا يوجد مستودع أب'),
+                    fluent.InfoLabel(
+                      label: 'اسم المستودع',
+                      child: fluent.TextFormBox(
+                        controller: _nameController,
+                        prefix: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: fluent.Icon(fluent.FluentIcons.store_logo16),
                         ),
-                        ..._parentWarehouses.map(
-                          (warehouse) => DropdownMenuItem<int?>(
-                            value: warehouse.id,
-                            child: Text('${warehouse.warehouseName} (${warehouse.id})'),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'الرجاء إدخال اسم المستودع';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          context.read<WarehouseFormBloc>().add(WarehouseFormNameChanged(value));
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    fluent.InfoLabel(
+                      label: 'العنوان',
+                      child: fluent.TextFormBox(
+                        controller: _locationController,
+                        prefix: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: fluent.Icon(fluent.FluentIcons.location),
+                        ),
+                        onChanged: (value) {
+                          context.read<WarehouseFormBloc>().add(WarehouseFormLocationChanged(value));
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    fluent.InfoLabel(
+                      label: 'نوع المستودع',
+                      child: fluent.AutoSuggestBox<WarehouseType>.form(
+                        controller: _warehouseTypeController,
+                        items: WarehouseType.values.map((warehouseType) {
+                          return fluent.AutoSuggestBoxItem<WarehouseType>(
+                            value: warehouseType,
+                            label: warehouseType.displayName(),
+                          );
+                        }).toList(),
+                        leadingIcon: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: fluent.Icon(fluent.FluentIcons.category_classification),
+                        ),
+                        placeholder: 'حدد نوع مستودع',
+                        onSelected: (item) {
+                          _warehouseTypeController.text = item.label;
+                          context.read<WarehouseFormBloc>().add(WarehouseFormTypeChanged(item.value!));
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    fluent.InfoLabel(
+                      label: 'المستودع الأب (اختياري)',
+                      child: fluent.AutoSuggestBox<int?>.form(
+                        controller: _parentWarehouseController,
+                        items: [
+                          fluent.AutoSuggestBoxItem<int?>(
+                            value: null,
+                            label: 'لا يوجد مستودع أب',
                           ),
+                          ..._parentWarehouses.map(
+                            (warehouse) => fluent.AutoSuggestBoxItem<int?>(
+                              value: warehouse.id,
+                              label: '${warehouse.warehouseName} (${warehouse.id})',
+                            ),
+                          ),
+                        ],
+                        leadingIcon: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: fluent.Icon(fluent.FluentIcons.account_management),
                         ),
-                      ],
-                      onChanged: _isLoadingParents
-                          ? null
-                          : (value) {
-                              context.read<WarehouseFormBloc>().add(WarehouseFormParentIdChanged(value));
-                            },
+                        placeholder: _isLoadingParents
+                            ? 'جاري تحميل المستودعات...'
+                            : 'حدد مستودع أب',
+                        enabled: !_isLoadingParents,
+                        onSelected: (item) {
+                          _parentWarehouseController.text = item.label;
+                          context.read<WarehouseFormBloc>().add(WarehouseFormParentIdChanged(item.value));
+                        },
+                        noResultsFoundBuilder: (_) => const fluent.Text('لا يوجد نتائج'),
+                      ),
                     ),
                     if (_isLoadingParents) ...[
                       const SizedBox(height: 12),
@@ -167,7 +193,7 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
                     ],
                     if (_parentLoadError != null) ...[
                       const SizedBox(height: 12),
-                      Text(
+                      fluent.Text(
                         _parentLoadError!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.error,
@@ -176,7 +202,7 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
                     ],
                     if (state.errorMessage != null) ...[
                       const SizedBox(height: 12),
-                      Text(
+                      fluent.Text(
                         state.errorMessage!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.error,
@@ -188,12 +214,13 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
               );
             },
           ),
+
           actions: [
-            TextButton(
+            fluent.Button(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('إلغاء'),
+              child: const fluent.Text('إلغاء'),
             ),
-            FilledButton(
+            fluent.FilledButton(
               onPressed: () {
                 if (!_formKey.currentState!.validate()) return;
                 context.read<WarehouseFormBloc>().add(WarehouseFormSubmitted());
@@ -204,9 +231,9 @@ class _WarehouseFormPageState extends State<WarehouseFormPage> {
                       ? const SizedBox(
                           height: 18,
                           width: 18,
-                          child: ProgressRing(strokeWidth: 2),
+                          child: fluent.ProgressRing(strokeWidth: 2),
                         )
-                      : const Text('حفظ');
+                      : const fluent.Text('حفظ');
                 },
               ),
             ),

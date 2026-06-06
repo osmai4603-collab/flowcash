@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/system/presentation/bloc/company/company_cubit.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show ProgressRing;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class CompanyPage extends StatelessWidget {
   const CompanyPage({super.key});
  
@@ -11,18 +11,18 @@ class CompanyPage extends StatelessWidget {
     return BlocBuilder<CompanyBloc, CompanyState>(
       builder: (context, state) {
         if (state is CompanyLoading) {
-          return const Center(child: ProgressRing());
+          return const Center(child: fluent.ProgressRing());
         }
         if (state is CompanyFailure) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(state.errorMessage),
+                fluent.Text(state.errorMessage),
                 const SizedBox(height: 8),
-                ElevatedButton(
+                fluent.FilledButton(
                   onPressed: () => context.read<CompanyBloc>().add(LoadCompanyEvent()),
-                  child: const Text('إعادة المحاولة'),
+                  child: const fluent.Text('إعادة المحاولة'),
                 ),
               ],
             ),
@@ -35,9 +35,9 @@ class CompanyPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(company?.name ?? 'اسم الشركة', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                fluent.Text(company?.name ?? 'اسم الشركة', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Text(company?.address ?? ''),
+                fluent.Text(company?.address ?? ''),
               ],
             ),
           );
