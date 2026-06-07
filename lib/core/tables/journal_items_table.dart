@@ -11,9 +11,8 @@ class JournalItemsTable {
   static const String credit = 'credit';
   static const String lineDescription = 'line_description';
   static const String currencyId = 'currency_id';
-  static const String debitBase = 'debit_base';
-  static const String creditBase = 'credit_base';
-  static const String warehouseId = 'warehouse_id';
+  static const String exPrice = 'ex_price';
+  static const String expriceMain = 'exprice_main';
 
   static const List<String> fields = [
     itemId,
@@ -23,8 +22,7 @@ class JournalItemsTable {
     credit,
     lineDescription,
     currencyId,
-    debitBase,
-    creditBase,
-    warehouseId,
+    exPrice,
+    expriceMain,
   ];
 }

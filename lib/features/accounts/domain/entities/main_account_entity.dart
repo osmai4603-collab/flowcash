@@ -5,10 +5,9 @@ class MainAccountEntity extends Entity {
   final int id;
   final String accountName;
   final String accountNumber;
-  final String imagePath;
   final String? currencyId;
-  final double incrementsBalance;
-  final double decrementsBalance;
+  final double debitBalance;
+  final double creditBalance;
   final MainAccountType mainAccountType;
   final int numbersCounter;
 
@@ -17,10 +16,9 @@ class MainAccountEntity extends Entity {
     required this.id,
     this.accountName = '',
     this.accountNumber = '',
-    this.imagePath = '',
     this.currencyId,
-    this.incrementsBalance = 0.0,
-    this.decrementsBalance = 0.0,
+    this.debitBalance = 0.0,
+    this.creditBalance = 0.0,
     required this.mainAccountType,
     this.numbersCounter = 1,
   });
@@ -30,26 +28,24 @@ class MainAccountEntity extends Entity {
         id,
         accountName,
         accountNumber,
-        imagePath,
         currencyId,
-        incrementsBalance,
-        decrementsBalance,
+        debitBalance,
+        creditBalance,
         mainAccountType,
         numbersCounter,
       ];
 
   double get balance {
-    return incrementsBalance - decrementsBalance;
+    return debitBalance - creditBalance;
   }
 
   MainAccountEntity copyWith({
     int? id,
     String? accountName,
     String? accountNumber,
-    String? imagePath,
     String? currencyId,
-    double? incrementsBalance,
-    double? decrementsBalance,
+    double? debitBalance,
+    double? creditBalance,
     MainAccountType? mainAccountType,
     int? numbersCounter,
   }) {
@@ -57,10 +53,9 @@ class MainAccountEntity extends Entity {
       id: id ?? this.id,
       accountName: accountName ?? this.accountName,
       accountNumber: accountNumber ?? this.accountNumber,
-      imagePath: imagePath ?? this.imagePath,
       currencyId: currencyId ?? this.currencyId,
-      incrementsBalance: incrementsBalance ?? this.incrementsBalance,
-      decrementsBalance: decrementsBalance ?? this.decrementsBalance,
+      debitBalance: debitBalance ?? this.debitBalance,
+      creditBalance: creditBalance ?? this.creditBalance,
       mainAccountType: mainAccountType ?? this.mainAccountType,
       numbersCounter: numbersCounter ?? this.numbersCounter,
     );

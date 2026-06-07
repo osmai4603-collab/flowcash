@@ -13,7 +13,7 @@ abstract interface class MainAccountRepository implements RepositoryDB<MainAccou
   Future<Either<Failure, int?>> getMaxAccountNumber(MainAccountGroup accountType);
   Future<Either<Failure, List<MainAccountEntity>>> whereWarehouse(int warehouseId);
   Future<Either<Failure, bool>> updateCounter({required int counter, required int id});
-  Future<Either<Failure, bool>> updateBalances({required double incrementBalance, required double decrementBalance, required int id});
+  Future<Either<Failure, bool>> updateBalances({required double debitBalance, required double creditBalance, required int id});
   Future<Either<Failure, bool>> updateBalance({required bool isIncrement, required double amount, required int subAccountId});
   Future<Either<Failure, MainAccountEntity>> firstWhereSubAccountId(int subAccountId);
 }

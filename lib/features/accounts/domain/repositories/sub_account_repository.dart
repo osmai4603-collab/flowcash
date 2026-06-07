@@ -35,8 +35,8 @@ abstract interface class SubAccountRepository
     required int periodId,
   });
   Future<Either<Failure, bool>> updateBalances({
-    required double incrementBalance,
-    required double decrementBalance,
+    required double debitBalance,
+    required double creditBalance,
     required int incrementsCountHistories,
     required int decrementsCountHistories,
     required int id,

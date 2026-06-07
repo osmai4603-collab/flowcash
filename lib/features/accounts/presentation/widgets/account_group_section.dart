@@ -21,8 +21,8 @@ class AccountGroupSection extends StatelessWidget {
     double totalDebit = 0.0;
     double totalCredit = 0.0;
     for (final acc in mainAccounts) {
-      totalDebit += acc.incrementsBalance;
-      totalCredit += acc.decrementsBalance;
+      totalDebit += acc.debitBalance;
+      totalCredit += acc.creditBalance;
     }
     final totalNet = totalDebit - totalCredit;
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flowcash/features/inventory/domain/entities/opening_quantity_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
-import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
 import 'package:flowcash/features/injection_container.dart';
@@ -10,12 +9,10 @@ import 'package:flowcash/widgets/combo_box_form.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class OpeningQuantityFormDialog extends StatefulWidget {
   final List<InventoryEntity> inventoryItems;
-  final List<WarehouseEntity> warehouses;
 
   const OpeningQuantityFormDialog({
     super.key,
     required this.inventoryItems,
-    required this.warehouses,
   });
 
   @override
@@ -27,7 +24,6 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
 
   final _inventoryItemController = TextEditingController();
   int? _selectedInventoryId;
-  int? _selectedWarehouseId;
   final _quantityController = TextEditingController();
   final _costTotalController = TextEditingController();
 
@@ -70,15 +66,14 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedInventoryId == null || _selectedWarehouseId == null) return;
+    if (_selectedInventoryId == null) return;
 
     final quantity = double.tryParse(_quantityController.text) ?? 1.0;
     final totalCost = double.tryParse(_costTotalController.text) ?? 0.0;
 
     final entity = OpeningQuantityEntity(
       id: 0,
-      categoryId: _selectedInventoryId!,
-      warehouseId: _selectedWarehouseId!,
+      inventoryId: _selectedInventoryId!,
       countUnits: quantity,
       costTotal: totalCost,
       createdAt: DateTime.now(),
@@ -152,24 +147,6 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                         }
                       },
                       validator: (_) => _selectedInventoryId == null ? 'الصنف مطلوب' : null,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Warehouse
-                    DropdownButtonFormField<int>(
-                      decoration: const InputDecoration(
-                        labelText: 'اختر المستودع',
-                        prefixIcon: Icon(fluent.FluentIcons.store_logo16),
-                      ),
-                      initialValue: _selectedWarehouseId,
-                      items: widget.warehouses.map((w) {
-                        return DropdownMenuItem<int>(
-                          value: w.id,
-                          child: fluent.Text(w.warehouseName),
-                        );
-                      }).toList(),
-                      onChanged: (val) => setState(() => _selectedWarehouseId = val),
-                      validator: (val) => val == null ? 'المستودع مطلوب' : null,
                     ),
                     const SizedBox(height: 16),
 

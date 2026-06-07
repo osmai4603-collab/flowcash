@@ -31,6 +31,7 @@ final class WarehouseValueLocalDataSourceImpl
       table: WarehouseValuesTable.tableName,
       where: '${WarehouseValuesTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -99,6 +100,7 @@ final class WarehouseValueLocalDataSourceImpl
       where:
           '${WarehouseValuesTable.warehouseId} = ? AND ${WarehouseValuesTable.valueType} = ?',
       whereArgs: [warehouseId, valueType.name],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

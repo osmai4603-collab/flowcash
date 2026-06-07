@@ -35,6 +35,7 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
       table: ProgramUsersTable.tableName,
       where: '${ProgramUsersTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return ProgramUserModel.fromMap(rows.first);
@@ -99,6 +100,7 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
       table: ProgramUsersTable.tableName,
       where: '${ProgramUsersTable.userName} = ? AND ${ProgramUsersTable.password} = ?',
       whereArgs: [userName, password],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return ProgramUserModel.fromMap(rows.first);
@@ -123,6 +125,7 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
       table: ProgramUsersTable.tableName,
       where: '${ProgramUsersTable.userName} = ? AND ${ProgramUsersTable.password} = ?',
       whereArgs: [userName, password],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return ProgramUserModel.fromMap(rows.first);

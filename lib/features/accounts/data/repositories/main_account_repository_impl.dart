@@ -184,14 +184,14 @@ class MainAccountRepositoryImpl implements MainAccountRepository {
 
   @override
   Future<Either<Failure, bool>> updateBalances({
-    required double incrementBalance,
-    required double decrementBalance,
+    required double debitBalance,
+    required double creditBalance,
     required int id,
   }) async {
     try {
       final res = await _dataSource.updateBalances(
-        incrementBalance: incrementBalance,
-        decrementBalance: decrementBalance,
+        debitBalance: debitBalance,
+        creditBalance: creditBalance,
         id: id,
       );
       return Right(res);

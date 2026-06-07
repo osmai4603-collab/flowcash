@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
 
 enum JournalItemSide { debit, credit }
 
@@ -42,7 +43,14 @@ class JournalItemDraft extends Equatable {
   }
 
   @override
-  List<Object?> get props => [accountId, accountName, debit, credit, side, lineDescription];
+  List<Object?> get props => [
+    accountId,
+    accountName,
+    debit,
+    credit,
+    side,
+    lineDescription,
+  ];
 }
 
 class JournalEntryFormState extends Equatable {
@@ -50,8 +58,9 @@ class JournalEntryFormState extends Equatable {
   final JournalEntryEntity? editingEntry;
   final String description;
   final DateTime date;
-  final String currencyId;
-  final double exPrice;
+  final CurrencyEntity? currencySelected;
+  final List<CurrencyEntity> currencies;
+  final bool isLoadingCurrencies;
   final List<JournalItemDraft> items;
   final String? errorMessage;
 
@@ -60,8 +69,9 @@ class JournalEntryFormState extends Equatable {
     this.editingEntry,
     required this.description,
     required this.date,
-    required this.currencyId,
-    required this.exPrice,
+    required this.currencySelected,
+    required this.currencies,
+    required this.isLoadingCurrencies,
     required this.items,
     this.errorMessage,
   });
@@ -71,8 +81,9 @@ class JournalEntryFormState extends Equatable {
       status: JournalEntryFormStatus.initial,
       description: '',
       date: DateTime.now(),
-      currencyId: '1',
-      exPrice: 1.0,
+      currencySelected: null,
+      currencies: const [],
+      isLoadingCurrencies: false,
       items: const [
         JournalItemDraft(side: JournalItemSide.debit),
         JournalItemDraft(side: JournalItemSide.credit),
@@ -85,7 +96,9 @@ class JournalEntryFormState extends Equatable {
     JournalEntryEntity? editingEntry,
     String? description,
     DateTime? date,
-    String? currencyId,
+    CurrencyEntity? currencySelected,
+    List<CurrencyEntity>? currencies,
+    bool? isLoadingCurrencies,
     double? exPrice,
     List<JournalItemDraft>? items,
     String? errorMessage,
@@ -95,8 +108,9 @@ class JournalEntryFormState extends Equatable {
       editingEntry: editingEntry ?? this.editingEntry,
       description: description ?? this.description,
       date: date ?? this.date,
-      currencyId: currencyId ?? this.currencyId,
-      exPrice: exPrice ?? this.exPrice,
+      currencySelected: currencySelected ?? this.currencySelected,
+      currencies: currencies ?? this.currencies,
+      isLoadingCurrencies: isLoadingCurrencies ?? this.isLoadingCurrencies,
       items: items ?? this.items,
       errorMessage: errorMessage ?? this.errorMessage,
     );
@@ -109,13 +123,14 @@ class JournalEntryFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        editingEntry,
-        description,
-        date,
-        currencyId,
-        exPrice,
-        items,
-        errorMessage,
-      ];
+    status,
+    editingEntry,
+    description,
+    date,
+    currencySelected,
+    currencies,
+    isLoadingCurrencies,
+    items,
+    errorMessage,
+  ];
 }

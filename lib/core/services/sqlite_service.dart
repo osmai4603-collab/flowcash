@@ -78,6 +78,8 @@ final class SqliteService {
     required String table,
     required Map<String, dynamic> data,
   }) async {
+    _validateNotNullBillNumber(table: table, data: data);
+
     final db = await database;
     final columns = data.keys.join(', ');
     final placeholders = List.filled(data.length, '?').join(', ');
@@ -108,6 +110,7 @@ final class SqliteService {
     );
 
     for (final data in dataList) {
+      _validateNotNullBillNumber(table: table, data: data);
       stmt.execute(data.values.toList());
     }
     stmt.dispose();
@@ -132,6 +135,8 @@ final class SqliteService {
     required Map<String, dynamic> data,
     required Map<String, dynamic> where,
   }) async {
+    _validateNotNullBillNumber(table: table, data: data);
+
     final db = await database;
     final setClause = data.keys.map((k) => '$k = ?').join(', ');
     final whereClause = where.keys.map((k) => '$k = ?').join(' AND ');
@@ -140,6 +145,19 @@ final class SqliteService {
     debugPrint('${sql}with args: ${data.values.join()}');
     stmt.execute([...data.values, ...where.values]);
     stmt.dispose();
+  }
+
+  void _validateNotNullBillNumber({
+    required String table,
+    required Map<String, dynamic> data,
+  }) {
+    if (data.containsKey('bill_number') && data['bill_number'] == null) {
+      throw ArgumentError.value(
+        data['bill_number'],
+        'bill_number',
+        'bill_number must not be null for table $table',
+      );
+    }
   }
 
 

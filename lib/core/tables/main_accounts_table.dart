@@ -7,10 +7,9 @@ class MainAccountsTable {
   static const String id = 'account_id';
   static const String accountName = 'account_name';
   static const String accountNumber = 'account_number';
-  static const String imagePath = 'image_path';
   static const String currencyId = 'currency_id';
-  static const String incrementsBalance = 'inc_balance';
-  static const String decrementsBalance = 'dec_balance';
+  static const String debitBalance = 'debit_balance';
+  static const String creditBalance = 'credit_balance';
   static const String mainAccountType = 'type';
   static const String numbersCounter = 'counter_acc';
 
@@ -19,10 +18,9 @@ class MainAccountsTable {
     accountName,
     accountNumber,
     currencyId,
-    incrementsBalance,
-    decrementsBalance,
+    debitBalance,
+    creditBalance,
     numbersCounter,
-    imagePath,
     mainAccountType,
   ];
 }

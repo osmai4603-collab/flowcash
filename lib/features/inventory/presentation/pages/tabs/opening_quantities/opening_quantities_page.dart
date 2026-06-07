@@ -4,8 +4,6 @@ import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/features/inventory/domain/entities/opening_quantity_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
-import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
-import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/opening_quantities/opening_quantities_bloc.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/opening_quantities/opening_quantities_event.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/opening_quantities/opening_quantities_state.dart';
@@ -24,37 +22,22 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
   String _searchQuery = "";
   int? _filterWarehouseId;
 
-  List<CategoryEntity> _categories = [];
-  bool _isLoadingMetaData = true;
+  final bool _isLoadingMetaData = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadMetaData();
-  }
-
-  Future<void> _loadMetaData() async {
+  String _getInventoryName(int inventoryId, List<InventoryEntity> items) {
     try {
-      final res = await sl<GetAllCategoriesUseCase>().call();
-      if (mounted) {
-        setState(() {
-          res.fold((_) => null, (list) => _categories = list);
-          _isLoadingMetaData = false;
-        });
-      }
+      final item = items.firstWhere((i) => i.id == inventoryId);
+      return item.inventoryName;
     } catch (_) {
-      if (mounted) {
-        setState(() => _isLoadingMetaData = false);
-      }
+      return 'صنف (#$inventoryId)';
     }
   }
 
-  String _getInventoryName(int id, List<InventoryEntity> items) {
+  int? _getInventoryWarehouseId(int inventoryId, List<InventoryEntity> items) {
     try {
-      final item = items.firstWhere((i) => i.id == id);
-      return _categories.firstWhere((c) => c.id == item.categoryId).categoryName;
+      return items.firstWhere((i) => i.id == inventoryId).storeId;
     } catch (_) {
-      return 'صنف (#$id)';
+      return null;
     }
   }
 
@@ -87,9 +70,9 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
 
           // Apply client filters
           final filteredItems = state.items.where((i) {
-            final nameLower = _getInventoryName(i.categoryId, state.inventoryItems).toLowerCase();
+            final nameLower = _getInventoryName(i.inventoryId, state.inventoryItems).toLowerCase();
             final matchesSearch = nameLower.contains(_searchQuery.toLowerCase());
-            final matchesWarehouse = _filterWarehouseId == null || i.warehouseId == _filterWarehouseId;
+            final matchesWarehouse = _filterWarehouseId == null || _getInventoryWarehouseId(i.inventoryId, state.inventoryItems) == _filterWarehouseId;
             return matchesSearch && matchesWarehouse;
           }).toList();
 
@@ -161,7 +144,6 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                               context: context,
                               builder: (context) => OpeningQuantityFormDialog(
                                 inventoryItems: state.inventoryItems,
-                                warehouses: state.warehouses,
                               ),
                             );
                             if (result != null) {
@@ -225,12 +207,17 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                                         Expanded(
                                           flex: 2,
                                           child: fluent.Text(
-                                            _getInventoryName(item.categoryId, state.inventoryItems),
+                                            _getInventoryName(item.inventoryId, state.inventoryItems),
                                             style: const TextStyle(fontWeight: FontWeight.bold),
                                           ),
                                         ),
                                         Expanded(
-                                          child: fluent.Text(_getWarehouseName(item.warehouseId, state.warehouses)),
+                                          child: fluent.Text(
+                                            _getWarehouseName(
+                                              _getInventoryWarehouseId(item.inventoryId, state.inventoryItems) ?? 0,
+                                              state.warehouses,
+                                            ),
+                                          ),
                                         ),
                                         Expanded(
                                           child: fluent.Text(item.countUnits.toString()),

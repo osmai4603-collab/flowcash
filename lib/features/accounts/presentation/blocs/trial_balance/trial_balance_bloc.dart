@@ -55,8 +55,8 @@ class TrialBalanceBloc extends Bloc<TrialBalanceEvent, TrialBalanceState> {
               final balances = <int, Map<String, double>>{};
               for (final sub in subAccounts) {
                 balances[sub.id] = {
-                  'debit': sub.incrementsBalance,
-                  'credit': sub.decrementsBalance,
+                  'debit': sub.debitBalance,
+                  'credit': sub.creditBalance,
                 };
               }
               emit(state.copyWith(

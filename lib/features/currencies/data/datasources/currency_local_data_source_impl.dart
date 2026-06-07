@@ -30,6 +30,7 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
       table: CurrenciesTable.tableName,
       where: '${CurrenciesTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -120,11 +121,9 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
       id: map[CurrenciesTable.id],
       name: (map[CurrenciesTable.currencyName] as String?) ?? "",
       symbol: (map[CurrenciesTable.symbol] as String?) ?? "",
-      fullSymbol: (map[CurrenciesTable.fullSymbol] as String?) ?? "",
-      country: (map[CurrenciesTable.country] as String?) ?? "",
-      selected:
-          (map[CurrenciesTable.selected] == true ||
-          map[CurrenciesTable.selected] == 1),
+      isDefault:
+          (map[CurrenciesTable.isDefault] == true ||
+          map[CurrenciesTable.isDefault] == 1),
     );
   }
 
@@ -134,9 +133,7 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
       CurrenciesTable.id: entity.id,
       CurrenciesTable.currencyName: entity.name,
       CurrenciesTable.symbol: entity.symbol,
-      CurrenciesTable.fullSymbol: entity.fullSymbol,
-      CurrenciesTable.country: entity.country,
-      CurrenciesTable.selected: entity.selected ? 1 : 0,
+      CurrenciesTable.isDefault: entity.isDefault ? 1 : 0,
     };
   }
 
@@ -145,7 +142,12 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
     bool trigger = false,
     bool printQuery = true,
   }) async {
-    throw UnimplementedError();
+    final rows = await _db.query(
+      table: CurrenciesTable.tableName,
+      where: '${CurrenciesTable.isDefault} = ?',
+      whereArgs: [1],
+    );
+    return rows.map(fromMap).toList();
   }
 
   @override
@@ -153,7 +155,12 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
     bool trigger = false,
     bool printQuery = true,
   }) async {
-    throw UnimplementedError();
+    final rows = await _db.query(
+      table: CurrenciesTable.tableName,
+      where: '${CurrenciesTable.isDefault} = ?',
+      whereArgs: [0],
+    );
+    return rows.map(fromMap).toList();
   }
 
   Map<String, dynamic> _sanitizeInsertData(

@@ -20,8 +20,6 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
   late final TextEditingController _idController;
   late final TextEditingController _nameController;
   late final TextEditingController _symbolController;
-  late final TextEditingController _fullSymbolController;
-  late final TextEditingController _countryController;
 
   @override
   void initState() {
@@ -29,8 +27,6 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
     _idController = TextEditingController(text: widget.initialValue?.id ?? '');
     _nameController = TextEditingController(text: widget.initialValue?.name ?? '');
     _symbolController = TextEditingController(text: widget.initialValue?.symbol ?? '');
-    _fullSymbolController = TextEditingController(text: widget.initialValue?.fullSymbol ?? '');
-    _countryController = TextEditingController(text: widget.initialValue?.country ?? '');
   }
 
   @override
@@ -38,8 +34,6 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
     _idController.dispose();
     _nameController.dispose();
     _symbolController.dispose();
-    _fullSymbolController.dispose();
-    _countryController.dispose();
     super.dispose();
   }
 
@@ -124,39 +118,11 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    fluent.InfoLabel(
-                      label: 'الرمز الكامل',
-                      child: fluent.TextFormBox(
-                        controller: _fullSymbolController,
-                        prefix: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: fluent.Icon(fluent.FluentIcons.important),
-                        ),
-                        onChanged: (value) => context.read<CurrencyFormBloc>().add(
-                              CurrencyFormFullSymbolChanged(value),
-                            ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    fluent.InfoLabel(
-                      label: 'البلد',
-                      child: fluent.TextFormBox(
-                        controller: _countryController,
-                        prefix: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: fluent.Icon(fluent.FluentIcons.public_folder),
-                        ),
-                        onChanged: (value) => context.read<CurrencyFormBloc>().add(
-                              CurrencyFormCountryChanged(value),
-                            ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
                     fluent.ToggleSwitch(
-                      content: const fluent.Text('محدد'),
-                      checked: state.selected,
+                      content: const fluent.Text('افتراضي'),
+                      checked: state.isDefault,
                       onChanged: (value) => context.read<CurrencyFormBloc>().add(
-                            CurrencyFormSelectedChanged(value),
+                            CurrencyFormIsDefaultChanged(value),
                           ),
                     ),
                     if (state.errorMessage != null) ...[

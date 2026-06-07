@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
 import 'journal_entry_form_state.dart';
 
 sealed class JournalEntryFormEvent extends Equatable {
@@ -34,12 +35,12 @@ class JournalEntryDateChanged extends JournalEntryFormEvent {
 }
 
 class JournalEntryCurrencyChanged extends JournalEntryFormEvent {
-  final String currencyId;
+  final CurrencyEntity currency;
   final double exPrice;
-  const JournalEntryCurrencyChanged(this.currencyId, this.exPrice);
+  const JournalEntryCurrencyChanged(this.currency, this.exPrice);
 
   @override
-  List<Object?> get props => [currencyId, exPrice];
+  List<Object?> get props => [currency, exPrice];
 }
 
 class AddJournalItemField extends JournalEntryFormEvent {

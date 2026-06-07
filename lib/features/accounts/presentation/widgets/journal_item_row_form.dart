@@ -4,12 +4,20 @@ import 'package:flowcash/features/accounts/domain/entities/sub_account_simple_en
 import 'package:flowcash/features/accounts/presentation/blocs/journal_entry_form/journal_entry_form_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class JournalItemRowForm extends StatefulWidget {
   final int index;
   final JournalItemDraft draft;
   final JournalItemSide side;
   final List<SubAccountSimpleEntity> subAccounts;
-  final void Function({int? accountId, String? accountName, double? debit, double? credit, String? lineDescription}) onChanged;
+  final void Function({
+    int? accountId,
+    String? accountName,
+    double? debit,
+    double? credit,
+    String? lineDescription,
+  })
+  onChanged;
   final VoidCallback onDelete;
   final bool canDelete;
 
@@ -37,7 +45,9 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
   @override
   void initState() {
     super.initState();
-    _accountController = TextEditingController(text: widget.draft.accountName ?? '');
+    _accountController = TextEditingController(
+      text: widget.draft.accountName ?? '',
+    );
     _debitController = TextEditingController(
       text: widget.draft.debit > 0 ? widget.draft.debit.toString() : '',
     );
@@ -78,7 +88,12 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
   String? _validateAmounts() {
     final debitVal = double.tryParse(_debitController.text) ?? 0.0;
     final creditVal = double.tryParse(_creditController.text) ?? 0.0;
-    if (debitVal > 0 && creditVal > 0) return 'لا يمكن أن يحتوي البند على مدين ودائن معًا';
+    if (debitVal > 0 && creditVal > 0) {
+      return 'لا يمكن أن يحتوي البند على مدين ودائن معًا';
+    }
+    if (debitVal == 0.0 && creditVal == 0.0) {
+      return 'أدخل مبلغاً للمدين أو الدائن';
+    }
     return null;
   }
 
@@ -94,15 +109,26 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
             flex: 4,
             child: ComboBoxForm<SubAccountSimpleEntity>(
               controller: _accountController,
-              decoration: InputDecoration(
-                hintText: 'ابحث عن الحساب الفرعي...',
-                
-                prefixIcon: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: fluent.Icon(fluent.FluentIcons.search),
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              prefix: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: fluent.Icon(fluent.FluentIcons.account_browser),
               ),
+              placeHolder: 'ابحث عن الحساب الفرعي...',
+              validator: (_) {
+                if (_accountController.text.trim().isEmpty) {
+                  return 'الحساب مطلوب';
+                }
+                if (widget.draft.accountId == null) {
+                  return 'اختر حساباً صالحاً من القائمة';
+                }
+                return null;
+              },
+              onChanged: (value) {
+                if (widget.draft.accountId != null &&
+                    value != widget.draft.accountName) {
+                  widget.onChanged(accountId: null, accountName: null);
+                }
+              },
               labelMenu: (opt) => '${opt.accountName} (${opt.accountNumber})',
               labelString: (opt) => opt.accountName,
               itemsBuilder: (query) {
@@ -113,7 +139,10 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
                 }).toList();
               },
               onSelectedItem: (selectedAcc) {
-                widget.onChanged(accountId: selectedAcc.id, accountName: selectedAcc.accountName);
+                widget.onChanged(
+                  accountId: selectedAcc.id,
+                  accountName: selectedAcc.accountName,
+                );
               },
             ),
           ),
@@ -123,42 +152,34 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
           Expanded(
             flex: 2,
             child: widget.side == JournalItemSide.debit
-                ? TextFormField(
+                ? fluent.TextFormBox(
                     controller: _debitController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    textDirection: TextDirection.ltr,
-                    decoration: InputDecoration(
-                      hintText: '0.00',
-                      
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: fluent.Icon(fluent.FluentIcons.chevron_down),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      labelText: 'مدين',
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
                     ),
-                    autovalidateMode: AutovalidateMode.always,
+                    textDirection: TextDirection.ltr,
+                    placeholder: '0.00',
+                    prefix: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: fluent.Icon(fluent.FluentIcons.chevron_down),
+                    ),
                     validator: (_) => _validateAmounts(),
                     onChanged: (val) {
                       final debitVal = double.tryParse(val) ?? 0.0;
                       widget.onChanged(debit: debitVal);
                     },
                   )
-                : TextFormField(
+                : fluent.TextFormBox(
                     controller: _creditController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    textDirection: TextDirection.ltr,
-                    decoration: InputDecoration(
-                      hintText: '0.00',
-                      
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: fluent.Icon(fluent.FluentIcons.chevron_up),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      labelText: 'دائن',
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
                     ),
-                    autovalidateMode: AutovalidateMode.always,
+                    textDirection: TextDirection.ltr,
+                    placeholder: '0.00',
+                    prefix: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: fluent.Icon(fluent.FluentIcons.chevron_up),
+                    ),
                     validator: (_) => _validateAmounts(),
                     onChanged: (val) {
                       final creditVal = double.tryParse(val) ?? 0.0;
@@ -171,16 +192,12 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
           // 4. Line Description
           Expanded(
             flex: 4,
-            child: TextFormField(
+            child: fluent.TextFormBox(
               controller: _descController,
-              decoration: InputDecoration(
-                hintText: 'البيان التفصيلي للبند...',
-                
-                prefixIcon: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: fluent.Icon(fluent.FluentIcons.note_pinned),
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              placeholder: 'البيان التفصيلي للبند...',
+              prefix: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: fluent.Icon(fluent.FluentIcons.note_pinned),
               ),
               onChanged: (val) {
                 widget.onChanged(lineDescription: val);
@@ -191,7 +208,10 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
 
           // 5. Delete Button
           IconButton(
-            icon: const fluent.Icon(fluent.FluentIcons.delete, color: Colors.red),
+            icon: const fluent.Icon(
+              fluent.FluentIcons.delete,
+              color: Colors.red,
+            ),
             onPressed: widget.canDelete ? widget.onDelete : null,
           ),
         ],

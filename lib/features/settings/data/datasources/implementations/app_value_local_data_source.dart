@@ -24,6 +24,7 @@ class AppValueLocalDataSourceImpl implements AppValueDataSource {
       table: ValuesTable.tableName,
       where: '${ValuesTable.valueType} = ?',
       whereArgs: [type.name],
+      limit: 1,
     );
     if (rows.isEmpty) {
       throw Exception('Value not found for ${type.name}');

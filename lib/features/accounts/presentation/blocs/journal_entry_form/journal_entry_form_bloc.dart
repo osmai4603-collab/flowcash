@@ -1,3 +1,4 @@
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
@@ -5,27 +6,41 @@ import 'package:flowcash/features/accounts/domain/usecases/journal_entry_reposit
 import 'package:flowcash/features/accounts/domain/usecases/journal_item_repository_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/sub_account_repository_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/main_account_repository_usecases.dart';
+import 'package:flowcash/features/currencies/domain/usecases/currency_repository_usecases.dart';
+import 'package:flowcash/features/currencies/domain/usecases/exchange_price_repository_usecases.dart';
 import 'journal_entry_form_event.dart';
 import 'journal_entry_form_state.dart';
 
 class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormState> {
-  final SaveJournalEntryWithItemsUseCase _saveJournalEntryWithItems;
+  final InsertJournalEntryUseCase _insertJournalEntryWithItems;
   final GetJournalItemsByEntryIdUseCase _getJournalItemsByEntryId;
   final UpdateSubaccountBalanceUseCase _updateSubaccountBalance;
   final UpdateMainAccountBalanceUseCase _updateMainAccountBalance;
   final GetSubAccountsUseCase _getSubAccounts;
+  final GetSubAccountByIdUseCase _getSubAccountById;
+  final GetMainAccountByIdUseCase _getMainAccountById;
+  final GetCurrenciesUseCase _getCurrencies;
+  final GetExPriceUseCase _getExPrice;
 
   JournalEntryFormBloc({
-    required SaveJournalEntryWithItemsUseCase saveJournalEntryWithItems,
+    required InsertJournalEntryUseCase insertJournalEntryWithItems,
     required GetJournalItemsByEntryIdUseCase getJournalItemsByEntryId,
     required UpdateSubaccountBalanceUseCase updateSubaccountBalance,
     required UpdateMainAccountBalanceUseCase updateMainAccountBalance,
     required GetSubAccountsUseCase getSubAccounts,
-  })  : _saveJournalEntryWithItems = saveJournalEntryWithItems,
+    required GetSubAccountByIdUseCase getSubAccountById,
+    required GetMainAccountByIdUseCase getMainAccountById,
+    required GetCurrenciesUseCase getCurrencies,
+    required GetExPriceUseCase getExPrice,
+  })  : _insertJournalEntryWithItems = insertJournalEntryWithItems,
         _getJournalItemsByEntryId = getJournalItemsByEntryId,
         _updateSubaccountBalance = updateSubaccountBalance,
         _updateMainAccountBalance = updateMainAccountBalance,
         _getSubAccounts = getSubAccounts,
+        _getSubAccountById = getSubAccountById,
+        _getMainAccountById = getMainAccountById,
+        _getCurrencies = getCurrencies,
+        _getExPrice = getExPrice,
         super(JournalEntryFormState.initial()) {
     on<InitJournalEntryForm>(_onInitJournalEntryForm);
     on<JournalEntryDescriptionChanged>(_onJournalEntryDescriptionChanged);
@@ -41,8 +56,37 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
     InitJournalEntryForm event,
     Emitter<JournalEntryFormState> emit,
   ) async {
-    emit(state.copyWith(status: JournalEntryFormStatus.loading, editingEntry: event.editingEntry));
-    await Future.delayed(const Duration(seconds: 1));
+    emit(state.copyWith(status: JournalEntryFormStatus.loading, editingEntry: event.editingEntry, isLoadingCurrencies: true));
+
+    final currenciesRes = await _getCurrencies.call();
+    List<CurrencyEntity> currencies = [];
+    String? currencyError;
+    currenciesRes.fold(
+      (failure) => currencyError = failure.message,
+      (list) => currencies = list,
+    );
+
+    if (currencyError != null) {
+      emit(state.copyWith(
+        status: JournalEntryFormStatus.failure,
+        errorMessage: currencyError,
+        currencies: currencies,
+        currencySelected: currencies.isNotEmpty ? currencies.first : null,
+        isLoadingCurrencies: false,
+      ));
+      return;
+    }
+
+    CurrencyEntity? selectedCurrency;
+    if (currencies.isNotEmpty) {
+      selectedCurrency = event.editingEntry != null
+          ? currencies.firstWhere(
+              (currency) => currency.id == event.editingEntry!.currencyId,
+              orElse: () => currencies.first,
+            )
+          : currencies.first;
+    }
+
     if (event.editingEntry != null) {
       final itemsRes = await _getJournalItemsByEntryId(event.editingEntry!.id);
       final subAccsRes = await _getSubAccounts();
@@ -78,14 +122,19 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
             editingEntry: event.editingEntry,
             description: event.editingEntry!.description ?? '',
             date: event.editingEntry!.createdAt,
-            currencyId: event.editingEntry!.currencyId,
-            exPrice: event.editingEntry!.exPrice,
+            currencySelected: selectedCurrency,
+            currencies: currencies,
+            isLoadingCurrencies: false,
             items: drafts,
           ));
         },
       );
     } else {
-      emit(JournalEntryFormState.initial());
+      emit(JournalEntryFormState.initial().copyWith(
+        currencies: currencies,
+        currencySelected: selectedCurrency,
+        isLoadingCurrencies: false,
+      ));
     }
   }
 
@@ -107,7 +156,7 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
     JournalEntryCurrencyChanged event,
     Emitter<JournalEntryFormState> emit,
   ) {
-    emit(state.copyWith(currencyId: event.currencyId, exPrice: event.exPrice));
+    emit(state.copyWith(currencySelected: event.currency, exPrice: event.exPrice));
   }
 
   void _onAddJournalItemField(
@@ -238,44 +287,65 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
       description: state.description,
       createdAt: state.date,
       createdBy: 1, // Default user
-      currencyId: state.currencyId,
-      exPrice: state.exPrice,
+      currencyId: state.currencySelected!.id,
       baseAmount: state.totalDebit,
-      
     );
 
-    final items = state.items.map((itemDraft) {
-      return JournalItemEntity(
+    final items = <JournalItemEntity>[];
+    for (final itemDraft in state.items) {
+      final subAccountResult = await _getSubAccountById(itemDraft.accountId!);
+      final subAccount = subAccountResult.fold((failure) {
+        emit(state.copyWith(status: JournalEntryFormStatus.failure, errorMessage: failure.message));
+        return null;
+      }, (account) => account);
+      if (subAccount == null) return;
+
+      final subAccountCurrencyId = subAccount.currencyId;
+      final exPriceResult = await _getExPrice(state.currencySelected!.id, subAccountCurrencyId);
+      final exPrice = exPriceResult.fold((failure) {
+        emit(state.copyWith(status: JournalEntryFormStatus.failure, errorMessage: failure.message));
+        return null;
+      }, (rate) => rate);
+      if (exPrice == null) return;
+
+      final mainAccountResult = await _getMainAccountById(subAccount.mainAccountId);
+      final mainAccount = mainAccountResult.fold((failure) {
+        emit(state.copyWith(status: JournalEntryFormStatus.failure, errorMessage: failure.message));
+        return null;
+      }, (account) => account);
+      if (mainAccount == null) return;
+      if (mainAccount.currencyId == null) {
+        emit(state.copyWith(status: JournalEntryFormStatus.failure, errorMessage: 'لا يمكن تحديد عملة الحساب الرئيسي للبند.'));
+        return;
+      }
+
+      final exPriceMainResult = await _getExPrice(state.currencySelected!.id, mainAccount.currencyId!);
+      final exPriceMain = exPriceMainResult.fold((failure) {
+        emit(state.copyWith(status: JournalEntryFormStatus.failure, errorMessage: failure.message));
+        return null;
+      }, (rate) => rate);
+      if (exPriceMain == null) return;
+
+      items.add(JournalItemEntity(
         id: 0,
         entryId: state.editingEntry?.id ?? 0,
         accountId: itemDraft.accountId!,
         debit: itemDraft.debit,
         credit: itemDraft.credit,
         lineDescription: itemDraft.lineDescription.isNotEmpty ? itemDraft.lineDescription : state.description,
-        currencyId: state.currencyId,
-        debitBase: itemDraft.debit * state.exPrice,
-        creditBase: itemDraft.credit * state.exPrice,
-      );
-    }).toList();
+        currencyId: state.currencySelected!.id,
+        exPrice: exPrice,
+        expriceMain: exPriceMain,
+      ));
+    }
 
-    final entryResult = await _saveJournalEntryWithItems(entry, items);
+    final entryResult = await _insertJournalEntryWithItems(entry.copyWith(items: items));
 
     await entryResult.fold(
       (failure) async => emit(state.copyWith(status: JournalEntryFormStatus.failure, errorMessage: failure.message)),
       (savedEntry) async {
-        for (final item in items) {
-          // Post balances
-          if (item.debit > 0) {
-            await _updateSubaccountBalance(isIncrement: true, amount: item.debit, id: item.accountId);
-            await _updateMainAccountBalance(isIncrement: true, amount: item.debit, subAccountId: item.accountId);
-          }
-          if (item.credit > 0) {
-            await _updateSubaccountBalance(isIncrement: false, amount: item.credit, id: item.accountId);
-            await _updateMainAccountBalance(isIncrement: false, amount: item.credit, subAccountId: item.accountId);
-          }
-        }
-
-        emit(state.copyWith(status: JournalEntryFormStatus.success));
+        
+        emit(state.copyWith(status: JournalEntryFormStatus.success, editingEntry: savedEntry));
       },
     );
   }

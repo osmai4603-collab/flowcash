@@ -81,9 +81,8 @@ Future<void> initDependencies() async {
         JournalItemsTable.credit: item.credit,
         JournalItemsTable.lineDescription: item.lineDescription,
         JournalItemsTable.currencyId: item.currencyId,
-        JournalItemsTable.debitBase: item.debitBase,
-        JournalItemsTable.creditBase: item.creditBase,
-        JournalItemsTable.warehouseId: item.warehouseId,
+        JournalItemsTable.exPrice: item.exPrice,
+        JournalItemsTable.expriceMain: item.expriceMain,
       },
     ),
   );

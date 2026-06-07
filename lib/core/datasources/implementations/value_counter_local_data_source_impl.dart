@@ -34,6 +34,7 @@ final class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
       table: ValuesCounterTable.tableName,
       where: '${ValuesCounterTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -45,6 +46,7 @@ final class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
       table: ValuesCounterTable.tableName,
       where: '${ValuesCounterTable.counterType} = ?',
       whereArgs: [counterType.name],
+      limit: 1,
     );
     if (rows.isEmpty) {
       throw DatabaseFailure(
@@ -258,6 +260,7 @@ final class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
       table: ValuesCounterTable.tableName,
       where: '${ValuesCounterTable.counterType} = ?',
       whereArgs: [historyGroup.name],
+      limit: 1,
     );
     if (rows.isEmpty) {
       throw DatabaseFailure(

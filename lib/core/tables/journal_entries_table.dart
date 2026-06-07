@@ -10,8 +10,7 @@ class JournalEntriesTable {
   static const String createdAt = 'created_at';
   static const String userId = 'user_id';
   static const String currencyId = 'currency_id';
-  static const String exPrice = 'ex_price';
-  static const String baseAmount = 'base_amount';
+  static const String amount = 'amount';
   static const String warehouseId = 'warehouse_id';
 
   static const List<String> fields = [
@@ -21,8 +20,7 @@ class JournalEntriesTable {
     createdAt,
     userId,
     currencyId,
-    exPrice,
-    baseAmount,
+    amount,
     warehouseId,
   ];
 }

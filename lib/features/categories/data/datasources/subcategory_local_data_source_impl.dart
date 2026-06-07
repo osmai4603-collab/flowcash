@@ -33,6 +33,7 @@ final class SubcategoryLocalDataSourceImpl
       table: SubcategoriesTable.tableName,
       where: '${SubcategoriesTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -234,6 +235,7 @@ final class SubcategoryLocalDataSourceImpl
       table: SubcategoriesTable.tableName,
       where: '${SubcategoriesTable.id} = ?',
       whereArgs: [categoryId],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

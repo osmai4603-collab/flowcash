@@ -1,4 +1,5 @@
 import 'package:flowcash/core/theme/paddings.dart';
+import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/injection_container.dart';
@@ -143,14 +144,19 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                   child: SizedBox(
                     height: 40,
                     child: Row(
+                      spacing: Spacings.medium,
+                      mainAxisAlignment: .spaceAround,
                       children: [
-                        Expanded(
-                          flex: 3,
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'البحث عن صنف مخزون...',
-                              prefixIcon: const Icon(fluent.FluentIcons.search),
+                        SizedBox(
+
+                    width: 300,
+                          child: fluent.TextBox(
+                            placeholder: 'البحث عن صنف مخزون...',
+                            prefix: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Icon(fluent.FluentIcons.search),
                             ),
+                            
                             onChanged: (value) {
                               setState(() {
                                 _searchQuery = value;
@@ -159,43 +165,40 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Expanded(
-                          flex: 2,
-                          child: SizedBox(
-                            height: 40,
-                            child: MenuBar(
-                              children: [
-                                SubmenuButton(
-                                  menuChildren: [
-                                    MenuItemButton(
+                        SizedBox(
+                          height: 40,
+                          child: MenuBar(
+                            children: [
+                              SubmenuButton(
+                                menuChildren: [
+                                  MenuItemButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _filterWarehouseId = null;
+                                      });
+                                    },
+                                    child: const fluent.Text('كل المخازن'),
+                                  ),
+                                  ..._warehouses.map(
+                                    (warehouse) => MenuItemButton(
                                       onPressed: () {
                                         setState(() {
-                                          _filterWarehouseId = null;
+                                          _filterWarehouseId = warehouse.id;
                                         });
                                       },
-                                      child: const fluent.Text('كل المخازن'),
+                                      child: fluent.Text(warehouse.warehouseName),
                                     ),
-                                    ..._warehouses.map(
-                                      (warehouse) => MenuItemButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _filterWarehouseId = warehouse.id;
-                                          });
-                                        },
-                                        child: fluent.Text(warehouse.warehouseName),
-                                      ),
-                                    ),
-                                  ],
-                                  child: fluent.Text(
-                                    _filterWarehouseId == null
-                                        ? 'كل المخازن'
-                                        : _warehouses.where((w) => w.id == _filterWarehouseId).isEmpty
-                                            ? 'كل المخازن'
-                                            : _warehouses.where((w) => w.id == _filterWarehouseId).first.warehouseName,
                                   ),
+                                ],
+                                child: fluent.Text(
+                                  _filterWarehouseId == null
+                                      ? 'كل المخازن'
+                                      : _warehouses.where((w) => w.id == _filterWarehouseId).isEmpty
+                                          ? 'كل المخازن'
+                                          : _warehouses.where((w) => w.id == _filterWarehouseId).first.warehouseName,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 12),

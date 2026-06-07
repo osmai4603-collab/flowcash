@@ -31,6 +31,7 @@ final class CategoryPropertyLocalDataSourceImpl
       table: CategoryPropertiesTable.tableName,
       where: '${CategoryPropertiesTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

@@ -1,4 +1,5 @@
-import 'package:flowcash/features/accounts/presentation/pages/accounts_page.dart';
+import 'package:flowcash/core/theme/spacings.dart';
+import 'package:flowcash/features/accounts/presentation/pages/accounts_dashboard.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +12,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/account_statement/
 import 'package:flowcash/features/accounts/presentation/blocs/account_statement/account_statement_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class AccountStatementPage extends StatefulWidget {
   const AccountStatementPage({super.key});
 
@@ -43,40 +45,45 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
   }
 
   Future<void> _loadSubAccounts() async {
-    final result = await GetIt.instance<SubAccountRepository>().getSubAccountsSimple(query: '');
-    result.fold(
-      (_) {},
-      (list) {
-        if (mounted) {
-          setState(() {
-            _subAccountsList = list;
-            if (_pendingSubAccountId != null) {
-              _selectAndFetchAccount(_pendingSubAccountId!);
-              _pendingSubAccountId = null;
-            }
-          });
-        }
-      },
-    );
+    final result = await GetIt.instance<SubAccountRepository>()
+        .getSubAccountsSimple(query: '');
+    result.fold((_) {}, (list) {
+      if (mounted) {
+        setState(() {
+          _subAccountsList = list;
+          if (_pendingSubAccountId != null) {
+            _selectAndFetchAccount(_pendingSubAccountId!);
+            _pendingSubAccountId = null;
+          }
+        });
+      }
+    });
   }
 
   void _selectAndFetchAccount(int subAccountId) {
-    final account = _subAccountsList.firstWhere(
-      (acc) => acc.id == subAccountId,
-      orElse: () => null as dynamic,
-    );
+    SubAccountSimpleEntity? account;
+    try {
+      account = _subAccountsList.firstWhere((acc) => acc.id == subAccountId);
+    } catch (_) {
+      account = null;
+    }
+
     if (account != null) {
+      final selectedAccount = account;
       setState(() {
-        _selectedAccount = account;
+        _selectedAccount = selectedAccount;
         if (_autocompleteController != null) {
-          _autocompleteController!.text = '${account.accountNumber} - ${account.accountName}';
+          _autocompleteController!.text =
+              '${selectedAccount.accountNumber} - ${selectedAccount.accountName}';
         }
       });
-      _bloc.add(LoadAccountStatement(
-        subAccountId: subAccountId,
-        startDate: _startDate,
-        endDate: _endDate,
-      ));
+      _bloc.add(
+        LoadAccountStatement(
+          subAccountId: subAccountId,
+          startDate: _startDate,
+          endDate: _endDate,
+        ),
+      );
     }
   }
 
@@ -88,7 +95,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
       if (notifier.selectedSubAccountId != null) {
         final subAccountId = notifier.selectedSubAccountId!;
         notifier.clearSelectedSubAccountId();
-        
+
         if (_subAccountsList.isNotEmpty) {
           _selectAndFetchAccount(subAccountId);
         } else {
@@ -96,24 +103,6 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
         }
       }
     } catch (_) {}
-  }
-
-  Future<void> _selectDate(BuildContext context, bool isStart) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: (isStart ? _startDate : _endDate) ?? DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-    );
-    if (picked != null) {
-      setState(() {
-        if (isStart) {
-          _startDate = picked;
-        } else {
-          _endDate = picked;
-        }
-      });
-    }
   }
 
   @override
@@ -147,42 +136,65 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                             if (textEditingValue.text.isEmpty) {
                               return _subAccountsList;
                             }
-                            return _subAccountsList.where((acc) =>
-                                acc.accountName.toLowerCase().contains(textEditingValue.text.toLowerCase()) ||
-                                acc.accountNumber.contains(textEditingValue.text));
+                            return _subAccountsList.where(
+                              (acc) =>
+                                  acc.accountName.toLowerCase().contains(
+                                    textEditingValue.text.toLowerCase(),
+                                  ) ||
+                                  acc.accountNumber.contains(
+                                    textEditingValue.text,
+                                  ),
+                            );
                           },
-                          displayStringForOption: (option) => '${option.accountNumber} - ${option.accountName}',
+                          displayStringForOption: (option) =>
+                              '${option.accountNumber} - ${option.accountName}',
                           onSelected: (option) {
                             setState(() {
                               _selectedAccount = option;
                             });
                           },
-                          fieldViewBuilder: (context, fieldTextEditingController, focusNode, onFieldSubmitted) {
-                            _autocompleteController = fieldTextEditingController;
-                            if (_selectedAccount != null && fieldTextEditingController.text.isEmpty) {
-                              fieldTextEditingController.text = '${_selectedAccount!.accountNumber} - ${_selectedAccount!.accountName}';
-                            }
-                            return TextField(
-                              controller: fieldTextEditingController,
-                              focusNode: focusNode,
-                              decoration: InputDecoration(
-                                labelText: 'اختر الحساب الفرعي',
-                                border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(fluent.FluentIcons.personalize),
-                                suffixIcon: _selectedAccount != null
-                                    ? IconButton(
-                                        icon: const Icon(fluent.FluentIcons.clear),
-                                        onPressed: () {
-                                          fieldTextEditingController.clear();
-                                          setState(() {
-                                            _selectedAccount = null;
-                                          });
-                                        },
-                                      )
-                                    : null,
-                              ),
-                            );
-                          },
+                          fieldViewBuilder:
+                              (
+                                context,
+                                fieldTextEditingController,
+                                focusNode,
+                                onFieldSubmitted,
+                              ) {
+                                _autocompleteController =
+                                    fieldTextEditingController;
+                                if (_selectedAccount != null &&
+                                    fieldTextEditingController.text.isEmpty) {
+                                  fieldTextEditingController.text =
+                                      '${_selectedAccount!.accountNumber} - ${_selectedAccount!.accountName}';
+                                }
+                                return fluent.TextBox(
+                                  controller: fieldTextEditingController,
+                                  focusNode: focusNode,
+                                  placeholder: 'اختر الحساب الفرعي',
+                                  prefix: const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                    ),
+                                    child: Icon(
+                                      fluent.FluentIcons.personalize,
+                                    ),
+                                  ),
+                                  suffix: _selectedAccount != null
+                                      ? IconButton(
+                                          icon: const Icon(
+                                            fluent.FluentIcons.clear,
+                                          ),
+                                          onPressed: () {
+                                            fieldTextEditingController.clear();
+                                            setState(() {
+                                              _selectedAccount = null;
+                                            });
+                                          },
+                                        )
+                                      : null,
+                                  onSubmitted: (_) => onFieldSubmitted(),
+                                );
+                              },
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -190,28 +202,44 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                       // Start Date
                       Expanded(
                         flex: 2,
-                        child: InkWell(
-                          onTap: () => _selectDate(context, true),
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: 'من تاريخ',
-                              border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(fluent.FluentIcons.calendar_settings),
-                              suffixIcon: _startDate != null
-                                  ? IconButton(
-                                      icon: const Icon(fluent.FluentIcons.clear, size: 18),
-                                      onPressed: () {
-                                        setState(() {
-                                          _startDate = null;
-                                        });
-                                      },
-                                    )
-                                  : null,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 6.0),
+                              child: fluent.Text('من تاريخ'),
                             ),
-                            child: fluent.Text(
-                              _startDate != null ? DateFormat('yyyy-MM-dd').format(_startDate!) : 'الكل',
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: fluent.DatePicker(
+                                    selected: _startDate,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _startDate = value;
+                                      });
+                                    },
+                                    startDate: DateTime(2020),
+                                    endDate: DateTime(2030),
+                                  ),
+                                ),
+                                if (_startDate != null) ...[
+                                  const SizedBox(width: 6),
+                                  IconButton(
+                                    icon: const Icon(
+                                      fluent.FluentIcons.clear,
+                                      size: 18,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _startDate = null;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ],
                             ),
-                          ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -219,50 +247,67 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                       // End Date
                       Expanded(
                         flex: 2,
-                        child: InkWell(
-                          onTap: () => _selectDate(context, false),
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: 'إلى تاريخ',
-                              border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(fluent.FluentIcons.calendar_settings),
-                              suffixIcon: _endDate != null
-                                  ? IconButton(
-                                      icon: const Icon(fluent.FluentIcons.clear, size: 18),
-                                      onPressed: () {
-                                        setState(() {
-                                          _endDate = null;
-                                        });
-                                      },
-                                    )
-                                  : null,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 6.0),
+                              child: fluent.Text('إلى تاريخ'),
                             ),
-                            child: fluent.Text(
-                              _endDate != null ? DateFormat('yyyy-MM-dd').format(_endDate!) : 'الكل',
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: fluent.DatePicker(
+                                    selected: _endDate,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _endDate = value;
+                                      });
+                                    },
+                                    startDate: DateTime(2020),
+                                    endDate: DateTime(2030),
+                                  ),
+                                ),
+                                if (_endDate != null) ...[
+                                  const SizedBox(width: 6),
+                                  IconButton(
+                                    icon: const Icon(
+                                      fluent.FluentIcons.clear,
+                                      size: 18,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _endDate = null;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ],
                             ),
-                          ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 16),
 
                       // Submit Button
-                      ElevatedButton.icon(
+                      fluent.FilledButton(
                         onPressed: _selectedAccount == null
                             ? null
                             : () {
-                                _bloc.add(LoadAccountStatement(
-                                      subAccountId: _selectedAccount!.id,
-                                      startDate: _startDate,
-                                      endDate: _endDate,
-                                    ));
+                                _bloc.add(
+                                  LoadAccountStatement(
+                                    subAccountId: _selectedAccount!.id,
+                                    startDate: _startDate,
+                                    endDate: _endDate,
+                                  ),
+                                );
                               },
-                        icon: const Icon(fluent.FluentIcons.receipt_processing),
-                        label: const fluent.Text('عرض الكشف'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
-                          foregroundColor: theme.colorScheme.onPrimary,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        child: Row(
+                          spacing: Spacings.xsmall,
+                          children: [
+                            const Icon(fluent.FluentIcons.receipt_processing),
+                            const fluent.Text('عرض الكشف'),
+                          ],
                         ),
                       ),
                     ],
@@ -279,11 +324,22 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(fluent.FluentIcons.search, size: 72, color: theme.colorScheme.onSurface.withAlpha(50)),
+                              Icon(
+                                fluent.FluentIcons.search,
+                                size: 72,
+                                color: theme.colorScheme.onSurface.withAlpha(
+                                  50,
+                                ),
+                              ),
                               const SizedBox(height: 16),
                               fluent.Text(
                                 'يرجى تحديد حساب فرعي وتاريخ ثم النقر على عرض الكشف',
-                                style: TextStyle(fontSize: 16, color: theme.colorScheme.onSurface.withAlpha(150)),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: theme.colorScheme.onSurface.withAlpha(
+                                    150,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -296,8 +352,13 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
 
                       if (state.status == AccountStatementStatus.failure) {
                         return Center(
-                          child: fluent.Text('خطأ في تحميل كشف الحساب: ${state.errorMessage}',
-                              style: const TextStyle(color: Colors.red, fontSize: 16)),
+                          child: fluent.Text(
+                            'خطأ في تحميل كشف الحساب: ${state.errorMessage}',
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 16,
+                            ),
+                          ),
                         );
                       }
 
@@ -315,7 +376,9 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surface,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: theme.dividerColor.withAlpha(50)),
+                          border: Border.all(
+                            color: theme.dividerColor.withAlpha(50),
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,23 +387,34 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                             Container(
                               padding: const EdgeInsets.all(16.0),
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.primaryContainer.withAlpha(40),
-                                borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                                color: theme.colorScheme.primaryContainer
+                                    .withAlpha(40),
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(8),
+                                ),
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       fluent.Text(
                                         'كشف حساب: ${state.subAccount!.accountName}',
-                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                       const SizedBox(height: 4),
                                       fluent.Text(
                                         'رقم الحساب: ${state.subAccount!.accountNumber} | النوع: ${state.subAccount!.subAccountType.name}',
-                                        style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(150)),
+                                        style: TextStyle(
+                                          color: theme.colorScheme.onSurface
+                                              .withAlpha(150),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -349,12 +423,18 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                     children: [
                                       fluent.Text(
                                         'الرصيد الافتتاحي: ${state.openingBalance.toStringAsFixed(2)}',
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
                                       ),
                                       const SizedBox(height: 4),
                                       fluent.Text(
                                         'العملة: ${_selectedAccount?.currencyName ?? "عملة غير محددة"}',
-                                        style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(150)),
+                                        style: TextStyle(
+                                          color: theme.colorScheme.onSurface
+                                              .withAlpha(150),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -364,19 +444,78 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
 
                             // Ledger Headers
                             Container(
-                              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12.0,
+                                horizontal: 16.0,
+                              ),
                               decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide(color: theme.dividerColor.withAlpha(100))),
-                                color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: theme.dividerColor.withAlpha(100),
+                                  ),
+                                ),
+                                color: theme.colorScheme.surfaceContainerHighest
+                                    .withAlpha(50),
                               ),
                               child: Row(
                                 children: const [
-                                  Expanded(flex: 2, child: fluent.Text('التاريخ', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Expanded(flex: 2, child: fluent.Text('الرقم المرجعي', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Expanded(flex: 4, child: fluent.Text('البيان التفصيلي', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  Expanded(flex: 2, child: fluent.Text('مدين (وارد)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
-                                  Expanded(flex: 2, child: fluent.Text('دائن (صادر)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
-                                  Expanded(flex: 2, child: fluent.Text('الرصيد التراكمي', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
+                                  Expanded(
+                                    flex: 2,
+                                    child: fluent.Text(
+                                      'التاريخ',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: fluent.Text(
+                                      'الرقم المرجعي',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 4,
+                                    child: fluent.Text(
+                                      'البيان التفصيلي',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: fluent.Text(
+                                      'مدين (وارد)',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.end,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: fluent.Text(
+                                      'دائن (صادر)',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.end,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: fluent.Text(
+                                      'الرصيد التراكمي',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.end,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -384,53 +523,103 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                             // Ledger Scrollable Data Rows
                             Expanded(
                               child: state.items.isEmpty
-                                  ? const Center(child: fluent.Text('لا توجد معاملات مسجلة في هذه الفترة'))
+                                  ? const Center(
+                                      child: fluent.Text(
+                                        'لا توجد معاملات مسجلة في هذه الفترة',
+                                      ),
+                                    )
                                   : ListView.builder(
                                       itemCount: state.items.length,
                                       itemBuilder: (context, idx) {
                                         final item = state.items[idx];
-                                        final entry = state.entries[item.entryId];
+                                        final entry =
+                                            state.entries[item.entryId];
                                         final dateStr = entry != null
-                                            ? DateFormat('yyyy-MM-dd').format(entry.createdAt)
+                                            ? DateFormat(
+                                                'yyyy-MM-dd',
+                                              ).format(entry.createdAt)
                                             : '-';
-                                        final refNum = entry?.referenceNumber ?? '-';
+                                        final refNum =
+                                            entry?.referenceNumber ?? '-';
 
                                         // Update running balance
-                                        runningBalance += (item.debit - item.credit);
+                                        runningBalance +=
+                                            (item.debit - item.credit);
 
                                         return Container(
-                                          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 12.0,
+                                            horizontal: 16.0,
+                                          ),
                                           decoration: BoxDecoration(
-                                            border: Border(bottom: BorderSide(color: theme.dividerColor.withAlpha(30))),
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color: theme.dividerColor
+                                                    .withAlpha(30),
+                                              ),
+                                            ),
                                           ),
                                           child: Row(
                                             children: [
-                                              Expanded(flex: 2, child: fluent.Text(dateStr)),
-                                              Expanded(flex: 2, child: fluent.Text(refNum, style: const TextStyle(fontFamily: 'monospace'))),
-                                              Expanded(flex: 4, child: fluent.Text(item.lineDescription ?? entry?.description ?? '')),
+                                              Expanded(
+                                                flex: 2,
+                                                child: fluent.Text(dateStr),
+                                              ),
                                               Expanded(
                                                 flex: 2,
                                                 child: fluent.Text(
-                                                  item.debit > 0 ? item.debit.toStringAsFixed(2) : '-',
-                                                  style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
+                                                  refNum,
+                                                  style: const TextStyle(
+                                                    fontFamily: 'monospace',
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 4,
+                                                child: fluent.Text(
+                                                  item.lineDescription ??
+                                                      entry?.description ??
+                                                      '',
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 2,
+                                                child: fluent.Text(
+                                                  item.debit > 0
+                                                      ? item.debit
+                                                            .toStringAsFixed(2)
+                                                      : '-',
+                                                  style: const TextStyle(
+                                                    color: Colors.green,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
                                                   textAlign: TextAlign.end,
                                                 ),
                                               ),
                                               Expanded(
                                                 flex: 2,
                                                 child: fluent.Text(
-                                                  item.credit > 0 ? item.credit.toStringAsFixed(2) : '-',
-                                                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+                                                  item.credit > 0
+                                                      ? item.credit
+                                                            .toStringAsFixed(2)
+                                                      : '-',
+                                                  style: const TextStyle(
+                                                    color: Colors.red,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
                                                   textAlign: TextAlign.end,
                                                 ),
                                               ),
                                               Expanded(
                                                 flex: 2,
                                                 child: fluent.Text(
-                                                  runningBalance.toStringAsFixed(2),
+                                                  runningBalance
+                                                      .toStringAsFixed(2),
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    color: runningBalance >= 0 ? Colors.green : Colors.red,
+                                                    color: runningBalance >= 0
+                                                        ? Colors.green
+                                                        : Colors.red,
                                                   ),
                                                   textAlign: TextAlign.end,
                                                 ),
@@ -446,23 +635,35 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                             Container(
                               padding: const EdgeInsets.all(16.0),
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.surfaceVariant.withAlpha(50),
-                                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(8)),
-                                border: Border(top: BorderSide(color: theme.dividerColor.withAlpha(100))),
+                                color: theme.colorScheme.surfaceVariant
+                                    .withAlpha(50),
+                                borderRadius: const BorderRadius.vertical(
+                                  bottom: Radius.circular(8),
+                                ),
+                                border: Border(
+                                  top: BorderSide(
+                                    color: theme.dividerColor.withAlpha(100),
+                                  ),
+                                ),
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   fluent.Text(
                                     'إجمالي الفترة:  مدين: ${totalDebit.toStringAsFixed(2)}  |  دائن: ${totalCredit.toStringAsFixed(2)}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   fluent.Text(
                                     'الرصيد الختامي: ${runningBalance.toStringAsFixed(2)}',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w900,
                                       fontSize: 18,
-                                      color: runningBalance >= 0 ? Colors.green : Colors.red,
+                                      color: runningBalance >= 0
+                                          ? Colors.green
+                                          : Colors.red,
                                     ),
                                   ),
                                 ],

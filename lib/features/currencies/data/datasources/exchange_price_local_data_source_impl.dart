@@ -30,6 +30,7 @@ final class ExchangePriceLocalDataSourceImpl
       table: ExchangePricesTable.tableName,
       where: '${ExchangePricesTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -102,14 +103,58 @@ final class ExchangePriceLocalDataSourceImpl
 
   @override
   Future<double> getExPrice(String fromCurrencyId, String toCurrencyId) async {
-    throw UnimplementedError();
+    if (fromCurrencyId == toCurrencyId) {
+      return 1.0;
+    }
+
+    final rows = await _db.query(
+      table: ExchangePricesTable.tableName,
+      where:
+          '${ExchangePricesTable.fromCurrencyId} = ? AND ${ExchangePricesTable.toCurrencyId} = ?',
+      whereArgs: [fromCurrencyId, toCurrencyId],
+      limit: 1,
+    );
+
+    if (rows.isNotEmpty) {
+      return (rows.first[ExchangePricesTable.exchangePrice] as num).toDouble();
+    }
+
+    final reverseRows = await _db.query(
+      table: ExchangePricesTable.tableName,
+      where:
+          '${ExchangePricesTable.fromCurrencyId} = ? AND ${ExchangePricesTable.toCurrencyId} = ?',
+      whereArgs: [toCurrencyId, fromCurrencyId],
+      limit: 1,
+    );
+
+    if (reverseRows.isNotEmpty) {
+      final reversePrice = (reverseRows.first[ExchangePricesTable.exchangePrice] as num).toDouble();
+      if (reversePrice == 0) {
+        throw Exception('Reverse exchange price is zero for $toCurrencyId -> $fromCurrencyId');
+      }
+      return 1 / reversePrice;
+    }
+
+    throw Exception(
+      'Exchange price not found for $fromCurrencyId -> $toCurrencyId',
+    );
   }
 
   @override
   Future<List<ExchangePriceEntity>> getWhereFromCurrencyId(
     Iterable<String> ids,
   ) async {
-    throw UnimplementedError();
+    if (ids.isEmpty) return [];
+
+    final where =
+        '${ExchangePricesTable.fromCurrencyId} IN (${List.filled(ids.length, '?').join(', ')})';
+    final rows = await _db.query(
+      table: ExchangePricesTable.tableName,
+      where: where,
+      whereArgs: ids.toList(),
+    );
+
+    return rows.map(fromMap).toList();
   }
 
   Map<String, dynamic> _sanitizeInsertData(

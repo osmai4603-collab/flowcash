@@ -32,6 +32,7 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
       table: SubAccountsTable.tableName,
       where: '${SubAccountsTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -70,22 +71,27 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
 
   @override
   SubAccountEntity fromMap(Map<String, dynamic> map) {
-    return SubAccountEntity(
+    try {
+      final result =  SubAccountEntity(
       id: map[SubAccountsTable.id] as int,
       mainAccountId: map[SubAccountsTable.mainAccountId] as int,
       accountName: (map[SubAccountsTable.accountName] as String?) ?? "",
       accountNumber: (map[SubAccountsTable.accountNumber] as String?) ?? "",
-      incrementsBalance: ((map[SubAccountsTable.debit]) as num)
+      debitBalance: ((map[SubAccountsTable.debitBalance]) as num)
           .toDouble(),
-      decrementsBalance: ((map[SubAccountsTable.credit]) as num)
+      creditBalance: ((map[SubAccountsTable.creditBalance]) as num)
           .toDouble(),
       currencyId: map[SubAccountsTable.currencyId],
       balanceMax: ((map[SubAccountsTable.balanceMax]) as num?)?.toDouble(),
       subAccountType: SubAccountType.values.firstWhere(
         (e) => e.name == map[SubAccountsTable.subAccountType] as String,
       ),
-      createdAt: DateTime.parse(map[SubAccountsTable.createdAt] as String),
+      createdAt: DateTime.parse(map[SubAccountsTable.createdAt]),
     );
+    return result;
+    } catch (e) {
+      throw FormatException('Failed to parse SubAccountEntity from map: $e'); 
+    }
   }
 
   @override
@@ -95,8 +101,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
       SubAccountsTable.mainAccountId: entity.mainAccountId,
       SubAccountsTable.accountNumber: entity.accountNumber,
       SubAccountsTable.accountName: entity.accountName,
-      SubAccountsTable.debit: entity.incrementsBalance,
-      SubAccountsTable.credit: entity.decrementsBalance,
+      SubAccountsTable.debitBalance: entity.debitBalance,
+      SubAccountsTable.creditBalance: entity.creditBalance,
       SubAccountsTable.currencyId: entity.currencyId,
       SubAccountsTable.balanceMax: entity.balanceMax,
       SubAccountsTable.subAccountType: entity.subAccountType.name,
@@ -152,10 +158,10 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   }
 
   @override
-  Future<double> getBalance(int subAccountId, {bool printQuery = true}) async {
+  Future<double> getBalance(int subAccountId) async {
     final subAcc = await getById(subAccountId);
     if (subAcc == null) return 0.0;
-    return subAcc.incrementsBalance - subAcc.decrementsBalance;
+    return subAcc.debitBalance - subAcc.creditBalance;
   }
 
   @override
@@ -195,21 +201,15 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   }
 
   @override
-  Future<double> getDebtorBalance(
-    int branchAccountId, {
-    bool printQuery = true,
-  }) async {
+  Future<double> getDebtorBalance(int branchAccountId) async {
     final subAcc = await getById(branchAccountId);
-    return subAcc?.incrementsBalance ?? 0.0;
+    return subAcc?.debitBalance ?? 0.0;
   }
 
   @override
-  Future<double> getCreditorBalance(
-    int branchAccountId, {
-    bool printQuery = true,
-  }) async {
+  Future<double> getCreditorBalance(int branchAccountId) async {
     final subAcc = await getById(branchAccountId);
-    return subAcc?.decrementsBalance ?? 0.0;
+    return subAcc?.creditBalance ?? 0.0;
   }
 
   @override
@@ -244,8 +244,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
 
   @override
   Future<bool> updateBalances({
-    required double incrementBalance,
-    required double decrementBalance,
+    required double debitBalance,
+    required double creditBalance,
     required int incrementsCountHistories,
     required int decrementsCountHistories,
     required int id,
@@ -255,10 +255,10 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     await _db.update(
       table: SubAccountsTable.tableName,
       data: {
-        SubAccountsTable.debit:
-            subAcc.incrementsBalance + incrementBalance,
-        SubAccountsTable.credit:
-            subAcc.decrementsBalance + decrementBalance,
+        SubAccountsTable.debitBalance:
+            subAcc.debitBalance + debitBalance,
+        SubAccountsTable.creditBalance:
+            subAcc.creditBalance + creditBalance,
       },
       where: {SubAccountsTable.id: id},
     );
@@ -283,17 +283,16 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     required bool isIncrement,
     required double amount,
     required int id,
-    bool printQuery = true,
   }) async {
     final subAcc = await getById(id);
     if (subAcc == null) return false;
     final data = <String, dynamic>{};
     if (isIncrement) {
-      data[SubAccountsTable.debit] =
-          subAcc.incrementsBalance + amount;
+      data[SubAccountsTable.debitBalance] =
+          subAcc.debitBalance + amount;
     } else {
-      data[SubAccountsTable.credit] =
-          subAcc.decrementsBalance + amount;
+      data[SubAccountsTable.creditBalance] =
+          subAcc.creditBalance + amount;
     }
     await _db.update(
       table: SubAccountsTable.tableName,
@@ -335,7 +334,7 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     final payId = rs.first['payable_acc_id'] as int?;
     stmt.dispose();
 
-    final ids = [if (recId != null) recId, if (payId != null) payId];
+    final ids = [recId, payId].whereType<int>().toList();
     if (ids.isEmpty) return [];
     return await get(ids: ids);
   }
@@ -358,7 +357,7 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     final payId = rs.first['payable_acc_id'] as int?;
     stmt.dispose();
 
-    final ids = [if (recId != null) recId, if (payId != null) payId];
+    final ids = [recId, payId].whereType<int>().toList();
     if (ids.isEmpty) return null;
 
     final rows = await _db.query(
@@ -366,6 +365,7 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
       where:
           '${SubAccountsTable.id} IN (${ids.join(", ")}) AND ${SubAccountsTable.mainAccountId} = ?',
       whereArgs: [mainAccountId],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -375,7 +375,6 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   Future<List<DataRecord>> whereAccountNameLike({
     required String contains,
     List<SubAccountType> types = const [],
-    bool printQuery = true,
   }) async {
     final whereClauses = <String>[];
     final whereArgs = <Object>[];
@@ -407,9 +406,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
 
   @override
   Future<List<SubAccountSimpleEntity>> getAccountsWhereMainAccountId(
-    int mainAccountId, {
-    bool printQuery = true,
-  }) async {
+    int mainAccountId,
+  ) async {
     final rows = await _db.query(
       table: SubAccountsTable.tableName,
       where: '${SubAccountsTable.mainAccountId} = ?',
@@ -426,8 +424,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
             ),
             mainAccountId: row[SubAccountsTable.mainAccountId],
             balance:
-                row[SubAccountsTable.debit] -
-                row[SubAccountsTable.credit],
+                row[SubAccountsTable.debitBalance] -
+                row[SubAccountsTable.creditBalance],
             currencyName: row[SubAccountsTable.currencyId],
           ),
         )
@@ -437,7 +435,6 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   @override
   Future<List<SubAccountSimpleEntity>> getSubAccountsSimple({
     required String query,
-    bool printQuery = true,
   }) async {
     final rows = await _db.query(
       table: SubAccountsTable.tableName,
@@ -456,8 +453,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
             ),
             mainAccountId: row[SubAccountsTable.mainAccountId],
             balance:
-                row[SubAccountsTable.debit] -
-                row[SubAccountsTable.credit],
+                row[SubAccountsTable.debitBalance] -
+                row[SubAccountsTable.creditBalance],
             currencyName: row[SubAccountsTable.currencyId],
           ),
         )

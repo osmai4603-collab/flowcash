@@ -43,6 +43,7 @@ final class FinancialTransactionLocalDataSourceImpl
       table: FinancialTransactionsTable.tableName,
       where: '${FinancialTransactionsTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

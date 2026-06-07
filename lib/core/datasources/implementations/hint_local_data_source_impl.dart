@@ -31,6 +31,7 @@ final class HintLocalDataSourceImpl implements HintDataSource {
       table: HintsTable.tableName,
       where: '${HintsTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

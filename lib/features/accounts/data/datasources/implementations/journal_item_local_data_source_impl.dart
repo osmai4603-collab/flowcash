@@ -1,6 +1,7 @@
 import 'package:flowcash/features/accounts/data/datasources/interfaces/journal_item_data_source.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
 
 final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
@@ -30,6 +31,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
       table: JournalItemsTable.tableName,
       where: '${JournalItemsTable.itemId} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -76,9 +78,8 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
       credit: ((map[JournalItemsTable.credit]) as num).toDouble(),
       lineDescription: map[JournalItemsTable.lineDescription] as String?,
       currencyId: map[JournalItemsTable.currencyId] as String,
-      debitBase: ((map[JournalItemsTable.debitBase]) as num).toDouble(),
-      creditBase: ((map[JournalItemsTable.creditBase]) as num).toDouble(),
-      warehouseId: map[JournalItemsTable.warehouseId] as int?,
+      exPrice: ((map[JournalItemsTable.exPrice]) as num).toDouble(),
+      expriceMain: ((map[JournalItemsTable.expriceMain]) as num).toDouble(),
     );
   }
 
@@ -92,9 +93,8 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
       JournalItemsTable.credit: entity.credit,
       JournalItemsTable.lineDescription: entity.lineDescription,
       JournalItemsTable.currencyId: entity.currencyId,
-      JournalItemsTable.debitBase: entity.debitBase,
-      JournalItemsTable.creditBase: entity.creditBase,
-      JournalItemsTable.warehouseId: entity.warehouseId,
+      JournalItemsTable.exPrice: entity.exPrice,
+      JournalItemsTable.expriceMain: entity.expriceMain,
     };
   }
 
@@ -120,12 +120,20 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
 
   @override
   Future<List<JournalItemEntity>> whereWarehouse(int warehouseId) async {
-    final rows = await _db.query(
-      table: JournalItemsTable.tableName,
-      where: '${JournalItemsTable.warehouseId} = ?',
-      whereArgs: [warehouseId],
-    );
-    return rows.map(fromMap).toList();
+    final db = await _db.database;
+    final stmt = db.prepare('''
+      SELECT ji.*
+      FROM ${JournalItemsTable.tableName} AS ji
+      INNER JOIN ${JournalEntriesTable.tableName} AS je
+        ON ji.${JournalItemsTable.entryId} = je.${JournalEntriesTable.entryId}
+      WHERE je.${JournalEntriesTable.warehouseId} = ?
+    ''');
+    final result = stmt.select([warehouseId]);
+    final items = result
+        .map((row) => fromMap(Map<String, dynamic>.from(row)))
+        .toList();
+    stmt.dispose();
+    return items;
   }
 
   Map<String, dynamic> _sanitizeInsertData(

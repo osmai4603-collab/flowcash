@@ -31,6 +31,7 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
       table: MainAccountsTable.tableName,
       where: '${MainAccountsTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -73,11 +74,10 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
       id: map[MainAccountsTable.id] as int,
       accountName: (map[MainAccountsTable.accountName] as String?) ?? "",
       accountNumber: (map[MainAccountsTable.accountNumber] as String?) ?? "",
-      imagePath: (map[MainAccountsTable.imagePath] as String?) ?? "",
       currencyId: map[MainAccountsTable.currencyId],
-      incrementsBalance: ((map[MainAccountsTable.incrementsBalance]) as num)
+      debitBalance: ((map[MainAccountsTable.debitBalance]) as num)
           .toDouble(),
-      decrementsBalance: ((map[MainAccountsTable.decrementsBalance]) as num)
+      creditBalance: ((map[MainAccountsTable.creditBalance]) as num)
           .toDouble(),
       mainAccountType: MainAccountType.values.firstWhere(
         (e) => e.name == map[MainAccountsTable.mainAccountType] as String,
@@ -92,10 +92,9 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
       if (entity.id > 0) MainAccountsTable.id: entity.id,
       MainAccountsTable.accountName: entity.accountName,
       MainAccountsTable.accountNumber: entity.accountNumber,
-      MainAccountsTable.imagePath: entity.imagePath,
       MainAccountsTable.currencyId: entity.currencyId,
-      MainAccountsTable.incrementsBalance: entity.incrementsBalance,
-      MainAccountsTable.decrementsBalance: entity.decrementsBalance,
+      MainAccountsTable.debitBalance: entity.debitBalance,
+      MainAccountsTable.creditBalance: entity.creditBalance,
       MainAccountsTable.mainAccountType: entity.mainAccountType.name,
       MainAccountsTable.numbersCounter: entity.numbersCounter,
     };
@@ -202,8 +201,8 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
 
   @override
   Future<bool> updateBalances({
-    required double incrementBalance,
-    required double decrementBalance,
+    required double debitBalance,
+    required double creditBalance,
     required int id,
   }) async {
     final mainAcc = await getById(id);
@@ -211,10 +210,10 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     await _db.update(
       table: MainAccountsTable.tableName,
       data: {
-        MainAccountsTable.incrementsBalance:
-            mainAcc.incrementsBalance + incrementBalance,
-        MainAccountsTable.decrementsBalance:
-            mainAcc.decrementsBalance + decrementBalance,
+        MainAccountsTable.debitBalance:
+            mainAcc.debitBalance + debitBalance,
+        MainAccountsTable.creditBalance:
+            mainAcc.creditBalance + creditBalance,
       },
       where: {MainAccountsTable.id: id},
     );
@@ -230,11 +229,11 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     final mainAcc = await firstWhereSubAccountId(subAccountId);
     final data = <String, dynamic>{};
     if (isIncrement) {
-      data[MainAccountsTable.incrementsBalance] =
-          mainAcc.incrementsBalance + amount;
+      data[MainAccountsTable.debitBalance] =
+          mainAcc.debitBalance + amount;
     } else {
-      data[MainAccountsTable.decrementsBalance] =
-          mainAcc.decrementsBalance + amount;
+      data[MainAccountsTable.creditBalance] =
+          mainAcc.creditBalance + amount;
     }
     await _db.update(
       table: MainAccountsTable.tableName,

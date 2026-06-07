@@ -153,15 +153,15 @@ class UpdateSubaccountBalancesUseCase {
   const UpdateSubaccountBalancesUseCase(this._repository);
 
   Future<Either<Failure, bool>> call({
-    required double incrementBalance,
-    required double decrementBalance,
+    required double debitBalance,
+    required double creditBalance,
     required int incrementsCountHistories,
     required int decrementsCountHistories,
     required int subaccountId,
   }) async {
     return await _repository.updateBalances(
-      incrementBalance: incrementBalance,
-      decrementBalance: decrementBalance,
+      debitBalance: debitBalance,
+      creditBalance: creditBalance,
       incrementsCountHistories: incrementsCountHistories,
       decrementsCountHistories: decrementsCountHistories,
       id: subaccountId,

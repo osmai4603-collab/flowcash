@@ -67,25 +67,20 @@ class GetOpeningQuantityUseCase {
   const GetOpeningQuantityUseCase(this._repository);
 
   Future<Either<Failure, OpeningQuantityEntity?>> call({
-    required int storeId,
-    required int categoryId,
+    required int inventoryId,
   }) async {
     return await _repository.getOpeningQuantity(
-      storeId: storeId,
-      categoryId: categoryId,
+      inventoryId: inventoryId,
     );
   }
 }
 
-class GetSumUnitsWhereStoreAndCategoryUseCase {
+class GetSumUnitsByInventoryUseCase {
   final OpeningQuantityRepository _repository;
 
-  const GetSumUnitsWhereStoreAndCategoryUseCase(this._repository);
+  const GetSumUnitsByInventoryUseCase(this._repository);
 
-  Future<Either<Failure, double>> call(int storeId, int categoryId) async {
-    return await _repository.getSumUnitsWhereStoreAndCategory(
-      storeId,
-      categoryId,
-    );
+  Future<Either<Failure, double>> call(int inventoryId) async {
+    return await _repository.getSumUnitsByInventory(inventoryId);
   }
 }

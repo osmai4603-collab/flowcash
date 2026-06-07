@@ -197,13 +197,13 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
       id: _isEdit ? widget.item!.id : 0,
       categoryId: _selectedCategory!.id,
       storeId: _selectedWarehouse!.id,
-      revenueAccountId: _selectedRevenueAccount?.id,
-      expenseAccountId: _selectedExpenseAccount?.id,
-      incomeStockId: _selectedIncomeStock?.id,
-      outcomeStockId: _selectedOutcomeStock?.id,
+      revenueAccountId: _selectedRevenueAccount!.id,
+      expenseAccountId: _selectedExpenseAccount!.id,
+      incomeStockId: _selectedIncomeStock!.id,
+      outcomeStockId: _selectedOutcomeStock!.id,
       inventoryName: _selectedCategory?.categoryName ?? widget.item?.inventoryName ?? '',
       countUnits: countUnits,
-      unitCost: widget.item?.unitCost ?? 0,
+      costTotal: widget.item?.costTotal ?? 0,
     );
 
     Navigator.of(context).pop(resultItem);

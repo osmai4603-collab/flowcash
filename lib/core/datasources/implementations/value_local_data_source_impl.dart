@@ -31,6 +31,7 @@ final class ValueLocalDataSourceImpl implements ValueDataSource {
       table: ValuesTable.tableName,
       where: '${ValuesTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

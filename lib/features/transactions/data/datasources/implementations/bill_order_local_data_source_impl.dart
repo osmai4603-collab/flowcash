@@ -29,6 +29,7 @@ final class BillOrderLocalDataSourceImpl implements BillOrderDataSource {
       table: BillOrdersTable.tableName,
       where: '${BillOrdersTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

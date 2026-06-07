@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 typedef ItemToString<T extends Object> = String Function(T option);
 
 class ComboBoxForm<T extends Object> extends StatefulWidget {
-  final TextEditingController controller;
-  final InputDecoration? decoration;
+  final fluent.TextEditingController controller;
+  final String? placeHolder;
+  final Widget? prefix;
   final TextDirection? textDirection;
   final TextStyle? style;
   final double? cursorHeight;
@@ -28,9 +30,11 @@ class ComboBoxForm<T extends Object> extends StatefulWidget {
   final Widget? Function(T item)? itemViewBuilder;
   final int minCharsForSuggestions;
   final FormFieldValidator<String>? validator;
+  final InputDecoration? decoration;
 
   const ComboBoxForm({
     super.key,
+    this.placeHolder,
     this.decoration,
     this.textDirection,
     this.style,
@@ -54,6 +58,7 @@ class ComboBoxForm<T extends Object> extends StatefulWidget {
     this.itemViewBuilder,
     this.minCharsForSuggestions = 0,
     this.validator,
+    this.prefix,
   }) : assert(minCharsForSuggestions >= 0);
 
   @override
@@ -129,7 +134,7 @@ class _ComboBoxFormState<T extends Object> extends State<ComboBoxForm<T>>
         },
         child: CompositedTransformTarget(
           link: _layerLink,
-          child: TextFormField(
+          child: fluent.TextFormBox(
             focusNode: widget.focusNode,
             controller: widget.controller,
             textDirection: widget.textDirection,
@@ -137,7 +142,7 @@ class _ComboBoxFormState<T extends Object> extends State<ComboBoxForm<T>>
             textAlignVertical: widget.textAlignVertical,
             style: widget.style?.copyWith(fontWeight: FontWeight.bold),
             cursorHeight: widget.cursorHeight,
-            decoration: widget.decoration,
+            // decoration: widget.decoration,
             onEditingComplete: widget.onEditingComplete,
             keyboardType: widget.keyboardType,
             textInputAction: widget.textInputAction,
@@ -147,6 +152,9 @@ class _ComboBoxFormState<T extends Object> extends State<ComboBoxForm<T>>
             scrollPadding: widget.scrollPadding,
             autofocus: widget.autofocus,
             validator: widget.validator,
+            placeholder: widget.placeHolder,
+            prefix: widget.prefix,
+
           ),
         ),
       ),

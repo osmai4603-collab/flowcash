@@ -32,6 +32,7 @@ final class BillLocalDataSourceImpl implements BillDataSource {
       table: BillsTable.tableName,
       where: '${BillsTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

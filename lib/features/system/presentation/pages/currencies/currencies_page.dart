@@ -130,13 +130,9 @@ class CurrenciesPage extends StatelessWidget {
                   label: headerCell('الرمز', textTheme, colors),
                 ),
                 GridColumn(
-                  columnName: 'fullSymbol',
-                  width: isDesktop ? 140.0 : 100.0,
-                  label: headerCell('الرمز الكامل', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'country',
-                  label: headerCell('البلد', textTheme, colors),
+                  columnName: 'isDefault',
+                  width: isDesktop ? 120.0 : 90.0,
+                  label: headerCell('افتراضي', textTheme, colors),
                 ),
               ],
             ),
@@ -219,8 +215,7 @@ class CurrenciesDataGridSource extends DataGridSource {
         DataGridCell<String>(columnName: 'id', value: item.id),
         DataGridCell<String>(columnName: 'name', value: item.name),
         DataGridCell<String>(columnName: 'symbol', value: item.symbol),
-        DataGridCell<String>(columnName: 'fullSymbol', value: item.fullSymbol),
-        DataGridCell<String>(columnName: 'country', value: item.country),
+        DataGridCell<bool>(columnName: 'isDefault', value: item.isDefault),
       ]);
     }).toList();
   }

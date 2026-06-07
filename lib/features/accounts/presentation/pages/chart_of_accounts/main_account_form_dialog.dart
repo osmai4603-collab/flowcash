@@ -12,6 +12,7 @@ import 'package:flowcash/core/enums/main_account_type_enum.dart';
 
 // Entities
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
 
 // Bloc
 import 'package:flowcash/features/accounts/presentation/blocs/main_account_form/main_account_form_bloc.dart';
@@ -55,6 +56,15 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
               builder: (context, close) => fluent.InfoBar(
                 title: const fluent.Text('تنبيه'),
                 content: fluent.Text(state.errorMessage!),
+              ),
+            );
+          }
+          if (state.currencyErrorMessage != null && state.currencyErrorMessage!.isNotEmpty) {
+            fluent.displayInfoBar(
+              context,
+              builder: (context, close) => fluent.InfoBar(
+                title: const fluent.Text('خطأ في العملات'),
+                content: fluent.Text(state.currencyErrorMessage!),
               ),
             );
           }
@@ -328,46 +338,44 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                           ],
                         ),
 
-                        FormField<String>(
-                          key: ValueKey(state.selectedCurrencyId),
-                          initialValue: state.selectedCurrencyId,
+                        FormField<CurrencyEntity?>(
+                          key: ValueKey(state.selectedCurrency?.id ?? ''),
+                          initialValue: state.selectedCurrency,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) =>
-                              value == null ? 'مطلوب اختيار العملة' : null,
+                          validator: (value) => value == null ? 'مطلوب اختيار العملة' : null,
                           builder: (field) {
+                            final currencyItems = state.currencies
+                                .map((currency) => fluent.ComboBoxItem<CurrencyEntity>(
+                                      value: currency,
+                                      child: fluent.Text(
+                                        '${currency.name} (${currency.symbol})',
+                                      ),
+                                    ))
+                                .toList();
+
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 fluent.InfoLabel(
                                   label: 'العملة الافتراضية',
-                                  child: fluent.ComboBox<String>(
-                                    value: state.selectedCurrencyId,
+                                  child: fluent.ComboBox<CurrencyEntity>(
+                                    value: state.selectedCurrency,
                                     placeholder: const fluent.Text(
                                       'اختر العملة الافتراضية',
+                                    ),
+                                    disabledPlaceholder: const fluent.Text(
+                                      'لا توجد عملات متاحة',
                                     ),
                                     isExpanded: true,
                                     icon: const fluent.Icon(
                                       fluent.FluentIcons.chevron_down,
                                     ),
-                                    items: const [
-                                      fluent.ComboBoxItem(
-                                        value: '1',
-                                        child: fluent.Text('ريال يمني'),
-                                      ),
-                                      fluent.ComboBoxItem(
-                                        value: '2',
-                                        child: fluent.Text('ريال سعودي'),
-                                      ),
-                                      fluent.ComboBoxItem(
-                                        value: '3',
-                                        child: fluent.Text('دولار أمريكي'),
-                                      ),
-                                    ],
-                                    onChanged: (currId) {
-                                      if (currId != null) {
-                                        field.didChange(currId);
+                                    items: currencyItems,
+                                    onChanged: (CurrencyEntity? currency) {
+                                      if (currency != null) {
+                                        field.didChange(currency);
                                         bloc.add(
-                                          MainAccountCurrencyChanged(currId),
+                                          MainAccountCurrencyChanged(currency),
                                         );
                                       }
                                     },

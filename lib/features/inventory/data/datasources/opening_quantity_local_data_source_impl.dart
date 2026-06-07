@@ -2,6 +2,7 @@ import 'package:flowcash/features/inventory/data/datasources/opening_quantity_da
 import 'package:flowcash/features/inventory/domain/entities/opening_quantity_entity.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/opening_quantities_table.dart';
+import 'package:flowcash/core/tables/inventories_table.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 
 final class OpeningQuantityLocalDataSourceImpl
@@ -31,6 +32,7 @@ final class OpeningQuantityLocalDataSourceImpl
       table: OpeningQuantitiesTable.tableName,
       where: '${OpeningQuantitiesTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -71,9 +73,8 @@ final class OpeningQuantityLocalDataSourceImpl
   OpeningQuantityEntity fromMap(Map<String, dynamic> map) {
     return OpeningQuantityEntity(
       id: map[OpeningQuantitiesTable.id] as int,
-      categoryId: map[OpeningQuantitiesTable.categoryId] as int,
+      inventoryId: map[OpeningQuantitiesTable.inventoryId] as int,
       countUnits: ((map[OpeningQuantitiesTable.countUnits]) as num).toDouble(),
-      warehouseId: map[OpeningQuantitiesTable.warehouseId] as int,
       createdAt: DateTime.parse(
         map[OpeningQuantitiesTable.createdAt] as String? ?? "",
       ),
@@ -86,9 +87,8 @@ final class OpeningQuantityLocalDataSourceImpl
   Map<String, dynamic> toMap(OpeningQuantityEntity entity) {
     return {
       if (entity.id > 0) OpeningQuantitiesTable.id: entity.id,
-      OpeningQuantitiesTable.categoryId: entity.categoryId,
+      OpeningQuantitiesTable.inventoryId: entity.inventoryId,
       OpeningQuantitiesTable.countUnits: entity.countUnits,
-      OpeningQuantitiesTable.warehouseId: entity.warehouseId,
       OpeningQuantitiesTable.createdAt: entity.createdAt.toIso8601String(),
       OpeningQuantitiesTable.costTotal: entity.costTotal,
       OpeningQuantitiesTable.periodId: entity.periodId,
@@ -97,21 +97,34 @@ final class OpeningQuantityLocalDataSourceImpl
 
   @override
   Future<OpeningQuantityEntity?> getOpeningQuantity({
-    required int storeId,
-    required int categoryId,
+    required int inventoryId,
     bool trigger = false,
     bool printQuery = true,
   }) async {
-    throw UnimplementedError();
+    final rows = await _db.query(
+      table: OpeningQuantitiesTable.tableName,
+      where: '${OpeningQuantitiesTable.inventoryId} = ?',
+      whereArgs: [inventoryId],
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    return fromMap(rows.first);
   }
 
   @override
-  Future<double> getSumUnitsWhereStoreAndCategory(
-    int storeId,
-    int categoryId, {
+  Future<double> getSumUnitsByInventory(
+    int inventoryId, {
     bool printQuery = true,
   }) async {
-    throw UnimplementedError();
+    final rows = await _db.query(
+      table: OpeningQuantitiesTable.tableName,
+      where: '${OpeningQuantitiesTable.inventoryId} = ?',
+      whereArgs: [inventoryId],
+    );
+
+    return rows.fold<double>(0.0, (sum, row) {
+      return sum + ((row[OpeningQuantitiesTable.countUnits] as num).toDouble());
+    });
   }
 
   @override
@@ -120,7 +133,12 @@ final class OpeningQuantityLocalDataSourceImpl
     bool trigger = false,
     bool printQuery = true,
   }) async {
-    throw UnimplementedError();
+    final rows = await _db.query(
+      table: OpeningQuantitiesTable.tableName,
+      where: '${OpeningQuantitiesTable.inventoryId} = ?',
+      whereArgs: [commodity.id],
+    );
+    return rows.map(fromMap).toList();
   }
 
   @override
@@ -129,7 +147,13 @@ final class OpeningQuantityLocalDataSourceImpl
     bool trigger = false,
     bool printQuery = true,
   }) async {
-    throw UnimplementedError();
+    final rows = await _db.query(
+      table: OpeningQuantitiesTable.tableName,
+      where:
+          '${OpeningQuantitiesTable.inventoryId} IN (SELECT ${InventoriesTable.id} FROM ${InventoriesTable.tableName} WHERE ${InventoriesTable.storeId} = ?)',
+      whereArgs: [storeId],
+    );
+    return rows.map(fromMap).toList();
   }
 
   Map<String, dynamic> _sanitizeInsertData(

@@ -32,6 +32,7 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
       table: WarehousesTable.tableName,
       where: '${WarehousesTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -113,6 +114,7 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
       table: WarehousesTable.tableName,
       where: '${WarehousesTable.warehouseName} = ?',
       whereArgs: [code],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

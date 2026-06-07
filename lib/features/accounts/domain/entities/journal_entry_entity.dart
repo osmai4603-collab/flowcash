@@ -9,7 +9,6 @@ class JournalEntryEntity extends Entity {
   final DateTime createdAt;
   final int createdBy;
   final String currencyId;
-  final double exPrice;
   final double baseAmount;
   final int? warehouseId;
   final List<JournalItemEntity> items;
@@ -21,7 +20,6 @@ class JournalEntryEntity extends Entity {
     required this.createdAt,
     required this.createdBy,
     required this.currencyId,
-    required this.exPrice,
     required this.baseAmount,
     this.warehouseId,
     this.items = const [],
@@ -35,7 +33,6 @@ class JournalEntryEntity extends Entity {
     createdAt,
     createdBy,
     currencyId,
-    exPrice,
     baseAmount,
     warehouseId,
     items,
@@ -49,7 +46,6 @@ class JournalEntryEntity extends Entity {
     DateTime? createdAt,
     int? createdBy,
     String? currencyId,
-    double? exPrice,
     double? baseAmount,
     int? warehouseId,
     List<JournalItemEntity>? items,
@@ -61,7 +57,6 @@ class JournalEntryEntity extends Entity {
       createdAt: createdAt ?? this.createdAt,
       createdBy: createdBy ?? this.createdBy,
       currencyId: currencyId ?? this.currencyId,
-      exPrice: exPrice ?? this.exPrice,
       baseAmount: baseAmount ?? this.baseAmount,
       warehouseId: warehouseId ?? this.warehouseId,
       items: items ?? this.items,

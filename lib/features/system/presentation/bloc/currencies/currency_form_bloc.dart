@@ -37,31 +37,13 @@ class CurrencyFormSymbolChanged extends CurrencyFormEvent {
   List<Object?> get props => [symbol];
 }
 
-class CurrencyFormFullSymbolChanged extends CurrencyFormEvent {
-  final String fullSymbol;
+class CurrencyFormIsDefaultChanged extends CurrencyFormEvent {
+  final bool isDefault;
 
-  const CurrencyFormFullSymbolChanged(this.fullSymbol);
-
-  @override
-  List<Object?> get props => [fullSymbol];
-}
-
-class CurrencyFormCountryChanged extends CurrencyFormEvent {
-  final String country;
-
-  const CurrencyFormCountryChanged(this.country);
+  const CurrencyFormIsDefaultChanged(this.isDefault);
 
   @override
-  List<Object?> get props => [country];
-}
-
-class CurrencyFormSelectedChanged extends CurrencyFormEvent {
-  final bool selected;
-
-  const CurrencyFormSelectedChanged(this.selected);
-
-  @override
-  List<Object?> get props => [selected];
+  List<Object?> get props => [isDefault];
 }
 
 class CurrencyFormSubmitted extends CurrencyFormEvent {
@@ -72,9 +54,7 @@ class CurrencyFormState extends Equatable {
   final String id;
   final String name;
   final String symbol;
-  final String fullSymbol;
-  final String country;
-  final bool selected;
+  final bool isDefault;
   final bool isSubmitting;
   final bool isSuccess;
   final CurrencyEntity? savedEntity;
@@ -84,9 +64,7 @@ class CurrencyFormState extends Equatable {
     required this.id,
     required this.name,
     required this.symbol,
-    required this.fullSymbol,
-    required this.country,
-    required this.selected,
+    required this.isDefault,
     this.isSubmitting = false,
     this.isSuccess = false,
     this.savedEntity,
@@ -98,9 +76,7 @@ class CurrencyFormState extends Equatable {
       id: initialValue?.id ?? '',
       name: initialValue?.name ?? '',
       symbol: initialValue?.symbol ?? '',
-      fullSymbol: initialValue?.fullSymbol ?? '',
-      country: initialValue?.country ?? '',
-      selected: initialValue?.selected ?? false,
+      isDefault: initialValue?.isDefault ?? false,
     );
   }
 
@@ -108,9 +84,7 @@ class CurrencyFormState extends Equatable {
     String? id,
     String? name,
     String? symbol,
-    String? fullSymbol,
-    String? country,
-    bool? selected,
+    bool? isDefault,
     bool? isSubmitting,
     bool? isSuccess,
     CurrencyEntity? savedEntity,
@@ -120,9 +94,7 @@ class CurrencyFormState extends Equatable {
       id: id ?? this.id,
       name: name ?? this.name,
       symbol: symbol ?? this.symbol,
-      fullSymbol: fullSymbol ?? this.fullSymbol,
-      country: country ?? this.country,
-      selected: selected ?? this.selected,
+      isDefault: isDefault ?? this.isDefault,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       isSuccess: isSuccess ?? this.isSuccess,
       savedEntity: savedEntity ?? this.savedEntity,
@@ -135,9 +107,7 @@ class CurrencyFormState extends Equatable {
         id,
         name,
         symbol,
-        fullSymbol,
-        country,
-        selected,
+        isDefault,
         isSubmitting,
         isSuccess,
         savedEntity,
@@ -160,9 +130,7 @@ class CurrencyFormBloc extends Bloc<CurrencyFormEvent, CurrencyFormState> {
     on<CurrencyFormIdChanged>(_onIdChanged);
     on<CurrencyFormNameChanged>(_onNameChanged);
     on<CurrencyFormSymbolChanged>(_onSymbolChanged);
-    on<CurrencyFormFullSymbolChanged>(_onFullSymbolChanged);
-    on<CurrencyFormCountryChanged>(_onCountryChanged);
-    on<CurrencyFormSelectedChanged>(_onSelectedChanged);
+    on<CurrencyFormIsDefaultChanged>(_onIsDefaultChanged);
     on<CurrencyFormSubmitted>(_onSubmitted);
   }
 
@@ -178,16 +146,8 @@ class CurrencyFormBloc extends Bloc<CurrencyFormEvent, CurrencyFormState> {
     emit(state.copyWith(symbol: event.symbol, errorMessage: null));
   }
 
-  void _onFullSymbolChanged(CurrencyFormFullSymbolChanged event, Emitter<CurrencyFormState> emit) {
-    emit(state.copyWith(fullSymbol: event.fullSymbol, errorMessage: null));
-  }
-
-  void _onCountryChanged(CurrencyFormCountryChanged event, Emitter<CurrencyFormState> emit) {
-    emit(state.copyWith(country: event.country, errorMessage: null));
-  }
-
-  void _onSelectedChanged(CurrencyFormSelectedChanged event, Emitter<CurrencyFormState> emit) {
-    emit(state.copyWith(selected: event.selected, errorMessage: null));
+  void _onIsDefaultChanged(CurrencyFormIsDefaultChanged event, Emitter<CurrencyFormState> emit) {
+    emit(state.copyWith(isDefault: event.isDefault, errorMessage: null));
   }
 
   Future<void> _onSubmitted(CurrencyFormSubmitted event, Emitter<CurrencyFormState> emit) async {
@@ -213,9 +173,7 @@ class CurrencyFormBloc extends Bloc<CurrencyFormEvent, CurrencyFormState> {
       id: state.id.trim(),
       name: state.name.trim(),
       symbol: state.symbol.trim(),
-      fullSymbol: state.fullSymbol.trim(),
-      country: state.country.trim(),
-      selected: state.selected,
+      isDefault: state.isDefault,
     );
 
     final result = initialValue == null

@@ -33,6 +33,7 @@ final class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
       table: ProgramUsersTable.tableName,
       where: '${ProgramUsersTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -106,6 +107,7 @@ final class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
       where:
           '${ProgramUsersTable.userName} = ? AND ${ProgramUsersTable.password} = ?',
       whereArgs: [userName, password],
+      limit: 1,
     );
     if (rows.isEmpty) {
       return null;
@@ -133,6 +135,7 @@ final class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
       where:
           '${ProgramUsersTable.userName} = ? AND ${ProgramUsersTable.password} = ?',
       whereArgs: [userName, password],
+      limit: 1,
     );
     if (rows.isEmpty) {
       return null;

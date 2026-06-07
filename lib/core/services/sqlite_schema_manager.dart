@@ -1,6 +1,5 @@
 import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 import 'package:flowcash/core/tables/catalogs_table.dart';
-import 'package:flowcash/core/tables/inventory_catalogs_table.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:flowcash/core/tables/currencies_table.dart';
@@ -16,6 +15,7 @@ import 'package:flowcash/core/tables/financial_bonds_table.dart';
 import 'package:flowcash/core/tables/financial_transactions_table.dart';
 import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
+import 'package:flowcash/core/services/sqlite_triggers/journal_items_balance_trigger.dart';
 import 'package:flowcash/core/tables/categories_table.dart';
 import 'package:flowcash/core/tables/inventories_table.dart';
 import 'package:flowcash/core/tables/inventory_transactions_table.dart';
@@ -36,12 +36,17 @@ import 'package:flowcash/core/tables/warehouse_values_table.dart';
 final class SqliteSchemaManager {
   const SqliteSchemaManager._();
 
-  static const int currentVersion = 5;
+  static const int currentVersion = 8;
 
-  /// Create schema for the initial version (version 1).
-  /// Later versions are applied sequentially by migrations.
+  /// Create the full schema for a new database in sequential version order.
+  /// This builds the tables from version 1 through the last schema-only version,
+  /// then any later version-only migrations can run afterward.
   static void createAll(Database db) {
     _createV1Tables(db);
+    _createV2Tables(db);
+    _createV3Tables(db);
+    _createV4Tables(db);
+    _createV5Tables(db);
   }
 
   /// Apply incremental migrations from [fromVersion] (exclusive) up to [toVersion] (inclusive).
@@ -67,6 +72,15 @@ final class SqliteSchemaManager {
           case 5:
             _createV5Tables(db);
             break;
+          case 6:
+            _createV6Tables(db);
+            break;
+          case 7:
+            _applyV7Migration(db);
+            break;
+          case 8:
+            _applyV8Migration(db);
+            break;
           default:
             throw StateError('No migration defined for version $v');
         }
@@ -89,9 +103,9 @@ final class SqliteSchemaManager {
         ${CurrenciesTable.id} TEXT PRIMARY KEY,
         ${CurrenciesTable.currencyName} TEXT NOT NULL,
         ${CurrenciesTable.symbol} TEXT NOT NULL,
-        ${CurrenciesTable.fullSymbol} TEXT NOT NULL,
-        ${CurrenciesTable.country} TEXT NOT NULL,
-        ${CurrenciesTable.selected} INTEGER NOT NULL DEFAULT 0
+        full_symbol TEXT NOT NULL,
+        country TEXT NOT NULL,
+        is_selected INTEGER NOT NULL DEFAULT 0
       )
     ''');
 
@@ -113,10 +127,9 @@ final class SqliteSchemaManager {
         ${MainAccountsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         ${MainAccountsTable.accountNumber} TEXT NOT NULL UNIQUE,
         ${MainAccountsTable.accountName} TEXT NOT NULL UNIQUE,
-        ${MainAccountsTable.imagePath} TEXT,
         ${MainAccountsTable.currencyId} TEXT NOT NULL,
-        ${MainAccountsTable.incrementsBalance} REAL NOT NULL DEFAULT 0.0,
-        ${MainAccountsTable.decrementsBalance} REAL NOT NULL DEFAULT 0.0,
+        ${MainAccountsTable.debitBalance} REAL NOT NULL DEFAULT 0.0,
+        ${MainAccountsTable.creditBalance} REAL NOT NULL DEFAULT 0.0,
         ${MainAccountsTable.mainAccountType} INTEGER NOT NULL,
         ${MainAccountsTable.numbersCounter} INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY (${MainAccountsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON DELETE RESTRICT
@@ -131,8 +144,8 @@ final class SqliteSchemaManager {
         ${SubAccountsTable.accountNumber} TEXT NOT NULL UNIQUE,
         ${SubAccountsTable.mainAccountId} INTEGER NOT NULL,
         ${SubAccountsTable.currencyId} TEXT NOT NULL,
-        ${SubAccountsTable.debit} REAL NOT NULL DEFAULT 0.0,
-        ${SubAccountsTable.credit} REAL NOT NULL DEFAULT 0.0,
+        ${SubAccountsTable.debitBalance} REAL NOT NULL DEFAULT 0.0,
+        ${SubAccountsTable.creditBalance} REAL NOT NULL DEFAULT 0.0,
         ${SubAccountsTable.balanceMax} REAL DEFAULT NULL,
         ${SubAccountsTable.subAccountType} INTEGER NOT NULL,
         ${SubAccountsTable.createdAt} TEXT NOT NULL,
@@ -285,37 +298,18 @@ final class SqliteSchemaManager {
         ${InventoriesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         ${InventoriesTable.categoryId} INTEGER NOT NULL,
         ${InventoriesTable.storeId} INTEGER NOT NULL,
-        ${InventoriesTable.revenueAccountId} INTEGER,
-        ${InventoriesTable.expenseAccountId} INTEGER,
-        ${InventoriesTable.incomeStockId} INTEGER,
-        ${InventoriesTable.outcomeStockId} INTEGER,
-        ${InventoriesTable.unitCost} REAL NOT NULL DEFAULT 0.0,
+        ${InventoriesTable.revenueAccountId} INTEGER NOT NULL,
+        ${InventoriesTable.expenseAccountId} INTEGER NOT NULL,
+        ${InventoriesTable.incomeStockId} INTEGER NOT NULL,
+        ${InventoriesTable.outcomeStockId} INTEGER NOT NULL,
+        ${InventoriesTable.costTotal} REAL NOT NULL DEFAULT 0.0,
         ${InventoriesTable.countUnits} REAL NOT NULL DEFAULT 0.0,
         Foreign KEY (${InventoriesTable.storeId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON DELETE RESTRICT,
-        FOREIGN KEY (${InventoriesTable.revenueAccountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
-        FOREIGN KEY (${InventoriesTable.expenseAccountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
-        FOREIGN KEY (${InventoriesTable.incomeStockId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
-        FOREIGN KEY (${InventoriesTable.outcomeStockId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${InventoriesTable.revenueAccountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE RESTRICT,
+        FOREIGN KEY (${InventoriesTable.expenseAccountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE RESTRICT,
+        FOREIGN KEY (${InventoriesTable.incomeStockId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE RESTRICT,
+        FOREIGN KEY (${InventoriesTable.outcomeStockId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE RESTRICT,
         FOREIGN KEY (${InventoriesTable.categoryId}) REFERENCES ${CategoriesTable.tableName} (${CategoriesTable.id}) ON DELETE RESTRICT
-      )
-    ''');
-
-    // 4. Inventory Subcategories
-    db.execute('''
-      CREATE TABLE IF NOT EXISTS ${InventorySubcategoriesTable.tableName} (
-        ${InventorySubcategoriesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ${InventorySubcategoriesTable.storeId} INTEGER NOT NULL,
-        ${InventorySubcategoriesTable.catalogId} INTEGER NOT NULL,
-        ${InventorySubcategoriesTable.revenueAccountId} INTEGER,
-        ${InventorySubcategoriesTable.expenseAccountId} INTEGER,
-        ${InventorySubcategoriesTable.incomeStockId} INTEGER,
-        ${InventorySubcategoriesTable.outcomeStockId} INTEGER,
-        FOREIGN KEY (${InventorySubcategoriesTable.storeId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON DELETE RESTRICT,
-        FOREIGN KEY (${InventorySubcategoriesTable.revenueAccountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
-        FOREIGN KEY (${InventorySubcategoriesTable.expenseAccountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
-        FOREIGN KEY (${InventorySubcategoriesTable.incomeStockId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,
-        FOREIGN KEY (${InventorySubcategoriesTable.outcomeStockId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON DELETE SET NULL,                                                                                                                                                               
-        FOREIGN KEY (${InventorySubcategoriesTable.catalogId}) REFERENCES ${SubcategoriesTable.tableName} (${SubcategoriesTable.id}) ON DELETE RESTRICT                                                              
       )
     ''');
 
@@ -384,10 +378,10 @@ final class SqliteSchemaManager {
 
     try {
       final inventoryPragma = db.select("PRAGMA table_info(${InventoriesTable.tableName})");
-      final hasInventoryCost = inventoryPragma.any((r) => r['name'] == InventoriesTable.unitCost);
+      final hasInventoryCost = inventoryPragma.any((r) => r['name'] == InventoriesTable.costTotal);
       if (!hasInventoryCost) {
-        db.execute('ALTER TABLE ${InventoriesTable.tableName} ADD COLUMN ${InventoriesTable.unitCost} REAL NOT NULL DEFAULT 0.0');
-        debugPrint('Added ${InventoriesTable.unitCost} column to ${InventoriesTable.tableName}');
+        db.execute('ALTER TABLE ${InventoriesTable.tableName} ADD COLUMN ${InventoriesTable.costTotal} REAL NOT NULL DEFAULT 0.0');
+        debugPrint('Added ${InventoriesTable.costTotal} column to ${InventoriesTable.tableName}');
       }
     } catch (e) {
       debugPrint('Inventory unitCost migration check failed: $e');
@@ -397,17 +391,44 @@ final class SqliteSchemaManager {
     db.execute('''
       CREATE TABLE IF NOT EXISTS ${OpeningQuantitiesTable.tableName} (
         ${OpeningQuantitiesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ${OpeningQuantitiesTable.categoryId} INTEGER NOT NULL,
+        ${OpeningQuantitiesTable.inventoryId} INTEGER NOT NULL,
         ${OpeningQuantitiesTable.countUnits} REAL NOT NULL DEFAULT 0.0,
-        ${OpeningQuantitiesTable.warehouseId} INTEGER NOT NULL,
         ${OpeningQuantitiesTable.createdAt} TEXT NOT NULL,
         ${OpeningQuantitiesTable.costTotal} REAL NOT NULL DEFAULT 0.0,
         ${OpeningQuantitiesTable.periodId} INTEGER NOT NULL,
-        FOREIGN KEY (${OpeningQuantitiesTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON DELETE RESTRICT,
+        FOREIGN KEY (${OpeningQuantitiesTable.inventoryId}) REFERENCES ${InventoriesTable.tableName} (${InventoriesTable.id}) ON DELETE RESTRICT,
         FOREIGN KEY (${OpeningQuantitiesTable.periodId}) REFERENCES ${AccountingPeriodsTable.tableName} (${AccountingPeriodsTable.id}) ON DELETE CASCADE,
-        FOREIGN KEY (${OpeningQuantitiesTable.categoryId}) REFERENCES ${CategoriesTable.tableName} (${CategoriesTable.id}) ON DELETE RESTRICT
+        UNIQUE (${OpeningQuantitiesTable.inventoryId}, ${OpeningQuantitiesTable.periodId})
       )
     ''');
+
+    try {
+      final pragma = db.select("PRAGMA table_info(${OpeningQuantitiesTable.tableName})");
+      final hasInventoryId = pragma.any((r) => r['name'] == OpeningQuantitiesTable.inventoryId);
+      final hasWarehouseId = pragma.any((r) => r['name'] == 'warehouse_id');
+      final hasCategoryId = pragma.any((r) => r['name'] == 'category_id');
+
+      if (!hasInventoryId) {
+        db.execute('ALTER TABLE ${OpeningQuantitiesTable.tableName} ADD COLUMN ${OpeningQuantitiesTable.inventoryId} INTEGER');
+
+        if (hasWarehouseId && hasCategoryId) {
+          db.execute('''
+            UPDATE ${OpeningQuantitiesTable.tableName}
+            SET ${OpeningQuantitiesTable.inventoryId} = (
+              SELECT ${InventoriesTable.id}
+              FROM ${InventoriesTable.tableName}
+              WHERE ${InventoriesTable.tableName}.${InventoriesTable.storeId} = ${OpeningQuantitiesTable.tableName}.warehouse_id
+                AND ${InventoriesTable.tableName}.${InventoriesTable.categoryId} = ${OpeningQuantitiesTable.tableName}.category_id
+              LIMIT 1
+            )
+            WHERE ${OpeningQuantitiesTable.inventoryId} IS NULL
+          ''');
+          debugPrint('Migrated opening_quantities warehouse_id/category_id -> inventory_id');
+        }
+      }
+    } catch (e) {
+      debugPrint('Opening Quantities migration check failed: $e');
+    }
   }
 
   static void _createV4Tables(Database db) {
@@ -586,8 +607,7 @@ final class SqliteSchemaManager {
         ${JournalEntriesTable.createdAt} TEXT NOT NULL,
         ${JournalEntriesTable.userId} INTEGER NOT NULL,
         ${JournalEntriesTable.currencyId} TEXT NOT NULL,
-        ${JournalEntriesTable.exPrice} REAL NOT NULL DEFAULT 1.0,
-        ${JournalEntriesTable.baseAmount} REAL NOT NULL DEFAULT 0.0,
+        ${JournalEntriesTable.amount} REAL NOT NULL DEFAULT 0.0,
         ${JournalEntriesTable.warehouseId} INTEGER,
         FOREIGN KEY (${JournalEntriesTable.userId}) REFERENCES ${ProgramUsersTable.tableName} (${ProgramUsersTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${JournalEntriesTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
@@ -604,14 +624,134 @@ final class SqliteSchemaManager {
         ${JournalItemsTable.credit} REAL NOT NULL DEFAULT 0.0,
         ${JournalItemsTable.lineDescription} TEXT,
         ${JournalItemsTable.currencyId} TEXT NOT NULL,
-        ${JournalItemsTable.debitBase} REAL NOT NULL DEFAULT 0.0,
-        ${JournalItemsTable.creditBase} REAL NOT NULL DEFAULT 0.0,
-        ${JournalItemsTable.warehouseId} INTEGER,
+        ${JournalItemsTable.exPrice} REAL NOT NULL DEFAULT 1.0,
+        ${JournalItemsTable.expriceMain} REAL NOT NULL DEFAULT 1.0,
         FOREIGN KEY (${JournalItemsTable.entryId}) REFERENCES ${JournalEntriesTable.tableName} (${JournalEntriesTable.entryId}) ON DELETE CASCADE,
         FOREIGN KEY (${JournalItemsTable.accountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
-        FOREIGN KEY (${JournalItemsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
-        FOREIGN KEY (${JournalItemsTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT
+        FOREIGN KEY (${JournalItemsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT
       )
     ''');
+    _createJournalItemTriggers(db);
+  }
+
+  static void _createJournalItemTriggers(Database db) {
+    JournalItemsBalanceTrigger.call(db);
+  }
+
+  static void _createV6Tables(Database db) {
+    const tempTable = '${JournalItemsTable.tableName}_new';
+
+    db.execute('DROP TABLE IF EXISTS $tempTable');
+    db.execute('''
+      CREATE TABLE $tempTable (
+        ${JournalItemsTable.itemId} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${JournalItemsTable.entryId} INTEGER NOT NULL,
+        ${JournalItemsTable.accountId} INTEGER NOT NULL,
+        ${JournalItemsTable.debit} REAL NOT NULL DEFAULT 0.0,
+        ${JournalItemsTable.credit} REAL NOT NULL DEFAULT 0.0,
+        ${JournalItemsTable.lineDescription} TEXT NOT NULL,
+        ${JournalItemsTable.currencyId} TEXT NOT NULL,
+        ${JournalItemsTable.exPrice} REAL NOT NULL DEFAULT 1.0,
+        ${JournalItemsTable.expriceMain} REAL NOT NULL DEFAULT 1.0,
+        FOREIGN KEY (${JournalItemsTable.entryId}) REFERENCES ${JournalEntriesTable.tableName} (${JournalEntriesTable.entryId}) ON DELETE CASCADE,
+        FOREIGN KEY (${JournalItemsTable.accountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${JournalItemsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT
+      )
+    ''');
+
+    final pragma = db.select('PRAGMA table_info(${JournalItemsTable.tableName})');
+    final hasOldColumns = pragma.any((r) => r['name'] == 'debit_base') &&
+        pragma.any((r) => r['name'] == 'credit_base');
+
+    if (hasOldColumns) {
+      db.execute('''
+        INSERT INTO $tempTable (
+          ${JournalItemsTable.itemId},
+          ${JournalItemsTable.entryId},
+          ${JournalItemsTable.accountId},
+          ${JournalItemsTable.debit},
+          ${JournalItemsTable.credit},
+          ${JournalItemsTable.lineDescription},
+          ${JournalItemsTable.currencyId},
+          ${JournalItemsTable.exPrice},
+          ${JournalItemsTable.expriceMain}
+        )
+        SELECT
+          ${JournalItemsTable.itemId},
+          ${JournalItemsTable.entryId},
+          ${JournalItemsTable.accountId},
+          ${JournalItemsTable.debit},
+          ${JournalItemsTable.credit},
+          ${JournalItemsTable.lineDescription},
+          ${JournalItemsTable.currencyId},
+          1.0,
+          (${JournalItemsTable.debit} + ${JournalItemsTable.credit}) * 1.0
+        FROM ${JournalItemsTable.tableName}
+      ''');
+
+      db.execute('PRAGMA foreign_keys = OFF');
+      db.execute('DROP TABLE ${JournalItemsTable.tableName}');
+      db.execute('ALTER TABLE $tempTable RENAME TO ${JournalItemsTable.tableName}');
+      db.execute('PRAGMA foreign_keys = ON');
+    } else {
+      final existingTemp = db.select("SELECT name FROM sqlite_master WHERE type='table' AND name = '$tempTable'");
+      if (existingTemp.isNotEmpty) {
+        db.execute('PRAGMA foreign_keys = OFF');
+        db.execute('DROP TABLE IF EXISTS ${JournalItemsTable.tableName}');
+        db.execute('ALTER TABLE $tempTable RENAME TO ${JournalItemsTable.tableName}');
+        db.execute('PRAGMA foreign_keys = ON');
+      }
+    }
+  }
+
+  static void _applyV7Migration(Database db) {
+    const tempTable = '${CurrenciesTable.tableName}_new';
+
+    db.execute('DROP TABLE IF EXISTS $tempTable');
+    db.execute('''
+      CREATE TABLE $tempTable (
+        ${CurrenciesTable.id} TEXT PRIMARY KEY,
+        ${CurrenciesTable.currencyName} TEXT NOT NULL,
+        ${CurrenciesTable.symbol} TEXT NOT NULL,
+        ${CurrenciesTable.isDefault} INTEGER NOT NULL DEFAULT 0
+      )
+    ''');
+
+    final pragma = db.select('PRAGMA table_info(${CurrenciesTable.tableName})');
+    final hasOldSelected = pragma.any((r) => r['name'] == 'is_selected');
+
+    if (hasOldSelected) {
+      db.execute('''
+        INSERT INTO $tempTable (
+          ${CurrenciesTable.id},
+          ${CurrenciesTable.currencyName},
+          ${CurrenciesTable.symbol},
+          ${CurrenciesTable.isDefault}
+        )
+        SELECT
+          ${CurrenciesTable.id},
+          ${CurrenciesTable.currencyName},
+          ${CurrenciesTable.symbol},
+          is_selected
+        FROM ${CurrenciesTable.tableName}
+      ''');
+
+      db.execute('PRAGMA foreign_keys = OFF');
+      db.execute('DROP TABLE ${CurrenciesTable.tableName}');
+      db.execute('ALTER TABLE $tempTable RENAME TO ${CurrenciesTable.tableName}');
+      db.execute('PRAGMA foreign_keys = ON');
+    } else {
+      final existingTemp = db.select("SELECT name FROM sqlite_master WHERE type='table' AND name = '$tempTable'");
+      if (existingTemp.isNotEmpty) {
+        db.execute('PRAGMA foreign_keys = OFF');
+        db.execute('DROP TABLE IF EXISTS ${CurrenciesTable.tableName}');
+        db.execute('ALTER TABLE $tempTable RENAME TO ${CurrenciesTable.tableName}');
+        db.execute('PRAGMA foreign_keys = ON');
+      }
+    }
+  }
+
+  static void _applyV8Migration(Database db) {
+    _createJournalItemTriggers(db);
   }
 }

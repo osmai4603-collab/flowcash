@@ -35,6 +35,7 @@ final class MainCategoryLocalDataSourceImpl
       table: MainCategoriesTable.tableName,
       where: '${MainCategoriesTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -156,6 +157,7 @@ final class MainCategoryLocalDataSourceImpl
       table: MainCategoriesTable.tableName,
       where: '${MainCategoriesTable.categoryName} = ?',
       whereArgs: [categoryName],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

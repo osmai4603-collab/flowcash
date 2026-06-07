@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flowcash/core/enums/sub_account_type_enum.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
 
 sealed class SubAccountFormEvent extends Equatable {
   const SubAccountFormEvent();
@@ -39,11 +40,11 @@ class SubAccountTypeChanged extends SubAccountFormEvent {
 }
 
 class SubAccountCurrencyChanged extends SubAccountFormEvent {
-  final String currencyId;
-  const SubAccountCurrencyChanged(this.currencyId);
+  final CurrencyEntity currency;
+  const SubAccountCurrencyChanged(this.currency);
 
   @override
-  List<Object?> get props => [currencyId];
+  List<Object?> get props => [currency];
 }
 
 class SubAccountBalanceMaxChanged extends SubAccountFormEvent {

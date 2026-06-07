@@ -8,7 +8,7 @@
 
 | الكيان | الوصف | الحقول الرئيسية |
 |--------|-------|-----------------|
-| [MainAccountEntity](file:///home/osmsoftwareengineering/flutter_projects/flowcash/lib/features/accounts/domain/entities/main_account_entity.dart) | الحساب الرئيسي (الأب) | `id`, `accountName`, `accountNumber`, `mainAccountType`, `incrementsBalance`, `decrementsBalance`, `currencyId` |
+| [MainAccountEntity](file:///home/osmsoftwareengineering/flutter_projects/flowcash/lib/features/accounts/domain/entities/main_account_entity.dart) | الحساب الرئيسي (الأب) | `id`, `accountName`, `accountNumber`, `mainAccountType`, `debitBalance`, `creditBalance`, `currencyId` |
 | [SubAccountEntity](file:///home/osmsoftwareengineering/flutter_projects/flowcash/lib/features/accounts/domain/entities/sub_account_entity.dart) | الحساب الفرعي (الابن) | `id`, `mainAccountId`, `accountName`, `accountNumber`, `subAccountType`, `currencyId`, `balanceMax`, `createdAt` |
 | [JournalEntryEntity](file:///home/osmsoftwareengineering/flutter_projects/flowcash/lib/features/accounts/domain/entities/journal_entry_entity.dart) | قيد اليومية | `id`, `referenceNumber`, `description`, `createdAt`, `currencyId`, `exPrice`, `baseAmount` |
 | [JournalItemEntity](file:///home/osmsoftwareengineering/flutter_projects/flowcash/lib/features/accounts/domain/entities/journal_item_entity.dart) | بند قيد اليومية | `id`, `entryId`, `accountId`, `debit`, `credit`, `currencyId`, `debitBase`, `creditBase` |
@@ -139,7 +139,6 @@ presentation/
 - مجموعة الحساب (`MainAccountGroup`) — `DropdownButton`
 - نوع الحساب (`MainAccountType`) — `DropdownButton` مفلتر حسب المجموعة المختارة
 - العملة (`currencyId`) — `DropdownButton`
-- صورة الحساب (`imagePath`) — اختياري
 
 **الملفات:**
 ```

@@ -30,6 +30,7 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
       table: UnitsTable.tableName,
       where: '${UnitsTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

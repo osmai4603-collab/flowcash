@@ -11,7 +11,7 @@ abstract interface class MainAccountDataSource implements AppDataSource<int, Mai
   Future<int?> getMaxAccountNumber(MainAccountGroup accountType);
   Future<List<MainAccountEntity>> whereWarehouse(int warehouseId);
   Future<bool> updateCounter({required int counter, required int id});
-  Future<bool> updateBalances({required double incrementBalance, required double decrementBalance, required int id});
+  Future<bool> updateBalances({required double debitBalance, required double creditBalance, required int id});
   Future<bool> updateBalance({required bool isIncrement, required double amount, required int subAccountId});
   Future<MainAccountEntity> firstWhereSubAccountId(int subAccountId);
 }

@@ -7,16 +7,12 @@ class CurrenciesTable {
   static const String id = 'currency_id';
   static const String currencyName = 'name';
   static const String symbol = 'symbol';
-  static const String fullSymbol = 'full_symbol';
-  static const String country = 'country';
-  static const String selected = 'is_selected';
+  static const String isDefault = 'is_default';
 
   static const List<String> fields = [
     id,
     currencyName,
     symbol,
-    fullSymbol,
-    country,
-    selected,
+    isDefault,
   ];
 }

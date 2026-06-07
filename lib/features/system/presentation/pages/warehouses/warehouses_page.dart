@@ -5,9 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/system/presentation/bloc/warehouses/warehouses_cubit.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/features/system/presentation/pages/warehouses/warehouse_form_page.dart';
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
+import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class WarehousesPage extends StatefulWidget {
   const WarehousesPage({super.key});
 
@@ -76,7 +76,7 @@ class _WarehousesPageState extends State<WarehousesPage> {
   Widget headerCell(String text, TextTheme textTheme, ColorScheme colors) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      child: fluent.Text(
+      child: Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium?.copyWith(
@@ -90,7 +90,7 @@ class _WarehousesPageState extends State<WarehousesPage> {
   Widget dataCell(String text, TextTheme textTheme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      child: fluent.Text(
+      child: Text(
         text.isEmpty ? '-' : text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium,
@@ -103,7 +103,7 @@ class _WarehousesPageState extends State<WarehousesPage> {
 
     if (items.isEmpty) {
       return Center(
-        child: fluent.Text('لا يوجد مستودعات', style: textTheme.bodyLarge),
+        child: Text('لا يوجد مستودعات', style: textTheme.bodyLarge),
       );
     }
 
@@ -120,12 +120,12 @@ class _WarehousesPageState extends State<WarehousesPage> {
                   builder: (context) => const WarehouseFormPage(),
                 );
                 if (addedWarehouse != null && context.mounted) {
-                  fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('تمت إضافة المستودع')));
+                  displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تمت إضافة المستودع')));
                   context.read<WarehousesBloc>().add(LoadWarehousesEvent());
                 }
               },
-              icon: const Icon(fluent.FluentIcons.add),
-              label: const fluent.Text('إضافة مستودع'),
+              icon: const Icon(FluentIcons.add),
+              label: const Text('إضافة مستودع'),
             ),
           ),
         ),
@@ -162,11 +162,11 @@ class _WarehousesPageState extends State<WarehousesPage> {
             builder: (context) => WarehouseFormPage(initialValue: item),
           );
           if (updatedWarehouse != null && context.mounted) {
-            fluent.displayInfoBar(
+            displayInfoBar(
               context,
-              builder: (context, close) => const fluent.InfoBar(
-                title: fluent.Text('تنبيه'),
-                content: fluent.Text('تم تحديث بيانات المستودع'),
+              builder: (context, close) => const InfoBar(
+                title: Text('تنبيه'),
+                content: Text('تم تحديث بيانات المستودع'),
               ),
             );
             context.read<WarehousesBloc>().add(LoadWarehousesEvent());
@@ -205,7 +205,7 @@ class _WarehousesPageState extends State<WarehousesPage> {
       alignment: Alignment.center,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(color: colors.primaryContainer),
-      child: fluent.Text(
+      child: Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium?.copyWith(
@@ -221,19 +221,19 @@ class _WarehousesPageState extends State<WarehousesPage> {
     return BlocBuilder<WarehousesBloc, WarehousesState>(
       builder: (context, state) {
         if (state is WarehousesLoading) {
-          return const Center(child: fluent.ProgressRing());
+          return const Center(child: ProgressRing());
         }
         if (state is WarehousesFailure) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                fluent.Text(state.errorMessage),
+                Text(state.errorMessage),
                 const SizedBox(height: 8),
-                fluent.FilledButton(
+                ElevatedButton(
                   onPressed: () =>
                       context.read<WarehousesBloc>().add(LoadWarehousesEvent()),
-                  child: const fluent.Text('إعادة المحاولة'),
+                  child: const Text('إعادة المحاولة'),
                 ),
               ],
             ),
@@ -295,7 +295,7 @@ class WarehousesDataGridSource extends DataGridSource {
         return Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(4.0),
-          child: fluent.Text(
+          child: Text(
             dataGridCell.value.toString().isEmpty ? '-' : dataGridCell.value.toString(),
             overflow: TextOverflow.ellipsis,
             style: textTheme.bodyMedium,

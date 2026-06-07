@@ -17,7 +17,7 @@ abstract interface class SubAccountDataSource implements AppDataSource<int, SubA
   Future<double> getCreditorBalance(int branchAccountId);
   Future<SubAccountEntity?> firstWhereMainAccount(int mainAccountId);
   Future<SubAccountEntity> getGoodsCost({required int personId, required int periodId});
-  Future<bool> updateBalances({required double incrementBalance, required double decrementBalance, required int incrementsCountHistories, required int decrementsCountHistories, required int id});
+  Future<bool> updateBalances({required double debitBalance, required double creditBalance, required int incrementsCountHistories, required int decrementsCountHistories, required int id});
   Future<bool> changeDefaultAccount({required int id, required int mainAccountId});
   Future<bool> updateBalance({required bool isIncrement, required double amount, required int id});
   Future<List<SubAccountEntity>> whereWarehouse(int warehouseId);

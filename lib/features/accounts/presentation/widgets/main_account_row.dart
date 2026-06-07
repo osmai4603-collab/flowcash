@@ -24,7 +24,7 @@ class MainAccountRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final netBalance =
-        mainAccount.incrementsBalance - mainAccount.decrementsBalance;
+        mainAccount.debitBalance - mainAccount.creditBalance;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -110,7 +110,7 @@ class MainAccountRow extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: fluent.Text(
-                  mainAccount.incrementsBalance.toStringAsFixed(2),
+                  mainAccount.debitBalance.toStringAsFixed(2),
                   style: TextStyle(
                     color: Colors.green.shade700,
                     fontWeight: FontWeight.bold,
@@ -122,7 +122,7 @@ class MainAccountRow extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: fluent.Text(
-                  mainAccount.decrementsBalance.toStringAsFixed(2),
+                  mainAccount.creditBalance.toStringAsFixed(2),
                   style: TextStyle(
                     color: Colors.red.shade700,
                     fontWeight: FontWeight.bold,

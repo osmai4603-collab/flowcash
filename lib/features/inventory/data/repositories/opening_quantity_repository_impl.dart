@@ -70,9 +70,9 @@ class OpeningQuantityRepositoryImpl implements OpeningQuantityRepository {
   }
 
   @override
-  Future<Either<Failure, OpeningQuantityEntity?>> getOpeningQuantity({required int storeId, required int categoryId}) async {
+  Future<Either<Failure, OpeningQuantityEntity?>> getOpeningQuantity({required int inventoryId}) async {
     try {
-      final res = await _dataSource.getOpeningQuantity(storeId: storeId, categoryId: categoryId);
+      final res = await _dataSource.getOpeningQuantity(inventoryId: inventoryId);
       return Right(res);
     } on Failure catch (f) {
       return Left(f);
@@ -82,9 +82,9 @@ class OpeningQuantityRepositoryImpl implements OpeningQuantityRepository {
   }
 
   @override
-  Future<Either<Failure, double>> getSumUnitsWhereStoreAndCategory(int storeId, int categoryId) async {
+  Future<Either<Failure, double>> getSumUnitsByInventory(int inventoryId) async {
     try {
-      final res = await _dataSource.getSumUnitsWhereStoreAndCategory(storeId, categoryId);
+      final res = await _dataSource.getSumUnitsByInventory(inventoryId);
       return Right(res);
     } on Failure catch (f) {
       return Left(f);

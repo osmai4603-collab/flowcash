@@ -1,3 +1,4 @@
+import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -8,6 +9,7 @@ import 'package:flowcash/core/enums/sub_account_type_enum.dart';
 
 // Entities
 import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
 
 // Bloc
 import 'package:flowcash/features/accounts/presentation/blocs/sub_account_form/sub_account_form_bloc.dart';
@@ -68,6 +70,16 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
               ),
             );
           }
+          if (state.currencyErrorMessage != null &&
+              state.currencyErrorMessage!.isNotEmpty) {
+            fluent.displayInfoBar(
+              context,
+              builder: (context, close) => fluent.InfoBar(
+                title: const fluent.Text('خطأ في العملات'),
+                content: fluent.Text(state.currencyErrorMessage!),
+              ),
+            );
+          }
           if (state.editingSubAccount != null && _nameController.text.isEmpty) {
             _nameController.text = state.accountName;
             if (state.balanceMax != null) {
@@ -96,7 +108,9 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                     color: theme.colorScheme.primary,
                   ),
                   const SizedBox(width: 10),
-                  fluent.Text(isEditing ? 'تعديل حساب فرعي' : 'إضافة حساب فرعي جديد'),
+                  fluent.Text(
+                    isEditing ? 'تعديل حساب فرعي' : 'إضافة حساب فرعي جديد',
+                  ),
                 ],
               ),
               content: SingleChildScrollView(
@@ -105,6 +119,7 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                   child: Form(
                     key: _formKey,
                     child: Column(
+                      spacing: Spacings.small,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Parent Main Account Name (Read Only)
@@ -132,11 +147,12 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                         fluent.InfoLabel(
                           label: 'اسم الحساب الفرعي',
                           child: fluent.TextFormBox(
+                            placeholder: 'ادخل اسم الحساب الفرعي',
                             controller: _nameController,
-                            prefix: const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: fluent.Icon(fluent.FluentIcons.info),
-                            ),
+                            // prefix: const Padding(
+                            //   padding: EdgeInsets.all(8.0),
+                            //   child: fluent.Icon(fluent.FluentIcons.info),
+                            // ),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'الرجاء إدخال اسم الحساب الفرعي';
@@ -147,141 +163,99 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                                 bloc.add(SubAccountNameChanged(val)),
                           ),
                         ),
-                        const SizedBox(height: 16),
 
-                        FormField<SubAccountType>(
-                          key: ValueKey(state.selectedType),
-                          initialValue: state.selectedType,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) =>
-                              value == null ? 'مطلوب اختيار نوع الحساب' : null,
-                          builder: (field) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                fluent.InfoLabel(
-                                  label: 'نوع الحساب الفرعي',
-                                  child: fluent.ComboBox<SubAccountType>(
-                                    value: state.selectedType,
-                                    placeholder: const fluent.Text(
-                                      'اختر نوع الحساب الفرعي',
-                                    ),
-                                    disabledPlaceholder: const fluent.Text(
-                                      'لا يوجد أنواع متاحة',
-                                    ),
-                                    isExpanded: true,
-                                    icon: const fluent.Icon(
-                                      fluent.FluentIcons.chevron_down,
-                                    ),
-                                    items: state.parentMainAccount == null
-                                        ? []
-                                        : SubAccountType.whereMainAccountType(
-                                            state
-                                                .parentMainAccount!
-                                                .mainAccountType,
-                                          ).map((type) {
-                                            return fluent.ComboBoxItem(
+                        Row(
+                          spacing: Spacings.medium,
+                          children: [
+                            Expanded(
+                              child: fluent.InfoLabel(
+                                label: 'نوع الحساب الفرعي',
+                                child: fluent.AutoSuggestBox<SubAccountType>(
+                                  // value: state.selectedType,
+                                  placeholder: 'اختر نوع الحساب الفرعي', //  const fluent.Text(
+                                  //   'اختر نوع الحساب الفرعي',
+                                  // ),
+                                  // icon: const fluent.Icon(
+                                  //   fluent.FluentIcons.chevron_down,
+                                  // ),
+                                  // isExpanded: true,
+                                  items: state.subAccountTypes
+                                      .map(
+                                        (type) =>
+                                            fluent.AutoSuggestBoxItem<SubAccountType>(
                                               value: type,
-                                              child: fluent.Text(type.displayName()),
-                                            );
-                                          }).toList(),
-                                    onChanged: (type) {
-                                      if (type != null) {
-                                        field.didChange(type);
-                                        bloc.add(SubAccountTypeChanged(type));
+                                              child: fluent.Text(
+                                                type.displayName(),
+                                              ),
+                                              label: type.displayName(),
+                                            ),
+                                      )
+                                      .toList(),
+                                  onChanged: (type, _) {
+                                    final selected = state.subAccountTypes.indexWhere(( t) => t.name == type);
+                                      if (selected > -1) {
+                                        bloc.add(SubAccountTypeChanged(state.subAccountTypes[selected]));
                                       }
-                                    },
-                                  ),
+                                  },
+                                  
+                                  onSelected: (value) {
+                                    if(value.value != null) bloc.add(SubAccountTypeChanged(value.value!));
+                                  },
                                 ),
-                                if (field.hasError)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 6),
-                                    child: fluent.Text(
-                                      field.errorText!,
-                                      style: TextStyle(
-                                        color: theme.colorScheme.error,
-                                        fontSize: 12,
-                                      ),
-                                    ),
+                              ),
+                            ),
+                            Expanded(
+                              child: fluent.InfoLabel(
+                                label: 'العملة',
+                                child: fluent.ComboBox<CurrencyEntity>(
+                                  value: state.selectedCurrency,
+                                  placeholder: const fluent.Text('اختر العملة'),
+                                  disabledPlaceholder: const fluent.Text(
+                                    'لا توجد عملات متاحة',
                                   ),
-                              ],
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 16),
-
-                        FormField<String>(
-                          key: ValueKey(state.selectedCurrencyId),
-                          initialValue: state.selectedCurrencyId,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) =>
-                              value == null ? 'مطلوب اختيار العملة' : null,
-                          builder: (field) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                fluent.InfoLabel(
-                                  label: 'العملة',
-                                  child: fluent.ComboBox<String>(
-                                    value: state.selectedCurrencyId,
-                                    placeholder: const fluent.Text('اختر العملة'),
-                                    isExpanded: true,
-                                    icon: const fluent.Icon(
-                                      fluent.FluentIcons.chevron_down,
-                                    ),
-                                    items: const [
-                                      fluent.ComboBoxItem(
-                                        value: '1',
-                                        child: fluent.Text('ريال يمني'),
-                                      ),
-                                      fluent.ComboBoxItem(
-                                        value: '2',
-                                        child: fluent.Text('ريال سعودي'),
-                                      ),
-                                      fluent.ComboBoxItem(
-                                        value: '3',
-                                        child: fluent.Text('دولار أمريكي'),
-                                      ),
-                                    ],
-                                    onChanged: (currId) {
-                                      if (currId != null) {
-                                        field.didChange(currId);
-                                        bloc.add(
-                                          SubAccountCurrencyChanged(currId),
-                                        );
-                                      }
-                                    },
+                                  isExpanded: true,
+                                  icon: const fluent.Icon(
+                                    fluent.FluentIcons.chevron_down,
                                   ),
+                                  items: state.currencies
+                                      .map(
+                                        (
+                                          currency,
+                                        ) => fluent.ComboBoxItem<CurrencyEntity>(
+                                          value: currency,
+                                          child: fluent.Text(
+                                            '${currency.name} (${currency.symbol})',
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (currency) {
+                                    if (currency != null) {
+                                      bloc.add(
+                                        SubAccountCurrencyChanged(currency),
+                                      );
+                                    }
+                                  },
                                 ),
-                                if (field.hasError)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 6),
-                                    child: fluent.Text(
-                                      field.errorText!,
-                                      style: TextStyle(
-                                        color: theme.colorScheme.error,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            );
-                          },
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 16),
 
                         fluent.InfoLabel(
                           label: 'الحد الأقصى للرصيد (اختياري)',
                           child: fluent.TextFormBox(
+                            placeholder:
+                                'ادخل الحد الأقصى للرصيد لهذا الحساب الفرعي',
                             controller: _maxBalanceController,
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),
                             textDirection: TextDirection.ltr,
-                            prefix: const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: fluent.Icon(fluent.FluentIcons.warning),
-                            ),
+                            // prefix: const Padding(
+                            //   padding: EdgeInsets.all(8.0),
+                            //   child: fluent.Icon(fluent.FluentIcons.maximum_value),
+                            // ),
                             onChanged: (val) {
                               final numVal = double.tryParse(val);
                               bloc.add(SubAccountBalanceMaxChanged(numVal));

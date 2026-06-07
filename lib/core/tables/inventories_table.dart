@@ -11,7 +11,7 @@ class InventoriesTable {
   static const String expenseAccountId = 'expense_id';
   static const String incomeStockId = 'income_stock_id';
   static const String outcomeStockId = 'outcome_stock_id';
-  static const String unitCost = 'unit_cost';
+  static const String costTotal = 'cost_total';
   static const String countUnits = 'count_units';
 
   static const List<String> fields = [
@@ -22,7 +22,7 @@ class InventoriesTable {
     expenseAccountId,
     incomeStockId,
     outcomeStockId,
-    unitCost,
+    costTotal,
     countUnits,
   ];
 }

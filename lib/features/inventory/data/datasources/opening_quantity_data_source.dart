@@ -5,10 +5,9 @@ import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dar
 abstract interface class OpeningQuantityDataSource
     implements AppDataSource<int, OpeningQuantityEntity, Map<String, dynamic>> {
   Future<OpeningQuantityEntity?> getOpeningQuantity({
-    required int storeId,
-    required int categoryId,
+    required int inventoryId,
   });
-  Future<double> getSumUnitsWhereStoreAndCategory(int storeId, int categoryId);
+  Future<double> getSumUnitsByInventory(int inventoryId);
   Future<List<OpeningQuantityEntity>> whereCommodity(InventoryEntity commodity);
   Future<List<OpeningQuantityEntity>> whereStore(int storeId);
 }

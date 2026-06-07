@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
 import 'package:flowcash/features/accounts/domain/usecases/main_account_repository_usecases.dart';
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
+import 'package:flowcash/features/system/domain/usecases/currency_usecases.dart';
 import 'main_account_form_event.dart';
 import 'main_account_form_state.dart';
 
@@ -8,14 +10,17 @@ class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormStat
   final InsertMainAccountUseCase _insertMainAccount;
   final UpdateMainAccountUseCase _updateMainAccount;
   final GetMaxAccountNumberUseCase _getMaxAccountNumber;
+  final GetCurrenciesUseCase _getCurrencies;
 
   MainAccountFormBloc({
     required InsertMainAccountUseCase insertMainAccount,
     required UpdateMainAccountUseCase updateMainAccount,
     required GetMaxAccountNumberUseCase getMaxAccountNumber,
+    required GetCurrenciesUseCase getCurrencies,
   })  : _insertMainAccount = insertMainAccount,
         _updateMainAccount = updateMainAccount,
         _getMaxAccountNumber = getMaxAccountNumber,
+        _getCurrencies = getCurrencies,
         super(MainAccountFormState.initial()) {
     on<InitMainAccountForm>(_onInitMainAccountForm);
     on<MainAccountNameChanged>(_onMainAccountNameChanged);
@@ -30,21 +35,60 @@ class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormStat
     Emitter<MainAccountFormState> emit,
   ) async {
     emit(state.copyWith(status: MainAccountFormStatus.loading));
+    final currenciesResult = await _getCurrencies();
+
     await Future.delayed(const Duration(seconds: 1));
-    if (event.editingAccount != null) {
-      final acc = event.editingAccount!;
-      emit(MainAccountFormState(
-        status: MainAccountFormStatus.initial,
-        editingAccount: acc,
-        accountName: acc.accountName,
-        accountNumber: acc.accountNumber,
-        selectedGroup: acc.mainAccountType.accountType,
-        selectedType: acc.mainAccountType,
-        selectedCurrencyId: acc.currencyId ?? '1',
-      ));
-    } else {
-      emit(MainAccountFormState.initial());
-    }
+
+    currenciesResult.fold(
+      (failure) {
+        emit(state.copyWith(
+          status: MainAccountFormStatus.failure,
+          currencyErrorMessage: failure.message,
+        ));
+      },
+      (currencies) {
+        CurrencyEntity? selectedCurrency;
+        if (event.editingAccount != null && event.editingAccount!.currencyId != null) {
+          final matches = currencies.where(
+            (currency) => currency.id == event.editingAccount!.currencyId,
+          );
+          if (matches.isNotEmpty) {
+            selectedCurrency = matches.first;
+          }
+        }
+
+        if (selectedCurrency == null && currencies.isNotEmpty) {
+          selectedCurrency = currencies.firstWhere(
+            (currency) => currency.isDefault,
+            orElse: () => currencies.first,
+          );
+        }
+
+        if (event.editingAccount != null) {
+          final acc = event.editingAccount!;
+          emit(MainAccountFormState(
+            status: MainAccountFormStatus.initial,
+            editingAccount: acc,
+            accountName: acc.accountName,
+            accountNumber: acc.accountNumber,
+            selectedGroup: acc.mainAccountType.accountType,
+            selectedType: acc.mainAccountType,
+            selectedCurrency: selectedCurrency,
+            currencies: currencies,
+            currencyErrorMessage: null,
+          ));
+        } else {
+          emit(MainAccountFormState(
+            status: MainAccountFormStatus.initial,
+            accountName: '',
+            accountNumber: '',
+            selectedCurrency: selectedCurrency,
+            currencies: currencies,
+            currencyErrorMessage: null,
+          ));
+        }
+      },
+    );
   }
 
   void _onMainAccountNameChanged(
@@ -89,7 +133,7 @@ class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormStat
     MainAccountCurrencyChanged event,
     Emitter<MainAccountFormState> emit,
   ) {
-    emit(state.copyWith(selectedCurrencyId: event.currencyId));
+    emit(state.copyWith(selectedCurrency: event.currency));
   }
 
   Future<void> _onSubmitMainAccountForm(
@@ -108,6 +152,10 @@ class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormStat
       emit(state.copyWith(errorMessage: 'نوع الحساب مطلوب'));
       return;
     }
+    if (state.selectedCurrency == null) {
+      emit(state.copyWith(errorMessage: 'العملة مطلوبة'));
+      return;
+    }
 
     emit(state.copyWith(status: MainAccountFormStatus.loading));
     await Future.delayed(const Duration(seconds: 1));
@@ -115,7 +163,7 @@ class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormStat
     if (state.editingAccount != null) {
       final updated = state.editingAccount!.copyWith(
         accountName: state.accountName,
-        currencyId: state.selectedCurrencyId,
+        currencyId: state.selectedCurrency!.id,
         mainAccountType: state.selectedType!,
       );
       final res = await _updateMainAccount(updated);
@@ -131,7 +179,7 @@ class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormStat
         id: 0,
         accountName: state.accountName,
         accountNumber: state.accountNumber,
-        currencyId: state.selectedCurrencyId,
+        currencyId: state.selectedCurrency!.id,
         mainAccountType: state.selectedType!,
       );
       final res = await _insertMainAccount(newAccount);

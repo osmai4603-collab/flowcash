@@ -31,6 +31,7 @@ final class AccountingPeriodLocalDataSourceImpl
       table: AccountingPeriodsTable.tableName,
       where: '${AccountingPeriodsTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
@@ -113,6 +114,7 @@ final class AccountingPeriodLocalDataSourceImpl
       where:
           '${AccountingPeriodsTable.dateOfEndPeriod} IS NULL OR ${AccountingPeriodsTable.dateOfEndPeriod} >= ?',
       whereArgs: [DateTime.now().toIso8601String()],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

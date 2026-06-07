@@ -35,14 +35,12 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
   }
 
   @override
-  Future<JournalEntryEntity?> getById(
-    int id, {
-    bool getItems = false,
-  }) async {
+  Future<JournalEntryEntity?> getById(int id, {bool getItems = false}) async {
     final rows = await _db.query(
       table: JournalEntriesTable.tableName,
       where: '${JournalEntriesTable.entryId} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     final entry = fromMap(rows.first);
@@ -57,7 +55,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
     return await _db.transaction(() async {
       final entryId = await _db.insert(
         table: JournalEntriesTable.tableName,
-        data: _sanitizeInsertData(toMap(entity), JournalEntriesTable.entryId),
+        data: toMap(entity),
       );
 
       if (entryId <= 0) {
@@ -68,7 +66,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
         final item = entity.items[index].copyWith(entryId: entryId);
         final itemId = await _db.insert(
           table: JournalItemsTable.tableName,
-          data: _sanitizeInsertData(journalItemToMap(item), JournalItemsTable.itemId),
+          data: journalItemToMap(item),
         );
 
         if (itemId <= 0) {
@@ -107,7 +105,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
         deleteStmt.execute([entry.id]);
         deleteStmt.dispose();
       } else {
-        final insertData = _sanitizeInsertData(toMap(entry), JournalEntriesTable.entryId);
+        final insertData = toMap(entry);
         final columns = insertData.keys.join(', ');
         final placeholders = List.filled(insertData.length, '?').join(', ');
         final insertStmt = db.prepare(
@@ -120,9 +118,8 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
       }
 
       for (final item in items) {
-        final sanitizedItem = _sanitizeInsertData(
-          journalItemToMap(item.copyWith(entryId: persistedEntry.id)),
-          JournalItemsTable.itemId,
+        final sanitizedItem = journalItemToMap(
+          item.copyWith(entryId: persistedEntry.id),
         );
         final columns = sanitizedItem.keys.join(', ');
         final placeholders = List.filled(sanitizedItem.length, '?').join(', ');
@@ -193,7 +190,10 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
         } else {
           final itemId = await _db.insert(
             table: JournalItemsTable.tableName,
-            data: _sanitizeInsertData(journalItemToMap(item), JournalItemsTable.itemId),
+            data: _sanitizeInsertData(
+              journalItemToMap(item),
+              JournalItemsTable.itemId,
+            ),
           );
           if (itemId <= 0) {
             throw Exception('Failed to insert journal item at index $index');
@@ -231,8 +231,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
       createdAt: DateTime.parse(map[JournalEntriesTable.createdAt] as String),
       createdBy: map[JournalEntriesTable.userId] as int,
       currencyId: map[JournalEntriesTable.currencyId] as String,
-      exPrice: ((map[JournalEntriesTable.exPrice]) as num).toDouble(),
-      baseAmount: ((map[JournalEntriesTable.baseAmount]) as num).toDouble(),
+      baseAmount: ((map[JournalEntriesTable.amount]) as num).toDouble(),
       warehouseId: map[JournalEntriesTable.warehouseId] as int?,
     );
   }
@@ -246,12 +245,10 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
       JournalEntriesTable.createdAt: entity.createdAt.toIso8601String(),
       JournalEntriesTable.userId: entity.createdBy,
       JournalEntriesTable.currencyId: entity.currencyId,
-      JournalEntriesTable.exPrice: entity.exPrice,
-      JournalEntriesTable.baseAmount: entity.baseAmount,
+      JournalEntriesTable.amount: entity.baseAmount,
       JournalEntriesTable.warehouseId: entity.warehouseId,
     };
   }
-
 
   JournalItemEntity _journalItemFromMap(Map<String, dynamic> row) {
     return JournalItemEntity(
@@ -262,9 +259,8 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
       credit: ((row[JournalItemsTable.credit]) as num).toDouble(),
       lineDescription: row[JournalItemsTable.lineDescription] as String?,
       currencyId: row[JournalItemsTable.currencyId] as String,
-      debitBase: ((row[JournalItemsTable.debitBase]) as num).toDouble(),
-      creditBase: ((row[JournalItemsTable.creditBase]) as num).toDouble(),
-      warehouseId: row[JournalItemsTable.warehouseId] as int?,
+      exPrice: ((row[JournalItemsTable.exPrice]) as num).toDouble(),
+      expriceMain: ((row[JournalItemsTable.expriceMain]) as num).toDouble(),
     );
   }
 
@@ -296,6 +292,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
       table: JournalEntriesTable.tableName,
       where: '${JournalEntriesTable.referenceNumber} = ?',
       whereArgs: [referenceNumber],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

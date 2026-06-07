@@ -30,6 +30,7 @@ final class CategoryAttributeLocalDataSourceImpl
       table: CategoriesAttributesTable.tableName,
       where: '${CategoriesAttributesTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

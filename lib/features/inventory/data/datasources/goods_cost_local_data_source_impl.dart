@@ -30,6 +30,7 @@ final class GoodsCostLocalDataSourceImpl implements GoodsCostDataSource {
       table: GoodsCostsTable.tableName,
       where: '${GoodsCostsTable.id} = ?',
       whereArgs: [id],
+      limit: 1,
     );
     if (rows.isEmpty) return null;
     return fromMap(rows.first);

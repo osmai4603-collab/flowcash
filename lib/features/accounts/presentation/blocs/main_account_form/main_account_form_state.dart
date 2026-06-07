@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flowcash/core/enums/main_account_group_enum.dart';
 import 'package:flowcash/core/enums/main_account_type_enum.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
 
 enum MainAccountFormStatus { initial, loading, success, failure }
 
@@ -12,8 +13,10 @@ class MainAccountFormState extends Equatable {
   final String accountNumber;
   final MainAccountGroup? selectedGroup;
   final MainAccountType? selectedType;
-  final String selectedCurrencyId;
+  final CurrencyEntity? selectedCurrency;
+  final List<CurrencyEntity> currencies;
   final String? errorMessage;
+  final String? currencyErrorMessage;
 
   const MainAccountFormState({
     required this.status,
@@ -22,8 +25,10 @@ class MainAccountFormState extends Equatable {
     required this.accountNumber,
     this.selectedGroup,
     this.selectedType,
-    required this.selectedCurrencyId,
+    required this.selectedCurrency,
+    required this.currencies,
     this.errorMessage,
+    this.currencyErrorMessage,
   });
 
   factory MainAccountFormState.initial() {
@@ -31,7 +36,9 @@ class MainAccountFormState extends Equatable {
       status: MainAccountFormStatus.initial,
       accountName: '',
       accountNumber: '',
-      selectedCurrencyId: '1', // Default to currency 1 (ريال يمني)
+      selectedCurrency: null,
+      currencies: [],
+      currencyErrorMessage: null,
     );
   }
 
@@ -42,8 +49,10 @@ class MainAccountFormState extends Equatable {
     String? accountNumber,
     MainAccountGroup? selectedGroup,
     MainAccountType? selectedType,
-    String? selectedCurrencyId,
+    CurrencyEntity? selectedCurrency,
+    List<CurrencyEntity>? currencies,
     String? errorMessage,
+    String? currencyErrorMessage,
   }) {
     return MainAccountFormState(
       status: status ?? this.status,
@@ -52,8 +61,10 @@ class MainAccountFormState extends Equatable {
       accountNumber: accountNumber ?? this.accountNumber,
       selectedGroup: selectedGroup ?? this.selectedGroup,
       selectedType: selectedType ?? this.selectedType,
-      selectedCurrencyId: selectedCurrencyId ?? this.selectedCurrencyId,
+      selectedCurrency: selectedCurrency ?? this.selectedCurrency,
+      currencies: currencies ?? this.currencies,
       errorMessage: errorMessage ?? this.errorMessage,
+      currencyErrorMessage: currencyErrorMessage ?? this.currencyErrorMessage,
     );
   }
 
@@ -65,7 +76,9 @@ class MainAccountFormState extends Equatable {
     accountNumber,
     selectedGroup,
     selectedType,
-    selectedCurrencyId,
+    selectedCurrency,
+    currencies,
     errorMessage,
+    currencyErrorMessage,
   ];
 }

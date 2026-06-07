@@ -7,11 +7,11 @@ class InventoryCategoryEntity extends Entity {
   final int warehouseId;
   final String inventoryName;
   final double countUnits;
-  final double unitCost;
-  final int? revenueAccountId;
-  final int? expenseAccountId;
-  final int? incomeAccountId;
-  final int? outcomAccountId;
+  final double costTotal;
+  final int revenueAccountId;
+  final int expenseAccountId;
+  final int incomeAccountId;
+  final int outcomAccountId;
   final UnitEntity? categoryUnit;
 
   const InventoryCategoryEntity({
@@ -20,11 +20,11 @@ class InventoryCategoryEntity extends Entity {
     required this.warehouseId,
     required this.inventoryName,
     required this.countUnits,
-    required this.unitCost,
-    this.revenueAccountId,
-    this.expenseAccountId,
-    this.incomeAccountId,
-    this.outcomAccountId,
+    required this.costTotal,
+    required this.revenueAccountId,
+    required this.expenseAccountId,
+    required this.incomeAccountId,
+    required this.outcomAccountId,
     this.categoryUnit,
   });
 
@@ -34,7 +34,7 @@ class InventoryCategoryEntity extends Entity {
     categoryId,
     inventoryName,
     countUnits,
-    unitCost,
+    costTotal,
     revenueAccountId,
     expenseAccountId,
     incomeAccountId,
@@ -63,7 +63,7 @@ class InventoryCategoryEntity extends Entity {
       warehouseId: warehouseId ?? this.warehouseId,
       inventoryName: categoryName ?? this.inventoryName,
       countUnits: countUnits ?? this.countUnits,
-      unitCost: unitCost ?? this.unitCost,
+      costTotal: unitCost ?? this.costTotal,
       revenueAccountId: revenueAccountId ?? this.revenueAccountId,
       expenseAccountId: expenseAccountId ?? this.expenseAccountId,
       incomeAccountId: incomeAccountId ?? this.incomeAccountId,

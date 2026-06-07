@@ -4,40 +4,40 @@ abstract class InventoryEntity extends Entity {
   final int id;
   final int categoryId;
   final int storeId;
-  final int? revenueAccountId;
-  final int? expenseAccountId;
-  final int? incomeStockId;
-  final int? outcomeStockId;
+  final int revenueAccountId;
+  final int expenseAccountId;
+  final int incomeStockId;
+  final int outcomeStockId;
   final String inventoryName;
-  final double unitCost;
+  final double costTotal;
   final double countUnits;
 
   const InventoryEntity({
     required this.id,
     required this.categoryId,
     required this.storeId,
-    this.revenueAccountId,
-    this.expenseAccountId,
-    this.incomeStockId,
-    this.outcomeStockId,
+    required this.revenueAccountId,
+    required this.expenseAccountId,
+    required this.incomeStockId,
+    required this.outcomeStockId,
     required this.inventoryName,
-    required this.unitCost,
+    required this.costTotal,
     required this.countUnits,
   });
 
   @override
   List<Object?> get props => [
-        id,
-        categoryId,
-        storeId,
-        revenueAccountId,
-        expenseAccountId,
-        incomeStockId,
-        outcomeStockId,
-        inventoryName,
-        unitCost,
-        countUnits,
-      ];
+    id,
+    categoryId,
+    storeId,
+    revenueAccountId,
+    expenseAccountId,
+    incomeStockId,
+    outcomeStockId,
+    inventoryName,
+    costTotal,
+    countUnits,
+  ];
 
   @override
   InventoryEntity copyWith({
@@ -59,12 +59,12 @@ class InventoryItemEntity extends InventoryEntity {
     required super.id,
     required super.categoryId,
     required super.storeId,
-    super.revenueAccountId,
-    super.expenseAccountId,
-    super.incomeStockId,
-    super.outcomeStockId,
+    required super.revenueAccountId,
+    required super.expenseAccountId,
+    required super.incomeStockId,
+    required super.outcomeStockId,
     required super.inventoryName,
-    required super.unitCost,
+    required super.costTotal,
     required super.countUnits,
   });
 
@@ -90,7 +90,7 @@ class InventoryItemEntity extends InventoryEntity {
       incomeStockId: incomeStockId ?? this.incomeStockId,
       outcomeStockId: outcomeStockId ?? this.outcomeStockId,
       inventoryName: inventoryName ?? this.inventoryName,
-      unitCost: unitCost ?? this.unitCost,
+      costTotal: unitCost ?? this.costTotal,
       countUnits: countUnits ?? this.countUnits,
     );
   }

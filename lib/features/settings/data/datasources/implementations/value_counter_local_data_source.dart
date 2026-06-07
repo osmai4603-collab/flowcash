@@ -15,6 +15,7 @@ class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
       table: ValuesCounterTable.tableName,
       where: '${ValuesCounterTable.counterType} = ?',
       whereArgs: [type.name],
+      limit: 1,
     );
     if (rows.isEmpty) {
       final initialCount = type == ValueCounterType.categoryNumber ? 1001 : 1;
@@ -47,6 +48,7 @@ class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
       table: ValuesCounterTable.tableName,
       where: '${ValuesCounterTable.counterType} = ?',
       whereArgs: [type.name],
+      limit: 1,
     );
 
     if (rows.isEmpty) {
@@ -90,6 +92,7 @@ class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
       table: ValuesCounterTable.tableName,
       where: '${ValuesCounterTable.counterType} = ?',
       whereArgs: [counter.counterType.name],
+      limit: 1,
     );
 
     if (rows.isEmpty) {

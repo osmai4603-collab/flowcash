@@ -91,13 +91,13 @@ class UpdateMainAccountBalancesUseCase {
   const UpdateMainAccountBalancesUseCase(this._repository);
 
   Future<Either<Failure, bool>> call({
-    required double incrementBalance,
-    required double decrementBalance,
+    required double debitBalance,
+    required double creditBalance,
     required int id,
   }) async {
     return await _repository.updateBalances(
-      incrementBalance: incrementBalance,
-      decrementBalance: decrementBalance,
+      debitBalance: debitBalance,
+      creditBalance: creditBalance,
       id: id,
     );
   }

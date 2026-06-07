@@ -86,19 +86,19 @@ final class DefaultDataInserter {
       final cnt = rs.isNotEmpty ? (rs.first['cnt'] as int) : 0;
       if (cnt == 0) {
         final field =
-            "${CurrenciesTable.id}, ${CurrenciesTable.currencyName}, ${CurrenciesTable.symbol}, ${CurrenciesTable.fullSymbol}, ${CurrenciesTable.country}, ${CurrenciesTable.selected}";
+            "${CurrenciesTable.id}, ${CurrenciesTable.currencyName}, ${CurrenciesTable.symbol}, ${CurrenciesTable.isDefault}";
         final sql =
-            "INSERT INTO ${CurrenciesTable.tableName} ($field) VALUES ('YER', 'يمني', 'ر.ي', 'ريال يمني', 'اليمن', 1)";
+            "INSERT INTO ${CurrenciesTable.tableName} ($field) VALUES ('YER', 'يمني', 'ر.ي', 1)";
         debugPrint('Executing query: $sql');
         db.execute(sql);
 
         final sql2 =
-            "INSERT INTO ${CurrenciesTable.tableName} ($field) VALUES ('SAR', 'سعودي', 'ر.س', 'ريال سعودي', 'السعودية', 0)";
+            "INSERT INTO ${CurrenciesTable.tableName} ($field) VALUES ('SAR', 'سعودي', 'ر.س', 0)";
         debugPrint(sql2);
         db.execute(sql2);
 
         final sql3 =
-            "INSERT INTO ${CurrenciesTable.tableName} ($field) VALUES ('USD', 'دولار', '\$', 'دولار امريكي', 'الولايات المتحدة الامريكية', 0)";
+            "INSERT INTO ${CurrenciesTable.tableName} ($field) VALUES ('USD', 'دولار', '\$', 0)";
         debugPrint(sql3);
         db.execute(sql3);
       }

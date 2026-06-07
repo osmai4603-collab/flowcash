@@ -9,7 +9,7 @@ import 'package:flowcash/features/accounts/data/repositories/sub_account_reposit
 // Use Cases
 import 'package:flowcash/features/accounts/domain/usecases/main_account_repository_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/sub_account_repository_usecases.dart';
-
+import 'package:flowcash/features/currencies/domain/usecases/currency_repository_usecases.dart';
 // Blocs
 import 'package:flowcash/features/accounts/presentation/blocs/chart_of_accounts/chart_of_accounts_bloc.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/main_account_form/main_account_form_bloc.dart';
@@ -37,6 +37,7 @@ void initAccountsFeature(GetIt sl) {
       insertMainAccount: sl(),
       updateMainAccount: sl(),
       getMaxAccountNumber: sl(),
+      getCurrencies: sl(),
     ),
   );
   sl.registerFactory(
@@ -45,6 +46,7 @@ void initAccountsFeature(GetIt sl) {
       updateSubAccount: sl(),
       getMainAccountById: sl(),
       updateCounter: sl(),
+      getCurrencies: sl(),
     ),
   );
   sl.registerFactory(
@@ -56,11 +58,15 @@ void initAccountsFeature(GetIt sl) {
   );
   sl.registerFactory(
     () => JournalEntryFormBloc(
-      saveJournalEntryWithItems: sl(),
+      insertJournalEntryWithItems: sl(),
       getJournalItemsByEntryId: sl(),
       updateSubaccountBalance: sl(),
       updateMainAccountBalance: sl(),
       getSubAccounts: sl(),
+      getSubAccountById: sl(),
+      getMainAccountById: sl(),
+      getCurrencies: sl(),
+      getExPrice: sl(),
     ),
   );
   sl.registerFactory(

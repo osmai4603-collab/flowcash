@@ -9,9 +9,8 @@ class JournalItemEntity extends Entity {
   final double credit;
   final String? lineDescription;
   final String currencyId;
-  final double debitBase;
-  final double creditBase;
-  final int? warehouseId;
+  final double exPrice;
+  final double expriceMain;
 
   const JournalItemEntity({
     required this.id,
@@ -21,9 +20,8 @@ class JournalItemEntity extends Entity {
     required this.credit,
     this.lineDescription,
     required this.currencyId,
-    required this.debitBase,
-    required this.creditBase,
-    this.warehouseId,
+    required this.exPrice,
+    required this.expriceMain,
   });
 
   @override
@@ -35,9 +33,8 @@ class JournalItemEntity extends Entity {
         credit,
         lineDescription,
         currencyId,
-        debitBase,
-        creditBase,
-        warehouseId,
+        exPrice,
+        expriceMain,
       ];
 
   @override
@@ -49,9 +46,8 @@ class JournalItemEntity extends Entity {
     double? credit,
     String? lineDescription,
     String? currencyId,
-    double? debitBase,
-    double? creditBase,
-    int? warehouseId,
+    double? exPrice,
+    double? expriceMain,
   }) {
     return JournalItemEntity(
       id: id ?? this.id,
@@ -61,9 +57,8 @@ class JournalItemEntity extends Entity {
       credit: credit ?? this.credit,
       lineDescription: lineDescription ?? this.lineDescription,
       currencyId: currencyId ?? this.currencyId,
-      debitBase: debitBase ?? this.debitBase,
-      creditBase: creditBase ?? this.creditBase,
-      warehouseId: warehouseId ?? this.warehouseId,
+      exPrice: exPrice ?? this.exPrice,
+      expriceMain: expriceMain ?? this.expriceMain,
     );
   }
 }

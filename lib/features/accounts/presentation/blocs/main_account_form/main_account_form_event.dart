@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flowcash/core/enums/main_account_group_enum.dart';
 import 'package:flowcash/core/enums/main_account_type_enum.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
 
 sealed class MainAccountFormEvent extends Equatable {
   const MainAccountFormEvent();
@@ -43,11 +44,11 @@ class MainAccountTypeChanged extends MainAccountFormEvent {
 }
 
 class MainAccountCurrencyChanged extends MainAccountFormEvent {
-  final String currencyId;
-  const MainAccountCurrencyChanged(this.currencyId);
+  final CurrencyEntity currency;
+  const MainAccountCurrencyChanged(this.currency);
 
   @override
-  List<Object?> get props => [currencyId];
+  List<Object?> get props => [currency];
 }
 
 class SubmitMainAccountForm extends MainAccountFormEvent {
