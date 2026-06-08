@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class SubcategoryFormPage extends StatefulWidget {
   final int mainCategoryId;
   final SubcategoryEntity? subcategory;
@@ -103,21 +104,26 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                     children: [
                       Row(
                         children: [
-                          IconButton(
-                            icon: Icon(fluent.FluentIcons.back),
-                            tooltip: 'رجوع',
-                            onPressed: () => Navigator.pop(context),
+                          fluent.Tooltip(
+                            message: 'رجوع',
+                            child: fluent.IconButton(
+                              icon: fluent.Icon(fluent.FluentIcons.back),
+                              onPressed: () => Navigator.pop(context),
+                            ),
                           ),
-                         TextWidget(
-                            text: 'بيانات نوع ${state.mainCategory?.name ?? ''}',
+                          TextWidget(
+                            text:
+                                'بيانات نوع ${state.mainCategory?.name ?? ''}',
                             padding: EdgeInsets.only(right: 10),
                             expanded: true,
                             textAlign: TextAlign.center,
                           ),
-                          IconButton(
-                            icon: const Icon(fluent.FluentIcons.save),
-                            tooltip: 'حفظ البيانات',
-                            onPressed: _onSaveButtonClicked,
+                          fluent.Tooltip(
+                            message: 'حفظ البيانات',
+                            child: fluent.IconButton(
+                              icon: const fluent.Icon(fluent.FluentIcons.save),
+                              onPressed: _onSaveButtonClicked,
+                            ),
                           ),
                         ],
                       ),
@@ -145,7 +151,9 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                           ),
                           hintText: 'ادخل اسم النوع',
                           label: fluent.Text('اسم النوع'),
-                          prefixIcon: Icon(fluent.FluentIcons.category_classification),
+                          prefixIcon: fluent.Icon(
+                            fluent.FluentIcons.category_classification,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -195,7 +203,9 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
             decoration: InputDecoration(
               labelText: property.property.propertyName,
               hintText: 'حدد نوع ${property.property.propertyName}',
-              prefixIcon: const Icon(fluent.FluentIcons.category_classification),
+              prefixIcon: const fluent.Icon(
+                fluent.FluentIcons.category_classification,
+              ),
             ),
             items: property.subcatgoriesUnits.map((catalogUnit) {
               return DropdownMenuItem<UnitEntity>(
@@ -225,20 +235,29 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
           ),
         ),
         if (!property.property.unitType.isPiece)
-          IconButton(
-            style: IconButton.styleFrom(
-              backgroundColor: colors.surfaceContainerLow,
-              shape: RoundedRectangleBorder(
-                borderRadius: Radiuses.xsmallAll,
-                side: BorderSide(
-                  color: colors.outline.withValues(alpha: 0.5),
-                  width: 1.5,
+          fluent.Tooltip(
+            message: 'إضافة ${property.property.propertyName} جديد',
+            child: fluent.IconButton(
+              style: fluent.ButtonStyle(
+                backgroundColor: fluent.WidgetStatePropertyAll(
+                  colors.surfaceContainerLow,
+                ),
+                shape: fluent.WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: Radiuses.xsmallAll,
+                    side: BorderSide(
+                      color: colors.outline.withValues(alpha: 0.5),
+                      width: 1.5,
+                    ),
+                  ),
                 ),
               ),
+              icon: fluent.Icon(
+                fluent.FluentIcons.add,
+                color: colors.onSurface,
+              ),
+              onPressed: () => _onAddNewSubcategoryUnit(property),
             ),
-            icon: Icon(fluent.FluentIcons.add, color: colors.onSurface),
-            tooltip: 'إضافة ${property.property.propertyName} جديد',
-            onPressed: () => _onAddNewSubcategoryUnit(property),
           ),
       ],
     );
@@ -281,34 +300,39 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                   children: [
                     Row(
                       children: [
-                        IconButton(
-                          icon: Icon(fluent.FluentIcons.add, color: colors.onSurface),
-                          tooltip:
+                        fluent.Tooltip(
+                          message:
                               'اضافة ${property.property.propertyName} جديد',
-                          onPressed: () async {
-                            final unitEntity = await showDialog<UnitEntity>(
-                              barrierDismissible: false,
-                              context: context,
-                              builder: (_) =>
-                                  UnitFormPage(property: property.property),
-                            );
-                            if (!mounted) return;
-                            if (unitEntity == null) return;
-                            final newSubcategoryUnit = SubcategoryUnit(
-                              property: property.property,
-                              unit: unitEntity,
-                            );
-                            _catalogFormBloc.add(
-                              AddUnitToPropertyEvent(
-                                catalogProperty: property,
-                                catalogUnit: newSubcategoryUnit,
-                              ),
-                            );
-                            formState.didChange([
-                              ...selectedList,
-                              newSubcategoryUnit,
-                            ]);
-                          },
+                          child: fluent.IconButton(
+                            icon: fluent.Icon(
+                              fluent.FluentIcons.add,
+                              color: colors.onSurface,
+                            ),
+                            onPressed: () async {
+                              final unitEntity = await showDialog<UnitEntity>(
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (_) =>
+                                    UnitFormPage(property: property.property),
+                              );
+                              if (!mounted) return;
+                              if (unitEntity == null) return;
+                              final newSubcategoryUnit = SubcategoryUnit(
+                                property: property.property,
+                                unit: unitEntity,
+                              );
+                              _catalogFormBloc.add(
+                                AddUnitToPropertyEvent(
+                                  catalogProperty: property,
+                                  catalogUnit: newSubcategoryUnit,
+                                ),
+                              );
+                              formState.didChange([
+                                ...selectedList,
+                                newSubcategoryUnit,
+                              ]);
+                            },
+                          ),
                         ),
                         TextWidget(
                           text: 'انواع ${property.property.propertyName}',
@@ -379,33 +403,35 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                 PositionedDirectional(
                                   top: isDesktop ? -10 : -15,
                                   end: isDesktop ? -10 : -15,
-                                  child: IconButton(
-                                    splashRadius: 10,
-                                    tooltip: 'ازالة',
-                                    icon: Icon(fluent.FluentIcons.remove_link,
-                                      color: Colors.red.shade400,
-                                      size: 16,
+                                  child: fluent.Tooltip(
+                                    message: 'ازالة',
+                                    child: fluent.IconButton(
+                                      icon: fluent.Icon(
+                                        fluent.FluentIcons.remove_link,
+                                        color: Colors.red.shade400,
+                                        size: 16,
+                                      ),
+                                      onPressed: () {
+                                        final idx = selectedList.indexOf(
+                                          subcategoryUnit,
+                                        );
+                                        final updated =
+                                            List<SubcategoryUnit?>.from(
+                                              selectedList,
+                                            );
+                                        if (idx != -1) {
+                                          updated.removeAt(idx);
+                                          formState.didChange(updated);
+                                        }
+                                        _catalogFormBloc.add(
+                                          UpdateSelectedUnitEvent(
+                                            property: property,
+                                            index: idx,
+                                            unit: null,
+                                          ),
+                                        );
+                                      },
                                     ),
-                                    onPressed: () {
-                                      final idx = selectedList.indexOf(
-                                        subcategoryUnit,
-                                      );
-                                      final updated =
-                                          List<SubcategoryUnit?>.from(
-                                            selectedList,
-                                          );
-                                      if (idx != -1) {
-                                        updated.removeAt(idx);
-                                        formState.didChange(updated);
-                                      }
-                                      _catalogFormBloc.add(
-                                        UpdateSelectedUnitEvent(
-                                          property: property,
-                                          index: idx,
-                                          unit: null,
-                                        ),
-                                      );
-                                    },
                                   ),
                                 ),
                               ],

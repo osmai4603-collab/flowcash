@@ -3,6 +3,7 @@ import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.
 import 'package:intl/intl.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class JournalEntryRow extends StatelessWidget {
   final JournalEntryEntity entry;
   final bool isSelected;
@@ -68,7 +69,9 @@ class JournalEntryRow extends StatelessWidget {
               flex: 2,
               child: fluent.Text(
                 dateStr,
-                style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(150)),
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface.withAlpha(150),
+                ),
               ),
             ),
 
@@ -76,7 +79,9 @@ class JournalEntryRow extends StatelessWidget {
             Expanded(
               flex: 1,
               child: fluent.Text(
-                entry.currencyId == '1' ? 'ر.ي' : (entry.currencyId == '2' ? 'ر.س' : '\$'),
+                entry.currencyId == '1'
+                    ? 'ر.ي'
+                    : (entry.currencyId == '2' ? 'ر.س' : '\$'),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -86,9 +91,7 @@ class JournalEntryRow extends StatelessWidget {
               flex: 2,
               child: fluent.Text(
                 entry.baseAmount.toStringAsFixed(2),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.end,
               ),
             ),
@@ -99,15 +102,27 @@ class JournalEntryRow extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  IconButton(
-                    icon: const Icon(fluent.FluentIcons.edit, size: 18, color: Colors.orange),
-                    onPressed: onEdit,
-                    tooltip: 'تعديل القيد',
+                  fluent.Tooltip(
+                    message: 'تعديل القيد',
+                    child: fluent.IconButton(
+                      icon: const fluent.Icon(
+                        fluent.FluentIcons.edit,
+                        size: 18,
+                        color: Colors.orange,
+                      ),
+                      onPressed: onEdit,
+                    ),
                   ),
-                  IconButton(
-                    icon: const Icon(fluent.FluentIcons.delete, size: 18, color: Colors.red),
-                    onPressed: onDelete,
-                    tooltip: 'حذف القيد',
+                  fluent.Tooltip(
+                    message: 'حذف القيد',
+                    child: fluent.IconButton(
+                      icon: const fluent.Icon(
+                        fluent.FluentIcons.delete,
+                        size: 18,
+                        color: Colors.red,
+                      ),
+                      onPressed: onDelete,
+                    ),
                   ),
                 ],
               ),

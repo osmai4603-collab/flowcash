@@ -9,6 +9,7 @@ import '../bloc/auth/auth_state.dart';
 import '../widgets/user_card.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class UsersManagementPage extends StatelessWidget {
   const UsersManagementPage({super.key});
 
@@ -21,7 +22,7 @@ class UsersManagementPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           primaryItems: [
             fluent.CommandBarButton(
-              icon: const Icon(fluent.FluentIcons.add),
+              icon: const fluent.Icon(fluent.FluentIcons.add),
               label: const fluent.Text('إضافة مستخدم'),
               onPressed: () {
                 final newUser = ProgramUserEntity(
@@ -46,11 +47,13 @@ class UsersManagementPage extends StatelessWidget {
             }
             if (state.status == AuthStatus.failure) {
               return Center(
-                child: fluent.Text(state.errorMessage ?? 'Failed to load users'),
+                child: fluent.Text(
+                  state.errorMessage ?? 'Failed to load users',
+                ),
               );
             }
             if (state.users.isEmpty) {
-              return const Center(child: Text('No users found.'));
+              return const Center(child: fluent.Text('No users found.'));
             }
             return ListView(
               children: state.users.map((user) {

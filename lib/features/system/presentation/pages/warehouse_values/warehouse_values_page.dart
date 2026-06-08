@@ -8,6 +8,7 @@ import 'package:flowcash/features/system/presentation/pages/warehouse_values/war
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class WarehouseValuesPage extends StatelessWidget {
   const WarehouseValuesPage({super.key});
 
@@ -71,16 +72,25 @@ class WarehouseValuesPage extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 12.0),
             child: Align(
               alignment: Alignment.centerRight,
-              child: FilledButton.icon(
-                onPressed: () => _openWarehouseValueForm(context, null),
-                icon: const Icon(fluent.FluentIcons.add),
-                label: const fluent.Text('إضافة قيمة'),
-              ),
+              child: fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(fluent.FluentIcons.add),
+    const SizedBox(width: 8.0),
+    const fluent.Text('إضافة قيمة'),
+  ],
+),
+onPressed: () => _openWarehouseValueForm(context, null),
+),
             ),
           ),
           Expanded(
             child: Center(
-              child: fluent.Text('لا توجد قيم مستودع', style: textTheme.bodyLarge),
+              child: fluent.Text(
+                'لا توجد قيم مستودع',
+                style: textTheme.bodyLarge,
+              ),
             ),
           ),
         ],
@@ -99,11 +109,17 @@ class WarehouseValuesPage extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 12.0),
           child: Align(
             alignment: Alignment.centerRight,
-            child: FilledButton.icon(
-              onPressed: () => _openWarehouseValueForm(context, null),
-              icon: const Icon(fluent.FluentIcons.add),
-              label: const fluent.Text('إضافة قيمة'),
-            ),
+            child: fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(fluent.FluentIcons.add),
+    const SizedBox(width: 8.0),
+    const fluent.Text('إضافة قيمة'),
+  ],
+),
+onPressed: () => _openWarehouseValueForm(context, null),
+),
           ),
         ),
         Expanded(
@@ -126,7 +142,13 @@ class WarehouseValuesPage extends StatelessWidget {
                     item,
                   );
                   if (didUpdate == true && context.mounted) {
-                    fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('تم تحديث قيمة المستودع')));
+                    fluent.displayInfoBar(
+                      context,
+                      builder: (context, close) => fluent.InfoBar(
+                        title: const fluent.Text('تنبيه'),
+                        content: fluent.Text('تم تحديث قيمة المستودع'),
+                      ),
+                    );
                     context.read<WarehouseValuesBloc>().add(
                       LoadWarehouseValuesEvent(),
                     );
@@ -174,9 +196,7 @@ class WarehouseValuesPage extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: colors.primaryContainer,
-      ),
+      decoration: BoxDecoration(color: colors.primaryContainer),
       child: fluent.Text(
         text,
         textAlign: TextAlign.center,
@@ -200,7 +220,13 @@ class WarehouseValuesPage extends StatelessWidget {
     if (result != null && context.mounted) {
       context.read<WarehouseValuesBloc>().add(LoadWarehouseValuesEvent());
       if (entity == null) {
-        fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('تمت إضافة قيمة المستودع')));
+        fluent.displayInfoBar(
+          context,
+          builder: (context, close) => fluent.InfoBar(
+            title: const fluent.Text('تنبيه'),
+            content: fluent.Text('تمت إضافة قيمة المستودع'),
+          ),
+        );
       }
     }
 
@@ -217,13 +243,27 @@ class WarehouseValuesDataGridSource extends DataGridSource {
     _dataGridRows = items.asMap().entries.map<DataGridRow>((entry) {
       final index = entry.key;
       final item = entry.value;
-      return DataGridRow(cells: [
-        DataGridCell<int>(columnName: 'no', value: index + 1),
-        DataGridCell<String>(columnName: 'warehouse', value: item.warehouseId.toString()),
-        DataGridCell<String>(columnName: 'type', value: item.valueType.displayName()),
-        DataGridCell<String>(columnName: 'value', value: _displayValue(item.value)),
-        DataGridCell<String>(columnName: 'subaccount', value: _displaySubaccount(item.value)),
-      ]);
+      return DataGridRow(
+        cells: [
+          DataGridCell<int>(columnName: 'no', value: index + 1),
+          DataGridCell<String>(
+            columnName: 'warehouse',
+            value: item.warehouseId.toString(),
+          ),
+          DataGridCell<String>(
+            columnName: 'type',
+            value: item.valueType.displayName(),
+          ),
+          DataGridCell<String>(
+            columnName: 'value',
+            value: _displayValue(item.value),
+          ),
+          DataGridCell<String>(
+            columnName: 'subaccount',
+            value: _displaySubaccount(item.value),
+          ),
+        ],
+      );
     }).toList();
   }
 

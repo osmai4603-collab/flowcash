@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flowcash/core/enums/main_account_group_enum.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class AccountGroupSection extends StatelessWidget {
   final MainAccountGroup group;
@@ -41,7 +41,7 @@ class AccountGroupSection extends StatelessWidget {
           ),
         ),
       ),
-      child: Table(
+      child: fluent.Table(
         columnWidths: const {
           0: FixedColumnWidth(60),
           1: FlexColumnWidth(6),
@@ -58,15 +58,19 @@ class AccountGroupSection extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsetsDirectional.only(start: 4.0),
-                child: Icon(
-                  FluentIcons.folder_open,
+                child: fluent.Icon(
+                  fluent.FluentIcons.folder_open,
                   size: 22,
                   color: theme.colorScheme.primary,
                 ),
               ),
               Padding(
-                padding: const EdgeInsetsDirectional.only(top: 4.0, bottom: 4.0, start: 8),
-                child: Text(
+                padding: const EdgeInsetsDirectional.only(
+                  top: 4.0,
+                  bottom: 4.0,
+                  start: 8,
+                ),
+                child: fluent.Text(
                   group.displayName(),
                   textAlign: TextAlign.start,
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -78,7 +82,7 @@ class AccountGroupSection extends StatelessWidget {
               const SizedBox(),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Text(
+                child: fluent.Text(
                   totalDebit.toStringAsFixed(2),
                   style: TextStyle(
                     color: Colors.green.shade900,
@@ -90,7 +94,7 @@ class AccountGroupSection extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Text(
+                child: fluent.Text(
                   totalCredit.toStringAsFixed(2),
                   style: TextStyle(
                     color: Colors.red.shade900,
@@ -102,10 +106,12 @@ class AccountGroupSection extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Text(
+                child: fluent.Text(
                   totalNet.toStringAsFixed(2),
                   style: TextStyle(
-                    color: totalNet >= 0 ? Colors.green.shade900 : Colors.red.shade900,
+                    color: totalNet >= 0
+                        ? Colors.green.shade900
+                        : Colors.red.shade900,
                     fontWeight: FontWeight.w900,
                     fontSize: 15,
                   ),

@@ -13,6 +13,7 @@ import '../bloc/settings/settings_state.dart';
 import '../widgets/setting_tile.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -39,7 +40,11 @@ class _SettingsPageState extends State<SettingsPage> {
     _darkTertiaryColor = ColorSchemes.darkTertiaryColor;
   }
 
-  Future<void> _pickColor(String title, Color currentColor, ValueChanged<Color> onColorChanged) async {
+  Future<void> _pickColor(
+    String title,
+    Color currentColor,
+    ValueChanged<Color> onColorChanged,
+  ) async {
     Color selectedColor = currentColor;
 
     await showDialog<void>(
@@ -135,12 +140,14 @@ class _SettingsPageState extends State<SettingsPage> {
           padding: const EdgeInsets.all(16.0),
           child: BlocBuilder<SettingsBloc, SettingsState>(
             builder: (context, state) {
-                if (state.status == SettingsStatus.loading) {
+              if (state.status == SettingsStatus.loading) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (state.status == SettingsStatus.failure) {
                 return Center(
-                  child: fluent.Text(state.errorMessage ?? 'فشل تحميل الإعدادات'),
+                  child: fluent.Text(
+                    state.errorMessage ?? 'فشل تحميل الإعدادات',
+                  ),
                 );
               }
 
@@ -150,7 +157,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       const fluent.Text(
                         'المظهر',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       RadioListTile<ThemeMode>(
                         title: const fluent.Text('وضع النظام'),
@@ -173,12 +183,17 @@ class _SettingsPageState extends State<SettingsPage> {
                       const SizedBox(height: 24),
                       const fluent.Text(
                         'اللغة',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       DropdownButtonFormField<Locale>(
                         decoration: const InputDecoration(
-                          
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
                         ),
                         value: appState.appData.locale,
                         items: const [
@@ -200,63 +215,98 @@ class _SettingsPageState extends State<SettingsPage> {
                       const SizedBox(height: 24),
                       const fluent.Text(
                         'ألوان المظهر',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       const fluent.Text(
                         'الوضع الفاتح',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       _buildColorTile(
                         title: 'اللون الأساسي الفاتح',
                         color: _lightPrimaryColor,
-                        onTap: () => _pickColor('اختر اللون الأساسي للوضع الفاتح', _lightPrimaryColor, _updateLightPrimaryColor),
+                        onTap: () => _pickColor(
+                          'اختر اللون الأساسي للوضع الفاتح',
+                          _lightPrimaryColor,
+                          _updateLightPrimaryColor,
+                        ),
                       ),
                       _buildColorTile(
                         title: 'اللون الثانوي الفاتح',
                         color: _lightSecondaryColor,
-                        onTap: () => _pickColor('اختر اللون الثانوي للوضع الفاتح', _lightSecondaryColor, _updateLightSecondaryColor),
+                        onTap: () => _pickColor(
+                          'اختر اللون الثانوي للوضع الفاتح',
+                          _lightSecondaryColor,
+                          _updateLightSecondaryColor,
+                        ),
                       ),
                       _buildColorTile(
                         title: 'اللون الثالثي الفاتح',
                         color: _lightTertiaryColor,
-                        onTap: () => _pickColor('اختر اللون الثالثي للوضع الفاتح', _lightTertiaryColor, _updateLightTertiaryColor),
+                        onTap: () => _pickColor(
+                          'اختر اللون الثالثي للوضع الفاتح',
+                          _lightTertiaryColor,
+                          _updateLightTertiaryColor,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       const fluent.Text(
                         'الوضع الداكن',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       _buildColorTile(
                         title: 'اللون الأساسي الداكن',
                         color: _darkPrimaryColor,
-                        onTap: () => _pickColor('اختر اللون الأساسي للوضع الداكن', _darkPrimaryColor, _updateDarkPrimaryColor),
+                        onTap: () => _pickColor(
+                          'اختر اللون الأساسي للوضع الداكن',
+                          _darkPrimaryColor,
+                          _updateDarkPrimaryColor,
+                        ),
                       ),
                       _buildColorTile(
                         title: 'اللون الثانوي الداكن',
                         color: _darkSecondaryColor,
-                        onTap: () => _pickColor('اختر اللون الثانوي للوضع الداكن', _darkSecondaryColor, _updateDarkSecondaryColor),
+                        onTap: () => _pickColor(
+                          'اختر اللون الثانوي للوضع الداكن',
+                          _darkSecondaryColor,
+                          _updateDarkSecondaryColor,
+                        ),
                       ),
                       _buildColorTile(
                         title: 'اللون الثالثي الداكن',
                         color: _darkTertiaryColor,
-                        onTap: () => _pickColor('اختر اللون الثالثي للوضع الداكن', _darkTertiaryColor, _updateDarkTertiaryColor),
+                        onTap: () => _pickColor(
+                          'اختر اللون الثالثي للوضع الداكن',
+                          _darkTertiaryColor,
+                          _updateDarkTertiaryColor,
+                        ),
                       ),
                       const SizedBox(height: 24),
                       const Divider(),
                       const SizedBox(height: 12),
                       if (state.values.isEmpty)
-                        const Center(child: fluent.Text('لا توجد إعدادات إضافية.'))
+                        const Center(
+                          child: fluent.Text('لا توجد إعدادات إضافية.'),
+                        )
                       else
                         ...state.values.map((value) {
                           return SettingTile(
                             value: value,
                             onSave: (updatedValue) {
                               context.read<SettingsBloc>().add(
-                                    UpdateSettingEvent(updatedValue),
-                                  );
+                                UpdateSettingEvent(updatedValue),
+                              );
                             },
                           );
                         }).toList(),
@@ -280,7 +330,7 @@ class _SettingsPageState extends State<SettingsPage> {
       onTap: onTap,
       leading: CircleAvatar(backgroundColor: color),
       title: fluent.Text(title),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: const fluent.Icon(Icons.chevron_right),
     );
   }
 }

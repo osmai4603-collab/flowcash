@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flowcash/core/theme/styles.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 void error({
   required BuildContext context,
   String title = 'خطأ',
@@ -32,7 +33,8 @@ void error({
                         child: Row(
                           children: [
                             const SizedBox(width: 5.0),
-                            Icon(fluent.FluentIcons.error,
+                            fluent.Icon(
+                              fluent.FluentIcons.error,
                               size: 25,
                               color: Colors.red.shade500,
                             ),
@@ -46,8 +48,8 @@ void error({
                           ],
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(fluent.FluentIcons.chrome_close),
+                      fluent.IconButton(
+                        icon: fluent.Icon(fluent.FluentIcons.chrome_close),
                         onPressed: () => Navigator.pop(c),
                       ),
                     ],
@@ -102,7 +104,8 @@ void successMessage({
                         child: Row(
                           children: [
                             const SizedBox(width: 5.0),
-                            Icon(fluent.FluentIcons.task_list,
+                            fluent.Icon(
+                              fluent.FluentIcons.task_list,
                               size: 25,
                               color: ColorScheme.of(context).primary,
                             ),
@@ -116,8 +119,8 @@ void successMessage({
                           ],
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(fluent.FluentIcons.chrome_close),
+                      fluent.IconButton(
+                        icon: fluent.Icon(fluent.FluentIcons.chrome_close),
                         onPressed: () => Navigator.pop(c),
                       ),
                     ],
@@ -163,7 +166,8 @@ void messageWithPath({
                         child: Row(
                           children: [
                             const SizedBox(width: 5.0),
-                            Icon(fluent.FluentIcons.task_list,
+                            fluent.Icon(
+                              fluent.FluentIcons.task_list,
                               size: 25,
                               color: ColorScheme.of(context).primary,
                             ),
@@ -177,8 +181,8 @@ void messageWithPath({
                           ],
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(fluent.FluentIcons.chrome_close),
+                      fluent.IconButton(
+                        icon: fluent.Icon(fluent.FluentIcons.chrome_close),
                         onPressed: () => Navigator.pop(c),
                       ),
                     ],
@@ -208,8 +212,11 @@ void messageWithPath({
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30.0),
                     child: OutlinedButton.icon(
-                      icon: Icon(fluent.FluentIcons.copy, size: 20),
-                      label: fluent.Text('نسخ المسار', style: Styles.bodyMedium),
+                      icon: fluent.Icon(fluent.FluentIcons.copy, size: 20),
+                      label: fluent.Text(
+                        'نسخ المسار',
+                        style: Styles.bodyMedium,
+                      ),
                       onPressed: () async {
                         Navigator.pop(c);
                         await Clipboard.setData(ClipboardData(text: path));
@@ -323,7 +330,8 @@ Future<bool> makeSure({
                             child: Row(
                               children: [
                                 const SizedBox(width: 5.0),
-                                Icon(fluent.FluentIcons.warning,
+                                fluent.Icon(
+                                  fluent.FluentIcons.warning,
                                   size: 25,
                                   color: colors.primary,
                                 ),
@@ -337,8 +345,9 @@ Future<bool> makeSure({
                               ],
                             ),
                           ),
-                          IconButton(
-                            icon: Icon(fluent.FluentIcons.chrome_close,
+                          fluent.IconButton(
+                            icon: fluent.Icon(
+                              fluent.FluentIcons.chrome_close,
                               color: colors.onSurfaceVariant,
                             ),
                             onPressed: () => Navigator.pop(c),
@@ -370,12 +379,15 @@ Future<bool> makeSure({
                                 child: OutlinedButton(
                                   style: OutlinedButton.styleFrom(
                                     backgroundColor: colors.secondaryContainer,
-                                    foregroundColor: colors.onSecondaryContainer
+                                    foregroundColor:
+                                        colors.onSecondaryContainer,
                                   ),
                                   autofocus: okAutoFocus,
                                   onPressed: () => Navigator.pop(c, true),
 
-                                  child: const Align(child: fluent.Text('تأكيد')),
+                                  child: const Align(
+                                    child: fluent.Text('تأكيد'),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 40),
@@ -383,12 +395,14 @@ Future<bool> makeSure({
                                 child: OutlinedButton(
                                   style: OutlinedButton.styleFrom(
                                     backgroundColor: colors.secondaryContainer,
-                                    foregroundColor: colors.onSecondaryContainer
+                                    foregroundColor:
+                                        colors.onSecondaryContainer,
                                   ),
-                                    autofocus: cancelAutoFocus,
-                                    onPressed: () =>
-                                      Navigator.pop(c, false),
-                                  child: const Align(child: fluent.Text('إلغاء')),
+                                  autofocus: cancelAutoFocus,
+                                  onPressed: () => Navigator.pop(c, false),
+                                  child: const Align(
+                                    child: fluent.Text('إلغاء'),
+                                  ),
                                 ),
                               ),
                             ],

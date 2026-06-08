@@ -7,13 +7,11 @@ import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/combo_box_form.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class TransactionOrderForm extends StatefulWidget {
   final List<InventoryEntity> inventoryItems;
 
-  const TransactionOrderForm({
-    super.key,
-    required this.inventoryItems,
-  });
+  const TransactionOrderForm({super.key, required this.inventoryItems});
 
   @override
   State<TransactionOrderForm> createState() => _TransactionOrderFormState();
@@ -21,7 +19,7 @@ class TransactionOrderForm extends StatefulWidget {
 
 class _TransactionOrderFormState extends State<TransactionOrderForm> {
   final _formKey = GlobalKey<FormState>();
-  
+
   final _itemController = TextEditingController();
   int? _selectedInventoryId;
   final _quantityController = TextEditingController();
@@ -48,7 +46,9 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
 
   String _getInventoryLabel(InventoryEntity i) {
     try {
-      final catName = _categories.firstWhere((c) => c.id == i.categoryId).categoryName;
+      final catName = _categories
+          .firstWhere((c) => c.id == i.categoryId)
+          .categoryName;
       return '$catName (صنف: ${i.inventoryName})';
     } catch (_) {
       return '${i.inventoryName}';
@@ -84,13 +84,22 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
     return fluent.ContentDialog(
       title: Row(
         children: [
-          Icon(fluent.FluentIcons.shopping_cart, color: theme.colorScheme.primary),
+          fluent.Icon(
+            fluent.FluentIcons.shopping_cart,
+            color: theme.colorScheme.primary,
+          ),
           SizedBox(width: 8),
-          fluent.Text('إضافة بند جديد للحركة 📦', style: TextStyle(fontWeight: FontWeight.bold)),
+          fluent.Text(
+            'إضافة بند جديد للحركة 📦',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ],
       ),
       content: _isLoading
-          ? const SizedBox(height: 150, child: Center(child: fluent.ProgressRing()))
+          ? const SizedBox(
+              height: 150,
+              child: Center(child: fluent.ProgressRing()),
+            )
           : Form(
               key: _formKey,
               child: Column(
@@ -101,14 +110,16 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
                     controller: _itemController,
                     decoration: const InputDecoration(
                       labelText: 'اختر الصنف',
-                      prefixIcon: Icon(fluent.FluentIcons.product),
+                      prefixIcon: fluent.Icon(fluent.FluentIcons.product),
                     ),
                     labelMenu: (item) => _getInventoryLabel(item),
                     labelString: (item) => _getInventoryLabel(item),
                     itemsBuilder: (value) {
                       final search = value.trim().toLowerCase();
                       return widget.inventoryItems.where((item) {
-                        return _getInventoryLabel(item).toLowerCase().contains(search);
+                        return _getInventoryLabel(
+                          item,
+                        ).toLowerCase().contains(search);
                       }).toList();
                     },
                     onSelectedItem: (item) {
@@ -119,13 +130,19 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
                     onChanged: (value) {
                       if (_selectedInventoryId != null &&
                           _itemController.text !=
-                              _getInventoryLabel(widget.inventoryItems.firstWhere((it) => it.id == _selectedInventoryId!))) {
+                              _getInventoryLabel(
+                                widget.inventoryItems.firstWhere(
+                                  (it) => it.id == _selectedInventoryId!,
+                                ),
+                              )) {
                         setState(() {
                           _selectedInventoryId = null;
                         });
                       }
                     },
-                    validator: (_) => _selectedInventoryId == null ? 'الرجاء اختيار الصنف' : null,
+                    validator: (_) => _selectedInventoryId == null
+                        ? 'الرجاء اختيار الصنف'
+                        : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -135,13 +152,19 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
                     textDirection: TextDirection.ltr,
                     decoration: const InputDecoration(
                       labelText: 'الكمية المطلوبة',
-                      prefixIcon: Icon(fluent.FluentIcons.numbered_list_number),
+                      prefixIcon: fluent.Icon(
+                        fluent.FluentIcons.numbered_list_number,
+                      ),
                     ),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     validator: (val) {
-                      if (val == null || val.isEmpty) return 'الرجاء إدخال الكمية';
+                      if (val == null || val.isEmpty)
+                        return 'الرجاء إدخال الكمية';
                       final q = double.tryParse(val);
-                      if (q == null || q <= 0) return 'الكمية يجب أن تكون أكبر من الصفر';
+                      if (q == null || q <= 0)
+                        return 'الكمية يجب أن تكون أكبر من الصفر';
                       return null;
                     },
                   ),

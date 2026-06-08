@@ -1,5 +1,6 @@
 import 'package:flowcash/core/formatters/money_formatter.dart';
 import 'package:flowcash/core/theme/styles.dart';
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/chart_of_accounts/chart_of_accounts_bloc.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/chart_of_accounts/chart_of_accounts_event.dart';
@@ -80,13 +81,15 @@ class TableOfAccountGroup extends StatelessWidget {
     final accounts = mainAccounts
         .where((account) => account.mainAccountType.accountType == accountType)
         .toList();
-        final colors = ColorScheme.of(context);
-        final textTheme = TextTheme.of(context);
+    final colors = AppStyle.of(context);
     accounts.sort((a, b) => a.accountNumber.compareTo(b.accountNumber));
-    return Table(
-      border: TableBorder.all(color: colors.onSurface.withValues(alpha: 0.30), width: 0.5),
+    return fluent.Table(
+      border: fluent.TableBorder.all(
+        color: colors.onSurface.withValues(alpha: 0.30),
+        width: 0.5,
+      ),
       children: [
-        TableRow(
+        fluent.TableRow(
           children: [
             Container(
               height: 35.0,
@@ -94,25 +97,32 @@ class TableOfAccountGroup extends StatelessWidget {
                 horizontal: 10.0,
                 vertical: 5,
               ),
-              color: colors.secondary,
+              color: colors.primary,
               alignment: Alignment.center,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
+                    child: fluent.Text(
                       accountType.displayName(),
                       textAlign: TextAlign.center,
-                      style: textTheme.titleSmall?.copyWith(
+                      style: colors.subTitle.copyWith(
                         color: colors.onPrimary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.add, size: 18, color: colors.onPrimary),
-                    tooltip: 'إضافة حساب رئيسي',
-                    onPressed: () => onAddMainAccount(accountType),
+                  fluent.Tooltip(
+                    message: 'إضافة حساب رئيسي',
+                    child: fluent.IconButton(
+                      icon: fluent.Icon(
+                        Icons.add,
+                        size: 18,
+                        color: colors.onPrimary,
+                      ),
+
+                      onPressed: () => onAddMainAccount(accountType),
+                    ),
                   ),
                 ],
               ),
@@ -150,8 +160,8 @@ class TableOfAccountGroup extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Expanded(child: Text(mainAccount.accountName)),
-                      Text(
+                      Expanded(child: fluent.Text(mainAccount.accountName)),
+                      fluent.Text(
                         AppMoneyFormatter.formatDouble(mainAccount.balance),
                         textDirection: TextDirection.ltr,
                       ),
@@ -167,8 +177,8 @@ class TableOfAccountGroup extends StatelessWidget {
                   );
                   if (sure && context.mounted) {
                     context.read<ChartOfAccountsBloc>().add(
-                    DeleteMainAccount(mainAccount.id),
-                  );
+                      DeleteMainAccount(mainAccount.id),
+                    );
                   }
                   await successToast(
                     context: context,
@@ -188,7 +198,7 @@ class TableOfAccountGroup extends StatelessWidget {
                 horizontal: 8.0,
                 vertical: 3.0,
               ),
-              child: Text(
+              child: fluent.Text(
                 AppMoneyFormatter.formatDouble(
                   accounts.fold(0.0, (double pre, next) => pre + next.balance),
                 ),
@@ -371,7 +381,7 @@ class _MainGroupsWidgetState extends State<MainGroupsWidget> {
                           horizontal: 8.0,
                           vertical: 3.0,
                         ),
-                        child: Text(
+                        child: fluent.Text(
                           AppMoneyFormatter.formatDouble(
                             mainAccounts
                                 .where(
@@ -399,7 +409,7 @@ class _MainGroupsWidgetState extends State<MainGroupsWidget> {
                           horizontal: 8.0,
                           vertical: 3.0,
                         ),
-                        child: Text(
+                        child: fluent.Text(
                           AppMoneyFormatter.formatDouble(
                             mainAccounts
                                 .where(

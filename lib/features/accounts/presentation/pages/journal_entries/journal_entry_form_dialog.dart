@@ -48,7 +48,6 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
         });
       },
     );
-
   }
 
   @override
@@ -101,7 +100,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
               child: fluent.ContentDialog(
                 title: Row(
                   children: [
-                    Icon(
+                    fluent.Icon(
                       isEditing
                           ? fluent.FluentIcons.edit_note
                           : fluent.FluentIcons.task_add,
@@ -143,7 +142,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
               constraints: BoxConstraints(maxWidth: 800, minWidth: 800),
               title: Row(
                 children: [
-                  Icon(
+                  fluent.Icon(
                     isEditing
                         ? fluent.FluentIcons.edit_note
                         : fluent.FluentIcons.task_add,
@@ -282,7 +281,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                                         JournalItemSide.credit,
                                       ),
                                     ),
-                                    // icon: const Icon(fluent.FluentIcons.add,
+                                    // icon: const fluent.Icon(fluent.FluentIcons.add,
                                     // ),
                                     child: const fluent.Text('إضافة بند دائن'),
                                   ),
@@ -361,7 +360,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                           // Balanced indicator status
                           Row(
                             children: [
-                              Icon(
+                              fluent.Icon(
                                 state.isBalanced
                                     ? fluent.FluentIcons.skype_circle_check
                                     : fluent.FluentIcons.warning,
@@ -510,7 +509,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                     if (field.hasError)
                       Padding(
                         padding: const EdgeInsets.only(top: 6.0, left: 8.0),
-                        child: Text(
+                        child: fluent.Text(
                           field.errorText!,
                           style: TextStyle(
                             color: Colors.red.shade700,
@@ -585,7 +584,9 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                             icon: const fluent.Icon(fluent.FluentIcons.money),
                             items: state.currencies
                                 .map(
-                                  (currency) => fluent.ComboBoxItem<CurrencyEntity>(
+                                  (
+                                    currency,
+                                  ) => fluent.ComboBoxItem<CurrencyEntity>(
                                     value: currency,
                                     child: fluent.Text(
                                       '${currency.name} (${currency.symbol})',
@@ -608,7 +609,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                                 top: 6.0,
                                 left: 8.0,
                               ),
-                              child: Text(
+                              child: fluent.Text(
                                 field.errorText!,
                                 style: TextStyle(
                                   color: Colors.red.shade700,

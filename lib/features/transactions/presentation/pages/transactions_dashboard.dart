@@ -33,10 +33,13 @@ class _TransactionsDashboardState extends State<TransactionsDashboard> {
           create: (_) => sl<BillsBloc>()..add(LoadBillsEvent()),
         ),
         BlocProvider<FinancialTransactionsBloc>(
-          create: (_) => sl<FinancialTransactionsBloc>()..add(LoadFinancialTransactionsEvent()),
+          create: (_) =>
+              sl<FinancialTransactionsBloc>()
+                ..add(LoadFinancialTransactionsEvent()),
         ),
         BlocProvider<FinancialBondsBloc>(
-          create: (_) => sl<FinancialBondsBloc>()..add(LoadFinancialBondsEvent()),
+          create: (_) =>
+              sl<FinancialBondsBloc>()..add(LoadFinancialBondsEvent()),
         ),
       ],
       child: Theme(
@@ -46,7 +49,7 @@ class _TransactionsDashboardState extends State<TransactionsDashboard> {
             header: const fluent.PageHeader(
               title: Row(
                 children: [
-                  Icon(fluent.FluentIcons.money, size: 20),
+                  fluent.Icon(fluent.FluentIcons.money, size: 20),
                   SizedBox(width: 10),
                   fluent.Text('المعاملات المالية'),
                 ],
@@ -60,37 +63,37 @@ class _TransactionsDashboardState extends State<TransactionsDashboard> {
                 displayMode: fluent.PaneDisplayMode.top,
                 items: [
                   fluent.PaneItem(
-                    icon: Icon(fluent.FluentIcons.document),
+                    icon: fluent.Icon(fluent.FluentIcons.document),
                     title: fluent.Text('فواتير المبيعات'),
                     body: SalesTab(),
                   ),
                   fluent.PaneItem(
-                    icon: Icon(fluent.FluentIcons.document),
+                    icon: fluent.Icon(fluent.FluentIcons.document),
                     title: fluent.Text('فواتير المشتريات'),
                     body: PurchasesTab(),
                   ),
                   fluent.PaneItem(
-                    icon: Icon(fluent.FluentIcons.document),
+                    icon: fluent.Icon(fluent.FluentIcons.document),
                     title: fluent.Text('المرتجعات'),
                     body: SalesTab(),
                   ),
                   fluent.PaneItem(
-                    icon: const Icon(fluent.FluentIcons.chart),
+                    icon: const fluent.Icon(fluent.FluentIcons.chart),
                     title: const fluent.Text('المصروفات والإيرادات'),
                     body: const ExpensesRevenuesTab(),
                   ),
                   fluent.PaneItem(
-                    icon: Icon(fluent.FluentIcons.money),
+                    icon: fluent.Icon(fluent.FluentIcons.money),
                     title: fluent.Text('سندات القبض والصرف'),
                     body: BondsTab(),
                   ),
                   fluent.PaneItem(
-                    icon: Icon(fluent.FluentIcons.bank),
+                    icon: fluent.Icon(fluent.FluentIcons.bank),
                     title: fluent.Text('الإيداعات والسحوبات'),
                     body: DepositsWithdrawalsTab(),
                   ),
                   fluent.PaneItem(
-                    icon: Icon(fluent.FluentIcons.report_document),
+                    icon: fluent.Icon(fluent.FluentIcons.report_document),
                     title: fluent.Text('التقارير المالية'),
                     body: ReportsTab(),
                   ),
@@ -103,4 +106,3 @@ class _TransactionsDashboardState extends State<TransactionsDashboard> {
     );
   }
 }
-

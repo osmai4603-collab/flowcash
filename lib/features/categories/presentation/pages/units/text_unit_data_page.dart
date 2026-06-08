@@ -16,6 +16,7 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class TextUnitDataPage extends StatefulWidget {
   final CategoryPropertyEntity property;
   final UnitEntity? unit;
@@ -126,10 +127,12 @@ class _TextUnitDataPageState extends State<TextUnitDataPage> {
                       children: [
                         Row(
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back),
-                              tooltip: 'رجوع',
-                              onPressed: () => Navigator.pop(context),
+                            fluent.Tooltip(
+                              message: 'رجوع',
+                              child: fluent.IconButton(
+                                icon: const fluent.Icon(Icons.arrow_back),
+                                onPressed: () => Navigator.pop(context),
+                              ),
                             ),
                             TextWidget(
                               text:
@@ -137,10 +140,12 @@ class _TextUnitDataPageState extends State<TextUnitDataPage> {
                               expanded: true,
                               textAlign: TextAlign.center,
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.save),
-                              tooltip: 'حفظ البيانات',
-                              onPressed: _onSaveButtonClicked,
+                            fluent.Tooltip(
+                              message: 'حفظ البيانات',
+                              child: fluent.IconButton(
+                                icon: const fluent.Icon(Icons.save),
+                                onPressed: _onSaveButtonClicked,
+                              ),
                             ),
                           ],
                         ),
@@ -170,7 +175,8 @@ class _TextUnitDataPageState extends State<TextUnitDataPage> {
                             labelStyle: Styles.titleMedium.copyWith(
                               color: ColorScheme.of(context).primary,
                             ),
-                            prefixIcon: Icon(Icons.widgets,
+                            prefixIcon: fluent.Icon(
+                              Icons.widgets,
                               color: ColorScheme.of(context).primary,
                             ),
                           ),

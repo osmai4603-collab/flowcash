@@ -96,7 +96,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                         : Center(
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
-                              child: Text(
+                              child: fluent.Text(
                                 'اضغط على حساب رئيسي لعرض الحسابات الفرعية.',
                                 textAlign: TextAlign.center,
                                 style: theme.textTheme.bodyLarge,
@@ -160,7 +160,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
         ],
       ),
       child: ExcludeSemantics(
-        child: Table(
+        child: fluent.Table(
           columnWidths: const {
             0: FlexColumnWidth(3),
             1: IntrinsicColumnWidth(),
@@ -184,7 +184,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                     ),
                     prefix: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: const Icon(fluent.FluentIcons.search),
+                      child: const fluent.Icon(fluent.FluentIcons.search),
                     ),
 
                     placeholder: 'البحث برقم الحساب أو الاسم...',
@@ -235,7 +235,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                       onPressed: () {
                         _showMainAccountDialog(context);
                       },
-                      icon: const Icon(fluent.FluentIcons.add),
+                      icon: const fluent.Icon(fluent.FluentIcons.add),
                       label: const fluent.Text('إضافة حساب رئيسي'),
                       // style: fluent.CommandBarButton.styleFrom(
                       //   backgroundColor: theme.colorScheme.primary,
@@ -243,7 +243,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                       // ),
                     ),
                     fluent.CommandBarButton(
-                      icon: const Icon(fluent.FluentIcons.refresh),
+                      icon: const fluent.Icon(fluent.FluentIcons.refresh),
                       label: const fluent.Text('تحديث'),
                       onPressed: () {
                         context.read<ChartOfAccountsBloc>().add(
@@ -260,5 +260,4 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
       ),
     );
   }
-
 }

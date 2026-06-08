@@ -8,6 +8,7 @@ import 'package:flowcash/features/currencies/domain/usecases/exchange_price_repo
 import 'package:flowcash/features/system/presentation/bloc/exchange_rates/exchange_price_form_bloc.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class ExchangePriceFormPage extends StatefulWidget {
   const ExchangePriceFormPage({super.key, this.initialValue});
 
@@ -31,7 +32,9 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
   void initState() {
     super.initState();
     _getCurrenciesUseCase = GetIt.instance<GetCurrenciesUseCase>();
-    _priceController = TextEditingController(text: widget.initialValue?.price.toString() ?? '');
+    _priceController = TextEditingController(
+      text: widget.initialValue?.price.toString() ?? '',
+    );
     _fetchCurrencies();
   }
 
@@ -80,64 +83,81 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
     return BlocProvider(
       create: (_) => ExchangePriceFormBloc(
         initialValue: widget.initialValue,
-        insertExchangePriceUseCase: GetIt.instance<InsertExchangePriceUseCase>(),
-        updateExchangePriceUseCase: GetIt.instance<UpdateExchangePriceUseCase>(),
+        insertExchangePriceUseCase:
+            GetIt.instance<InsertExchangePriceUseCase>(),
+        updateExchangePriceUseCase:
+            GetIt.instance<UpdateExchangePriceUseCase>(),
       ),
-      child: BlocListener<ExchangePriceFormBloc, ExchangePriceFormState>(
-        listener: (context, state) {
-          if (state.isSuccess && state.savedEntity != null) {
-            Navigator.of(context).pop(state.savedEntity);
-          }
-        },
-        child: fluent.ContentDialog(
-          title: fluent.Text(widget.initialValue == null ? 'إضافة سعر صرف' : 'تعديل سعر صرف'),
-          
-          content: BlocBuilder<ExchangePriceFormBloc, ExchangePriceFormState>(
-            builder: (context, state) {
-              return Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
+      child: Builder(
+        builder: (blocContext) {
+          return BlocListener<ExchangePriceFormBloc, ExchangePriceFormState>(
+            listener: (context, state) {
+              if (state.isSuccess && state.savedEntity != null) {
+                Navigator.of(context).pop(state.savedEntity);
+              }
+            },
+            child: fluent.ContentDialog(
+              title: fluent.Text(
+                widget.initialValue == null ? 'إضافة سعر صرف' : 'تعديل سعر صرف',
+              ),
+
+              content: BlocBuilder<ExchangePriceFormBloc, ExchangePriceFormState>(
+                builder: (context, state) {
+                  return Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(
-                          child: fluent.InfoLabel(
-                            label: 'من العملة',
-                            child: _isLoadingCurrencies
-                                ? fluent.Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14.0,
-                                      horizontal: 12.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(color: Colors.grey.shade400),
-                                    ),
-                                    child: Row(
-                                      children: const [
-                                        fluent.ProgressRing(strokeWidth: 2),
-                                        SizedBox(width: 8),
-                                        fluent.Text('جارٍ تحميل العملات...'),
-                                      ],
-                                    ),
-                                  )
-                                : _currencies.isEmpty
+                        Row(
+                          children: [
+                            Expanded(
+                              child: fluent.InfoLabel(
+                                label: 'من العملة',
+                                child: _isLoadingCurrencies
+                                    ? fluent.Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 14.0,
+                                          horizontal: 12.0,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.grey.shade400,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: const [
+                                            fluent.ProgressRing(strokeWidth: 2),
+                                            SizedBox(width: 8),
+                                            fluent.Text(
+                                              'جارٍ تحميل العملات...',
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : _currencies.isEmpty
                                     ? const fluent.Text('لا توجد عملات متاحة')
                                     : fluent.ComboboxFormField<CurrencyEntity>(
                                         items: _currencies
                                             .map(
-                                              (currency) => fluent.ComboBoxItem<CurrencyEntity>(
-                                                value: currency,
-                                                child: fluent.Text(
-                                                  '${currency.name} (${currency.symbol})',
-                                                ),
-                                              ),
+                                              (currency) =>
+                                                  fluent.ComboBoxItem<
+                                                    CurrencyEntity
+                                                  >(
+                                                    value: currency,
+                                                    child: fluent.Text(
+                                                      '${currency.name} (${currency.symbol})',
+                                                    ),
+                                                  ),
                                             )
                                             .toList(),
                                         value: _selectedFromCurrency,
-                                        placeholder: const fluent.Text('اختر العملة المرسلة'),
+                                        placeholder: const fluent.Text(
+                                          'اختر العملة المرسلة',
+                                        ),
                                         isExpanded: true,
                                         validator: (value) {
                                           if (value == null) {
@@ -149,54 +169,70 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
                                             ? null
                                             : (currency) {
                                                 setState(() {
-                                                  _selectedFromCurrency = currency;
+                                                  _selectedFromCurrency =
+                                                      currency;
                                                 });
-                                                context.read<ExchangePriceFormBloc>().add(
+                                                context
+                                                    .read<
+                                                      ExchangePriceFormBloc
+                                                    >()
+                                                    .add(
                                                       ExchangePriceFromCurrencyChanged(
                                                         currency?.id ?? '',
                                                       ),
                                                     );
                                               },
                                       ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: fluent.InfoLabel(
-                            label: 'إلى العملة',
-                            child: _isLoadingCurrencies
-                                ? fluent.Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14.0,
-                                      horizontal: 12.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(color: Colors.grey.shade400),
-                                    ),
-                                    child: Row(
-                                      children: const [
-                                        fluent.ProgressRing(strokeWidth: 2),
-                                        SizedBox(width: 8),
-                                        fluent.Text('جارٍ تحميل العملات...'),
-                                      ],
-                                    ),
-                                  )
-                                : _currencies.isEmpty
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: fluent.InfoLabel(
+                                label: 'إلى العملة',
+                                child: _isLoadingCurrencies
+                                    ? fluent.Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 14.0,
+                                          horizontal: 12.0,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.grey.shade400,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: const [
+                                            fluent.ProgressRing(strokeWidth: 2),
+                                            SizedBox(width: 8),
+                                            fluent.Text(
+                                              'جارٍ تحميل العملات...',
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : _currencies.isEmpty
                                     ? const fluent.Text('لا توجد عملات متاحة')
                                     : fluent.ComboboxFormField<CurrencyEntity>(
                                         items: _currencies
                                             .map(
-                                              (currency) => fluent.ComboBoxItem<CurrencyEntity>(
-                                                value: currency,
-                                                child: fluent.Text(
-                                                  '${currency.name} (${currency.symbol})',
-                                                ),
-                                              ),
+                                              (currency) =>
+                                                  fluent.ComboBoxItem<
+                                                    CurrencyEntity
+                                                  >(
+                                                    value: currency,
+                                                    child: fluent.Text(
+                                                      '${currency.name} (${currency.symbol})',
+                                                    ),
+                                                  ),
                                             )
                                             .toList(),
                                         value: _selectedToCurrency,
-                                        placeholder: const fluent.Text('اختر العملة المستقبلة'),
+                                        placeholder: const fluent.Text(
+                                          'اختر العملة المستقبلة',
+                                        ),
                                         isExpanded: true,
                                         validator: (value) {
                                           if (value == null) {
@@ -208,79 +244,96 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
                                             ? null
                                             : (currency) {
                                                 setState(() {
-                                                  _selectedToCurrency = currency;
+                                                  _selectedToCurrency =
+                                                      currency;
                                                 });
-                                                context.read<ExchangePriceFormBloc>().add(
+                                                context
+                                                    .read<
+                                                      ExchangePriceFormBloc
+                                                    >()
+                                                    .add(
                                                       ExchangePriceToCurrencyChanged(
                                                         currency?.id ?? '',
                                                       ),
                                                     );
                                               },
                                       ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        fluent.InfoLabel(
+                          label: 'سعر الصرف',
+                          child: fluent.TextFormBox(
+                            controller: _priceController,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            //
+                            textDirection: .ltr,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'الرجاء إدخال سعر الصرف';
+                              }
+                              if (double.tryParse(value.trim()) == null) {
+                                return 'الرجاء إدخال قيمة رقمية';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) => context
+                                .read<ExchangePriceFormBloc>()
+                                .add(ExchangePriceValueChanged(value)),
                           ),
                         ),
+                        if (state.errorMessage != null) ...[
+                          const SizedBox(height: 12),
+                          fluent.Text(
+                            state.errorMessage!,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                          ),
+                        ],
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    fluent.InfoLabel(
-                      label: 'سعر الصرف',
-                      child: fluent.TextFormBox(
-                        controller: _priceController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        // 
-                        textDirection: .ltr,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'الرجاء إدخال سعر الصرف';
-                          }
-                          if (double.tryParse(value.trim()) == null) {
-                            return 'الرجاء إدخال قيمة رقمية';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) => context.read<ExchangePriceFormBloc>().add(
-                              ExchangePriceValueChanged(value),
-                            ),
-                      ),
-                    ),
-                    if (state.errorMessage != null) ...[
-                      const SizedBox(height: 12),
-                      fluent.Text(
-                        state.errorMessage!,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                      ),
-                    ],
-                  ],
-                ),
-              );
-            },
-          ),
-          actions: [
-            fluent.Button(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const fluent.Text('إلغاء'),
-            ),
-            fluent.FilledButton(
-              onPressed: () {
-                if (!_formKey.currentState!.validate()) return;
-                context.read<ExchangePriceFormBloc>().add(const ExchangePriceFormSubmitted());
-              },
-              child: BlocBuilder<ExchangePriceFormBloc, ExchangePriceFormState>(
-                builder: (context, state) {
-                  return state.isSubmitting
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: fluent.ProgressRing(strokeWidth: 2),
-                        )
-                      : const fluent.Text('حفظ');
+                  );
                 },
               ),
+              actions: [
+                fluent.Button(
+                  onPressed: () => Navigator.of(blocContext).pop(),
+                  child: const fluent.Text('إلغاء'),
+                ),
+                fluent.FilledButton(
+                  onPressed: () {
+                    if (!_formKey.currentState!.validate()) return;
+                    blocContext.read<ExchangePriceFormBloc>().add(
+                      const ExchangePriceFormSubmitted(),
+                    );
+                  },
+                  child:
+                      BlocBuilder<
+                        ExchangePriceFormBloc,
+                        ExchangePriceFormState
+                      >(
+                        bloc: blocContext.read<ExchangePriceFormBloc>(),
+                        builder: (context, state) {
+                          return state.isSubmitting
+                              ? const SizedBox(
+                                  height: 18,
+                                  width: 18,
+                                  child: fluent.ProgressRing(strokeWidth: 2),
+                                )
+                              : const fluent.Text('حفظ');
+                        },
+                      ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

@@ -11,6 +11,7 @@ import 'package:flowcash/features/inventory/presentation/blocs/opening_quantitie
 import 'opening_quantity_form_dialog.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class OpeningQuantitiesPage extends StatefulWidget {
   const OpeningQuantitiesPage({super.key});
 
@@ -54,34 +55,56 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
     final theme = Theme.of(context);
 
     return BlocProvider<OpeningQuantitiesBloc>(
-      create: (context) => sl<OpeningQuantitiesBloc>()..add(const LoadOpeningQuantitiesEvent()),
+      create: (context) =>
+          sl<OpeningQuantitiesBloc>()..add(const LoadOpeningQuantitiesEvent()),
       child: BlocConsumer<OpeningQuantitiesBloc, OpeningQuantitiesState>(
         listener: (context, state) {
-          if (state.status == OpeningQuantitiesStatus.error && state.errorMessage != null) {
-            fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(state.errorMessage!)));
+          if (state.status == OpeningQuantitiesStatus.error &&
+              state.errorMessage != null) {
+            fluent.displayInfoBar(
+              context,
+              builder: (context, close) => fluent.InfoBar(
+                title: const fluent.Text('تنبيه'),
+                content: fluent.Text(state.errorMessage!),
+              ),
+            );
           }
         },
         builder: (context, state) {
           final bloc = context.read<OpeningQuantitiesBloc>();
 
-          if (state.status == OpeningQuantitiesStatus.loading || _isLoadingMetaData) {
+          if (state.status == OpeningQuantitiesStatus.loading ||
+              _isLoadingMetaData) {
             return const Center(child: fluent.ProgressRing());
           }
 
           // Apply client filters
           final filteredItems = state.items.where((i) {
-            final nameLower = _getInventoryName(i.inventoryId, state.inventoryItems).toLowerCase();
-            final matchesSearch = nameLower.contains(_searchQuery.toLowerCase());
-            final matchesWarehouse = _filterWarehouseId == null || _getInventoryWarehouseId(i.inventoryId, state.inventoryItems) == _filterWarehouseId;
+            final nameLower = _getInventoryName(
+              i.inventoryId,
+              state.inventoryItems,
+            ).toLowerCase();
+            final matchesSearch = nameLower.contains(
+              _searchQuery.toLowerCase(),
+            );
+            final matchesWarehouse =
+                _filterWarehouseId == null ||
+                _getInventoryWarehouseId(i.inventoryId, state.inventoryItems) ==
+                    _filterWarehouseId;
             return matchesSearch && matchesWarehouse;
           }).toList();
 
-          final double grandTotalCost = filteredItems.fold(0.0, (sum, item) => sum + item.costTotal);
+          final double grandTotalCost = filteredItems.fold(
+            0.0,
+            (sum, item) => sum + item.costTotal,
+          );
 
           return Padding(
             padding: const EdgeInsets.all(20.0),
             child: Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
@@ -95,11 +118,18 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'البحث باسم صنف المخزون... 🔍',
-                              prefixIcon: const Icon(fluent.FluentIcons.search),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                              prefixIcon: const fluent.Icon(
+                                fluent.FluentIcons.search,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                             ),
-                            onChanged: (val) => setState(() => _searchQuery = val),
+                            onChanged: (val) =>
+                                setState(() => _searchQuery = val),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -111,12 +141,16 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                                 SubmenuButton(
                                   menuChildren: [
                                     MenuItemButton(
-                                      onPressed: () => setState(() => _filterWarehouseId = null),
+                                      onPressed: () => setState(
+                                        () => _filterWarehouseId = null,
+                                      ),
                                       child: const fluent.Text('كل المخازن 🏢'),
                                     ),
                                     ...state.warehouses.map(
                                       (w) => MenuItemButton(
-                                        onPressed: () => setState(() => _filterWarehouseId = w.id),
+                                        onPressed: () => setState(
+                                          () => _filterWarehouseId = w.id,
+                                        ),
                                         child: fluent.Text(w.warehouseName),
                                       ),
                                     ),
@@ -124,9 +158,20 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                                   child: fluent.Text(
                                     _filterWarehouseId == null
                                         ? 'كل المخازن 🏢'
-                                        : state.warehouses.where((w) => w.id == _filterWarehouseId).isEmpty
-                                            ? 'كل المخازن 🏢'
-                                            : state.warehouses.where((w) => w.id == _filterWarehouseId).first.warehouseName,
+                                        : state.warehouses
+                                              .where(
+                                                (w) =>
+                                                    w.id == _filterWarehouseId,
+                                              )
+                                              .isEmpty
+                                        ? 'كل المخازن 🏢'
+                                        : state.warehouses
+                                              .where(
+                                                (w) =>
+                                                    w.id == _filterWarehouseId,
+                                              )
+                                              .first
+                                              .warehouseName,
                                   ),
                                 ),
                               ],
@@ -134,47 +179,97 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        ElevatedButton.icon(
-                          onPressed: () async {
+                        fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(fluent.FluentIcons.add),
+    const SizedBox(width: 8.0),
+    const fluent.Text(
+                            'رصيد جديد',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+  ],
+),
+onPressed: () async {
                             if (state.inventoryItems.isEmpty) {
-                              fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('الرجاء إنشاء أصناف مخزون أولاً')));
+                              fluent.displayInfoBar(
+                                context,
+                                builder: (context, close) => fluent.InfoBar(
+                                  title: const fluent.Text('تنبيه'),
+                                  content: fluent.Text(
+                                    'الرجاء إنشاء أصناف مخزون أولاً',
+                                  ),
+                                ),
+                              );
                               return;
                             }
-                            final result = await showDialog<OpeningQuantityEntity>(
-                              context: context,
-                              builder: (context) => OpeningQuantityFormDialog(
-                                inventoryItems: state.inventoryItems,
-                              ),
-                            );
+                            final result =
+                                await showDialog<OpeningQuantityEntity>(
+                                  context: context,
+                                  builder: (context) =>
+                                      OpeningQuantityFormDialog(
+                                        inventoryItems: state.inventoryItems,
+                                      ),
+                                );
                             if (result != null) {
                               bloc.add(AddOpeningQuantityEvent(result));
                             }
                           },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                          ),
-                          icon: const Icon(fluent.FluentIcons.add),
-                          label: const fluent.Text('رصيد جديد', style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
+),
                       ],
                     ),
                     const SizedBox(height: 20),
 
                     // Table Header
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primaryContainer.withAlpha(50),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Row(
                         children: [
-                          Expanded(flex: 2, child: fluent.Text('اسم صنف المخزون 📦', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(child: fluent.Text('المستودع الرئيسي 🏢', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(child: fluent.Text('الكمية الافتتاحية 🔢', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(child: fluent.Text('إجمالي التكلفة الدفترية 💰', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(child: fluent.Text('السنة/الفترة المالية 📅', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(child: fluent.Text('الإجراءات ⚙️', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(
+                            flex: 2,
+                            child: fluent.Text(
+                              'اسم صنف المخزون 📦',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            child: fluent.Text(
+                              'المستودع الرئيسي 🏢',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            child: fluent.Text(
+                              'الكمية الافتتاحية 🔢',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            child: fluent.Text(
+                              'إجمالي التكلفة الدفترية 💰',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            child: fluent.Text(
+                              'السنة/الفترة المالية 📅',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            child: fluent.Text(
+                              'الإجراءات ⚙️',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -186,7 +281,10 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                           ? const Center(
                               child: fluent.Text(
                                 'لا توجد أرصدة افتتاحية مسجلة ⚠️',
-                                style: TextStyle(fontSize: 16, color: Colors.grey),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
                               ),
                             )
                           : ListView.builder(
@@ -195,61 +293,109 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                                 final item = filteredItems[index];
                                 return Card(
                                   elevation: 0,
-                                  margin: const EdgeInsets.symmetric(vertical: 4),
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
                                   shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: theme.colorScheme.outline.withAlpha(20)),
+                                    side: BorderSide(
+                                      color: theme.colorScheme.outline
+                                          .withAlpha(20),
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
                                     child: Row(
                                       children: [
                                         Expanded(
                                           flex: 2,
                                           child: fluent.Text(
-                                            _getInventoryName(item.inventoryId, state.inventoryItems),
-                                            style: const TextStyle(fontWeight: FontWeight.bold),
+                                            _getInventoryName(
+                                              item.inventoryId,
+                                              state.inventoryItems,
+                                            ),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
                                         Expanded(
                                           child: fluent.Text(
                                             _getWarehouseName(
-                                              _getInventoryWarehouseId(item.inventoryId, state.inventoryItems) ?? 0,
+                                              _getInventoryWarehouseId(
+                                                    item.inventoryId,
+                                                    state.inventoryItems,
+                                                  ) ??
+                                                  0,
                                               state.warehouses,
                                             ),
                                           ),
                                         ),
                                         Expanded(
-                                          child: fluent.Text(item.countUnits.toString()),
+                                          child: fluent.Text(
+                                            item.countUnits.toString(),
+                                          ),
                                         ),
                                         Expanded(
-                                          child: fluent.Text('${item.costTotal.toStringAsFixed(2)} SAR', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                          child: fluent.Text(
+                                            '${item.costTotal.toStringAsFixed(2)} SAR',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
                                         Expanded(
-                                          child: fluent.Text('فترة #${item.periodId}'),
+                                          child: fluent.Text(
+                                            'فترة #${item.periodId}',
+                                          ),
                                         ),
                                         Expanded(
                                           child: Align(
                                             alignment: Alignment.centerRight,
-                                            child: IconButton(
-                                              icon: const Icon(fluent.FluentIcons.delete, color: Colors.red),
+                                            child: fluent.IconButton(
+                                              icon: const fluent.Icon(
+                                                fluent.FluentIcons.delete,
+                                                color: Colors.red,
+                                              ),
                                               onPressed: () {
                                                 showDialog(
                                                   context: context,
                                                   builder: (context) => fluent.ContentDialog(
-                                                    title: const fluent.Text('حذف الرصيد الافتتاحي ⚠️'),
-                                                    content: const fluent.Text('هل أنت متأكد من رغبتك في حذف هذا الرصيد الافتتاحي؟'),
+                                                    title: const fluent.Text(
+                                                      'حذف الرصيد الافتتاحي ⚠️',
+                                                    ),
+                                                    content: const fluent.Text(
+                                                      'هل أنت متأكد من رغبتك في حذف هذا الرصيد الافتتاحي؟',
+                                                    ),
                                                     actions: [
                                                       fluent.Button(
-                                                        onPressed: () => Navigator.pop(context),
-                                                        child: const fluent.Text('إلغاء'),
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                              context,
+                                                            ),
+                                                        child:
+                                                            const fluent.Text(
+                                                              'إلغاء',
+                                                            ),
                                                       ),
                                                       fluent.FilledButton(
                                                         onPressed: () {
-                                                          bloc.add(DeleteOpeningQuantityEvent(item.id));
-                                                          Navigator.pop(context);
+                                                          bloc.add(
+                                                            DeleteOpeningQuantityEvent(
+                                                              item.id,
+                                                            ),
+                                                          );
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
                                                         },
-                                                        child: const fluent.Text('تأكيد الحذف'),
+                                                        child:
+                                                            const fluent.Text(
+                                                              'تأكيد الحذف',
+                                                            ),
                                                       ),
                                                     ],
                                                   ),
@@ -271,13 +417,20 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
+                        color: theme.colorScheme.surfaceContainerHighest
+                            .withAlpha(80),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const fluent.Text('إجمالي قيمة الأرصدة الافتتاحية للمخزون:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          const fluent.Text(
+                            'إجمالي قيمة الأرصدة الافتتاحية للمخزون:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                           fluent.Text(
                             '${grandTotalCost.toStringAsFixed(2)} SAR',
                             style: TextStyle(

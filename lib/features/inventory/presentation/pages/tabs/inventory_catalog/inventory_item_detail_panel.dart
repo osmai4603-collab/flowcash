@@ -5,6 +5,7 @@ import 'package:flowcash/features/categories/domain/entities/category_entity.dar
 import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class InventoryItemDetailPanel extends StatelessWidget {
   final InventoryEntity item;
   final List<CategoryEntity> categories;
@@ -49,7 +50,6 @@ class InventoryItemDetailPanel extends StatelessWidget {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -83,7 +83,8 @@ class InventoryItemDetailPanel extends StatelessWidget {
                   CircleAvatar(
                     backgroundColor: theme.colorScheme.primary.withAlpha(40),
                     radius: 28,
-                    child: Icon(Icons.production_quantity_limits,
+                    child: fluent.Icon(
+                      Icons.production_quantity_limits,
                       color: theme.colorScheme.primary,
                       size: 28,
                     ),
@@ -190,7 +191,8 @@ class InventoryItemDetailPanel extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      icon: Icon(Icons.edit,
+                      icon: fluent.Icon(
+                        Icons.edit,
                         color: theme.colorScheme.primary,
                       ),
                       label: fluent.Text(
@@ -204,22 +206,20 @@ class InventoryItemDetailPanel extends StatelessWidget {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: onDelete,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.errorContainer,
-                        foregroundColor: theme.colorScheme.onErrorContainer,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: const Icon(Icons.delete_forever),
-                      label: const fluent.Text(
+                    child: fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(Icons.delete_forever),
+    const SizedBox(width: 8.0),
+    const fluent.Text(
                         'حذف البطاقة',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
+  ],
+),
+onPressed: onDelete,
+),
                   ),
                 ],
               ),
@@ -241,7 +241,11 @@ class InventoryItemDetailPanel extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 14.0),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: theme.colorScheme.primary.withAlpha(180)),
+          fluent.Icon(
+            icon,
+            size: 20,
+            color: theme.colorScheme.primary.withAlpha(180),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: fluent.Text(
@@ -284,7 +288,7 @@ class InventoryItemDetailPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: accentColor),
+              fluent.Icon(icon, size: 16, color: accentColor),
               const SizedBox(width: 8),
               fluent.Text(
                 label,

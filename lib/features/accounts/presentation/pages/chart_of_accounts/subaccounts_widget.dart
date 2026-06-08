@@ -60,7 +60,7 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
         }
       },
       tooltip: 'اعادة اجمالي رصيد الحساب',
-      icon: const Icon(Icons.lock_reset_outlined, color: Colors.white),
+      icon: const fluent.Icon(Icons.lock_reset_outlined, color: Colors.white),
     );
   }
 
@@ -73,7 +73,7 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
           if (state.status == ChartOfAccountsStatus.loading) {
             return const Center(child: CircularProgressIndicator());
           }
-    
+
           final accounts = _getFilteredAccounts(state.subAccounts);
           return _buildListView(context, accounts);
         },
@@ -112,7 +112,6 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
         );
         final totalBalance = incrementsSum - decrementsSum;
 
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -122,13 +121,17 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
                 Expanded(
                   child: fluent.Text(
                     'الحسابات الفرعية لـ ${widget.mainAccount.accountName}',
-                    
                   ),
                 ),
                 fluent.FilledButton(
-
                   onPressed: () => _showAddSubAccountDialog(context),
-                  child: const Text('إضافة حساب فرعي'),
+                  child: Row(
+                    spacing: Spacings.small,
+                    children: [
+                      fluent.Icon(fluent.FluentIcons.add_in),
+                      const fluent.Text('إضافة حساب فرعي'),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -136,7 +139,7 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
             Expanded(
               child: filtered.isEmpty
                   ? Center(
-                      child: Text(
+                      child: fluent.Text(
                         'لا يوجد حسابات ${widget.mainAccount.accountName}',
                         style: colors.bodyLarge,
                         textAlign: TextAlign.center,
@@ -144,7 +147,10 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
                     )
                   : ListView.separated(
                       itemCount: filtered.length,
-                      separatorBuilder: (_, _) => Divider(height: 1, color: colors.onSurface.withValues(alpha: 0.30)),
+                      separatorBuilder: (_, _) => Divider(
+                        height: 1,
+                        color: colors.onSurface.withValues(alpha: 0.30),
+                      ),
                       itemBuilder: (context, index) {
                         final subAccount = filtered[index];
                         return _buildPersonRow(context, subAccount);
@@ -157,19 +163,19 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  fluent.Text(
                     'له: ${AppMoneyFormatter.formatDouble(incrementsSum)}',
-                    style: colors.title.copyWith(color: Colors.white),
+                    style: colors.body.copyWith(color: colors.onPrimary),
                   ),
                   const SizedBox(width: 30),
-                  Text(
+                  fluent.Text(
                     'الرصيد: ${AppMoneyFormatter.formatDouble(totalBalance)}',
-                    style: colors.title.copyWith(color: Colors.white),
+                    style: colors.body.copyWith(color: colors.onPrimary),
                   ),
                   const SizedBox(width: 30),
-                  Text(
+                  fluent.Text(
                     'عليه: ${AppMoneyFormatter.formatDouble(decrementsSum)}',
-                    style: colors.title.copyWith(color: Colors.white),
+                    style: colors.body.copyWith(color: colors.onPrimary),
                   ),
                 ],
               ),
@@ -192,9 +198,9 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
           vertical: 4.0,
         ),
         leading: SizedBox(width: 50, child: Image.asset(imagePath)),
-        title: Text(subAccount.accountName),
-        subtitle: Text(subAccount.accountNumber),
-        trailing: Text(
+        title: fluent.Text(subAccount.accountName),
+        subtitle: fluent.Text(subAccount.accountNumber),
+        trailing: fluent.Text(
           '$currencyLabel ${AppMoneyFormatter.formatDouble(subAccount.balance)}',
           textDirection: TextDirection.ltr,
         ),
@@ -239,15 +245,15 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
     SubAccountEntity entity,
   ) async {
     try {
-      Provider.of<AccountsTabNotifier>(context, listen: false)
-          .navigateToAccountStatement(entity.id);
+      Provider.of<AccountsTabNotifier>(
+        context,
+        listen: false,
+      ).navigateToAccountStatement(entity.id);
     } catch (_) {
       if (context.mounted) {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => const AccountStatementPage(),
-          ),
+          MaterialPageRoute(builder: (_) => const AccountStatementPage()),
         );
       }
     }
@@ -256,9 +262,8 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
   Future<void> _showAddSubAccountDialog(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => SubAccountFormDialog(
-        mainAccountId: widget.mainAccount.id,
-      ),
+      builder: (context) =>
+          SubAccountFormDialog(mainAccountId: widget.mainAccount.id),
     );
     if (result == true && context.mounted) {
       context.read<ChartOfAccountsBloc>().add(const LoadChartOfAccounts());

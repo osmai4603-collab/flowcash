@@ -103,7 +103,7 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
             child: fluent.ContentDialog(
               title: Row(
                 children: [
-                  Icon(
+                  fluent.Icon(
                     isEditing ? Icons.edit : Icons.add,
                     color: theme.colorScheme.primary,
                   ),
@@ -172,7 +172,8 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                                 label: 'نوع الحساب الفرعي',
                                 child: fluent.AutoSuggestBox<SubAccountType>(
                                   // value: state.selectedType,
-                                  placeholder: 'اختر نوع الحساب الفرعي', //  const fluent.Text(
+                                  placeholder:
+                                      'اختر نوع الحساب الفرعي', //  const fluent.Text(
                                   //   'اختر نوع الحساب الفرعي',
                                   // ),
                                   // icon: const fluent.Icon(
@@ -182,7 +183,9 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                                   items: state.subAccountTypes
                                       .map(
                                         (type) =>
-                                            fluent.AutoSuggestBoxItem<SubAccountType>(
+                                            fluent.AutoSuggestBoxItem<
+                                              SubAccountType
+                                            >(
                                               value: type,
                                               child: fluent.Text(
                                                 type.displayName(),
@@ -192,14 +195,22 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                                       )
                                       .toList(),
                                   onChanged: (type, _) {
-                                    final selected = state.subAccountTypes.indexWhere(( t) => t.name == type);
-                                      if (selected > -1) {
-                                        bloc.add(SubAccountTypeChanged(state.subAccountTypes[selected]));
-                                      }
+                                    final selected = state.subAccountTypes
+                                        .indexWhere((t) => t.name == type);
+                                    if (selected > -1) {
+                                      bloc.add(
+                                        SubAccountTypeChanged(
+                                          state.subAccountTypes[selected],
+                                        ),
+                                      );
+                                    }
                                   },
-                                  
+
                                   onSelected: (value) {
-                                    if(value.value != null) bloc.add(SubAccountTypeChanged(value.value!));
+                                    if (value.value != null)
+                                      bloc.add(
+                                        SubAccountTypeChanged(value.value!),
+                                      );
                                   },
                                 ),
                               ),

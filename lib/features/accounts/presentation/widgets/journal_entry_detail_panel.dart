@@ -3,6 +3,7 @@ import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class JournalEntryDetailPanel extends StatelessWidget {
   final JournalEntryEntity entry;
   final List<JournalItemEntity> items;
@@ -27,9 +28,7 @@ class JournalEntryDetailPanel extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        border: Border(
-          top: BorderSide(color: theme.dividerColor, width: 2),
-        ),
+        border: Border(top: BorderSide(color: theme.dividerColor, width: 2)),
       ),
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -37,12 +36,18 @@ class JournalEntryDetailPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(fluent.FluentIcons.list, color: theme.colorScheme.primary),
+              fluent.Icon(
+                fluent.FluentIcons.list,
+                color: theme.colorScheme.primary,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: fluent.Text(
                   'تفاصيل القيد رقم: ${entry.referenceNumber}',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               if (entry.description != null) ...[
@@ -51,7 +56,9 @@ class JournalEntryDetailPanel extends StatelessWidget {
                   child: fluent.Text(
                     'البيان: ${entry.description}',
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(150)),
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface.withAlpha(150),
+                    ),
                   ),
                 ),
               ],
@@ -66,7 +73,7 @@ class JournalEntryDetailPanel extends StatelessWidget {
               ),
             )
           else ...[
-            Table(
+            fluent.Table(
               columnWidths: const {
                 0: FlexColumnWidth(4), // Account Name
                 1: FlexColumnWidth(2), // Debit
@@ -80,30 +87,46 @@ class JournalEntryDetailPanel extends StatelessWidget {
               children: [
                 // Header
                 TableRow(
-                  decoration: BoxDecoration(color: theme.colorScheme.primaryContainer.withAlpha(40)),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer.withAlpha(40),
+                  ),
                   children: const [
                     TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: fluent.Text('الحساب', style: TextStyle(fontWeight: FontWeight.bold)),
+                        child: fluent.Text(
+                          'الحساب',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                     TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: fluent.Text('مدين', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end),
+                        child: fluent.Text(
+                          'مدين',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.end,
+                        ),
                       ),
                     ),
                     TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: fluent.Text('دائن', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end),
+                        child: fluent.Text(
+                          'دائن',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.end,
+                        ),
                       ),
                     ),
                     TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: fluent.Text('البيان التفصيلي', style: TextStyle(fontWeight: FontWeight.bold)),
+                        child: fluent.Text(
+                          'البيان التفصيلي',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ],
@@ -115,15 +138,22 @@ class JournalEntryDetailPanel extends StatelessWidget {
                       TableCell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: fluent.Text('حساب #${item.accountId}'), // In real usage, resolved to account names via a repository or stream
+                          child: fluent.Text(
+                            'حساب #${item.accountId}',
+                          ), // In real usage, resolved to account names via a repository or stream
                         ),
                       ),
                       TableCell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: fluent.Text(
-                            item.debit > 0 ? item.debit.toStringAsFixed(2) : '-',
-                            style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
+                            item.debit > 0
+                                ? item.debit.toStringAsFixed(2)
+                                : '-',
+                            style: const TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.w500,
+                            ),
                             textAlign: TextAlign.end,
                           ),
                         ),
@@ -132,8 +162,13 @@ class JournalEntryDetailPanel extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: fluent.Text(
-                            item.credit > 0 ? item.credit.toStringAsFixed(2) : '-',
-                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+                            item.credit > 0
+                                ? item.credit.toStringAsFixed(2)
+                                : '-',
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.w500,
+                            ),
                             textAlign: TextAlign.end,
                           ),
                         ),
@@ -149,12 +184,17 @@ class JournalEntryDetailPanel extends StatelessWidget {
                 }),
                 // Total Summary Row
                 TableRow(
-                  decoration: BoxDecoration(color: theme.colorScheme.surfaceVariant.withAlpha(50)),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceVariant.withAlpha(50),
+                  ),
                   children: [
                     const TableCell(
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: fluent.Text('الإجمالي', style: TextStyle(fontWeight: FontWeight.bold)),
+                        child: fluent.Text(
+                          'الإجمالي',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                     TableCell(
@@ -162,7 +202,10 @@ class JournalEntryDetailPanel extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: fluent.Text(
                           totalDebit.toStringAsFixed(2),
-                          style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                          ),
                           textAlign: TextAlign.end,
                         ),
                       ),
@@ -172,14 +215,15 @@ class JournalEntryDetailPanel extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: fluent.Text(
                           totalCredit.toStringAsFixed(2),
-                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
                           textAlign: TextAlign.end,
                         ),
                       ),
                     ),
-                    const TableCell(
-                      child: SizedBox(),
-                    ),
+                    const TableCell(child: SizedBox()),
                   ],
                 ),
               ],

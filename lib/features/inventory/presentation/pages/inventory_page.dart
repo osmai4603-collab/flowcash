@@ -11,6 +11,7 @@ import 'tabs/stocktaking/stocktaking_page.dart';
 import 'tabs/inventory_reports/inventory_reports_page.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class InventoryTabNotifier extends ChangeNotifier {
   final TabController tabController;
   int? selectedInventoryId;
@@ -63,7 +64,8 @@ class _InventoryPageState extends State<InventoryPage>
         appBar: AppBar(
           title: Row(
             children: [
-              Icon(fluent.FluentIcons.product,
+              fluent.Icon(
+                fluent.FluentIcons.product,
                 color: theme.colorScheme.primary,
                 size: 28,
               ),
@@ -86,31 +88,31 @@ class _InventoryPageState extends State<InventoryPage>
             unselectedLabelStyle: const TextStyle(fontSize: 14),
             tabs: const [
               Tab(
-                icon: Icon(fluent.FluentIcons.product),
+                icon: fluent.Icon(fluent.FluentIcons.product),
                 text: 'قائمة المخزون',
               ),
               Tab(
-                icon: Icon(fluent.FluentIcons.move),
+                icon: fluent.Icon(fluent.FluentIcons.move),
                 text: 'حركات المخزون',
               ),
               Tab(
-                icon: Icon(fluent.FluentIcons.shopping_cart),
+                icon: fluent.Icon(fluent.FluentIcons.shopping_cart),
                 text: 'نقل بين المخازن',
               ),
               Tab(
-                icon: Icon(fluent.FluentIcons.page_checked_out),
+                icon: fluent.Icon(fluent.FluentIcons.page_checked_out),
                 text: 'أرصدة افتتاحية',
               ),
               Tab(
-                icon: Icon(fluent.FluentIcons.receipt_check),
+                icon: fluent.Icon(fluent.FluentIcons.receipt_check),
                 text: 'تكلفة البضاعة',
               ),
               Tab(
-                icon: Icon(fluent.FluentIcons.check_list),
+                icon: fluent.Icon(fluent.FluentIcons.check_list),
                 text: 'جرد المخزون',
               ),
               Tab(
-                icon: Icon(fluent.FluentIcons.assessment_group),
+                icon: fluent.Icon(fluent.FluentIcons.assessment_group),
                 text: 'تقارير المخزون',
               ),
             ],

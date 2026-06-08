@@ -24,16 +24,25 @@ class FinancialPeriodsPage extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 12.0),
             child: Align(
               alignment: Alignment.centerRight,
-              child: FilledButton.icon(
-                onPressed: () => _openFinancialPeriodForm(context, null),
-                icon: const Icon(Icons.add),
-                label: const fluent.Text('إضافة فترة مالية'),
-              ),
+              child: fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(Icons.add),
+    const SizedBox(width: 8.0),
+    const fluent.Text('إضافة فترة مالية'),
+  ],
+),
+onPressed: () => _openFinancialPeriodForm(context, null),
+),
             ),
           ),
           Expanded(
             child: Center(
-              child: fluent.Text('لا توجد فترات مالية', style: textTheme.bodyLarge),
+              child: fluent.Text(
+                'لا توجد فترات مالية',
+                style: textTheme.bodyLarge,
+              ),
             ),
           ),
         ],
@@ -52,11 +61,17 @@ class FinancialPeriodsPage extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 12.0),
           child: Align(
             alignment: Alignment.centerRight,
-            child: FilledButton.icon(
-              onPressed: () => _openFinancialPeriodForm(context, null),
-              icon: const Icon(Icons.add),
-              label: const fluent.Text('إضافة فترة مالية'),
-            ),
+            child: fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(Icons.add),
+    const SizedBox(width: 8.0),
+    const fluent.Text('إضافة فترة مالية'),
+  ],
+),
+onPressed: () => _openFinancialPeriodForm(context, null),
+),
           ),
         ),
         Expanded(

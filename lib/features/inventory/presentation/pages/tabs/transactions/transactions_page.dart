@@ -16,6 +16,7 @@ import 'transaction_form_dialog.dart';
 import 'transaction_detail_panel.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({super.key});
 
@@ -81,7 +82,13 @@ class _TransactionsPageState extends State<TransactionsPage> {
         listener: (context, state) {
           if (state.status == TransactionsStatus.error &&
               state.errorMessage != null) {
-            fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(state.errorMessage!)));
+            fluent.displayInfoBar(
+              context,
+              builder: (context, close) => fluent.InfoBar(
+                title: const fluent.Text('تنبيه'),
+                content: fluent.Text(state.errorMessage!),
+              ),
+            );
           }
         },
         builder: (context, state) {
@@ -155,7 +162,9 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                   decoration: InputDecoration(
                                     hintText:
                                         'البحث برقم السند أو البيان... 🔍',
-                                    prefixIcon: const Icon(fluent.FluentIcons.search),
+                                    prefixIcon: const fluent.Icon(
+                                      fluent.FluentIcons.search,
+                                    ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
@@ -184,21 +193,28 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                             onPressed: () => setState(
                                               () => _filterType = null,
                                             ),
-                                            child: const fluent.Text('كل الأنواع 📋'),
-                                          ),
-                                          ...InventoryTransactionType.values.map(
-                                            (type) => MenuItemButton(
-                                              onPressed: () => setState(
-                                                () => _filterType = type,
-                                              ),
-                                              child: fluent.Text(type.displayName()),
+                                            child: const fluent.Text(
+                                              'كل الأنواع 📋',
                                             ),
                                           ),
+                                          ...InventoryTransactionType.values
+                                              .map(
+                                                (type) => MenuItemButton(
+                                                  onPressed: () => setState(
+                                                    () => _filterType = type,
+                                                  ),
+                                                  child: fluent.Text(
+                                                    type.displayName(),
+                                                  ),
+                                                ),
+                                              ),
                                         ],
                                         child: fluent.Text(
                                           _filterType == null
                                               ? 'كل الأنواع'
-                                              : _filterType!.displayName().toString(),
+                                              : _filterType!
+                                                    .displayName()
+                                                    .toString(),
                                         ),
                                       ),
                                     ],
@@ -208,15 +224,29 @@ class _TransactionsPageState extends State<TransactionsPage> {
                               const SizedBox(width: 12),
 
                               // Add transaction button
-                              ElevatedButton.icon(
-                                onPressed: () async {
-                                  final result = await showDialog<Map<String, dynamic>>(
-                                    context: context,
-                                    builder: (context) => TransactionFormDialog(
-                                      warehouses: state.warehouses,
-                                      inventoryItems: [], // state.inventoryItems,
-                                    ),
-                                  );
+                              fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(fluent.FluentIcons.add),
+    const SizedBox(width: 8.0),
+    const fluent.Text(
+                                  'إصدار إذن',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+  ],
+),
+onPressed: () async {
+                                  final result =
+                                      await showDialog<Map<String, dynamic>>(
+                                        context: context,
+                                        builder: (context) =>
+                                            TransactionFormDialog(
+                                              warehouses: state.warehouses,
+                                              inventoryItems:
+                                                  [], // state.inventoryItems,
+                                            ),
+                                      );
                                   if (result != null) {
                                     final t =
                                         result['transaction']
@@ -229,21 +259,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                     bloc.add(AddTransactionEvent(t, o));
                                   }
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 14,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                icon: const Icon(fluent.FluentIcons.add),
-                                label: const fluent.Text(
-                                  'إصدار إذن',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
+),
                             ],
                           ),
                           const SizedBox(height: 20),
@@ -437,7 +453,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(fluent.FluentIcons.one_note_doc_type,
+                                fluent.Icon(
+                                  fluent.FluentIcons.one_note_doc_type,
                                   size: 48,
                                   color: Colors.grey,
                                 ),
@@ -482,7 +499,9 @@ class _TransactionsPageState extends State<TransactionsPage> {
                             showDialog(
                               context: context,
                               builder: (context) => fluent.ContentDialog(
-                                title: const fluent.Text('تأكيد حذف إذن الحركة ⚠️'),
+                                title: const fluent.Text(
+                                  'تأكيد حذف إذن الحركة ⚠️',
+                                ),
                                 content: const fluent.Text(
                                   'هل أنت متأكد من رغبتك في حذف بطاقة إذن الحركة المخزنية هذه وبنودها نهائياً؟',
                                 ),

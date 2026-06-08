@@ -1,4 +1,5 @@
 import 'package:flowcash/core/entities/entity.dart';
+import 'package:flowcash/core/enums/journal_status_enum.dart';
 
 /// كيان يمثل سطرًا في بند قيد يومية.
 class JournalItemEntity extends Entity {
@@ -11,6 +12,7 @@ class JournalItemEntity extends Entity {
   final String currencyId;
   final double exPrice;
   final double expriceMain;
+  final JournalStatus journalStatus;
 
   const JournalItemEntity({
     required this.id,
@@ -22,6 +24,7 @@ class JournalItemEntity extends Entity {
     required this.currencyId,
     required this.exPrice,
     required this.expriceMain,
+    required this.journalStatus,
   });
 
   @override
@@ -35,6 +38,7 @@ class JournalItemEntity extends Entity {
         currencyId,
         exPrice,
         expriceMain,
+        journalStatus,
       ];
 
   @override
@@ -48,6 +52,7 @@ class JournalItemEntity extends Entity {
     String? currencyId,
     double? exPrice,
     double? expriceMain,
+    JournalStatus? journalStatus,
   }) {
     return JournalItemEntity(
       id: id ?? this.id,
@@ -59,6 +64,7 @@ class JournalItemEntity extends Entity {
       currencyId: currencyId ?? this.currencyId,
       exPrice: exPrice ?? this.exPrice,
       expriceMain: expriceMain ?? this.expriceMain,
+      journalStatus: journalStatus ?? this.journalStatus,
     );
   }
 }

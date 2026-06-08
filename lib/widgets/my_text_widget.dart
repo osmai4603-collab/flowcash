@@ -1,5 +1,4 @@
-
-import 'package:flutter/material.dart';
+import 'package:fluent_ui/fluent_ui.dart';
 
 class TextWidget extends StatelessWidget {
   final String text;
@@ -14,7 +13,8 @@ class TextWidget extends StatelessWidget {
   final AlignmentGeometry? alignment;
   final TextOverflow? overflow;
 
-  const TextWidget({super.key,
+  const TextWidget({
+    super.key,
     required this.text,
     this.style,
     this.textDirection,
@@ -34,7 +34,7 @@ class TextWidget extends StatelessWidget {
   }
 
   Widget buildSizedBox() {
-    if(size == null) return buildBackColor();
+    if (size == null) return buildBackColor();
     return SizedBox(
       height: size?.height == double.infinity ? null : size?.height,
       width: size?.width == double.infinity ? null : size?.width,
@@ -43,38 +43,27 @@ class TextWidget extends StatelessWidget {
   }
 
   Widget buildExpanded() {
-    if(!expanded) return buildSizedBox();
-    return Expanded(
-      child: buildSizedBox(),
-    );
+    if (!expanded) return buildSizedBox();
+    return Expanded(child: buildSizedBox());
   }
 
   Widget buildBackColor() {
-    if(backColor == null) return buildPadding();
-    return ColoredBox(
-      color: backColor!,
-      child: buildPadding(),
-    );
+    if (backColor == null) return buildPadding();
+    return ColoredBox(color: backColor!, child: buildPadding());
   }
 
   Widget buildPadding() {
-    if(padding == null) return buildAlign();
-    return Padding(
-      padding: padding!,
-      child: buildAlign(),
-    );
+    if (padding == null) return buildAlign();
+    return Padding(padding: padding!, child: buildAlign());
   }
 
   Widget buildAlign() {
-    if(alignment == null) return buildText();
-    return Align(
-      alignment: alignment!,
-      child: buildText(),
-    );
+    if (alignment == null) return buildText();
+    return Align(alignment: alignment!, child: buildText());
   }
 
   Widget buildText() {
-    if(selectable) {
+    if (selectable) {
       return SelectableText(
         text,
         style: style,
@@ -90,5 +79,4 @@ class TextWidget extends StatelessWidget {
       overflow: overflow,
     );
   }
-
 }

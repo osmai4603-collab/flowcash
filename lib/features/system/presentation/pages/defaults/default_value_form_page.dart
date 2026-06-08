@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:flowcash/features/system/domain/entities/value_entity.dart';
 import 'package:flowcash/core/enums/value_type_enum.dart';
 import 'package:flowcash/features/system/presentation/bloc/defaults/default_value_form_cubit.dart';
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
+import 'package:flowcash/features/currencies/domain/usecases/currency_repository_usecases.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class DefaultValueFormPage extends StatefulWidget {
   final ValueEntity? initialValue;
 
@@ -17,27 +21,52 @@ class DefaultValueFormPage extends StatefulWidget {
 class _DefaultValueFormPageState extends State<DefaultValueFormPage> {
   final _formKey = GlobalKey<FormState>();
   late ValueType _selectedType;
-  late TextEditingController _typeController;
   late TextEditingController _valueController;
+
+  final List<CurrencyEntity> _currencies = [];
+  bool _isLoadingCurrencies = false;
 
   @override
   void initState() {
     super.initState();
     _selectedType = widget.initialValue?.valueType ?? ValueType.values.first;
-    _typeController = TextEditingController(text: _selectedType.displayName());
-    _valueController = TextEditingController(text: widget.initialValue?.value?.toString() ?? _selectedType.defaultValue);
+    _valueController = TextEditingController(
+      text:
+          widget.initialValue?.value?.toString() ?? _selectedType.defaultValue,
+    );
+    _fetchCurrencies();
+  }
+
+  Future<void> _fetchCurrencies() async {
+    setState(() {
+      _isLoadingCurrencies = true;
+    });
+    final result = await GetIt.instance<GetCurrenciesUseCase>().call();
+    result.fold(
+      (failure) {
+        setState(() {
+          _isLoadingCurrencies = false;
+        });
+      },
+      (currencies) {
+        setState(() {
+          _currencies
+            ..clear()
+            ..addAll(currencies);
+          _isLoadingCurrencies = false;
+        });
+      },
+    );
   }
 
   @override
   void dispose() {
-    _typeController.dispose();
     _valueController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    
     return BlocProvider(
       create: (_) => DefaultValueFormCubit(initial: widget.initialValue),
       child: BlocListener<DefaultValueFormCubit, DefaultValueFormState>(
@@ -48,7 +77,9 @@ class _DefaultValueFormPageState extends State<DefaultValueFormPage> {
         },
         child: fluent.ContentDialog(
           constraints: const BoxConstraints(maxWidth: 400, minWidth: 400),
-          title: fluent.Text(widget.initialValue == null ? 'إضافة قيمة' : 'تعديل قيمة'),
+          title: fluent.Text(
+            widget.initialValue == null ? 'إضافة قيمة' : 'تعديل قيمة',
+          ),
           content: Form(
             key: _formKey,
             child: SingleChildScrollView(
@@ -57,48 +88,36 @@ class _DefaultValueFormPageState extends State<DefaultValueFormPage> {
                 children: [
                   fluent.InfoLabel(
                     label: 'نوع القيمة',
-                    child: fluent.AutoSuggestBox<ValueType>.form(
-                      controller: _typeController,
+                    child: fluent.ComboboxFormField<ValueType>(
+                      value: _selectedType,
+                      isExpanded: true,
                       items: ValueType.values.map((e) {
-                        return fluent.AutoSuggestBoxItem<ValueType>(
+                        return fluent.ComboBoxItem<ValueType>(
                           value: e,
-                          label: e.displayName(),
+                          child: fluent.Text(e.displayName()),
                         );
                       }).toList(),
-                      leadingIcon: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: fluent.Icon(fluent.FluentIcons.category_classification),
-                      ),
-                      placeholder: 'حدد نوع القيمة',
-                      validator: (text) {
-                        if (text == null || text.isEmpty) {
+                      placeholder: const fluent.Text('حدد نوع القيمة'),
+                      validator: (value) {
+                        if (value == null) {
                           return 'الرجاء اختيار نوع القيمة';
                         }
                         return null;
                       },
-                      onSelected: (item) {
-                        _typeController.text = item.label;
-                        setState(() {
-                          _selectedType = item.value!;
-                          if (_valueController.text.isEmpty) {
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            _selectedType = value;
                             _valueController.text = _selectedType.defaultValue;
-                          }
-                        });
+                          });
+                        }
                       },
-                      noResultsFoundBuilder: (_) => const fluent.Text('لا توجد قيم'),
                     ),
                   ),
                   const SizedBox(height: 12),
                   fluent.InfoLabel(
                     label: 'القيمة',
-                    child: fluent.TextFormBox(
-                      controller: _valueController,
-                      prefix: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: fluent.Icon(fluent.FluentIcons.number),
-                      ),
-                      validator: (v) => (v == null || v.isEmpty) ? 'الرجاء إدخال قيمة' : null,
-                    ),
+                    child: _buildValueInputField(),
                   ),
                 ],
               ),
@@ -113,7 +132,9 @@ class _DefaultValueFormPageState extends State<DefaultValueFormPage> {
               onPressed: () {
                 if (!_formKey.currentState!.validate()) return;
                 final value = ValueEntity(
-                  id: widget.initialValue?.id ?? DateTime.now().millisecondsSinceEpoch,
+                  id:
+                      widget.initialValue?.id ??
+                      DateTime.now().millisecondsSinceEpoch,
                   value: _valueController.text,
                   valueType: _selectedType,
                 );
@@ -124,6 +145,104 @@ class _DefaultValueFormPageState extends State<DefaultValueFormPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildValueInputField() {
+    if (_selectedType == ValueType.defaultCurrency) {
+      if (_isLoadingCurrencies) {
+        return const SizedBox(
+          height: 32,
+          child: Center(child: fluent.ProgressRing(strokeWidth: 2)),
+        );
+      }
+      return fluent.ComboboxFormField<String>(
+        value: _currencies.any((c) => c.id.toString() == _valueController.text)
+            ? _valueController.text
+            : (_currencies.isNotEmpty ? _currencies.first.id.toString() : null),
+        isExpanded: true,
+        items: _currencies.map((currency) {
+          return fluent.ComboBoxItem<String>(
+            value: currency.id.toString(),
+            child: fluent.Text('${currency.name} (${currency.symbol})'),
+          );
+        }).toList(),
+        placeholder: const fluent.Text('اختر العملة'),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'الرجاء اختيار العملة';
+          }
+          return null;
+        },
+        onChanged: (value) {
+          if (value != null) {
+            setState(() {
+              _valueController.text = value;
+            });
+          }
+        },
+      );
+    } else if (_selectedType == ValueType.databaseVersion) {
+      return fluent.ComboboxFormField<String>(
+        value: ['1', '2', '3', '4', '5'].contains(_valueController.text)
+            ? _valueController.text
+            : '1',
+        isExpanded: true,
+        items: ['1', '2', '3', '4', '5'].map((v) {
+          return fluent.ComboBoxItem<String>(value: v, child: fluent.Text(v));
+        }).toList(),
+        placeholder: const fluent.Text('اختر إصدار قاعدة البيانات'),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'الرجاء اختيار الإصدار';
+          }
+          return null;
+        },
+        onChanged: (value) {
+          if (value != null) {
+            setState(() {
+              _valueController.text = value;
+            });
+          }
+        },
+      );
+    } else if (_selectedType == ValueType.pageFormat) {
+      return fluent.ComboboxFormField<String>(
+        value:
+            ['a4', 'a5', 'letter'].contains(_valueController.text.toLowerCase())
+            ? _valueController.text.toLowerCase()
+            : 'a4',
+        isExpanded: true,
+        items: ['a4', 'a5', 'letter'].map((v) {
+          return fluent.ComboBoxItem<String>(
+            value: v,
+            child: fluent.Text(v.toUpperCase()),
+          );
+        }).toList(),
+        placeholder: const fluent.Text('اختر تنسيق الصفحة'),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'الرجاء اختيار تنسيق الصفحة';
+          }
+          return null;
+        },
+        onChanged: (value) {
+          if (value != null) {
+            setState(() {
+              _valueController.text = value;
+            });
+          }
+        },
+      );
+    }
+
+    return fluent.TextFormBox(
+      controller: _valueController,
+      prefix: const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: fluent.Icon(fluent.FluentIcons.number),
+      ),
+      validator: (v) => (v == null || v.isEmpty) ? 'الرجاء إدخال قيمة' : null,
     );
   }
 }

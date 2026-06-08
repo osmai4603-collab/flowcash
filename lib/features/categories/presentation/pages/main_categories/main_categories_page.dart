@@ -16,6 +16,7 @@ import 'package:flowcash/features/categories/presentation/blocs/main_categories/
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+
 class MainCategoriesPage extends StatelessWidget {
   const MainCategoriesPage({super.key});
 
@@ -40,15 +41,29 @@ class MainCategoryDataGridSource extends DataGridSource {
     _dataGridRows = items.asMap().entries.map<DataGridRow>((entry) {
       final index = entry.key;
       final item = entry.value;
-      return DataGridRow(cells: [
-        DataGridCell<String>(columnName: 'no', value: '${index + 1}'),
-        DataGridCell<String>(columnName: 'name', value: item.name),
-        DataGridCell<String>(columnName: 'unitName', value: item.unitName),
-        DataGridCell<String>(columnName: 'priceUnit', value: item.unitType.fullUnitName),
-        DataGridCell<String>(columnName: 'stockUnit', value: item.unitType.fullUnitName),
-        DataGridCell<String>(columnName: 'type', value: item.type.displayName()),
-        DataGridCell<String>(columnName: 'containerName', value: item.unitName),
-      ]);
+      return DataGridRow(
+        cells: [
+          DataGridCell<String>(columnName: 'no', value: '${index + 1}'),
+          DataGridCell<String>(columnName: 'name', value: item.name),
+          DataGridCell<String>(columnName: 'unitName', value: item.unitName),
+          DataGridCell<String>(
+            columnName: 'priceUnit',
+            value: item.unitType.fullUnitName,
+          ),
+          DataGridCell<String>(
+            columnName: 'stockUnit',
+            value: item.unitType.fullUnitName,
+          ),
+          DataGridCell<String>(
+            columnName: 'type',
+            value: item.type.displayName(),
+          ),
+          DataGridCell<String>(
+            columnName: 'containerName',
+            value: item.unitName,
+          ),
+        ],
+      );
     }).toList();
   }
 
@@ -113,7 +128,11 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
     };
   }
 
-  Widget _buildHeaderCell(String text, TextTheme textTheme, ColorScheme colors) {
+  Widget _buildHeaderCell(
+    String text,
+    TextTheme textTheme,
+    ColorScheme colors,
+  ) {
     return Container(
       alignment: Alignment.center,
       padding: const EdgeInsets.all(4),
@@ -142,101 +161,108 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
     }
     return Column(
       children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: colors.outlineVariant, width: 0.5),
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: colors.outlineVariant, width: 0.5),
+            ),
+            child: SfDataGrid(
+              source: MainCategoryDataGridSource(
+                items: mainCategories,
+                textTheme: textTheme,
+                colors: colors,
+                onItemTap: (category) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          SubcategoriesPage(mainCategory: category),
+                    ),
+                  );
+                },
+                onItemDoubleTap: (category) async {
+                  final result = await showDialog<bool>(
+                    context: context,
+                    builder: (_) =>
+                        MainCategoryUnitDataPage(mainCategory: category),
+                  );
+                  if (result == true && context.mounted) {
+                    context.read<MainCategoriesBloc>().add(
+                      RefreshMainCategoriesEvent(),
+                    );
+                  }
+                },
+                onItemLongPress: (category) =>
+                    _onCategoryLongPressed(context, category),
               ),
-              child: SfDataGrid(
-                source: MainCategoryDataGridSource(
-                  items: mainCategories,
-                  textTheme: textTheme,
-                  colors: colors,
-                  onItemTap: (category) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SubcategoriesPage(mainCategory: category),
-                      ),
+              headerRowHeight: 40,
+              rowHeight: 30,
+              gridLinesVisibility: GridLinesVisibility.both,
+              headerGridLinesVisibility: GridLinesVisibility.both,
+              columnWidthMode: ColumnWidthMode.fill,
+              onCellTap: (details) {
+                if (details.rowColumnIndex.rowIndex > 0) {
+                  final item =
+                      mainCategories[details.rowColumnIndex.rowIndex - 1];
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          SubcategoriesPage(mainCategory: item),
+                    ),
+                  );
+                }
+              },
+              onCellDoubleTap: (details) async {
+                if (details.rowColumnIndex.rowIndex > 0) {
+                  final item =
+                      mainCategories[details.rowColumnIndex.rowIndex - 1];
+                  final result = await showDialog<bool>(
+                    context: context,
+                    builder: (_) =>
+                        MainCategoryUnitDataPage(mainCategory: item),
+                  );
+                  if (result == true && context.mounted) {
+                    context.read<MainCategoriesBloc>().add(
+                      RefreshMainCategoriesEvent(),
                     );
-                  },
-                  onItemDoubleTap: (category) async {
-                    final result = await showDialog<bool>(
-                      context: context,
-                      builder: (_) => MainCategoryUnitDataPage(mainCategory: category),
-                    );
-                    if (result == true && context.mounted) {
-                      context.read<MainCategoriesBloc>().add(
-                        RefreshMainCategoriesEvent(),
-                      );
-                    }
-                  },
-                  onItemLongPress: (category) => _onCategoryLongPressed(context, category),
+                  }
+                }
+              },
+              columns: [
+                GridColumn(
+                  columnName: 'no',
+                  width: isDesktop ? 60.0 : 50.0,
+                  label: _buildHeaderCell('No', textTheme, colors),
                 ),
-                headerRowHeight: 40,
-                rowHeight: 30,
-                gridLinesVisibility: GridLinesVisibility.both,
-                headerGridLinesVisibility: GridLinesVisibility.both,
-                columnWidthMode: ColumnWidthMode.fill,
-                onCellTap: (details) {
-                  if (details.rowColumnIndex.rowIndex > 0) {
-                    final item = mainCategories[details.rowColumnIndex.rowIndex - 1];
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SubcategoriesPage(mainCategory: item),
-                      ),
-                    );
-                  }
-                },
-                onCellDoubleTap: (details) async {
-                  if (details.rowColumnIndex.rowIndex > 0) {
-                    final item = mainCategories[details.rowColumnIndex.rowIndex - 1];
-                    final result = await showDialog<bool>(
-                      context: context,
-                      builder: (_) => MainCategoryUnitDataPage(mainCategory: item),
-                    );
-                    if (result == true && context.mounted) {
-                      context.read<MainCategoriesBloc>().add(
-                        RefreshMainCategoriesEvent(),
-                      );
-                    }
-                  }
-                },
-                columns: [
-                  GridColumn(
-                    columnName: 'no',
-                    width: isDesktop ? 60.0 : 50.0,
-                    label: _buildHeaderCell('No', textTheme, colors),
-                  ),
-                  GridColumn(
-                    columnName: 'name',
-                    label: _buildHeaderCell('اسم الصنف', textTheme, colors),
-                  ),
-                  GridColumn(
-                    columnName: 'unitName',
-                    label: _buildHeaderCell('وحدة الصنف', textTheme, colors),
-                  ),
-                  GridColumn(
-                    columnName: 'priceUnit',
-                    label: _buildHeaderCell('وحدة السعر', textTheme, colors),
-                  ),
-                  GridColumn(
-                    columnName: 'stockUnit',
-                    label: _buildHeaderCell('وحدة الجرد', textTheme, colors),
-                  ),
-                  GridColumn(
-                    columnName: 'type',
-                    label: _buildHeaderCell('نوع الصنف', textTheme, colors),
-                  ),
-                  GridColumn(
-                    columnName: 'containerName',
-                    label: _buildHeaderCell('اسم الحاوية', textTheme, colors),
-                  ),
-                ],
-              ),
+                GridColumn(
+                  columnName: 'name',
+                  label: _buildHeaderCell('اسم الصنف', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'unitName',
+                  label: _buildHeaderCell('وحدة الصنف', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'priceUnit',
+                  label: _buildHeaderCell('وحدة السعر', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'stockUnit',
+                  label: _buildHeaderCell('وحدة الجرد', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'type',
+                  label: _buildHeaderCell('نوع الصنف', textTheme, colors),
+                ),
+                GridColumn(
+                  columnName: 'containerName',
+                  label: _buildHeaderCell('اسم الحاوية', textTheme, colors),
+                ),
+              ],
             ),
           ),
+        ),
       ],
     );
   }
@@ -285,7 +311,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
                 placeholder: 'ابحث عن صنف هنا...',
                 prefix: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Icon(fluent.FluentIcons.search),
+                  child: fluent.Icon(fluent.FluentIcons.search),
                 ),
                 onChanged: (value) => setState(() {}),
               ),
@@ -294,14 +320,13 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
             fluent.CommandBar(
               primaryItems: [
                 fluent.CommandBarButton(
-                  icon: const Icon(fluent.FluentIcons.add),
+                  icon: const fluent.Icon(fluent.FluentIcons.add),
                   label: const fluent.Text('إضافة صنف رئيسي'),
                   onPressed: () async {
-                    final mainCategory =
-                        await showDialog<MainCategoryEntity?>(
-                          context: context,
-                          builder: (_) => const MainCategoryFormPage(),
-                        );
+                    final mainCategory = await showDialog<MainCategoryEntity?>(
+                      context: context,
+                      builder: (_) => const MainCategoryFormPage(),
+                    );
                     if (mainCategory != null && context.mounted) {
                       context.read<MainCategoriesBloc>().add(
                         RefreshMainCategoriesEvent(),

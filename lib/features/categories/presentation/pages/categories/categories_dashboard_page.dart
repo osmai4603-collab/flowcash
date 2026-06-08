@@ -21,11 +21,13 @@ import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class CategoriesDashboardPage extends StatefulWidget {
   const CategoriesDashboardPage({super.key});
 
   @override
-  State<CategoriesDashboardPage> createState() => _CategoriesDashboardPageState();
+  State<CategoriesDashboardPage> createState() =>
+      _CategoriesDashboardPageState();
 }
 
 class _CategoriesDashboardPageState extends State<CategoriesDashboardPage> {
@@ -48,7 +50,7 @@ class _CategoriesDashboardPageState extends State<CategoriesDashboardPage> {
         appBar: AppBar(
           title: fluent.Text(isDesktop ? 'لوحة إدارة التصنيفات' : 'التصنيفات'),
           centerTitle: true,
-          bottom:  TabBar(
+          bottom: TabBar(
             isScrollable: true,
             tabs: [
               Tab(text: 'الأصناف'),
@@ -76,10 +78,12 @@ class CategoriesDashboardCategoriesTab extends StatefulWidget {
   const CategoriesDashboardCategoriesTab({super.key});
 
   @override
-  State<CategoriesDashboardCategoriesTab> createState() => _CategoriesDashboardCategoriesTabState();
+  State<CategoriesDashboardCategoriesTab> createState() =>
+      _CategoriesDashboardCategoriesTabState();
 }
 
-class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCategoriesTab> {
+class _CategoriesDashboardCategoriesTabState
+    extends State<CategoriesDashboardCategoriesTab> {
   final searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -108,9 +112,8 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
           TextField(
             controller: searchController,
             decoration: const InputDecoration(
-              prefixIcon: Icon(fluent.FluentIcons.search),
+              prefixIcon: fluent.Icon(fluent.FluentIcons.search),
               hintText: 'ابحث عن صنف هنا',
-              
             ),
           ),
           const SizedBox(height: 12),
@@ -128,11 +131,18 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
                   final filtered = _searchQuery.isEmpty
                       ? categories
                       : categories
-                          .where((category) =>
-                              category.categoryName.contains(_searchQuery) ||
-                              category.categoryNumber.contains(_searchQuery) ||
-                              (category.barcode?.contains(_searchQuery) ?? false))
-                          .toList();
+                            .where(
+                              (category) =>
+                                  category.categoryName.contains(
+                                    _searchQuery,
+                                  ) ||
+                                  category.categoryNumber.contains(
+                                    _searchQuery,
+                                  ) ||
+                                  (category.barcode?.contains(_searchQuery) ??
+                                      false),
+                            )
+                            .toList();
                   return _buildCategoriesList(context, filtered);
                 }
                 return const Center(child: fluent.ProgressRing());
@@ -144,15 +154,18 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
     );
   }
 
-  Widget _buildCategoriesList(BuildContext context, List<CategoryEntity> categories) {
+  Widget _buildCategoriesList(
+    BuildContext context,
+    List<CategoryEntity> categories,
+  ) {
     if (categories.isEmpty) {
-      return const Center(child: TextWidget(text: 'لا يوجد أصناف مطابقة')); 
+      return const Center(child: TextWidget(text: 'لا يوجد أصناف مطابقة'));
     }
     final colors = ColorScheme.of(context);
     final textTheme = Theme.of(context).textTheme;
     return Column(
       children: [
-        Table(
+        fluent.Table(
           border: TableBorder.all(width: 0.5, color: colors.outline),
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           columnWidths: const {
@@ -165,7 +178,9 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
           },
           children: [
             TableRow(
-              decoration: BoxDecoration(color: colors.primary.withAlpha((0.10 * 255).round())),
+              decoration: BoxDecoration(
+                color: colors.primary.withAlpha((0.10 * 255).round()),
+              ),
               children: const [
                 Padding(
                   padding: EdgeInsets.all(8.0),
@@ -185,7 +200,10 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: fluent.Text('نوع التعريف', textAlign: TextAlign.center),
+                  child: fluent.Text(
+                    'نوع التعريف',
+                    textAlign: TextAlign.center,
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
@@ -201,7 +219,7 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
             itemCount: categories.length,
             itemBuilder: (context, index) {
               final category = categories[index];
-              return Table(
+              return fluent.Table(
                 border: TableBorder.all(width: 0.5, color: colors.outline),
                 defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                 columnWidths: const {
@@ -220,27 +238,50 @@ class _CategoriesDashboardCategoriesTabState extends State<CategoriesDashboardCa
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: fluent.Text('${index + 1}', textAlign: TextAlign.center, style: textTheme.bodyMedium),
+                        child: fluent.Text(
+                          '${index + 1}',
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyMedium,
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: fluent.Text(category.categoryNumber, textAlign: TextAlign.center, style: textTheme.bodyMedium),
+                        child: fluent.Text(
+                          category.categoryNumber,
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyMedium,
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: fluent.Text(category.categoryName, style: textTheme.bodyMedium),
+                        child: fluent.Text(
+                          category.categoryName,
+                          style: textTheme.bodyMedium,
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: fluent.Text(category.categoryUnit?.unitName ?? 'غير معرف', textAlign: TextAlign.center, style: textTheme.bodyMedium),
+                        child: fluent.Text(
+                          category.categoryUnit?.unitName ?? 'غير معرف',
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyMedium,
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: fluent.Text(category.categoryType.displayName(), textAlign: TextAlign.center, style: textTheme.bodyMedium),
+                        child: fluent.Text(
+                          category.categoryType.displayName(),
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyMedium,
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: fluent.Text(category.barcode ?? 'غير معرف', textAlign: TextAlign.center, style: textTheme.bodyMedium),
+                        child: fluent.Text(
+                          category.barcode ?? 'غير معرف',
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyMedium,
+                        ),
                       ),
                     ],
                   ),
@@ -258,10 +299,12 @@ class CategoriesDashboardSubcategoriesTab extends StatefulWidget {
   const CategoriesDashboardSubcategoriesTab({super.key});
 
   @override
-  State<CategoriesDashboardSubcategoriesTab> createState() => _CategoriesDashboardSubcategoriesTabState();
+  State<CategoriesDashboardSubcategoriesTab> createState() =>
+      _CategoriesDashboardSubcategoriesTabState();
 }
 
-class _CategoriesDashboardSubcategoriesTabState extends State<CategoriesDashboardSubcategoriesTab> {
+class _CategoriesDashboardSubcategoriesTabState
+    extends State<CategoriesDashboardSubcategoriesTab> {
   late Future<_SubcategoriesTabData> _future;
 
   @override
@@ -283,7 +326,8 @@ class _CategoriesDashboardSubcategoriesTabState extends State<CategoriesDashboar
     final mainCategoriesResult = await sl<GetAllMainCategoriesUseCase>()();
     final mainCategoryMap = <int, String>{};
     if (mainCategoriesResult.isRight()) {
-      for (final MainCategoryEntity mainCategory in mainCategoriesResult.getOrElse((_) => const [])) {
+      for (final MainCategoryEntity mainCategory
+          in mainCategoriesResult.getOrElse((_) => const [])) {
         mainCategoryMap[mainCategory.id] = mainCategory.name;
       }
     }
@@ -303,7 +347,9 @@ class _CategoriesDashboardSubcategoriesTabState extends State<CategoriesDashboar
           return const Center(child: fluent.ProgressRing());
         }
         if (snapshot.hasError || snapshot.data == null) {
-          return const Center(child: TextWidget(text: 'حدث خطأ أثناء تحميل الأصناف الفرعية'));
+          return const Center(
+            child: TextWidget(text: 'حدث خطأ أثناء تحميل الأصناف الفرعية'),
+          );
         }
 
         final data = snapshot.data!;
@@ -312,7 +358,7 @@ class _CategoriesDashboardSubcategoriesTabState extends State<CategoriesDashboar
         }
 
         if (data.subcategories.isEmpty) {
-          return const Center(child: TextWidget(text: 'لا يوجد أصناف فرعية')); 
+          return const Center(child: TextWidget(text: 'لا يوجد أصناف فرعية'));
         }
 
         return ListView.separated(
@@ -321,7 +367,9 @@ class _CategoriesDashboardSubcategoriesTabState extends State<CategoriesDashboar
           separatorBuilder: (context, index) => const Divider(height: 1),
           itemBuilder: (context, index) {
             final subcategory = data.subcategories[index];
-            final mainName = data.mainCategoryNames[subcategory.mainCategoryId] ?? 'غير معروف';
+            final mainName =
+                data.mainCategoryNames[subcategory.mainCategoryId] ??
+                'غير معروف';
             return ListTile(
               title: fluent.Text(subcategory.catalogName),
               subtitle: fluent.Text('الصنف الرئيسي: $mainName'),
@@ -339,22 +387,26 @@ class _SubcategoriesTabData {
   final Map<int, String> mainCategoryNames;
   final String? failureMessage;
 
-  const _SubcategoriesTabData.success(this.subcategories, this.mainCategoryNames)
-      : failureMessage = null;
+  const _SubcategoriesTabData.success(
+    this.subcategories,
+    this.mainCategoryNames,
+  ) : failureMessage = null;
 
   const _SubcategoriesTabData.failure(this.failureMessage)
-      : subcategories = const [],
-        mainCategoryNames = const {};
+    : subcategories = const [],
+      mainCategoryNames = const {};
 }
 
 class CategoriesDashboardMainCategoriesTab extends StatefulWidget {
   const CategoriesDashboardMainCategoriesTab({super.key});
 
   @override
-  State<CategoriesDashboardMainCategoriesTab> createState() => _CategoriesDashboardMainCategoriesTabState();
+  State<CategoriesDashboardMainCategoriesTab> createState() =>
+      _CategoriesDashboardMainCategoriesTabState();
 }
 
-class _CategoriesDashboardMainCategoriesTabState extends State<CategoriesDashboardMainCategoriesTab> {
+class _CategoriesDashboardMainCategoriesTabState
+    extends State<CategoriesDashboardMainCategoriesTab> {
   final searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -385,33 +437,43 @@ class _CategoriesDashboardMainCategoriesTabState extends State<CategoriesDashboa
             TextField(
               controller: searchController,
               decoration: const InputDecoration(
-                prefixIcon: Icon(fluent.FluentIcons.search),
+                prefixIcon: fluent.Icon(fluent.FluentIcons.search),
                 hintText: 'ابحث عن صنف رئيسي هنا',
-                
               ),
             ),
             const SizedBox(height: 12),
             Expanded(
               child: BlocBuilder<MainCategoriesBloc, MainCategoriesState>(
                 builder: (context, state) {
-                  if (state is MainCategoriesLoadInProgress || state is MainCategoriesInitial) {
+                  if (state is MainCategoriesLoadInProgress ||
+                      state is MainCategoriesInitial) {
                     return const Center(child: fluent.ProgressRing());
                   }
                   if (state is MainCategoriesOperationFailure) {
-                    return Center(child: TextWidget(text: state.message ?? 'فشل تحميل الأصناف الرئيسية'));
+                    return Center(
+                      child: TextWidget(
+                        text: state.message ?? 'فشل تحميل الأصناف الرئيسية',
+                      ),
+                    );
                   }
                   if (state is MainCategoriesLoadSuccess) {
                     final categories = _searchQuery.isEmpty
                         ? state.mainCategories
                         : state.mainCategories
-                            .where((category) => category.name.contains(_searchQuery))
-                            .toList();
+                              .where(
+                                (category) =>
+                                    category.name.contains(_searchQuery),
+                              )
+                              .toList();
                     if (categories.isEmpty) {
-                      return const Center(child: TextWidget(text: 'لا يوجد أصناف رئيسية مطابقة'));
+                      return const Center(
+                        child: TextWidget(text: 'لا يوجد أصناف رئيسية مطابقة'),
+                      );
                     }
                     return ListView.separated(
                       itemCount: categories.length,
-                      separatorBuilder: (context, index) => const Divider(height: 1),
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final category = categories[index];
                         return ListTile(
@@ -422,7 +484,8 @@ class _CategoriesDashboardMainCategoriesTabState extends State<CategoriesDashboa
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => SubcategoriesPage(mainCategory: category),
+                                builder: (_) =>
+                                    SubcategoriesPage(mainCategory: category),
                               ),
                             );
                           },
@@ -430,7 +493,9 @@ class _CategoriesDashboardMainCategoriesTabState extends State<CategoriesDashboa
                       },
                     );
                   }
-                  return const Center(child: TextWidget(text: 'لا يوجد بيانات')); 
+                  return const Center(
+                    child: TextWidget(text: 'لا يوجد بيانات'),
+                  );
                 },
               ),
             ),
@@ -445,10 +510,12 @@ class CategoriesDashboardUnitsTab extends StatefulWidget {
   const CategoriesDashboardUnitsTab({super.key});
 
   @override
-  State<CategoriesDashboardUnitsTab> createState() => _CategoriesDashboardUnitsTabState();
+  State<CategoriesDashboardUnitsTab> createState() =>
+      _CategoriesDashboardUnitsTabState();
 }
 
-class _CategoriesDashboardUnitsTabState extends State<CategoriesDashboardUnitsTab> {
+class _CategoriesDashboardUnitsTabState
+    extends State<CategoriesDashboardUnitsTab> {
   final searchController = TextEditingController();
   String _searchQuery = '';
   late Future<List<UnitEntity>> _unitsFuture;
@@ -484,9 +551,8 @@ class _CategoriesDashboardUnitsTabState extends State<CategoriesDashboardUnitsTa
           TextField(
             controller: searchController,
             decoration: const InputDecoration(
-              prefixIcon: Icon(fluent.FluentIcons.search),
+              prefixIcon: fluent.Icon(fluent.FluentIcons.search),
               hintText: 'ابحث عن وحدة هنا',
-              
             ),
           ),
           const SizedBox(height: 12),
@@ -498,24 +564,33 @@ class _CategoriesDashboardUnitsTabState extends State<CategoriesDashboardUnitsTa
                   return const Center(child: fluent.ProgressRing());
                 }
                 if (snapshot.hasError) {
-                  return const Center(child: TextWidget(text: 'حدث خطأ أثناء تحميل الوحدات'));
+                  return const Center(
+                    child: TextWidget(text: 'حدث خطأ أثناء تحميل الوحدات'),
+                  );
                 }
                 final units = snapshot.data ?? const [];
                 final filtered = _searchQuery.isEmpty
                     ? units
-                    : units.where((unit) => unit.unitName.contains(_searchQuery)).toList();
+                    : units
+                          .where((unit) => unit.unitName.contains(_searchQuery))
+                          .toList();
                 if (filtered.isEmpty) {
-                  return const Center(child: TextWidget(text: 'لا يوجد وحدات مطابقة'));
+                  return const Center(
+                    child: TextWidget(text: 'لا يوجد وحدات مطابقة'),
+                  );
                 }
                 return ListView.separated(
                   itemCount: filtered.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1),
+                  separatorBuilder: (context, index) =>
+                      const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final unit = filtered[index];
                     return ListTile(
                       title: fluent.Text(unit.unitName),
                       subtitle: fluent.Text(unit.unitType.fullUnitName),
-                      trailing: fluent.Text('أبعاد: ${unit.length}×${unit.width}×${unit.thickness}'),
+                      trailing: fluent.Text(
+                        'أبعاد: ${unit.length}×${unit.width}×${unit.thickness}',
+                      ),
                     );
                   },
                 );

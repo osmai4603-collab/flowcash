@@ -6,8 +6,9 @@ import 'package:flowcash/features/system/presentation/bloc/warehouses/warehouses
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/features/system/presentation/pages/warehouses/warehouse_form_page.dart';
 
-import 'package:fluent_ui/fluent_ui.dart' show FluentIcons, InfoBar, ProgressRing, displayInfoBar;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+
 class WarehousesPage extends StatefulWidget {
   const WarehousesPage({super.key});
 
@@ -76,7 +77,7 @@ class _WarehousesPageState extends State<WarehousesPage> {
   Widget headerCell(String text, TextTheme textTheme, ColorScheme colors) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      child: Text(
+      child: fluent.Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium?.copyWith(
@@ -90,7 +91,7 @@ class _WarehousesPageState extends State<WarehousesPage> {
   Widget dataCell(String text, TextTheme textTheme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      child: Text(
+      child: fluent.Text(
         text.isEmpty ? '-' : text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium,
@@ -103,7 +104,7 @@ class _WarehousesPageState extends State<WarehousesPage> {
 
     if (items.isEmpty) {
       return Center(
-        child: Text('لا يوجد مستودعات', style: textTheme.bodyLarge),
+        child: fluent.Text('لا يوجد مستودعات', style: textTheme.bodyLarge),
       );
     }
 
@@ -113,26 +114,36 @@ class _WarehousesPageState extends State<WarehousesPage> {
           padding: const EdgeInsets.only(bottom: 12.0),
           child: Align(
             alignment: Alignment.centerRight,
-            child: FilledButton.icon(
-              onPressed: () async {
+            child: fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(fluent.FluentIcons.add),
+    const SizedBox(width: 8.0),
+    const fluent.Text('إضافة مستودع'),
+  ],
+),
+onPressed: () async {
                 final addedWarehouse = await showDialog<WarehouseEntity?>(
                   context: context,
                   builder: (context) => const WarehouseFormPage(),
                 );
                 if (addedWarehouse != null && context.mounted) {
-                  displayInfoBar(context, builder: (context, close) => InfoBar(title: const Text('تنبيه'), content: Text('تمت إضافة المستودع')));
+                  fluent.displayInfoBar(
+                    context,
+                    builder: (context, close) => fluent.InfoBar(
+                      title: const fluent.Text('تنبيه'),
+                      content: fluent.Text('تمت إضافة المستودع'),
+                    ),
+                  );
                   context.read<WarehousesBloc>().add(LoadWarehousesEvent());
                 }
               },
-              icon: const Icon(FluentIcons.add),
-              label: const Text('إضافة مستودع'),
-            ),
+),
           ),
         ),
         Expanded(
-          child: items.isEmpty
-              ? Container()
-              : buildDataGrid(context, items)
+          child: items.isEmpty ? Container() : buildDataGrid(context, items),
         ),
       ],
     );
@@ -162,11 +173,11 @@ class _WarehousesPageState extends State<WarehousesPage> {
             builder: (context) => WarehouseFormPage(initialValue: item),
           );
           if (updatedWarehouse != null && context.mounted) {
-            displayInfoBar(
+            fluent.displayInfoBar(
               context,
-              builder: (context, close) => const InfoBar(
-                title: Text('تنبيه'),
-                content: Text('تم تحديث بيانات المستودع'),
+              builder: (context, close) => const fluent.InfoBar(
+                title: fluent.Text('تنبيه'),
+                content: fluent.Text('تم تحديث بيانات المستودع'),
               ),
             );
             context.read<WarehousesBloc>().add(LoadWarehousesEvent());
@@ -205,7 +216,7 @@ class _WarehousesPageState extends State<WarehousesPage> {
       alignment: Alignment.center,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(color: colors.primaryContainer),
-      child: Text(
+      child: fluent.Text(
         text,
         textAlign: TextAlign.center,
         style: textTheme.bodyMedium?.copyWith(
@@ -221,19 +232,19 @@ class _WarehousesPageState extends State<WarehousesPage> {
     return BlocBuilder<WarehousesBloc, WarehousesState>(
       builder: (context, state) {
         if (state is WarehousesLoading) {
-          return const Center(child: ProgressRing());
+          return const Center(child: fluent.ProgressRing());
         }
         if (state is WarehousesFailure) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(state.errorMessage),
+                fluent.Text(state.errorMessage),
                 const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () =>
                       context.read<WarehousesBloc>().add(LoadWarehousesEvent()),
-                  child: const Text('إعادة المحاولة'),
+                  child: const fluent.Text('إعادة المحاولة'),
                 ),
               ],
             ),
@@ -264,17 +275,26 @@ class WarehousesDataGridSource extends DataGridSource {
     required List<WarehouseEntity> items,
     required this.textTheme,
     required this.colors,
-  })  : _items = items,
-        _dataGridRows = items.map<DataGridRow>((item) {
-          return DataGridRow(
-            cells: [
-              DataGridCell<String>(columnName: 'warehouseName', value: item.warehouseName),
-              DataGridCell<String>(columnName: 'location', value: item.location),
-              DataGridCell<String>(columnName: 'warehouseType', value: item.warehouseType.displayName()),
-              DataGridCell<String>(columnName: 'parentId', value: item.parentId?.toString() ?? ''),
-            ],
-          );
-        }).toList();
+  }) : _items = items,
+       _dataGridRows = items.map<DataGridRow>((item) {
+         return DataGridRow(
+           cells: [
+             DataGridCell<String>(
+               columnName: 'warehouseName',
+               value: item.warehouseName,
+             ),
+             DataGridCell<String>(columnName: 'location', value: item.location),
+             DataGridCell<String>(
+               columnName: 'warehouseType',
+               value: item.warehouseType.displayName(),
+             ),
+             DataGridCell<String>(
+               columnName: 'parentId',
+               value: item.parentId?.toString() ?? '',
+             ),
+           ],
+         );
+       }).toList();
 
   final TextTheme textTheme;
   final ColorScheme colors;
@@ -295,8 +315,10 @@ class WarehousesDataGridSource extends DataGridSource {
         return Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(4.0),
-          child: Text(
-            dataGridCell.value.toString().isEmpty ? '-' : dataGridCell.value.toString(),
+          child: fluent.Text(
+            dataGridCell.value.toString().isEmpty
+                ? '-'
+                : dataGridCell.value.toString(),
             overflow: TextOverflow.ellipsis,
             style: textTheme.bodyMedium,
           ),

@@ -17,42 +17,42 @@ class MainScreen extends StatelessWidget {
         displayMode: fluent.PaneDisplayMode.auto,
         items: [
           fluent.PaneItem(
-            icon: const Icon(fluent.FluentIcons.dashboard_add),
+            icon: const fluent.Icon(fluent.FluentIcons.dashboard_add),
             title: fluent.Text(HomeSection.dashboard.displayName()),
             body: navigationShell,
           ),
           fluent.PaneItem(
-            icon: const Icon(fluent.FluentIcons.settings),
+            icon: const fluent.Icon(fluent.FluentIcons.settings),
             title: fluent.Text(HomeSection.system.displayName()),
             body: navigationShell,
           ),
           fluent.PaneItem(
-            icon: const Icon(fluent.FluentIcons.storage_optical),
+            icon: const fluent.Icon(fluent.FluentIcons.storage_optical),
             title: fluent.Text(HomeSection.databaseAdmin.displayName()),
             body: navigationShell,
           ),
           fluent.PaneItem(
-            icon: const Icon(fluent.FluentIcons.people),
+            icon: const fluent.Icon(fluent.FluentIcons.people),
             title: fluent.Text(HomeSection.accounts.displayName()),
             body: navigationShell,
           ),
           fluent.PaneItem(
-            icon: const Icon(fluent.FluentIcons.shopping_cart),
+            icon: const fluent.Icon(fluent.FluentIcons.shopping_cart),
             title: fluent.Text(HomeSection.inventory.displayName()),
             body: navigationShell,
           ),
           fluent.PaneItem(
-            icon: const Icon(fluent.FluentIcons.category_classification),
+            icon: const fluent.Icon(fluent.FluentIcons.category_classification),
             title: fluent.Text(HomeSection.categories.displayName()),
             body: navigationShell,
           ),
           fluent.PaneItem(
-            icon: const Icon(fluent.FluentIcons.payment_card),
+            icon: const fluent.Icon(fluent.FluentIcons.payment_card),
             title: fluent.Text(HomeSection.transactions.displayName()),
             body: navigationShell,
           ),
           fluent.PaneItem(
-            icon: const Icon(fluent.FluentIcons.settings),
+            icon: const fluent.Icon(fluent.FluentIcons.settings),
             title: fluent.Text(HomeSection.settings.displayName()),
             body: navigationShell,
           ),

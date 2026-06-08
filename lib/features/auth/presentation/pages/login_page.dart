@@ -9,6 +9,7 @@ import '../bloc/session/session_event.dart';
 import '../bloc/session/session_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -41,20 +42,32 @@ class _LoginPageState extends State<LoginPage> {
           child: BlocConsumer<SessionBloc, SessionState>(
             listener: (context, state) {
               if (state.status == SessionStatus.authenticated) {
-                fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(
+                fluent.displayInfoBar(
+                  context,
+                  builder: (context, close) => fluent.InfoBar(
+                    title: const fluent.Text('تنبيه'),
+                    content: fluent.Text(
                       'مرحباً بك ${state.currentUser?.userName}!',
                       textAlign: TextAlign.right,
                       style: TextTheme.of(context).titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: colors.onTertiary,
                       ),
-                    )));
+                    ),
+                  ),
+                );
               }
               if (state.status == SessionStatus.failure) {
-                fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: SelectableText(
+                fluent.displayInfoBar(
+                  context,
+                  builder: (context, close) => fluent.InfoBar(
+                    title: const fluent.Text('تنبيه'),
+                    content: SelectableText(
                       state.errorMessage ?? 'فشل تسجيل الدخول',
                       textAlign: TextAlign.right,
-                    )));
+                    ),
+                  ),
+                );
               }
             },
             builder: (context, state) {
@@ -67,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // شعار أو عنوان
-                    // const Icon(
+                    // const fluent.Icon(
                     //   FluentIcons.payment_card,
                     //   size: 80,
                     //   color: Colors.blue,
@@ -118,8 +131,7 @@ class _LoginPageState extends State<LoginPage> {
                                 textInputAction: TextInputAction.next,
                                 decoration: const InputDecoration(
                                   labelText: 'اسم المستخدم',
-                                  prefixIcon: Icon(Icons.person),
-                                  
+                                  prefixIcon: fluent.Icon(Icons.person),
                                 ),
                                 textAlign: TextAlign.right,
                                 validator: (value) => value?.isEmpty == true
@@ -133,7 +145,7 @@ class _LoginPageState extends State<LoginPage> {
                                 onFieldSubmitted: (_) => _onLoginPressed(),
                                 decoration: const InputDecoration(
                                   labelText: 'كلمة المرور',
-                                  prefixIcon: Icon(Icons.lock),
+                                  prefixIcon: fluent.Icon(Icons.lock),
                                   hintText: 'ادخل كلمة المرور',
                                 ),
                                 obscureText: true,
@@ -148,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                               else
                                 fluent.FilledButton(
                                   onPressed: _onLoginPressed,
-                                  
+
                                   child: const fluent.Text(
                                     'دخول',
                                     style: TextStyle(
@@ -179,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
                     //     children: state.users.map((user) {
                     //       return ActionChip(
                     //         label: fluent.Text(user.userName),
-                    //         avatar: const Icon(fluent.FluentIcons.personalize, size: 16),
+                    //         avatar: const fluent.Icon(fluent.FluentIcons.personalize, size: 16),
                     //         onPressed: () {
                     //           _userNameController.text = user.userName;
                     //         },

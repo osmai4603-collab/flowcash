@@ -18,7 +18,10 @@ class ReportsTab extends StatelessWidget {
 
     return BlocBuilder<BillsBloc, BillsState>(
       builder: (context, billsState) {
-        return BlocBuilder<FinancialTransactionsBloc, FinancialTransactionsState>(
+        return BlocBuilder<
+          FinancialTransactionsBloc,
+          FinancialTransactionsState
+        >(
           builder: (context, transState) {
             // Calculations
             double totalSales = 0.0;
@@ -51,7 +54,8 @@ class ReportsTab extends StatelessWidget {
               }
             }
 
-            final double netCashFlow = (totalSales + totalRevenues) - (totalPurchases + totalExpenses);
+            final double netCashFlow =
+                (totalSales + totalRevenues) - (totalPurchases + totalExpenses);
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -60,10 +64,12 @@ class ReportsTab extends StatelessWidget {
                 children: [
                   TextWidget(
                     text: '📊 لوحة الملخص المالي العام',
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Summary cards grid
                   LayoutBuilder(
                     builder: (context, constraints) {
@@ -113,7 +119,9 @@ class ReportsTab extends StatelessWidget {
                   // Net Income Card
                   Card(
                     elevation: 6,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
@@ -129,12 +137,20 @@ class ReportsTab extends StatelessWidget {
                         children: [
                           const fluent.Text(
                             'صافي التدفق المالي (الربح / الخسارة التقريبية)',
-                            style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 8),
                           fluent.Text(
                             '$netCashFlow \$',
-                            style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -170,7 +186,10 @@ class ReportsTab extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: isDark
-                ? [theme.colorScheme.surface, theme.colorScheme.surface.withAlpha(200)]
+                ? [
+                    theme.colorScheme.surface,
+                    theme.colorScheme.surface.withAlpha(200),
+                  ]
                 : [Colors.white, Colors.grey.shade50],
           ),
         ),
@@ -183,12 +202,16 @@ class ReportsTab extends StatelessWidget {
               children: [
                 fluent.Text(
                   title,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 CircleAvatar(
                   backgroundColor: color.withAlpha(30),
                   radius: 18,
-                  child: Icon(icon, color: color, size: 18),
+                  child: fluent.Icon(icon, color: color, size: 18),
                 ),
               ],
             ),

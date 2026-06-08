@@ -154,7 +154,6 @@ class _ComboBoxFormState<T extends Object> extends State<ComboBoxForm<T>>
             validator: widget.validator,
             placeholder: widget.placeHolder,
             prefix: widget.prefix,
-
           ),
         ),
       ),
@@ -203,7 +202,7 @@ class _ComboBoxFormState<T extends Object> extends State<ComboBoxForm<T>>
                         color: _selectedIndex == index ? color : null,
                         padding: const EdgeInsets.all(4.5),
                         child: widget.itemViewBuilder == null
-                            ? Text(
+                            ? fluent.Text(
                                 widget.labelMenu(_suggestions[index]),
                                 style: widget.style,
                               )

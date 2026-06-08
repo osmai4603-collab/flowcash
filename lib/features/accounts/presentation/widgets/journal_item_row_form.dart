@@ -207,12 +207,15 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
           const SizedBox(width: 8),
 
           // 5. Delete Button
-          IconButton(
-            icon: const fluent.Icon(
-              fluent.FluentIcons.delete,
-              color: Colors.red,
+          fluent.Tooltip(
+            message: 'حذف البند',
+            child: fluent.IconButton(
+              icon: const fluent.Icon(
+                fluent.FluentIcons.delete,
+                color: Colors.red,
+              ),
+              onPressed: widget.canDelete ? widget.onDelete : null,
             ),
-            onPressed: widget.canDelete ? widget.onDelete : null,
           ),
         ],
       ),

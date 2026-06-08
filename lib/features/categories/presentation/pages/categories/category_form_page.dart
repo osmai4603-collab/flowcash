@@ -117,10 +117,12 @@ class _CategoryFormPageState extends State<_CategoryForm> {
           ),
           title: Row(
             children: [
-              IconButton(
-                icon: Icon(fluent.FluentIcons.back_to_window),
-                tooltip: 'رجوع',
-                onPressed: _onBackPressed,
+              fluent.Tooltip(
+                message: 'رجوع',
+                child: fluent.IconButton(
+                  icon: fluent.Icon(fluent.FluentIcons.back_to_window),
+                  onPressed: _onBackPressed,
+                ),
               ),
               Expanded(
                 child: Padding(
@@ -132,10 +134,12 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                   ),
                 ),
               ),
-              IconButton(
-                icon: Icon(fluent.FluentIcons.save),
-                tooltip: 'حفظ البيانات',
-                onPressed: () => _onSaveButtonClicked(context),
+              fluent.Tooltip(
+                message: 'حفظ البيانات',
+                child: fluent.IconButton(
+                  icon: fluent.Icon(fluent.FluentIcons.save),
+                  onPressed: () => _onSaveButtonClicked(context),
+                ),
               ),
             ],
           ),
@@ -195,7 +199,9 @@ class _CategoryFormPageState extends State<_CategoryForm> {
 
                             prefix: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Icon(fluent.FluentIcons.category_classification),
+                              child: fluent.Icon(
+                                fluent.FluentIcons.category_classification,
+                              ),
                             ),
                           ),
                         ),
@@ -214,14 +220,14 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   cursorHeight: 20.0,
                                   textDirection: .ltr,
                                   validator: categoryNumberValidator,
-                                  suffix: Tooltip(
+                                  suffix: fluent.Tooltip(
                                     message: 'تحديث رقم الصنف',
-                                    child: IconButton(
-                                      iconSize: 20,
+                                    child: fluent.IconButton(
                                       onPressed: _generateCategoryNumber,
-                                      icon: Icon(
+                                      icon: fluent.Icon(
                                         fluent.FluentIcons.refresh,
                                         color: colors.onSurfaceVariant,
+                                        size: 20,
                                       ),
                                     ),
                                   ),
@@ -233,10 +239,14 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                 label: 'الباركود',
                                 child: fluent.TextFormBox(
                                   placeholder: 'ادخل رمز الباركود',
-                                  prefix: IconButton(
-                                    icon: Icon(fluent.FluentIcons.q_r_code),
-                                    tooltip: 'قراء ماسح الباركود',
-                                    onPressed: _scanBarcode,
+                                  prefix: fluent.Tooltip(
+                                    message: 'قراء ماسح الباركود',
+                                    child: fluent.IconButton(
+                                      icon: fluent.Icon(
+                                        fluent.FluentIcons.q_r_code,
+                                      ),
+                                      onPressed: _scanBarcode,
+                                    ),
                                   ),
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.number,
@@ -277,14 +287,14 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                         style: textTheme.labelMedium,
                                       ),
                                       isExpanded: true,
-                                      icon: Icon(
+                                      icon: fluent.Icon(
                                         fluent.FluentIcons.chevron_down,
                                         color: colors.onSurfaceVariant,
                                       ),
 
                                       style: textTheme.bodyLarge,
                                       items: state.units.map((unit) {
-                                        return fluent.  ComboBoxItem<UnitEntity>(
+                                        return fluent.ComboBoxItem<UnitEntity>(
                                           value: unit,
                                           child: Row(
                                             mainAxisAlignment:
@@ -326,11 +336,11 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                               Expanded(
                                 child: fluent.InfoLabel(
                                   label: 'النوع',
-                                  child:  fluent.ComboBox<CategoryDefineType>(
+                                  child: fluent.ComboBox<CategoryDefineType>(
                                     value: state.selectedCategoryType,
 
                                     isExpanded: true,
-                                    icon: Icon(
+                                    icon: fluent.Icon(
                                       fluent.FluentIcons.chevron_down,
                                       color: colors.onSurfaceVariant,
                                     ),
@@ -338,7 +348,9 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                     items: CategoryDefineType.values.map((
                                       categoryType,
                                     ) {
-                                      return fluent.  ComboBoxItem<CategoryDefineType>(
+                                      return fluent.ComboBoxItem<
+                                        CategoryDefineType
+                                      >(
                                         value: categoryType,
                                         child: fluent.Text(
                                           categoryType.displayName(),

@@ -7,6 +7,8 @@ class OpeningQuantityEntity extends Entity {
   final DateTime createdAt;
   final double costTotal;
   final int periodId;
+  final String? currencyId;
+  final int? journalEntryId;
 
   const OpeningQuantityEntity({
     required this.id,
@@ -15,10 +17,21 @@ class OpeningQuantityEntity extends Entity {
     required this.createdAt,
     this.costTotal = 0.0,
     this.periodId = 0,
+    this.currencyId,
+    this.journalEntryId,
   });
 
   @override
-  List<Object?> get props => [id, inventoryId, countUnits, createdAt, costTotal, periodId];
+  List<Object?> get props => [
+        id,
+        inventoryId,
+        countUnits,
+        createdAt,
+        costTotal,
+        periodId,
+        currencyId,
+        journalEntryId,
+      ];
 
   @override
   OpeningQuantityEntity copyWith({
@@ -28,6 +41,8 @@ class OpeningQuantityEntity extends Entity {
     DateTime? createdAt,
     double? costTotal,
     int? periodId,
+    String? currencyId,
+    int? journalEntryId,
   }) {
     return OpeningQuantityEntity(
       id: id ?? this.id,
@@ -36,6 +51,8 @@ class OpeningQuantityEntity extends Entity {
       createdAt: createdAt ?? this.createdAt,
       costTotal: costTotal ?? this.costTotal,
       periodId: periodId ?? this.periodId,
+      currencyId: currencyId ?? this.currencyId,
+      journalEntryId: journalEntryId ?? this.journalEntryId,
     );
   }
 }

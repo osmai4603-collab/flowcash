@@ -83,12 +83,12 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                       decoration: InputDecoration(
                                         labelText: 'من تاريخ',
                                         border: const OutlineInputBorder(),
-                                        prefixIcon: const Icon(
+                                        prefixIcon: const fluent.Icon(
                                           fluent.FluentIcons.calendar_settings,
                                         ),
                                         suffixIcon: _startDate != null
-                                            ? IconButton(
-                                                icon: const Icon(
+                                            ? fluent.IconButton(
+                                                icon: const fluent.Icon(
                                                   fluent.FluentIcons.clear,
                                                   size: 18,
                                                 ),
@@ -121,12 +121,12 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                       decoration: InputDecoration(
                                         labelText: 'إلى تاريخ',
                                         border: const OutlineInputBorder(),
-                                        prefixIcon: const Icon(
+                                        prefixIcon: const fluent.Icon(
                                           fluent.FluentIcons.calendar_settings,
                                         ),
                                         suffixIcon: _endDate != null
-                                            ? IconButton(
-                                                icon: const Icon(
+                                            ? fluent.IconButton(
+                                                icon: const fluent.Icon(
                                                   fluent.FluentIcons.clear,
                                                   size: 18,
                                                 ),
@@ -151,7 +151,17 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                 const SizedBox(width: 16),
 
                                 // Load button
-                                ElevatedButton.icon(
+                                fluent.FilledButton(
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const fluent.Icon(
+                                        fluent.FluentIcons.chart,
+                                      ),
+                                      const SizedBox(width: 8.0),
+                                      const fluent.Text('عرض التقرير'),
+                                    ],
+                                  ),
                                   onPressed: () {
                                     context.read<GroupBalancesBloc>().add(
                                       LoadGroupBalances(
@@ -160,35 +170,25 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                       ),
                                     );
                                   },
-                                  icon: const Icon(fluent.FluentIcons.chart),
-                                  label: const fluent.Text('عرض التقرير'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: theme.colorScheme.primary,
-                                    foregroundColor:
-                                        theme.colorScheme.onPrimary,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                      vertical: 18,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
                                 ),
                                 const SizedBox(width: 8),
 
                                 // Refresh Button
-                                IconButton(
-                                  icon: const Icon(fluent.FluentIcons.refresh),
-                                  tooltip: 'إعادة تحميل البيانات',
-                                  onPressed: () {
-                                    context.read<GroupBalancesBloc>().add(
-                                      LoadGroupBalances(
-                                        startDate: _startDate,
-                                        endDate: _endDate,
-                                      ),
-                                    );
-                                  },
+                                fluent.Tooltip(
+                                  message: 'إعادة تحميل البيانات',
+                                  child: fluent.IconButton(
+                                    icon: const fluent.Icon(
+                                      fluent.FluentIcons.refresh,
+                                    ),
+                                    onPressed: () {
+                                      context.read<GroupBalancesBloc>().add(
+                                        LoadGroupBalances(
+                                          startDate: _startDate,
+                                          endDate: _endDate,
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ],
                             ),
@@ -320,7 +320,7 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                 fontSize: 16,
                               ),
                             ),
-                            Icon(
+                            fluent.Icon(
                               fluent.FluentIcons.folder,
                               color: theme.colorScheme.primary.withAlpha(180),
                               size: 20,
@@ -357,7 +357,10 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
         // Detail Table Title
         Row(
           children: [
-            Icon(fluent.FluentIcons.list, color: theme.colorScheme.primary),
+            fluent.Icon(
+              fluent.FluentIcons.list,
+              color: theme.colorScheme.primary,
+            ),
             const SizedBox(width: 8),
             fluent.Text(
               _selectedGroupFilter == null

@@ -14,6 +14,7 @@ import 'package:flowcash/core/theme/styles.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class MainCategoryUnitDataPage extends StatefulWidget {
   final MainCategoryEntity mainCategory;
   const MainCategoryUnitDataPage({super.key, required this.mainCategory});
@@ -121,20 +122,24 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                 children: [
                   Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(fluent.FluentIcons.back),
-                        tooltip: 'رجوع',
-                        onPressed: _onBackPressed,
+                      fluent.Tooltip(
+                        message: 'رجوع',
+                        child: fluent.IconButton(
+                          icon: const fluent.Icon(fluent.FluentIcons.back),
+                          onPressed: _onBackPressed,
+                        ),
                       ),
                       const TextWidget(
                         text: 'بيانات الصنف الرئيسي',
                         expanded: true,
                         alignment: Alignment.center,
                       ),
-                      IconButton(
-                        icon: const Icon(fluent.FluentIcons.save),
-                        tooltip: 'حفظ البيانات',
-                        onPressed: () => _onSaveButtonClicked(context),
+                      fluent.Tooltip(
+                        message: 'حفظ البيانات',
+                        child: fluent.IconButton(
+                          icon: const fluent.Icon(fluent.FluentIcons.save),
+                          onPressed: () => _onSaveButtonClicked(context),
+                        ),
                       ),
                     ],
                   ),
@@ -164,7 +169,8 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                         color: colors.primary,
                       ),
 
-                      prefixIcon: Icon(fluent.FluentIcons.category_classification,
+                      prefixIcon: fluent.Icon(
+                        fluent.FluentIcons.category_classification,
                         color: colors.primary,
                       ),
                     ),
@@ -185,7 +191,9 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                           items: state.properties.map((property) {
                             return DropdownMenuItem<CategoryPropertyEntity>(
                               value: property,
-                              child: fluent.Text(property.unitType.fullUnitName),
+                              child: fluent.Text(
+                                property.unitType.fullUnitName,
+                              ),
                             );
                           }).toList(),
                           onChanged: (belongGroup) {

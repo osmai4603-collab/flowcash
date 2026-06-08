@@ -18,7 +18,8 @@ class DepositsWithdrawalsTab extends StatefulWidget {
 }
 
 class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
-  bool _isWithdrawFilter = false; // false = Deposits (deposits), true = Withdrawals (withdraws)
+  bool _isWithdrawFilter =
+      false; // false = Deposits (deposits), true = Withdrawals (withdraws)
   String _searchQuery = '';
   final _searchController = TextEditingController();
 
@@ -34,15 +35,16 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
   Widget build(BuildContext context) {
     return BlocBuilder<FinancialTransactionsBloc, FinancialTransactionsState>(
       builder: (context, state) {
-        if (state.status == FinancialTransactionsStatus.loading && state.transactions.isEmpty) {
+        if (state.status == FinancialTransactionsStatus.loading &&
+            state.transactions.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
 
         final filteredList = state.transactions.where((t) {
-          final isTargetType = _isWithdrawFilter 
+          final isTargetType = _isWithdrawFilter
               ? t.historyGroup == HistoriesGroup.withdraws
               : t.historyGroup == HistoriesGroup.deposits;
-          
+
           if (!isTargetType) return false;
 
           if (_searchQuery.isEmpty) return true;
@@ -60,14 +62,24 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
                   // Segmented Switch
                   SegmentedButton<bool>(
                     segments: const [
-                      ButtonSegment(value: false, label: fluent.Text('عمليات الإيداع'), icon: Icon(Icons.move_to_inbox)),
-                      ButtonSegment(value: true, label: fluent.Text('عمليات السحب'), icon: Icon(Icons.build)),
+                      ButtonSegment(
+                        value: false,
+                        label: fluent.Text('عمليات الإيداع'),
+                        icon: fluent.Icon(Icons.move_to_inbox),
+                      ),
+                      ButtonSegment(
+                        value: true,
+                        label: fluent.Text('عمليات السحب'),
+                        icon: fluent.Icon(Icons.build),
+                      ),
                     ],
                     selected: {_isWithdrawFilter},
                     onSelectionChanged: (val) {
                       setState(() {
                         _isWithdrawFilter = val.first;
-                        context.read<FinancialTransactionsBloc>().add(const SelectFinancialTransactionEvent(null));
+                        context.read<FinancialTransactionsBloc>().add(
+                          const SelectFinancialTransactionEvent(null),
+                        );
                       });
                     },
                   ),
@@ -78,7 +90,7 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
                       controller: _searchController,
                       decoration: InputDecoration(
                         hintText: 'البحث عن عملية...',
-                        prefixIcon: const Icon(Icons.search),
+                        prefixIcon: const fluent.Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -92,15 +104,15 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
                   ),
                   const SizedBox(width: 16),
                   // Add Button
-                  ElevatedButton.icon(
-                    onPressed: () => _showAddTransactionContentDialog(context),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  fluent.FilledButton(
+child: const fluent.Icon(Icons.add),
+onPressed: () => _showAddTransactionContentDialog(context),
+label: fluent.Text(
+                      _isWithdrawFilter
+                          ? 'إضافة عملية سحب جديدة'
+                          : 'إضافة عملية إيداع جديدة',
                     ),
-                    icon: const Icon(Icons.add),
-                    label: fluent.Text(_isWithdrawFilter ? 'إضافة عملية سحب جديدة' : 'إضافة عملية إيداع جديدة'),
-                  ),
+),
                 ],
               ),
             ),
@@ -113,15 +125,26 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
                       children: [
                         Expanded(
                           flex: 6,
-                          child: _buildList(context, filteredList, state.selectedTransaction),
+                          child: _buildList(
+                            context,
+                            filteredList,
+                            state.selectedTransaction,
+                          ),
                         ),
                         Expanded(
                           flex: 4,
-                          child: _buildDetailsPanel(context, state.selectedTransaction),
+                          child: _buildDetailsPanel(
+                            context,
+                            state.selectedTransaction,
+                          ),
                         ),
                       ],
                     )
-                  : _buildList(context, filteredList, state.selectedTransaction),
+                  : _buildList(
+                      context,
+                      filteredList,
+                      state.selectedTransaction,
+                    ),
             ),
           ],
         );
@@ -151,16 +174,25 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: isSelected
-                ? BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
+                ? BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 2,
+                  )
                 : BorderSide.none,
           ),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
             title: TextWidget(
-              text: '${_isWithdrawFilter ? "عملية سحب" : "عملية إيداع"} رقم #${t.billNumber}',
+              text:
+                  '${_isWithdrawFilter ? "عملية سحب" : "عملية إيداع"} رقم #${t.billNumber}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: fluent.Text('التاريخ: ${t.createdAt.toString().split(' ')[0]} | البيان: ${t.note ?? "بدون بيان"}'),
+            subtitle: fluent.Text(
+              'التاريخ: ${t.createdAt.toString().split(' ')[0]} | البيان: ${t.note ?? "بدون بيان"}',
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -168,28 +200,43 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
                   '${t.offerAmount} \$',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: _isWithdrawFilter ? Colors.red.shade700 : Colors.teal.shade700,
+                    color: _isWithdrawFilter
+                        ? Colors.red.shade700
+                        : Colors.teal.shade700,
                     fontSize: 16,
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward, size: 16),
+                const fluent.Icon(Icons.arrow_forward, size: 16),
               ],
             ),
             onTap: () {
-              context.read<FinancialTransactionsBloc>().add(SelectFinancialTransactionEvent(t));
+              context.read<FinancialTransactionsBloc>().add(
+                SelectFinancialTransactionEvent(t),
+              );
               if (!isDesktop) {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (blocContext) => Scaffold(
-                      appBar: AppBar(title: fluent.Text('${_isWithdrawFilter ? "عملية سحب" : "عملية إيداع"} #${t.billNumber}')),
+                      appBar: AppBar(
+                        title: fluent.Text(
+                          '${_isWithdrawFilter ? "عملية سحب" : "عملية إيداع"} #${t.billNumber}',
+                        ),
+                      ),
                       body: BlocProvider.value(
                         value: context.read<FinancialTransactionsBloc>(),
-                        child: BlocBuilder<FinancialTransactionsBloc, FinancialTransactionsState>(
-                          builder: (context, state) {
-                            return _buildDetailsPanel(context, state.selectedTransaction);
-                          },
-                        ),
+                        child:
+                            BlocBuilder<
+                              FinancialTransactionsBloc,
+                              FinancialTransactionsState
+                            >(
+                              builder: (context, state) {
+                                return _buildDetailsPanel(
+                                  context,
+                                  state.selectedTransaction,
+                                );
+                              },
+                            ),
                       ),
                     ),
                   ),
@@ -202,7 +249,10 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
     );
   }
 
-  Widget _buildDetailsPanel(BuildContext context, FinancialTransactionEntity? t) {
+  Widget _buildDetailsPanel(
+    BuildContext context,
+    FinancialTransactionEntity? t,
+  ) {
     if (t == null) {
       return const Center(
         child: TextWidget(
@@ -228,21 +278,34 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
               children: [
                 fluent.Text(
                   'تفاصيل العملية المالي #${t.billNumber}',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _confirmDelete(context, t.id),
+                fluent.Tooltip(
+                  message: 'حذف العملية',
+                  child: fluent.IconButton(
+                    icon: const fluent.Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _confirmDelete(context, t.id),
+                  ),
                 ),
               ],
             ),
             const Divider(),
             const SizedBox(height: 12),
             _buildInfoRow('المبلغ:', '${t.offerAmount} \$'),
-            _buildInfoRow('النوع:', t.historyGroup == HistoriesGroup.withdraws ? 'عملية سحب' : 'عملية إيداع'),
+            _buildInfoRow(
+              'النوع:',
+              t.historyGroup == HistoriesGroup.withdraws
+                  ? 'عملية سحب'
+                  : 'عملية إيداع',
+            ),
             _buildInfoRow('التاريخ:', t.createdAt.toString()),
             if (t.note != null) _buildInfoRow('البيان:', t.note!),
-            _buildInfoRow('رقم الحساب المرتبط (الصندوق/البنك):', 'حساب #${t.hintId}'),
+            _buildInfoRow(
+              'رقم الحساب المرتبط (الصندوق/البنك):',
+              'حساب #${t.hintId}',
+            ),
           ],
         ),
       ),
@@ -256,7 +319,10 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           fluent.Text(label, style: const TextStyle(color: Colors.grey)),
-          fluent.Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          fluent.Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
@@ -267,7 +333,9 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const fluent.Text('حذف العملية'),
-        content: const fluent.Text('هل أنت متأكد من رغبتك في حذف هذه العملية نهائياً؟'),
+        content: const fluent.Text(
+          'هل أنت متأكد من رغبتك في حذف هذه العملية نهائياً؟',
+        ),
         actions: [
           fluent.Button(
             onPressed: () => Navigator.pop(dialogContext),
@@ -275,7 +343,9 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
           ),
           fluent.FilledButton(
             onPressed: () {
-              context.read<FinancialTransactionsBloc>().add(DeleteFinancialTransactionEvent(id));
+              context.read<FinancialTransactionsBloc>().add(
+                DeleteFinancialTransactionEvent(id),
+              );
               Navigator.pop(dialogContext);
             },
             child: const fluent.Text('حذف'),
@@ -294,7 +364,11 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: fluent.Text(_isWithdrawFilter ? 'إضافة عملية سحب جديدة' : 'إضافة عملية إيداع جديدة'),
+        title: fluent.Text(
+          _isWithdrawFilter
+              ? 'إضافة عملية سحب جديدة'
+              : 'إضافة عملية إيداع جديدة',
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -312,11 +386,15 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
               TextField(
                 controller: hintIdController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'رقم حساب الصندوق/البنك (hintId)'),
+                decoration: const InputDecoration(
+                  labelText: 'رقم حساب الصندوق/البنك (hintId)',
+                ),
               ),
               TextField(
                 controller: noteController,
-                decoration: const InputDecoration(labelText: 'البيان / ملاحظات'),
+                decoration: const InputDecoration(
+                  labelText: 'البيان / ملاحظات',
+                ),
               ),
             ],
           ),
@@ -342,10 +420,14 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
                 billNumber: num,
                 warehouseId: 1,
                 hintId: hintId,
-                historyGroup: _isWithdrawFilter ? HistoriesGroup.withdraws : HistoriesGroup.deposits,
+                historyGroup: _isWithdrawFilter
+                    ? HistoriesGroup.withdraws
+                    : HistoriesGroup.deposits,
               );
 
-              context.read<FinancialTransactionsBloc>().add(AddFinancialTransactionEvent(newTransaction));
+              context.read<FinancialTransactionsBloc>().add(
+                AddFinancialTransactionEvent(newTransaction),
+              );
               Navigator.pop(dialogContext);
             },
             child: const fluent.Text('حفظ'),

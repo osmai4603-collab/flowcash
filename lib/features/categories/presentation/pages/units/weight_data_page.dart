@@ -18,6 +18,7 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class WeightUnitDataPage extends StatefulWidget {
   final CategoryPropertyEntity property;
   final UnitEntity? unit;
@@ -136,10 +137,14 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 5),
                           child: Row(
                             children: [
-                              IconButton(
-                                icon: const Icon(fluent.FluentIcons.back),
-                                tooltip: 'رجوع',
-                                onPressed: () => Navigator.pop(context),
+                              fluent.Tooltip(
+                                message: 'رجوع',
+                                child: fluent.IconButton(
+                                  icon: const fluent.Icon(
+                                    fluent.FluentIcons.back,
+                                  ),
+                                  onPressed: () => Navigator.pop(context),
+                                ),
                               ),
                               TextWidget(
                                 text:
@@ -147,10 +152,14 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                                 alignment: Alignment.center,
                                 expanded: true,
                               ),
-                              IconButton(
-                                icon: const Icon(fluent.FluentIcons.save),
-                                tooltip: 'حفظ البيانات',
-                                onPressed: _onSaveButtonClicked,
+                              fluent.Tooltip(
+                                message: 'حفظ البيانات',
+                                child: fluent.IconButton(
+                                  icon: const fluent.Icon(
+                                    fluent.FluentIcons.save,
+                                  ),
+                                  onPressed: _onSaveButtonClicked,
+                                ),
                               ),
                             ],
                           ),
@@ -212,7 +221,8 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                                       width: 0.20,
                                     ),
                                   ),
-                                  prefixIcon: Icon(fluent.FluentIcons.light_weight,
+                                  prefixIcon: fluent.Icon(
+                                    fluent.FluentIcons.light_weight,
                                     color: colors.primary,
                                   ),
                                 ),
@@ -222,11 +232,15 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                             Expanded(
                               child: DropdownButtonFormField<String>(
                                 initialValue: measureUnitSelected,
-                                disabledHint: const fluent.Text('لا يوجد وحدات معرفة'),
+                                disabledHint: const fluent.Text(
+                                  'لا يوجد وحدات معرفة',
+                                ),
                                 decoration: const InputDecoration(
                                   labelText: 'الوحدة',
                                   hintText: 'حدد الوحدة',
-                                  prefixIcon: Icon(fluent.FluentIcons.unite_shape),
+                                  prefixIcon: fluent.Icon(
+                                    fluent.FluentIcons.unite_shape,
+                                  ),
                                 ),
                                 items: measuresUnits.map((String value) {
                                   return DropdownMenuItem<String>(

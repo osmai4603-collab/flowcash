@@ -66,10 +66,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
             header: PageHeader(
               title: Row(
                 children: const [
-                  Icon(
-                    FluentIcons.shop,
-                    size: 24,
-                  ),
+                  fluent.Icon(FluentIcons.shop, size: 24),
                   SizedBox(width: 10),
                   Text('إدارة المخازن والمخزون'),
                 ],
@@ -82,37 +79,37 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                 displayMode: PaneDisplayMode.top,
                 items: [
                   PaneItem(
-                    icon: const Icon(FluentIcons.product),
+                    icon: const fluent.Icon(FluentIcons.product),
                     title: const Text('قائمة المخزون'),
                     body: const InventoryCatalogPage(),
                   ),
                   PaneItem(
-                    icon: const Icon(FluentIcons.sync),
+                    icon: const fluent.Icon(FluentIcons.sync),
                     title: const Text('حركات المخزون'),
                     body: const TransactionsPage(),
                   ),
                   PaneItem(
-                    icon: const Icon(FluentIcons.send),
+                    icon: const fluent.Icon(FluentIcons.send),
                     title: const Text('نقل بين المخازن'),
                     body: const WarehouseTransfersPage(),
                   ),
                   PaneItem(
-                    icon: const Icon(FluentIcons.page_add),
+                    icon: const fluent.Icon(FluentIcons.page_add),
                     title: const Text('أرصدة افتتاحية'),
                     body: const OpeningQuantitiesPage(),
                   ),
                   PaneItem(
-                    icon: const Icon(FluentIcons.payment_card),
+                    icon: const fluent.Icon(FluentIcons.payment_card),
                     title: const Text('تكلفة البضاعة'),
                     body: const GoodsCostPage(),
                   ),
                   PaneItem(
-                    icon: const Icon(FluentIcons.task_list),
+                    icon: const fluent.Icon(FluentIcons.task_list),
                     title: const Text('جرد المخزون'),
                     body: const StocktakingPage(),
                   ),
                   PaneItem(
-                    icon: const Icon(FluentIcons.report_document),
+                    icon: const fluent.Icon(FluentIcons.report_document),
                     title: const Text('تقارير المخزون'),
                     body: const InventoryReportsPage(),
                   ),

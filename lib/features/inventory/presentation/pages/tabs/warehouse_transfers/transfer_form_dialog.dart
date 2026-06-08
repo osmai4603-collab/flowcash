@@ -10,6 +10,7 @@ import 'package:flowcash/features/injection_container.dart';
 import '../transactions/transaction_order_form.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class TransferFormDialog extends StatefulWidget {
   final List<WarehouseEntity> warehouses;
   final List<InventoryEntity> inventoryItems;
@@ -61,7 +62,9 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
     if (inventoryId == null) return 'بند بدون صنف';
     try {
       final item = widget.inventoryItems.firstWhere((i) => i.id == inventoryId);
-      final catName = _categories.firstWhere((c) => c.id == item.categoryId).categoryName;
+      final catName = _categories
+          .firstWhere((c) => c.id == item.categoryId)
+          .categoryName;
       return '$catName (${item.inventoryName})';
     } catch (_) {
       return 'صنف #$inventoryId';
@@ -78,15 +81,33 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedFromWarehouseId == null || _selectedToWarehouseId == null) {
-      fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('الرجاء اختيار مستودع الصادر ومستودع الوارد')));
+      fluent.displayInfoBar(
+        context,
+        builder: (context, close) => fluent.InfoBar(
+          title: const fluent.Text('تنبيه'),
+          content: fluent.Text('الرجاء اختيار مستودع الصادر ومستودع الوارد'),
+        ),
+      );
       return;
     }
     if (_selectedFromWarehouseId == _selectedToWarehouseId) {
-      fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('مستودع الصادر ومستودع الوارد متطابقين!')));
+      fluent.displayInfoBar(
+        context,
+        builder: (context, close) => fluent.InfoBar(
+          title: const fluent.Text('تنبيه'),
+          content: fluent.Text('مستودع الصادر ومستودع الوارد متطابقين!'),
+        ),
+      );
       return;
     }
     if (_orders.isEmpty) {
-      fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text('يجب إضافة صنف واحد على الأقل للنقل')));
+      fluent.displayInfoBar(
+        context,
+        builder: (context, close) => fluent.InfoBar(
+          title: const fluent.Text('تنبيه'),
+          content: fluent.Text('يجب إضافة صنف واحد على الأقل للنقل'),
+        ),
+      );
       return;
     }
 
@@ -101,7 +122,9 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
       warehouseId: _selectedFromWarehouseId!,
       billNumber: billNum,
       transactionType: InventoryTransactionType.inventoryDelivery,
-      note: 'تحويل مخزني صادر إلى مستودع ${_selectedToWarehouseId}: ${_noteController.text}'.trim(),
+      note:
+          'تحويل مخزني صادر إلى مستودع ${_selectedToWarehouseId}: ${_noteController.text}'
+              .trim(),
     );
 
     // 2. To transaction (Inward / Receipt)
@@ -112,7 +135,9 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
       warehouseId: _selectedToWarehouseId!,
       billNumber: billNum,
       transactionType: InventoryTransactionType.inventoryReceipt,
-      note: 'تحويل مخزني وارد من مستودع ${_selectedFromWarehouseId}: ${_noteController.text}'.trim(),
+      note:
+          'تحويل مخزني وارد من مستودع ${_selectedFromWarehouseId}: ${_noteController.text}'
+              .trim(),
     );
 
     Navigator.of(context).pop({
@@ -140,7 +165,10 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: isDark
-                ? [theme.colorScheme.surface, theme.colorScheme.surface.withAlpha(240)]
+                ? [
+                    theme.colorScheme.surface,
+                    theme.colorScheme.surface.withAlpha(240),
+                  ]
                 : [Colors.white, Colors.grey.shade50],
           ),
         ),
@@ -158,7 +186,8 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                     // Title
                     Row(
                       children: [
-                        Icon(fluent.FluentIcons.shopping_cart,
+                        fluent.Icon(
+                          fluent.FluentIcons.shopping_cart,
                           color: theme.colorScheme.primary,
                           size: 28,
                         ),
@@ -171,9 +200,11 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                           ),
                         ),
                         const Spacer(),
-                        IconButton(
+                        fluent.IconButton(
                           onPressed: () => Navigator.of(context).pop(),
-                          icon: const Icon(fluent.FluentIcons.chrome_close),
+                          icon: const fluent.Icon(
+                            fluent.FluentIcons.chrome_close,
+                          ),
                         ),
                       ],
                     ),
@@ -187,7 +218,9 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                           child: DropdownButtonFormField<int>(
                             decoration: const InputDecoration(
                               labelText: 'من مستودع (الصادر)',
-                              prefixIcon: Icon(fluent.FluentIcons.store_logo16),
+                              prefixIcon: fluent.Icon(
+                                fluent.FluentIcons.store_logo16,
+                              ),
                             ),
                             initialValue: _selectedFromWarehouseId,
                             items: widget.warehouses.map((w) {
@@ -196,8 +229,11 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                                 child: fluent.Text(w.warehouseName),
                               );
                             }).toList(),
-                            onChanged: (val) => setState(() => _selectedFromWarehouseId = val),
-                            validator: (val) => val == null ? 'الرجاء تحديد مستودع الصادر' : null,
+                            onChanged: (val) =>
+                                setState(() => _selectedFromWarehouseId = val),
+                            validator: (val) => val == null
+                                ? 'الرجاء تحديد مستودع الصادر'
+                                : null,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -207,7 +243,9 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                           child: DropdownButtonFormField<int>(
                             decoration: const InputDecoration(
                               labelText: 'إلى مستودع (الوارد)',
-                              prefixIcon: Icon(fluent.FluentIcons.store_logo16),
+                              prefixIcon: fluent.Icon(
+                                fluent.FluentIcons.store_logo16,
+                              ),
                             ),
                             initialValue: _selectedToWarehouseId,
                             items: widget.warehouses.map((w) {
@@ -216,8 +254,11 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                                 child: fluent.Text(w.warehouseName),
                               );
                             }).toList(),
-                            onChanged: (val) => setState(() => _selectedToWarehouseId = val),
-                            validator: (val) => val == null ? 'الرجاء تحديد مستودع الوارد' : null,
+                            onChanged: (val) =>
+                                setState(() => _selectedToWarehouseId = val),
+                            validator: (val) => val == null
+                                ? 'الرجاء تحديد مستودع الوارد'
+                                : null,
                           ),
                         ),
                       ],
@@ -233,11 +274,14 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                             textDirection: TextDirection.ltr,
                             decoration: const InputDecoration(
                               labelText: 'رقم السند/الإذن الدفتري',
-                              prefixIcon: Icon(fluent.FluentIcons.ticket),
+                              prefixIcon: fluent.Icon(
+                                fluent.FluentIcons.ticket,
+                              ),
                             ),
                             keyboardType: TextInputType.number,
-                            validator: (val) =>
-                                val == null || val.isEmpty ? 'رقم السند مطلوب' : null,
+                            validator: (val) => val == null || val.isEmpty
+                                ? 'رقم السند مطلوب'
+                                : null,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -248,7 +292,9 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                             controller: _noteController,
                             decoration: const InputDecoration(
                               labelText: 'ملاحظات وتفاصيل عملية النقل',
-                              prefixIcon: Icon(fluent.FluentIcons.note_pinned),
+                              prefixIcon: fluent.Icon(
+                                fluent.FluentIcons.note_pinned,
+                              ),
                             ),
                           ),
                         ),
@@ -262,29 +308,40 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                       children: [
                         const fluent.Text(
                           '📦 الأصناف المنقولة والكميات المراد تحويلها',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            final result = await showDialog<InventoryTransactionOrderEntity>(
-                              context: context,
-                                builder: (context) => TransactionOrderForm(
-                                  inventoryItems: widget.inventoryItems,
-                                ),
-                            );
+                        fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(
+                            fluent.FluentIcons.shopping_cart,
+                            size: 16,
+                          ),
+    const SizedBox(width: 8.0),
+    const fluent.Text('إضافة بند'),
+  ],
+),
+onPressed: () async {
+                            final result =
+                                await showDialog<
+                                  InventoryTransactionOrderEntity
+                                >(
+                                  context: context,
+                                  builder: (context) => TransactionOrderForm(
+                                    inventoryItems: widget.inventoryItems,
+                                  ),
+                                );
                             if (result != null) {
                               setState(() {
                                 _orders.add(result);
                               });
                             }
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: theme.colorScheme.primaryContainer,
-                            foregroundColor: theme.colorScheme.onPrimaryContainer,
-                          ),
-                          icon: const Icon(fluent.FluentIcons.shopping_cart, size: 16),
-                          label: const fluent.Text('إضافة بند'),
-                        ),
+),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -293,7 +350,9 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
+                          border: Border.all(
+                            color: theme.colorScheme.outline.withAlpha(50),
+                          ),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: _orders.isEmpty
@@ -310,22 +369,33 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                                   final order = _orders[index];
                                   return Card(
                                     elevation: 0,
-                                    color: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
+                                    color: theme
+                                        .colorScheme
+                                        .surfaceContainerHighest
+                                        .withAlpha(80),
                                     child: ListTile(
                                       title: fluent.Text(
                                         _getInventoryLabel(order.inventoryId),
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                        ),
                                       ),
                                       trailing: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           fluent.Text(
                                             'الكمية: ${order.countUnits}',
-                                            style: const TextStyle(fontWeight: FontWeight.bold),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                           const SizedBox(width: 16),
-                                          IconButton(
-                                            icon: const Icon(fluent.FluentIcons.remove_link, color: Colors.red),
+                                          fluent.IconButton(
+                                            icon: const fluent.Icon(
+                                              fluent.FluentIcons.remove_link,
+                                              color: Colors.red,
+                                            ),
                                             onPressed: () {
                                               setState(() {
                                                 _orders.removeAt(index);
@@ -351,14 +421,17 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                           child: const fluent.Text('إلغاء'),
                         ),
                         const SizedBox(width: 12),
-                        ElevatedButton.icon(
-                          onPressed: _submit,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                          ),
-                          icon: const Icon(fluent.FluentIcons.save),
-                          label: const fluent.Text('إصدار وإتمام التحويل'),
-                        ),
+                        fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(fluent.FluentIcons.save),
+    const SizedBox(width: 8.0),
+    const fluent.Text('إصدار وإتمام التحويل'),
+  ],
+),
+onPressed: _submit,
+),
                       ],
                     ),
                   ],

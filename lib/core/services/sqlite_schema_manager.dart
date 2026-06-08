@@ -36,7 +36,7 @@ import 'package:flowcash/core/tables/warehouse_values_table.dart';
 final class SqliteSchemaManager {
   const SqliteSchemaManager._();
 
-  static const int currentVersion = 8;
+  static const int currentVersion = 10;
 
   /// Create the full schema for a new database in sequential version order.
   /// This builds the tables from version 1 through the last schema-only version,
@@ -80,6 +80,12 @@ final class SqliteSchemaManager {
             break;
           case 8:
             _applyV8Migration(db);
+            break;
+          case 9:
+            _applyV9Migration(db);
+            break;
+          case 10:
+            _applyV10Migration(db);
             break;
           default:
             throw StateError('No migration defined for version $v');
@@ -348,16 +354,24 @@ final class SqliteSchemaManager {
     // If older column exists, add `inventory_id` column (if missing), copy mapped inventory ids,
     // and archive the old `inventory_batches` table by renaming it.
     try {
-      final pragma = db.select("PRAGMA table_info(${InventoryTransactionsOrdersTable.tableName})");
+      final pragma = db.select(
+        "PRAGMA table_info(${InventoryTransactionsOrdersTable.tableName})",
+      );
       final hasBatchCol = pragma.any((r) => r['name'] == 'inventory_batch_id');
-      final hasInventoryCol = pragma.any((r) => r['name'] == InventoryTransactionsOrdersTable.inventoryId);
+      final hasInventoryCol = pragma.any(
+        (r) => r['name'] == InventoryTransactionsOrdersTable.inventoryId,
+      );
 
       if (hasBatchCol && !hasInventoryCol) {
         // Add new column
-        db.execute('ALTER TABLE ${InventoryTransactionsOrdersTable.tableName} ADD COLUMN ${InventoryTransactionsOrdersTable.inventoryId} INTEGER');
+        db.execute(
+          'ALTER TABLE ${InventoryTransactionsOrdersTable.tableName} ADD COLUMN ${InventoryTransactionsOrdersTable.inventoryId} INTEGER',
+        );
 
         // If inventory_batches table exists, copy mapping inventory_id
-        final batchesTable = db.select("SELECT name FROM sqlite_master WHERE type='table' AND name='inventory_batches'");
+        final batchesTable = db.select(
+          "SELECT name FROM sqlite_master WHERE type='table' AND name='inventory_batches'",
+        );
         if (batchesTable.isNotEmpty) {
           db.execute('''
             UPDATE ${InventoryTransactionsOrdersTable.tableName}
@@ -368,8 +382,12 @@ final class SqliteSchemaManager {
           ''');
 
           // Rename old batches table to keep archive
-          db.execute("ALTER TABLE inventory_batches RENAME TO inventory_batches_archived");
-          debugPrint('Migrated inventory_batch_id -> inventory_id and archived inventory_batches');
+          db.execute(
+            "ALTER TABLE inventory_batches RENAME TO inventory_batches_archived",
+          );
+          debugPrint(
+            'Migrated inventory_batch_id -> inventory_id and archived inventory_batches',
+          );
         }
       }
     } catch (e) {
@@ -377,11 +395,19 @@ final class SqliteSchemaManager {
     }
 
     try {
-      final inventoryPragma = db.select("PRAGMA table_info(${InventoriesTable.tableName})");
-      final hasInventoryCost = inventoryPragma.any((r) => r['name'] == InventoriesTable.costTotal);
+      final inventoryPragma = db.select(
+        "PRAGMA table_info(${InventoriesTable.tableName})",
+      );
+      final hasInventoryCost = inventoryPragma.any(
+        (r) => r['name'] == InventoriesTable.costTotal,
+      );
       if (!hasInventoryCost) {
-        db.execute('ALTER TABLE ${InventoriesTable.tableName} ADD COLUMN ${InventoriesTable.costTotal} REAL NOT NULL DEFAULT 0.0');
-        debugPrint('Added ${InventoriesTable.costTotal} column to ${InventoriesTable.tableName}');
+        db.execute(
+          'ALTER TABLE ${InventoriesTable.tableName} ADD COLUMN ${InventoriesTable.costTotal} REAL NOT NULL DEFAULT 0.0',
+        );
+        debugPrint(
+          'Added ${InventoriesTable.costTotal} column to ${InventoriesTable.tableName}',
+        );
       }
     } catch (e) {
       debugPrint('Inventory unitCost migration check failed: $e');
@@ -396,20 +422,30 @@ final class SqliteSchemaManager {
         ${OpeningQuantitiesTable.createdAt} TEXT NOT NULL,
         ${OpeningQuantitiesTable.costTotal} REAL NOT NULL DEFAULT 0.0,
         ${OpeningQuantitiesTable.periodId} INTEGER NOT NULL,
+        ${OpeningQuantitiesTable.currencyId} TEXT NOT NULL,
+        ${OpeningQuantitiesTable.journalEntryId} INTEGER,
         FOREIGN KEY (${OpeningQuantitiesTable.inventoryId}) REFERENCES ${InventoriesTable.tableName} (${InventoriesTable.id}) ON DELETE RESTRICT,
         FOREIGN KEY (${OpeningQuantitiesTable.periodId}) REFERENCES ${AccountingPeriodsTable.tableName} (${AccountingPeriodsTable.id}) ON DELETE CASCADE,
+        FOREIGN KEY (${OpeningQuantitiesTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${OpeningQuantitiesTable.journalEntryId}) REFERENCES ${JournalEntriesTable.tableName} (${JournalEntriesTable.entryId}) ON DELETE SET NULL,
         UNIQUE (${OpeningQuantitiesTable.inventoryId}, ${OpeningQuantitiesTable.periodId})
       )
     ''');
 
     try {
-      final pragma = db.select("PRAGMA table_info(${OpeningQuantitiesTable.tableName})");
-      final hasInventoryId = pragma.any((r) => r['name'] == OpeningQuantitiesTable.inventoryId);
+      final pragma = db.select(
+        "PRAGMA table_info(${OpeningQuantitiesTable.tableName})",
+      );
+      final hasInventoryId = pragma.any(
+        (r) => r['name'] == OpeningQuantitiesTable.inventoryId,
+      );
       final hasWarehouseId = pragma.any((r) => r['name'] == 'warehouse_id');
       final hasCategoryId = pragma.any((r) => r['name'] == 'category_id');
 
       if (!hasInventoryId) {
-        db.execute('ALTER TABLE ${OpeningQuantitiesTable.tableName} ADD COLUMN ${OpeningQuantitiesTable.inventoryId} INTEGER');
+        db.execute(
+          'ALTER TABLE ${OpeningQuantitiesTable.tableName} ADD COLUMN ${OpeningQuantitiesTable.inventoryId} INTEGER',
+        );
 
         if (hasWarehouseId && hasCategoryId) {
           db.execute('''
@@ -423,7 +459,9 @@ final class SqliteSchemaManager {
             )
             WHERE ${OpeningQuantitiesTable.inventoryId} IS NULL
           ''');
-          debugPrint('Migrated opening_quantities warehouse_id/category_id -> inventory_id');
+          debugPrint(
+            'Migrated opening_quantities warehouse_id/category_id -> inventory_id',
+          );
         }
       }
     } catch (e) {
@@ -583,8 +621,8 @@ final class SqliteSchemaManager {
         ${WarehouseValuesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         ${WarehouseValuesTable.warehouseId} INTEGER NOT NULL,
         ${WarehouseValuesTable.valueType} TEXT NOT NULL,
-        ${WarehouseValuesTable.value} TEXT NOT NULL,
-        FOREIGN KEY (${WarehouseValuesTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON DELETE CASCADE
+        ${WarehouseValuesTable.value} TEXT,
+        FOREIGN KEY (${WarehouseValuesTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON UPDATE CASCADE ON DELETE CASCADE
       )
     ''');
 
@@ -626,6 +664,7 @@ final class SqliteSchemaManager {
         ${JournalItemsTable.currencyId} TEXT NOT NULL,
         ${JournalItemsTable.exPrice} REAL NOT NULL DEFAULT 1.0,
         ${JournalItemsTable.expriceMain} REAL NOT NULL DEFAULT 1.0,
+        ${JournalItemsTable.journalStatus} TEXT NOT NULL CHECK (${JournalItemsTable.journalStatus} IN ('debit', 'credit')),
         FOREIGN KEY (${JournalItemsTable.entryId}) REFERENCES ${JournalEntriesTable.tableName} (${JournalEntriesTable.entryId}) ON DELETE CASCADE,
         FOREIGN KEY (${JournalItemsTable.accountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${JournalItemsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT
@@ -653,14 +692,18 @@ final class SqliteSchemaManager {
         ${JournalItemsTable.currencyId} TEXT NOT NULL,
         ${JournalItemsTable.exPrice} REAL NOT NULL DEFAULT 1.0,
         ${JournalItemsTable.expriceMain} REAL NOT NULL DEFAULT 1.0,
+        ${JournalItemsTable.journalStatus} TEXT CHECK (${JournalItemsTable.journalStatus} IN ('debit', 'credit')),
         FOREIGN KEY (${JournalItemsTable.entryId}) REFERENCES ${JournalEntriesTable.tableName} (${JournalEntriesTable.entryId}) ON DELETE CASCADE,
         FOREIGN KEY (${JournalItemsTable.accountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${JournalItemsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT
       )
     ''');
 
-    final pragma = db.select('PRAGMA table_info(${JournalItemsTable.tableName})');
-    final hasOldColumns = pragma.any((r) => r['name'] == 'debit_base') &&
+    final pragma = db.select(
+      'PRAGMA table_info(${JournalItemsTable.tableName})',
+    );
+    final hasOldColumns =
+        pragma.any((r) => r['name'] == 'debit_base') &&
         pragma.any((r) => r['name'] == 'credit_base');
 
     if (hasOldColumns) {
@@ -691,14 +734,20 @@ final class SqliteSchemaManager {
 
       db.execute('PRAGMA foreign_keys = OFF');
       db.execute('DROP TABLE ${JournalItemsTable.tableName}');
-      db.execute('ALTER TABLE $tempTable RENAME TO ${JournalItemsTable.tableName}');
+      db.execute(
+        'ALTER TABLE $tempTable RENAME TO ${JournalItemsTable.tableName}',
+      );
       db.execute('PRAGMA foreign_keys = ON');
     } else {
-      final existingTemp = db.select("SELECT name FROM sqlite_master WHERE type='table' AND name = '$tempTable'");
+      final existingTemp = db.select(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name = '$tempTable'",
+      );
       if (existingTemp.isNotEmpty) {
         db.execute('PRAGMA foreign_keys = OFF');
         db.execute('DROP TABLE IF EXISTS ${JournalItemsTable.tableName}');
-        db.execute('ALTER TABLE $tempTable RENAME TO ${JournalItemsTable.tableName}');
+        db.execute(
+          'ALTER TABLE $tempTable RENAME TO ${JournalItemsTable.tableName}',
+        );
         db.execute('PRAGMA foreign_keys = ON');
       }
     }
@@ -738,14 +787,20 @@ final class SqliteSchemaManager {
 
       db.execute('PRAGMA foreign_keys = OFF');
       db.execute('DROP TABLE ${CurrenciesTable.tableName}');
-      db.execute('ALTER TABLE $tempTable RENAME TO ${CurrenciesTable.tableName}');
+      db.execute(
+        'ALTER TABLE $tempTable RENAME TO ${CurrenciesTable.tableName}',
+      );
       db.execute('PRAGMA foreign_keys = ON');
     } else {
-      final existingTemp = db.select("SELECT name FROM sqlite_master WHERE type='table' AND name = '$tempTable'");
+      final existingTemp = db.select(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name = '$tempTable'",
+      );
       if (existingTemp.isNotEmpty) {
         db.execute('PRAGMA foreign_keys = OFF');
         db.execute('DROP TABLE IF EXISTS ${CurrenciesTable.tableName}');
-        db.execute('ALTER TABLE $tempTable RENAME TO ${CurrenciesTable.tableName}');
+        db.execute(
+          'ALTER TABLE $tempTable RENAME TO ${CurrenciesTable.tableName}',
+        );
         db.execute('PRAGMA foreign_keys = ON');
       }
     }
@@ -753,5 +808,38 @@ final class SqliteSchemaManager {
 
   static void _applyV8Migration(Database db) {
     _createJournalItemTriggers(db);
+  }
+
+  static void _applyV9Migration(Database db) {
+    try {
+      db.execute(
+        'ALTER TABLE ${OpeningQuantitiesTable.tableName} ADD COLUMN ${OpeningQuantitiesTable.currencyId} TEXT REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT',
+      );
+    } catch (e) {
+      debugPrint(
+        'Adding currencyId column to opening_quantities failed or already exists: $e',
+      );
+    }
+    try {
+      db.execute(
+        'ALTER TABLE ${OpeningQuantitiesTable.tableName} ADD COLUMN ${OpeningQuantitiesTable.journalEntryId} INTEGER REFERENCES ${JournalEntriesTable.tableName} (${JournalEntriesTable.entryId}) ON DELETE SET NULL',
+      );
+    } catch (e) {
+      debugPrint(
+        'Adding journalEntryId column to opening_quantities failed or already exists: $e',
+      );
+    }
+  }
+
+  static void _applyV10Migration(Database db) {
+    try {
+      db.execute(
+        'ALTER TABLE ${JournalItemsTable.tableName} ADD COLUMN ${JournalItemsTable.journalStatus} TEXT CHECK (${JournalItemsTable.journalStatus} IN (\'debit\', \'credit\'))',
+      );
+    } catch (e) {
+      debugPrint(
+        'Adding journal_status column to journal_items failed or already exists: $e',
+      );
+    }
   }
 }

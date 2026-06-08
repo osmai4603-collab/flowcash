@@ -19,6 +19,7 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class MeterUnitDataPage extends StatefulWidget {
   final UnitEntity? unit;
   final CategoryPropertyEntity property;
@@ -47,7 +48,9 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
     category = state.category;
     lengthController.text = AppMoneyFormatter.formatDouble(state.initialLength);
     widthController.text = AppMoneyFormatter.formatDouble(state.initialWidth);
-    thicknessController.text = AppMoneyFormatter.formatDouble(state.initialThickness);
+    thicknessController.text = AppMoneyFormatter.formatDouble(
+      state.initialThickness,
+    );
     if (widget.property.unitType.isSquareMeterWidthStatic) {
       lengthController.text = '1';
     }
@@ -169,10 +172,14 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
                         children: [
                           Row(
                             children: [
-                              IconButton(
-                                icon: const Icon(fluent.FluentIcons.back),
-                                tooltip: 'رجوع',
-                                onPressed: () => Navigator.pop(context),
+                              fluent.Tooltip(
+                                message: 'رجوع',
+                                child: fluent.IconButton(
+                                  icon: const fluent.Icon(
+                                    fluent.FluentIcons.back,
+                                  ),
+                                  onPressed: () => Navigator.pop(context),
+                                ),
                               ),
                               TextWidget(
                                 text:
@@ -180,10 +187,14 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
                                 alignment: Alignment.center,
                                 expanded: true,
                               ),
-                              IconButton(
-                                icon: const Icon(fluent.FluentIcons.save),
-                                tooltip: 'حفظ البيانات',
-                                onPressed: _onSaveButtonClicked,
+                              fluent.Tooltip(
+                                message: 'حفظ البيانات',
+                                child: fluent.IconButton(
+                                  icon: const fluent.Icon(
+                                    fluent.FluentIcons.save,
+                                  ),
+                                  onPressed: _onSaveButtonClicked,
+                                ),
                               ),
                             ],
                           ),
@@ -287,7 +298,9 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
   ) {
     final colors = ColorScheme.of(context);
     return TextFormField(
-      textInputAction: isDoneAction ? TextInputAction.done : TextInputAction.next,
+      textInputAction: isDoneAction
+          ? TextInputAction.done
+          : TextInputAction.next,
       onFieldSubmitted: (value) {
         if (isDoneAction) {
           _onSaveButtonClicked();
@@ -315,7 +328,10 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
         hintStyle: Styles.titleSmall.copyWith(color: colors.onSurfaceVariant),
         labelText: 'ال$title',
         labelStyle: Styles.titleMedium.copyWith(color: colors.primary),
-        prefixIcon: Icon(fluent.FluentIcons.light_weight, color: colors.primary),
+        prefixIcon: fluent.Icon(
+          fluent.FluentIcons.light_weight,
+          color: colors.primary,
+        ),
       ),
     );
   }

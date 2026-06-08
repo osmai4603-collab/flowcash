@@ -1,8 +1,5 @@
-
 import 'package:flutter/material.dart';
 import 'package:flowcash/core/theme/styles.dart';
-
-
 
 class CardButton extends StatelessWidget {
   final String image;
@@ -19,7 +16,8 @@ class CardButton extends StatelessWidget {
   final String? balance;
   final TextDirection? textDirection;
 
-  const CardButton({super.key,
+  const CardButton({
+    super.key,
     required this.image,
     required this.text,
     required this.onPressed,
@@ -48,21 +46,30 @@ class CardButton extends StatelessWidget {
           width: cardSize?.width ?? 170,
           height: cardSize?.height ?? 162,
           child: Padding(
-            padding: padding ?? const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
+            padding:
+                padding ??
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
             child: Column(
               children: [
-                Text(text,
+                Text(
+                  text,
                   style: textStyle ?? Styles.titleSmall,
                   overflow: TextOverflow.ellipsis,
                   textDirection: textDirection,
                 ),
-                Image.asset(image, width: imageSize?.width ?? 120, height: imageSize?.height ?? 80, color: imageColor),
-                if(balance != null) Text(
-                  balance!,
-                  style: textStyle ?? Styles.bodyMedium.copyWith(
-                    color: Colors.red.shade600,
+                Image.asset(
+                  image,
+                  width: imageSize?.width ?? 120,
+                  height: imageSize?.height ?? 80,
+                  color: imageColor,
+                ),
+                if (balance != null)
+                  Text(
+                    balance!,
+                    style:
+                        textStyle ??
+                        Styles.bodyMedium.copyWith(color: Colors.red.shade600),
                   ),
-                )
               ],
             ),
           ),

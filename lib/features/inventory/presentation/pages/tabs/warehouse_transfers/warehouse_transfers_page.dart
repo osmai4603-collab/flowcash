@@ -14,6 +14,7 @@ import 'transfer_form_dialog.dart';
 import 'transfer_detail_panel.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class WarehouseTransfersPage extends StatefulWidget {
   const WarehouseTransfersPage({super.key});
 
@@ -79,7 +80,13 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
         listener: (context, state) {
           if (state.status == TransfersStatus.error &&
               state.errorMessage != null) {
-            fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(state.errorMessage!)));
+            fluent.displayInfoBar(
+              context,
+              builder: (context, close) => fluent.InfoBar(
+                title: const fluent.Text('تنبيه'),
+                content: fluent.Text(state.errorMessage!),
+              ),
+            );
           }
         },
         builder: (context, state) {
@@ -167,7 +174,9 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                                   decoration: InputDecoration(
                                     hintText:
                                         'البحث برقم سند النقل أو التفاصيل... 🔍',
-                                    prefixIcon: const Icon(fluent.FluentIcons.search),
+                                    prefixIcon: const fluent.Icon(
+                                      fluent.FluentIcons.search,
+                                    ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
@@ -194,25 +203,44 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                                         menuChildren: [
                                           MenuItemButton(
                                             onPressed: () => setState(
-                                              () => _filterFromWarehouseId = null,
+                                              () =>
+                                                  _filterFromWarehouseId = null,
                                             ),
-                                            child: const fluent.Text('من مستودع 📤'),
+                                            child: const fluent.Text(
+                                              'من مستودع 📤',
+                                            ),
                                           ),
                                           ...state.warehouses.map(
                                             (w) => MenuItemButton(
                                               onPressed: () => setState(
-                                                () => _filterFromWarehouseId = w.id,
+                                                () => _filterFromWarehouseId =
+                                                    w.id,
                                               ),
-                                              child: fluent.Text(w.warehouseName),
+                                              child: fluent.Text(
+                                                w.warehouseName,
+                                              ),
                                             ),
                                           ),
                                         ],
                                         child: fluent.Text(
                                           _filterFromWarehouseId == null
                                               ? 'من مستودع 📤'
-                                              : state.warehouses.where((w) => w.id == _filterFromWarehouseId).isEmpty
-                                                  ? 'من مستودع 📤'
-                                                  : state.warehouses.where((w) => w.id == _filterFromWarehouseId).first.warehouseName,
+                                              : state.warehouses
+                                                    .where(
+                                                      (w) =>
+                                                          w.id ==
+                                                          _filterFromWarehouseId,
+                                                    )
+                                                    .isEmpty
+                                              ? 'من مستودع 📤'
+                                              : state.warehouses
+                                                    .where(
+                                                      (w) =>
+                                                          w.id ==
+                                                          _filterFromWarehouseId,
+                                                    )
+                                                    .first
+                                                    .warehouseName,
                                         ),
                                       ),
                                     ],
@@ -222,12 +250,32 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                               const SizedBox(width: 12),
 
                               // Add Transfer button
-                              ElevatedButton.icon(
-                                onPressed: () async {
+                              fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(
+                                  fluent.FluentIcons.shopping_cart,
+                                ),
+    const SizedBox(width: 8.0),
+    const fluent.Text(
+                                  'إجراء نقل',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+  ],
+),
+onPressed: () async {
                                   if (state.batches.isEmpty) {
-                                    fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(
-                                          'الرجاء إنشاء دفعات أصناف أولاً',
-                                        )));
+                                    fluent.displayInfoBar(
+                                      context,
+                                      builder: (context, close) =>
+                                          fluent.InfoBar(
+                                            title: const fluent.Text('تنبيه'),
+                                            content: fluent.Text(
+                                              'الرجاء إنشاء دفعات أصناف أولاً',
+                                            ),
+                                          ),
+                                    );
                                     return;
                                   }
                                   final result =
@@ -260,21 +308,7 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                                     );
                                   }
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 14,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                icon: const Icon(fluent.FluentIcons.shopping_cart),
-                                label: const fluent.Text(
-                                  'إجراء نقل',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
+),
                             ],
                           ),
                           const SizedBox(height: 20),
@@ -483,7 +517,8 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(fluent.FluentIcons.shopping_cart,
+                                fluent.Icon(
+                                  fluent.FluentIcons.shopping_cart,
                                   size: 48,
                                   color: Colors.grey,
                                 ),
@@ -526,7 +561,9 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                                       );
                                       Navigator.pop(context);
                                     },
-                                    child: const fluent.Text('تأكيد الإلغاء والعكس'),
+                                    child: const fluent.Text(
+                                      'تأكيد الإلغاء والعكس',
+                                    ),
                                   ),
                                 ],
                               ),

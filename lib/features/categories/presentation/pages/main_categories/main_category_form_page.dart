@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class MainCategoryFormPage extends StatefulWidget {
   final int? id;
   const MainCategoryFormPage({super.key, this.id});
@@ -174,15 +175,22 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                     Navigator.of(context).pop(state.entity);
                   }
                   if (state.status == MainCategoryFormStatus.failure) {
-                    fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(
+                    fluent.displayInfoBar(
+                      context,
+                      builder: (context, close) => fluent.InfoBar(
+                        title: const fluent.Text('تنبيه'),
+                        content: fluent.Text(
                           state.messageError ?? 'حدث خطأ في حفظ الصنف',
-                        )));
+                        ),
+                      ),
+                    );
                   }
                 },
                 builder: (context, state) {
                   // Show shimmer during initial load and while saving; freeze screen when saving.
-                  
-                  if (state.status == MainCategoryFormStatus.initial || state.status == MainCategoryFormStatus.saving) {
+
+                  if (state.status == MainCategoryFormStatus.initial ||
+                      state.status == MainCategoryFormStatus.saving) {
                     return MainCategoryFormShimmer(
                       countItems: state.properties.length,
                     );
@@ -207,10 +215,12 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
         children: [
           Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                tooltip: 'رجوع',
-                onPressed: () => Navigator.pop(context),
+              fluent.Tooltip(
+                message: 'رجوع',
+                child: fluent.IconButton(
+                  icon: const fluent.Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ),
               TextWidget(
                 text: 'اضافة صنف رئيسي',
@@ -218,10 +228,12 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                 textAlign: TextAlign.center,
                 style: textTheme.titleMedium,
               ),
-              IconButton(
-                icon: const Icon(Icons.save),
-                tooltip: 'حفظ البيانات',
-                onPressed: _onSaveButtonClicked,
+              fluent.Tooltip(
+                message: 'حفظ البيانات',
+                child: fluent.IconButton(
+                  icon: const fluent.Icon(Icons.save),
+                  onPressed: _onSaveButtonClicked,
+                ),
               ),
             ],
           ),
@@ -241,7 +253,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   decoration: InputDecoration(
                     hintText: 'ادخل اسم الصنف الرئيسي',
                     label: fluent.Text('اسم الصنف'),
-                    prefixIcon: Icon(Icons.category),
+                    prefixIcon: fluent.Icon(Icons.category),
                   ),
                   onChanged: (value) {
                     _markChanged();
@@ -266,7 +278,8 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   decoration: InputDecoration(
                     hintText: 'ادخل اسم الوحدة',
                     label: fluent.Text('اسم الوحدة'),
-                    prefixIcon: Icon(Icons.radio_button_unchecked,
+                    prefixIcon: fluent.Icon(
+                      Icons.radio_button_unchecked,
                       color: colors.primary,
                     ),
                   ),
@@ -291,7 +304,8 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                     style: textTheme.labelMedium,
                   ),
 
-                  icon: Icon(Icons.expand_more,
+                  icon: fluent.Icon(
+                    Icons.expand_more,
                     color: colors.onSurfaceVariant,
                   ),
                   isExpanded: true,
@@ -302,7 +316,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                     label: fluent.Text('الوحدة'),
                     hint: fluent.Text('حدد وحدة الصنف'),
 
-                    prefixIcon: Icon(Icons.merge_type),
+                    prefixIcon: fluent.Icon(Icons.merge_type),
                   ),
                   items: UnitType.values.where((type) => type.isBasic).map((
                     unit,
@@ -338,7 +352,8 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   decoration: InputDecoration(
                     label: fluent.Text('نوع الصنف'),
 
-                    prefixIcon: Icon(Icons.radio_button_unchecked,
+                    prefixIcon: fluent.Icon(
+                      Icons.radio_button_unchecked,
                       color: colors.primary,
                     ),
                   ),
@@ -401,7 +416,6 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   const TextWidget(text: 'لا يوجد اي خصائص'),
                 const SizedBox(height: Spacings.medium),
                 fluent.FilledButton(
-                  
                   onPressed: _onAddNewProperty,
                   child: fluent.Text(
                     'اضافة خصائص جديدة',
@@ -427,7 +441,10 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
       padding: Paddings.mediumAll,
       decoration: BoxDecoration(
         borderRadius: Radiuses.smallAll,
-        border: Border.all(width: 0.50, color: colors.outline.withValues(alpha: 0.80)),
+        border: Border.all(
+          width: 0.50,
+          color: colors.outline.withValues(alpha: 0.80),
+        ),
       ),
       child: Column(
         spacing: Spacings.medium,
@@ -447,7 +464,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   decoration: InputDecoration(
                     hintText: 'ادخل اسم الخاصية',
                     label: fluent.Text('اسم الخاصية'),
-                    prefixIcon: Icon(Icons.category),
+                    prefixIcon: fluent.Icon(Icons.category),
                   ),
                   onChanged: (_) => _markChanged(),
                 ),
@@ -456,7 +473,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                 child: DropdownButtonFormField<UnitType>(
                   initialValue: property.unitTypeSelected,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.merge_type),
+                    prefixIcon: fluent.Icon(Icons.merge_type),
                     label: fluent.Text('نوع الوحدة'),
                     hint: fluent.Text('حدد نوع الوحدة'),
                   ),
@@ -518,7 +535,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
         child: Row(
           textDirection: TextDirection.rtl,
           children: [
-                    Icon(Icons.delete, color: colors.onError),
+            fluent.Icon(Icons.delete, color: colors.onError),
             const SizedBox(width: 5),
             TextWidget(
               text: 'ازالة',

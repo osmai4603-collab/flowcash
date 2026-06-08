@@ -15,6 +15,7 @@ import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/user_session.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 /// ثوابت ومنافذ نظام التنقل.
 ///
@@ -74,7 +75,9 @@ sealed class NavigationService {
               GoRoute(
                 path: AppRouteKeys.dashboard,
                 builder: (context, state) => const Scaffold(
-                  body: Center(child: Text('لوحة المعلومات (قيد الإنشاء)')),
+                  body: Center(
+                    child: fluent.Text('لوحة المعلومات (قيد الإنشاء)'),
+                  ),
                 ),
               ),
             ],
@@ -93,7 +96,7 @@ sealed class NavigationService {
                 path: AppRouteKeys.databaseAdmin,
                 builder: (context, state) => const Scaffold(
                   body: Center(
-                    child: Text('إدارة قاعدة البيانات (قيد الإنشاء)'),
+                    child: fluent.Text('إدارة قاعدة البيانات (قيد الإنشاء)'),
                   ),
                 ),
               ),
@@ -156,8 +159,7 @@ sealed class NavigationService {
 
   static void toDashboard(BuildContext context) =>
       context.go(AppRouteKeys.dashboard);
-  static void toSystem(BuildContext context) =>
-      context.go(AppRouteKeys.system);
+  static void toSystem(BuildContext context) => context.go(AppRouteKeys.system);
   static void toDatabaseAdmin(BuildContext context) =>
       context.go(AppRouteKeys.databaseAdmin);
   static void toAccounts(BuildContext context) =>

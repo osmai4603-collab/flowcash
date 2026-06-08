@@ -8,6 +8,7 @@ import 'account_statement/account_statement_page.dart';
 import 'trial_balance/trial_balance_page.dart';
 import 'group_balances/group_balances_report_page.dart';
 import 'account_types/account_types_management_page.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 // fluent_ui import removed
 class AccountsTabNotifier extends ChangeNotifier {
@@ -62,19 +63,19 @@ class _AccountsPageState extends State<AccountsPage>
         appBar: AppBar(
           title: Row(
             children: [
-              Icon(Icons.account_tree,
+              fluent.Icon(
+                Icons.account_tree,
                 color: theme.colorScheme.primary,
                 size: 28,
               ),
               const SizedBox(width: 10),
-              const Text(
+              const fluent.Text(
                 'إدارة الحسابات المالية',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
           ),
           bottom: TabBar(
-            
             controller: _tabController,
 
             isScrollable: true,
@@ -82,20 +83,14 @@ class _AccountsPageState extends State<AccountsPage>
             indicatorWeight: 3,
             tabs: [
               Tab(
-                icon: Icon(Icons.manage_accounts),
+                icon: fluent.Icon(Icons.manage_accounts),
                 text: 'دليل الحسابات',
               ),
-              Tab(icon: Icon(Icons.book), text: 'قيود اليومية'),
-              Tab(icon: Icon(Icons.receipt_long), text: 'كشف حساب'),
-              Tab(
-                icon: Icon(Icons.compare),
-                text: 'ميزان المراجعة',
-              ),
-              Tab(icon: Icon(Icons.pie_chart), text: 'تقرير الأرصدة'),
-              Tab(
-                icon: Icon(Icons.settings),
-                text: 'أنواع الحسابات',
-              ),
+              Tab(icon: fluent.Icon(Icons.book), text: 'قيود اليومية'),
+              Tab(icon: fluent.Icon(Icons.receipt_long), text: 'كشف حساب'),
+              Tab(icon: fluent.Icon(Icons.compare), text: 'ميزان المراجعة'),
+              Tab(icon: fluent.Icon(Icons.pie_chart), text: 'تقرير الأرصدة'),
+              Tab(icon: fluent.Icon(Icons.settings), text: 'أنواع الحسابات'),
             ],
           ),
         ),

@@ -1,5 +1,4 @@
 import 'package:flowcash/core/theme/paddings.dart';
-import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/injection_container.dart';
@@ -18,6 +17,7 @@ import 'package:flowcash/widgets/my_text_widget.dart';
 import 'inventory_item_form_dialog.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class InventoryCatalogPage extends StatefulWidget {
   const InventoryCatalogPage({super.key});
 
@@ -94,17 +94,16 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
       0: const FixedColumnWidth(45),
       1: const FlexColumnWidth(0.22), // الصنف
       2: const FlexColumnWidth(0.16), // المستودع
-      4: const FixedColumnWidth(70), // الوحدات
-      5: const FlexColumnWidth(0.18), // حساب الإيرادات
-      6: const FlexColumnWidth(0.18), // حساب المصروفات
-      7: const FlexColumnWidth(0.18), // حساب مخزون الوارد
-      8: const FlexColumnWidth(0.18), // حساب مخزون الصادر
+      3: const FixedColumnWidth(70), // الوحدات
+      4: const FlexColumnWidth(0.18), // حساب الإيرادات
+      5: const FlexColumnWidth(0.18), // حساب المصروفات
+      6: const FlexColumnWidth(0.18), // حساب مخزون الوارد
+      7: const FlexColumnWidth(0.18), // حساب مخزون الصادر
     };
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
 
@@ -115,7 +114,13 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
         listener: (context, state) {
           if (state.status == CatalogStatus.error &&
               state.errorMessage != null) {
-            fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(state.errorMessage!)));
+            fluent.displayInfoBar(
+              context,
+              builder: (context, close) => fluent.InfoBar(
+                title: const fluent.Text('تنبيه'),
+                content: fluent.Text(state.errorMessage!),
+              ),
+            );
           }
         },
         builder: (context, state) {
@@ -139,33 +144,32 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-                Padding(
-                  padding: Paddings.smallAll,
-                  child: SizedBox(
-                    height: 40,
-                    child: Row(
-                      spacing: Spacings.medium,
-                      mainAxisAlignment: .spaceAround,
-                      children: [
-                        SizedBox(
-
-                    width: 300,
-                          child: fluent.TextBox(
-                            placeholder: 'البحث عن صنف مخزون...',
-                            prefix: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: const Icon(fluent.FluentIcons.search),
-                            ),
-                            
-                            onChanged: (value) {
-                              setState(() {
-                                _searchQuery = value;
-                              });
-                            },
+              Padding(
+                padding: Paddings.smallAll,
+                child: SizedBox(
+                  height: 40,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: fluent.TextBox(
+                          placeholder: 'البحث عن صنف مخزون...',
+                          prefix: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: const fluent.Icon(fluent.FluentIcons.search),
                           ),
+
+                          onChanged: (value) {
+                            setState(() {
+                              _searchQuery = value;
+                            });
+                          },
                         ),
-                        const SizedBox(width: 12),
-                        SizedBox(
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: SizedBox(
                           height: 40,
                           child: MenuBar(
                             children: [
@@ -186,143 +190,145 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                                           _filterWarehouseId = warehouse.id;
                                         });
                                       },
-                                      child: fluent.Text(warehouse.warehouseName),
+                                      child: fluent.Text(
+                                        warehouse.warehouseName,
+                                      ),
                                     ),
                                   ),
                                 ],
                                 child: fluent.Text(
                                   _filterWarehouseId == null
                                       ? 'كل المخازن'
-                                      : _warehouses.where((w) => w.id == _filterWarehouseId).isEmpty
-                                          ? 'كل المخازن'
-                                          : _warehouses.where((w) => w.id == _filterWarehouseId).first.warehouseName,
+                                      : _warehouses
+                                            .where(
+                                              (w) => w.id == _filterWarehouseId,
+                                            )
+                                            .isEmpty
+                                      ? 'كل المخازن'
+                                      : _warehouses
+                                            .where(
+                                              (w) => w.id == _filterWarehouseId,
+                                            )
+                                            .first
+                                            .warehouseName,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            final result = await showDialog<InventoryEntity>(
-                              context: context,
-                              builder: (context) =>
-                                  const InventoryItemFormDialog(),
+                      ),
+                      const SizedBox(width: 12),
+                      fluent.FilledButton(
+                        onPressed: () async {
+                          final result = await showDialog<InventoryEntity>(
+                            context: context,
+                            builder: (context) =>
+                                const InventoryItemFormDialog(),
+                          );
+                          if (result != null && context.mounted) {
+                            context.read<InventoryCatalogBloc>().add(
+                              AddInventoryItemEvent(result),
                             );
-                            if (result != null && context.mounted) {
-                              context.read<InventoryCatalogBloc>().add(
-                                AddInventoryItemEvent(result),
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 16,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          icon: const Icon(fluent.FluentIcons.add),
-                          label: const fluent.Text(
-                            'إضافة مخزون جديد',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: Paddings.smallAll,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Table(
-                          border: TableBorder.all(
-                            width: 0.50,
-                            color: colors.outline,
-                          ),
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          columnWidths: _getInventoryTableWidths(),
+                          }
+                        },
+                        child: Row(
                           children: [
-                            TableRow(
-                              decoration: BoxDecoration(
-                                color: colors.primaryContainer.withAlpha(
-                                  50,
-                                ),
-                              ),
-                              children: [
-                                TextWidget(
-                                  text: 'No',
-                                  textAlign: TextAlign.center,
-                                  padding: const EdgeInsets.all(8),
-                                  style: textTheme.bodySmall,
-                                ),
-                                TextWidget(
-                                  text: 'الصنف',
-                                  textAlign: TextAlign.center,
-                                  padding: const EdgeInsets.all(8),
-                                  style: textTheme.bodySmall,
-                                ),
-                                TextWidget(
-                                  text: 'المستودع الرئيسي',
-                                  textAlign: TextAlign.center,
-                                  padding: const EdgeInsets.all(8),
-                                  style: textTheme.bodySmall,
-                                ),
-                                TextWidget(
-                                  text: 'الكمية',
-                                  textAlign: TextAlign.center,
-                                  padding: const EdgeInsets.all(8),
-                                  style: textTheme.bodySmall,
-                                ),
-                                TextWidget(
-                                  text: 'حساب الإيرادات',
-                                  textAlign: TextAlign.center,
-                                  padding: const EdgeInsets.all(8),
-                                  style: textTheme.bodySmall,
-                                ),
-                                TextWidget(
-                                  text: 'حساب المصروفات',
-                                  textAlign: TextAlign.center,
-                                  padding: const EdgeInsets.all(8),
-                                  style: textTheme.bodySmall,
-                                ),
-                                TextWidget(
-                                  text: 'حساب مخزون الوارد',
-                                  textAlign: TextAlign.center,
-                                  padding: const EdgeInsets.all(8),
-                                  style: textTheme.bodySmall,
-                                ),
-                                TextWidget(
-                                  text: 'حساب مخزون الصادر',
-                                  textAlign: TextAlign.center,
-                                  padding: const EdgeInsets.all(8),
-                                  style: textTheme.bodySmall,
-                                ),
-                              ],
+                            fluent.Icon(fluent.FluentIcons.add),
+                            const SizedBox(width: 10),
+                            const fluent.Text(
+                              'إضافة مخزون جديد',
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
-                        Expanded(
-                          child: filteredItems.isEmpty
-                              ? _buildEmptyInventory(textTheme)
-                              : _buildTable(
-                                  filteredItems,
-                                  colors,
-                                  textTheme,
-                                ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            );
+              ),
+              Expanded(
+                child: Padding(
+                  padding: Paddings.smallAll,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      fluent.Table(
+                        border: TableBorder.all(
+                          width: 0.50,
+                          color: colors.outline,
+                        ),
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
+                        columnWidths: _getInventoryTableWidths(),
+                        children: [
+                          TableRow(
+                            decoration: BoxDecoration(
+                              color: colors.primaryContainer.withAlpha(50),
+                            ),
+                            children: [
+                              TextWidget(
+                                text: 'No',
+                                textAlign: TextAlign.center,
+                                padding: const EdgeInsets.all(8),
+                                style: textTheme.bodySmall,
+                              ),
+                              TextWidget(
+                                text: 'الصنف',
+                                textAlign: TextAlign.center,
+                                padding: const EdgeInsets.all(8),
+                                style: textTheme.bodySmall,
+                              ),
+                              TextWidget(
+                                text: 'المستودع الرئيسي',
+                                textAlign: TextAlign.center,
+                                padding: const EdgeInsets.all(8),
+                                style: textTheme.bodySmall,
+                              ),
+                              TextWidget(
+                                text: 'الكمية',
+                                textAlign: TextAlign.center,
+                                padding: const EdgeInsets.all(8),
+                                style: textTheme.bodySmall,
+                              ),
+                              TextWidget(
+                                text: 'حساب الإيرادات',
+                                textAlign: TextAlign.center,
+                                padding: const EdgeInsets.all(8),
+                                style: textTheme.bodySmall,
+                              ),
+                              TextWidget(
+                                text: 'حساب المصروفات',
+                                textAlign: TextAlign.center,
+                                padding: const EdgeInsets.all(8),
+                                style: textTheme.bodySmall,
+                              ),
+                              TextWidget(
+                                text: 'حساب مخزون الوارد',
+                                textAlign: TextAlign.center,
+                                padding: const EdgeInsets.all(8),
+                                style: textTheme.bodySmall,
+                              ),
+                              TextWidget(
+                                text: 'حساب مخزون الصادر',
+                                textAlign: TextAlign.center,
+                                padding: const EdgeInsets.all(8),
+                                style: textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Expanded(
+                        child: filteredItems.isEmpty
+                            ? _buildEmptyInventory(textTheme)
+                            : _buildTable(filteredItems, colors, textTheme),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
         },
       ),
     );
@@ -338,100 +344,102 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
     );
   }
 
-  ListView _buildTable(
+  Widget _buildTable(
     List<InventoryEntity> filteredItems,
     ColorScheme colors,
     TextTheme textTheme,
   ) {
-    return ListView.builder(
-      itemCount: filteredItems.length,
-      itemBuilder: (context, index) {
-        final item = filteredItems[index];
-        return InkWell(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) => InventoryItemFormDialog(item: item),
-            );
-          },
-          child: Table(
-            border: TableBorder.all(width: 0.50, color: colors.outline),
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            columnWidths: _getInventoryTableWidths(),
-            children: [
-              TableRow(
-                decoration: BoxDecoration(
-                  color: index.isEven
-                      ? colors.primaryContainer.withAlpha(15)
-                      : null,
-                ),
-                children: [
-                  TextWidget(
-                    text: '${index + 1}',
-                    textAlign: TextAlign.center,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 6,
+    return Material(
+      child: ListView.builder(
+        itemCount: filteredItems.length,
+        itemBuilder: (context, index) {
+          final item = filteredItems[index];
+          return InkWell(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => InventoryItemFormDialog(item: item),
+              );
+            },
+            child: fluent.Table(
+              border: TableBorder.all(width: 0.50, color: colors.outline),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              columnWidths: _getInventoryTableWidths(),
+              children: [
+                TableRow(
+                  decoration: BoxDecoration(
+                    color: index.isEven
+                        ? colors.primaryContainer.withAlpha(15)
+                        : null,
+                  ),
+                  children: [
+                    TextWidget(
+                      text: '${index + 1}',
+                      textAlign: TextAlign.center,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 6,
+                      ),
+                      style: textTheme.bodySmall,
                     ),
-                    style: textTheme.bodySmall,
-                  ),
-                  TextWidget(
-                    text: _getCategoryName(item.categoryId),
-                    padding: const EdgeInsets.all(8),
-                    style: textTheme.bodySmall,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  TextWidget(
-                    text: _getWarehouseName(item.storeId),
-                    textAlign: TextAlign.center,
-                    padding: const EdgeInsets.all(8),
-                    style: textTheme.bodySmall,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  TextWidget(
-                    text: item.countUnits.toString(),
-                    textAlign: TextAlign.center,
-                    padding: const EdgeInsets.all(8),
-                    style: textTheme.bodySmall,
-                  ),
-                  TextWidget(
-                    text: _getAccountName(item.revenueAccountId),
-                    textAlign: TextAlign.end,
-                    textDirection: TextDirection.rtl,
-                    padding: const EdgeInsets.all(8),
-                    style: textTheme.bodySmall,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  TextWidget(
-                    text: _getAccountName(item.expenseAccountId),
-                    textAlign: TextAlign.end,
-                    textDirection: TextDirection.rtl,
-                    padding: const EdgeInsets.all(8),
-                    style: textTheme.bodySmall,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  TextWidget(
-                    text: _getAccountName(item.incomeStockId),
-                    textAlign: TextAlign.end,
-                    textDirection: TextDirection.rtl,
-                    padding: const EdgeInsets.all(8),
-                    style: textTheme.bodySmall,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  TextWidget(
-                    text: _getAccountName(item.outcomeStockId),
-                    textAlign: TextAlign.end,
-                    textDirection: TextDirection.rtl,
-                    padding: const EdgeInsets.all(8),
-                    style: textTheme.bodySmall,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
+                    TextWidget(
+                      text: _getCategoryName(item.categoryId),
+                      padding: const EdgeInsets.all(8),
+                      style: textTheme.bodySmall,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    TextWidget(
+                      text: _getWarehouseName(item.storeId),
+                      textAlign: TextAlign.center,
+                      padding: const EdgeInsets.all(8),
+                      style: textTheme.bodySmall,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    TextWidget(
+                      text: item.countUnits.toString(),
+                      textAlign: TextAlign.center,
+                      padding: const EdgeInsets.all(8),
+                      style: textTheme.bodySmall,
+                    ),
+                    TextWidget(
+                      text: _getAccountName(item.revenueAccountId),
+                      textAlign: TextAlign.end,
+                      textDirection: TextDirection.rtl,
+                      padding: const EdgeInsets.all(8),
+                      style: textTheme.bodySmall,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    TextWidget(
+                      text: _getAccountName(item.expenseAccountId),
+                      textAlign: TextAlign.end,
+                      textDirection: TextDirection.rtl,
+                      padding: const EdgeInsets.all(8),
+                      style: textTheme.bodySmall,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    TextWidget(
+                      text: _getAccountName(item.incomeStockId),
+                      textAlign: TextAlign.end,
+                      textDirection: TextDirection.rtl,
+                      padding: const EdgeInsets.all(8),
+                      style: textTheme.bodySmall,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    TextWidget(
+                      text: _getAccountName(item.outcomeStockId),
+                      textAlign: TextAlign.end,
+                      textDirection: TextDirection.rtl,
+                      padding: const EdgeInsets.all(8),
+                      style: textTheme.bodySmall,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

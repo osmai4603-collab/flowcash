@@ -1,5 +1,6 @@
 import 'package:flowcash/features/settings/domain/entities/app_value_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class SettingTile extends StatefulWidget {
   final AppValueEntity value;
@@ -53,23 +54,21 @@ class _SettingTileState extends State<SettingTile> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            fluent.Text(
               widget.value.valueType.displayName(),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _controller,
-              decoration: const InputDecoration(
-                labelText: 'Value',
-              ),
+              decoration: const InputDecoration(labelText: 'Value'),
             ),
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,
-              child: FilledButton(
+              child: fluent.FilledButton(
                 onPressed: _save,
-                child: const Text('Save'),
+                child: const fluent.Text('Save'),
               ),
             ),
           ],

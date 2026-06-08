@@ -2,6 +2,7 @@ import 'package:flowcash/features/currencies/domain/entities/currency_entity.dar
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
+import 'package:flowcash/core/enums/journal_status_enum.dart';
 import 'package:flowcash/features/accounts/domain/usecases/journal_entry_repository_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/journal_item_repository_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/sub_account_repository_usecases.dart';
@@ -11,7 +12,8 @@ import 'package:flowcash/features/currencies/domain/usecases/exchange_price_repo
 import 'journal_entry_form_event.dart';
 import 'journal_entry_form_state.dart';
 
-class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormState> {
+class JournalEntryFormBloc
+    extends Bloc<JournalEntryFormEvent, JournalEntryFormState> {
   final InsertJournalEntryUseCase _insertJournalEntryWithItems;
   final GetJournalItemsByEntryIdUseCase _getJournalItemsByEntryId;
   final UpdateSubaccountBalanceUseCase _updateSubaccountBalance;
@@ -32,16 +34,16 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
     required GetMainAccountByIdUseCase getMainAccountById,
     required GetCurrenciesUseCase getCurrencies,
     required GetExPriceUseCase getExPrice,
-  })  : _insertJournalEntryWithItems = insertJournalEntryWithItems,
-        _getJournalItemsByEntryId = getJournalItemsByEntryId,
-        _updateSubaccountBalance = updateSubaccountBalance,
-        _updateMainAccountBalance = updateMainAccountBalance,
-        _getSubAccounts = getSubAccounts,
-        _getSubAccountById = getSubAccountById,
-        _getMainAccountById = getMainAccountById,
-        _getCurrencies = getCurrencies,
-        _getExPrice = getExPrice,
-        super(JournalEntryFormState.initial()) {
+  }) : _insertJournalEntryWithItems = insertJournalEntryWithItems,
+       _getJournalItemsByEntryId = getJournalItemsByEntryId,
+       _updateSubaccountBalance = updateSubaccountBalance,
+       _updateMainAccountBalance = updateMainAccountBalance,
+       _getSubAccounts = getSubAccounts,
+       _getSubAccountById = getSubAccountById,
+       _getMainAccountById = getMainAccountById,
+       _getCurrencies = getCurrencies,
+       _getExPrice = getExPrice,
+       super(JournalEntryFormState.initial()) {
     on<InitJournalEntryForm>(_onInitJournalEntryForm);
     on<JournalEntryDescriptionChanged>(_onJournalEntryDescriptionChanged);
     on<JournalEntryDateChanged>(_onJournalEntryDateChanged);
@@ -56,7 +58,13 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
     InitJournalEntryForm event,
     Emitter<JournalEntryFormState> emit,
   ) async {
-    emit(state.copyWith(status: JournalEntryFormStatus.loading, editingEntry: event.editingEntry, isLoadingCurrencies: true));
+    emit(
+      state.copyWith(
+        status: JournalEntryFormStatus.loading,
+        editingEntry: event.editingEntry,
+        isLoadingCurrencies: true,
+      ),
+    );
 
     final currenciesRes = await _getCurrencies.call();
     List<CurrencyEntity> currencies = [];
@@ -67,13 +75,15 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
     );
 
     if (currencyError != null) {
-      emit(state.copyWith(
-        status: JournalEntryFormStatus.failure,
-        errorMessage: currencyError,
-        currencies: currencies,
-        currencySelected: currencies.isNotEmpty ? currencies.first : null,
-        isLoadingCurrencies: false,
-      ));
+      emit(
+        state.copyWith(
+          status: JournalEntryFormStatus.failure,
+          errorMessage: currencyError,
+          currencies: currencies,
+          currencySelected: currencies.isNotEmpty ? currencies.first : null,
+          isLoadingCurrencies: false,
+        ),
+      );
       return;
     }
 
@@ -92,49 +102,54 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
       final subAccsRes = await _getSubAccounts();
 
       itemsRes.fold(
-        (failure) => emit(state.copyWith(
-          status: JournalEntryFormStatus.failure,
-          errorMessage: failure.message,
-        )),
+        (failure) => emit(
+          state.copyWith(
+            status: JournalEntryFormStatus.failure,
+            errorMessage: failure.message,
+          ),
+        ),
         (items) {
           final drafts = items.map((item) {
             String? accName;
-            subAccsRes.fold(
-              (_) {},
-              (accs) {
-                final match = accs.where((a) => a.id == item.accountId);
-                if (match.isNotEmpty) accName = match.first.accountName;
-              },
-            );
+            subAccsRes.fold((_) {}, (accs) {
+              final match = accs.where((a) => a.id == item.accountId);
+              if (match.isNotEmpty) accName = match.first.accountName;
+            });
 
             return JournalItemDraft(
               accountId: item.accountId,
               accountName: accName,
               debit: item.debit,
               credit: item.credit,
-              side: item.debit > 0 ? JournalItemSide.debit : JournalItemSide.credit,
+              side: item.debit > 0
+                  ? JournalItemSide.debit
+                  : JournalItemSide.credit,
               lineDescription: item.lineDescription ?? '',
             );
           }).toList();
 
-          emit(JournalEntryFormState(
-            status: JournalEntryFormStatus.initial,
-            editingEntry: event.editingEntry,
-            description: event.editingEntry!.description ?? '',
-            date: event.editingEntry!.createdAt,
-            currencySelected: selectedCurrency,
-            currencies: currencies,
-            isLoadingCurrencies: false,
-            items: drafts,
-          ));
+          emit(
+            JournalEntryFormState(
+              status: JournalEntryFormStatus.initial,
+              editingEntry: event.editingEntry,
+              description: event.editingEntry!.description ?? '',
+              date: event.editingEntry!.createdAt,
+              currencySelected: selectedCurrency,
+              currencies: currencies,
+              isLoadingCurrencies: false,
+              items: drafts,
+            ),
+          );
         },
       );
     } else {
-      emit(JournalEntryFormState.initial().copyWith(
-        currencies: currencies,
-        currencySelected: selectedCurrency,
-        isLoadingCurrencies: false,
-      ));
+      emit(
+        JournalEntryFormState.initial().copyWith(
+          currencies: currencies,
+          currencySelected: selectedCurrency,
+          isLoadingCurrencies: false,
+        ),
+      );
     }
   }
 
@@ -156,7 +171,9 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
     JournalEntryCurrencyChanged event,
     Emitter<JournalEntryFormState> emit,
   ) {
-    emit(state.copyWith(currencySelected: event.currency, exPrice: event.exPrice));
+    emit(
+      state.copyWith(currencySelected: event.currency, exPrice: event.exPrice),
+    );
   }
 
   void _onAddJournalItemField(
@@ -175,7 +192,12 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
     // Ensure at least one item remains for the side
     final sideCount = state.items.where((it) => it.side == event.side).length;
     if (sideCount <= 1) {
-      emit(state.copyWith(errorMessage: 'يجب أن يحتوي كل قسم (مدين/دائن) على بند واحد على الأقل.'));
+      emit(
+        state.copyWith(
+          errorMessage:
+              'يجب أن يحتوي كل قسم (مدين/دائن) على بند واحد على الأقل.',
+        ),
+      );
       return;
     }
 
@@ -193,7 +215,8 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
     }
     if (globalIndex < 0) return;
 
-    final newList = List<JournalItemDraft>.from(state.items)..removeAt(globalIndex);
+    final newList = List<JournalItemDraft>.from(state.items)
+      ..removeAt(globalIndex);
     emit(state.copyWith(items: newList));
   }
 
@@ -230,13 +253,19 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
       debit: updatedDebit,
       credit: updatedCredit,
       lineDescription: event.lineDescription ?? target.lineDescription,
-      clearAccount: event.accountId == null && target.accountId != null && event.debit == null && event.credit == null,
+      clearAccount:
+          event.accountId == null &&
+          target.accountId != null &&
+          event.debit == null &&
+          event.credit == null,
     );
 
     // Validation: any item with both debit and credit > 0 is invalid.
     final anyInvalidItem = newList.any((it) => it.debit > 0 && it.credit > 0);
     // Check if user entered any amounts to avoid showing unbalanced message on empty form.
-    final anyAmountEntered = newList.any((it) => it.debit != 0.0 || it.credit != 0.0);
+    final anyAmountEntered = newList.any(
+      (it) => it.debit != 0.0 || it.credit != 0.0,
+    );
     final totalDebit = newList.fold<double>(0.0, (s, it) => s + it.debit);
     final totalCredit = newList.fold<double>(0.0, (s, it) => s + it.credit);
 
@@ -258,14 +287,23 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
   ) async {
     // Validations
     if (!state.isBalanced) {
-      emit(state.copyWith(errorMessage: 'القيد غير متزن! الفرق يجب أن يكون صفر.'));
+      emit(
+        state.copyWith(errorMessage: 'القيد غير متزن! الفرق يجب أن يكون صفر.'),
+      );
       return;
     }
     // Ensure at least one item per side
     final hasDebit = state.items.any((it) => it.side == JournalItemSide.debit);
-    final hasCredit = state.items.any((it) => it.side == JournalItemSide.credit);
+    final hasCredit = state.items.any(
+      (it) => it.side == JournalItemSide.credit,
+    );
     if (!hasDebit || !hasCredit) {
-      emit(state.copyWith(errorMessage: 'يجب أن يحتوي القيد على بند واحد على الأقل في كل من المدين والدائن.'));
+      emit(
+        state.copyWith(
+          errorMessage:
+              'يجب أن يحتوي القيد على بند واحد على الأقل في كل من المدين والدائن.',
+        ),
+      );
       return;
     }
     if (state.items.any((item) => item.accountId == null)) {
@@ -273,11 +311,16 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
       return;
     }
     if (state.items.any((item) => item.debit == 0 && item.credit == 0)) {
-      emit(state.copyWith(errorMessage: 'جميع البنود يجب أن تحتوي على مبالغ (مدين أو دائن).'));
+      emit(
+        state.copyWith(
+          errorMessage: 'جميع البنود يجب أن تحتوي على مبالغ (مدين أو دائن).',
+        ),
+      );
       return;
     }
 
-    emit(state.copyWith(status: JournalEntryFormStatus.loading));    await Future.delayed(const Duration(seconds: 1));
+    emit(state.copyWith(status: JournalEntryFormStatus.loading));
+    await Future.delayed(const Duration(seconds: 1));
     final String reference = 'JE-${DateTime.now().millisecondsSinceEpoch}';
 
     // Insert Entry
@@ -295,57 +338,112 @@ class JournalEntryFormBloc extends Bloc<JournalEntryFormEvent, JournalEntryFormS
     for (final itemDraft in state.items) {
       final subAccountResult = await _getSubAccountById(itemDraft.accountId!);
       final subAccount = subAccountResult.fold((failure) {
-        emit(state.copyWith(status: JournalEntryFormStatus.failure, errorMessage: failure.message));
+        emit(
+          state.copyWith(
+            status: JournalEntryFormStatus.failure,
+            errorMessage: failure.message,
+          ),
+        );
         return null;
       }, (account) => account);
       if (subAccount == null) return;
 
       final subAccountCurrencyId = subAccount.currencyId;
-      final exPriceResult = await _getExPrice(state.currencySelected!.id, subAccountCurrencyId);
+      final exPriceResult = await _getExPrice(
+        state.currencySelected!.id,
+        subAccountCurrencyId,
+      );
       final exPrice = exPriceResult.fold((failure) {
-        emit(state.copyWith(status: JournalEntryFormStatus.failure, errorMessage: failure.message));
+        emit(
+          state.copyWith(
+            status: JournalEntryFormStatus.failure,
+            errorMessage: failure.message,
+          ),
+        );
         return null;
       }, (rate) => rate);
       if (exPrice == null) return;
 
-      final mainAccountResult = await _getMainAccountById(subAccount.mainAccountId);
+      final mainAccountResult = await _getMainAccountById(
+        subAccount.mainAccountId,
+      );
       final mainAccount = mainAccountResult.fold((failure) {
-        emit(state.copyWith(status: JournalEntryFormStatus.failure, errorMessage: failure.message));
+        emit(
+          state.copyWith(
+            status: JournalEntryFormStatus.failure,
+            errorMessage: failure.message,
+          ),
+        );
         return null;
       }, (account) => account);
       if (mainAccount == null) return;
       if (mainAccount.currencyId == null) {
-        emit(state.copyWith(status: JournalEntryFormStatus.failure, errorMessage: 'لا يمكن تحديد عملة الحساب الرئيسي للبند.'));
+        emit(
+          state.copyWith(
+            status: JournalEntryFormStatus.failure,
+            errorMessage: 'لا يمكن تحديد عملة الحساب الرئيسي للبند.',
+          ),
+        );
         return;
       }
 
-      final exPriceMainResult = await _getExPrice(state.currencySelected!.id, mainAccount.currencyId!);
+      final exPriceMainResult = await _getExPrice(
+        state.currencySelected!.id,
+        mainAccount.currencyId!,
+      );
       final exPriceMain = exPriceMainResult.fold((failure) {
-        emit(state.copyWith(status: JournalEntryFormStatus.failure, errorMessage: failure.message));
+        emit(
+          state.copyWith(
+            status: JournalEntryFormStatus.failure,
+            errorMessage: failure.message,
+          ),
+        );
         return null;
       }, (rate) => rate);
       if (exPriceMain == null) return;
 
-      items.add(JournalItemEntity(
-        id: 0,
-        entryId: state.editingEntry?.id ?? 0,
-        accountId: itemDraft.accountId!,
-        debit: itemDraft.debit,
-        credit: itemDraft.credit,
-        lineDescription: itemDraft.lineDescription.isNotEmpty ? itemDraft.lineDescription : state.description,
-        currencyId: state.currencySelected!.id,
-        exPrice: exPrice,
-        expriceMain: exPriceMain,
-      ));
+      final isDebtorAccount =
+          subAccount.subAccountType.mainAccountType.accountStatus.isDebtor;
+      final journalStatus = isDebtorAccount
+          ? (itemDraft.debit > 0 ? JournalStatus.debit : JournalStatus.credit)
+          : (itemDraft.credit > 0 ? JournalStatus.debit : JournalStatus.credit);
+
+      items.add(
+        JournalItemEntity(
+          id: 0,
+          entryId: state.editingEntry?.id ?? 0,
+          accountId: itemDraft.accountId!,
+          debit: itemDraft.debit,
+          credit: itemDraft.credit,
+          lineDescription: itemDraft.lineDescription.isNotEmpty
+              ? itemDraft.lineDescription
+              : state.description,
+          currencyId: state.currencySelected!.id,
+          exPrice: exPrice,
+          expriceMain: exPriceMain,
+          journalStatus: journalStatus,
+        ),
+      );
     }
 
-    final entryResult = await _insertJournalEntryWithItems(entry.copyWith(items: items));
+    final entryResult = await _insertJournalEntryWithItems(
+      entry.copyWith(items: items),
+    );
 
     await entryResult.fold(
-      (failure) async => emit(state.copyWith(status: JournalEntryFormStatus.failure, errorMessage: failure.message)),
+      (failure) async => emit(
+        state.copyWith(
+          status: JournalEntryFormStatus.failure,
+          errorMessage: failure.message,
+        ),
+      ),
       (savedEntry) async {
-        
-        emit(state.copyWith(status: JournalEntryFormStatus.success, editingEntry: savedEntry));
+        emit(
+          state.copyWith(
+            status: JournalEntryFormStatus.success,
+            editingEntry: savedEntry,
+          ),
+        );
       },
     );
   }

@@ -55,7 +55,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
         if (filtered.isEmpty) {
           return Center(
-            child: fluent.Text('لا يوجد اصناف موجودة', style: textTheme.bodyLarge),
+            child: fluent.Text(
+              'لا يوجد اصناف موجودة',
+              style: textTheme.bodyLarge,
+            ),
           );
         }
 
@@ -179,29 +182,37 @@ class _CategoriesPageState extends State<CategoriesPage> {
                         );
                       },
                     ),
-                    IconButton(
-                      tooltip: 'الاصناف الرئيسية',
-                      icon: Icon(fluent.FluentIcons.add),
-                      onPressed: () {
-                        context.go(AppRouteKeys.mainCategories);
-                      },
-                    ),
-                    IconButton(
-                      tooltip: 'إعادة تحميل الأصناف',
-                      icon: Icon(fluent.FluentIcons.refresh),
-                      onPressed: () => context.read<CategoriesBloc>().add(
-                        LoadCategoriesEvent(),
+                    fluent.Tooltip(
+                      message: 'الاصناف الرئيسية',
+                      child: fluent.IconButton(
+                        icon: fluent.Icon(fluent.FluentIcons.add),
+                        onPressed: () {
+                          context.go(AppRouteKeys.mainCategories);
+                        },
                       ),
                     ),
-                    IconButton(
-                      tooltip: 'اضافة صنف جديد',
-                      icon: const Icon(fluent.FluentIcons.add),
-                      onPressed: _onAddNewCategoryPressed,
+                    fluent.Tooltip(
+                      message: 'إعادة تحميل الأصناف',
+                      child: fluent.IconButton(
+                        icon: fluent.Icon(fluent.FluentIcons.refresh),
+                        onPressed: () => context.read<CategoriesBloc>().add(
+                          LoadCategoriesEvent(),
+                        ),
+                      ),
                     ),
-                    IconButton(
-                      tooltip: 'طباعة بيانات الأصناف',
-                      icon: Icon(fluent.FluentIcons.print),
-                      onPressed: () async {},
+                    fluent.Tooltip(
+                      message: 'اضافة صنف جديد',
+                      child: fluent.IconButton(
+                        icon: const fluent.Icon(fluent.FluentIcons.add),
+                        onPressed: _onAddNewCategoryPressed,
+                      ),
+                    ),
+                    fluent.Tooltip(
+                      message: 'طباعة بيانات الأصناف',
+                      child: fluent.IconButton(
+                        icon: fluent.Icon(fluent.FluentIcons.print),
+                        onPressed: () async {},
+                      ),
                     ),
                   ],
                 ),
@@ -225,7 +236,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                       if (state is CategoriesLoadSuccess) {
                         return listView(state.categories);
                       }
-                      return const Center(child: Text('لا يوجد اصناف موجودة'));
+                      return const Center(
+                        child: fluent.Text('لا يوجد اصناف موجودة'),
+                      );
                     },
                   ),
                 ),
@@ -265,8 +278,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
   void showSnackBar(BuildContext context, String s) {
     fluent.displayInfoBar(
       context,
-      builder: (context, close) =>
-          fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(s)),
+      builder: (context, close) => fluent.InfoBar(
+        title: const fluent.Text('تنبيه'),
+        content: fluent.Text(s),
+      ),
     );
   }
 

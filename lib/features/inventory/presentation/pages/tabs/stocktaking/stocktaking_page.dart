@@ -9,6 +9,7 @@ import 'package:flowcash/features/inventory/presentation/blocs/stocktaking/stock
 import 'package:flowcash/features/inventory/presentation/blocs/stocktaking/stocktaking_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class StocktakingPage extends StatefulWidget {
   const StocktakingPage({super.key});
 
@@ -72,7 +73,13 @@ class _StocktakingPageState extends State<StocktakingPage> {
         listener: (context, state) {
           if (state.status == StocktakingStatus.error &&
               state.errorMessage != null) {
-            fluent.displayInfoBar(context, builder: (context, close) => fluent.InfoBar(title: const fluent.Text('تنبيه'), content: fluent.Text(state.errorMessage!)));
+            fluent.displayInfoBar(
+              context,
+              builder: (context, close) => fluent.InfoBar(
+                title: const fluent.Text('تنبيه'),
+                content: fluent.Text(state.errorMessage!),
+              ),
+            );
           }
         },
         builder: (context, state) {
@@ -130,7 +137,9 @@ class _StocktakingPageState extends State<StocktakingPage> {
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'البحث باسم صنف المخزون... 🔍',
-                              prefixIcon: const Icon(fluent.FluentIcons.search),
+                              prefixIcon: const fluent.Icon(
+                                fluent.FluentIcons.search,
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -151,12 +160,16 @@ class _StocktakingPageState extends State<StocktakingPage> {
                                 SubmenuButton(
                                   menuChildren: [
                                     MenuItemButton(
-                                      onPressed: () => setState(() => _filterWarehouseId = null),
+                                      onPressed: () => setState(
+                                        () => _filterWarehouseId = null,
+                                      ),
                                       child: const fluent.Text('كل المخازن 🏢'),
                                     ),
                                     ...state.warehouses.map(
                                       (w) => MenuItemButton(
-                                        onPressed: () => setState(() => _filterWarehouseId = w.id),
+                                        onPressed: () => setState(
+                                          () => _filterWarehouseId = w.id,
+                                        ),
                                         child: fluent.Text(w.warehouseName),
                                       ),
                                     ),
@@ -164,9 +177,20 @@ class _StocktakingPageState extends State<StocktakingPage> {
                                   child: fluent.Text(
                                     _filterWarehouseId == null
                                         ? 'كل المخازن 🏢'
-                                        : state.warehouses.where((w) => w.id == _filterWarehouseId).isEmpty
-                                            ? 'كل المخازن 🏢'
-                                            : state.warehouses.where((w) => w.id == _filterWarehouseId).first.warehouseName,
+                                        : state.warehouses
+                                              .where(
+                                                (w) =>
+                                                    w.id == _filterWarehouseId,
+                                              )
+                                              .isEmpty
+                                        ? 'كل المخازن 🏢'
+                                        : state.warehouses
+                                              .where(
+                                                (w) =>
+                                                    w.id == _filterWarehouseId,
+                                              )
+                                              .first
+                                              .warehouseName,
                                   ),
                                 ),
                               ],
@@ -184,7 +208,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
                               vertical: 14,
                             ),
                           ),
-                          icon: const Icon(fluent.FluentIcons.sync),
+                          icon: const fluent.Icon(fluent.FluentIcons.sync),
                           label: const fluent.Text('إعادة تحميل القياسات'),
                         ),
                       ],
@@ -344,7 +368,6 @@ class _StocktakingPageState extends State<StocktakingPage> {
                                                       horizontal: 8,
                                                       vertical: 4,
                                                     ),
-                                                
                                               ),
                                               onChanged: (val) {
                                                 final num =

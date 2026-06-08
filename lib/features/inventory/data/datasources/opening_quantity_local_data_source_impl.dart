@@ -80,6 +80,8 @@ final class OpeningQuantityLocalDataSourceImpl
       ),
       costTotal: ((map[OpeningQuantitiesTable.costTotal]) as num).toDouble(),
       periodId: map[OpeningQuantitiesTable.periodId] as int,
+      currencyId: map[OpeningQuantitiesTable.currencyId] as String?,
+      journalEntryId: map[OpeningQuantitiesTable.journalEntryId] as int?,
     );
   }
 
@@ -92,6 +94,8 @@ final class OpeningQuantityLocalDataSourceImpl
       OpeningQuantitiesTable.createdAt: entity.createdAt.toIso8601String(),
       OpeningQuantitiesTable.costTotal: entity.costTotal,
       OpeningQuantitiesTable.periodId: entity.periodId,
+      if (entity.currencyId != null) OpeningQuantitiesTable.currencyId: entity.currencyId,
+      if (entity.journalEntryId != null) OpeningQuantitiesTable.journalEntryId: entity.journalEntryId,
     };
   }
 

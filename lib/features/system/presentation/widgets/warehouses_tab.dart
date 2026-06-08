@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class WarehousesTab extends StatelessWidget {
-  const WarehousesTab({Key? key}) : super(key: key);
+  const WarehousesTab({super.key});
 
   @override
   Widget build(BuildContext context) {

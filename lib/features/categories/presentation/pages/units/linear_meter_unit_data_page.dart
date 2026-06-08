@@ -18,6 +18,7 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class LinearMeterUnitDataPage extends StatefulWidget {
   final CategoryPropertyEntity property;
   final UnitEntity? unit;
@@ -136,10 +137,12 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
                       children: [
                         Row(
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back),
-                              tooltip: 'رجوع',
-                              onPressed: () => Navigator.pop(context),
+                            fluent.Tooltip(
+                              message: 'رجوع',
+                              child: fluent.IconButton(
+                                icon: const fluent.Icon(Icons.arrow_back),
+                                onPressed: () => Navigator.pop(context),
+                              ),
                             ),
                             TextWidget(
                               text:
@@ -147,10 +150,12 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
                               alignment: Alignment.center,
                               expanded: true,
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.save),
-                              tooltip: 'حفظ البيانات',
-                              onPressed: _onSaveButtonClicked,
+                            fluent.Tooltip(
+                              message: 'حفظ البيانات',
+                              child: fluent.IconButton(
+                                icon: const fluent.Icon(Icons.save),
+                                onPressed: _onSaveButtonClicked,
+                              ),
                             ),
                           ],
                         ),
@@ -161,8 +166,8 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
                             Expanded(
                               flex: 2,
                               child: TextFormField(
-                                  textInputAction: TextInputAction.done,
-                                  onFieldSubmitted: (_) => _onSaveButtonClicked(),
+                                textInputAction: TextInputAction.done,
+                                onFieldSubmitted: (_) => _onSaveButtonClicked(),
                                 controller: lengthController,
                                 textDirection: TextDirection.ltr,
                                 keyboardType: TextInputType.number,
@@ -213,7 +218,8 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
                                       width: 0.20,
                                     ),
                                   ),
-                                  prefixIcon: Icon(Icons.fitness_center,
+                                  prefixIcon: fluent.Icon(
+                                    Icons.fitness_center,
                                     color: colors.primary,
                                   ),
                                 ),
@@ -225,7 +231,7 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
                                 decoration: const InputDecoration(
                                   labelText: 'الوحدة',
                                   hintText: 'حدد الوحدة',
-                                  prefixIcon: Icon(Icons.merge_type),
+                                  prefixIcon: fluent.Icon(Icons.merge_type),
                                 ),
                                 items: measuresUnits.map((String value) {
                                   return DropdownMenuItem<String>(

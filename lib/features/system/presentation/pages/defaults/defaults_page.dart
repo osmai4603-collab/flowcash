@@ -152,8 +152,16 @@ class DefaultsPage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Row(
             children: [
-              ElevatedButton.icon(
-                onPressed: () async {
+              fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(fluent.FluentIcons.add),
+    const SizedBox(width: 8.0),
+    const fluent.Text('إضافة'),
+  ],
+),
+onPressed: () async {
                   final result = await showDialog<ValueEntity?>(
                     context: context,
                     builder: (context) =>
@@ -170,9 +178,7 @@ class DefaultsPage extends StatelessWidget {
                     context.read<DefaultsBloc>().add(LoadDefaultsEvent());
                   }
                 },
-                icon: const Icon(fluent.FluentIcons.add),
-                label: const fluent.Text('إضافة'),
-              ),
+),
             ],
           ),
         ),

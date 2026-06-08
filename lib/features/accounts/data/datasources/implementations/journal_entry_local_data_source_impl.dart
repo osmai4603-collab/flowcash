@@ -3,6 +3,7 @@ import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/journal_entries_table.dart';
+import 'package:flowcash/core/enums/journal_status_enum.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
 
 final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
@@ -251,6 +252,14 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
   }
 
   JournalItemEntity _journalItemFromMap(Map<String, dynamic> row) {
+    final statusStr = row[JournalItemsTable.journalStatus] as String?;
+    final JournalStatus status;
+    if (statusStr != null) {
+      status = JournalStatus.of(statusStr);
+    } else {
+      final debitVal = ((row[JournalItemsTable.debit]) as num?)?.toDouble() ?? 0.0;
+      status = debitVal > 0 ? JournalStatus.debit : JournalStatus.credit;
+    }
     return JournalItemEntity(
       id: row[JournalItemsTable.itemId] as int,
       entryId: row[JournalItemsTable.entryId] as int,
@@ -261,6 +270,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
       currencyId: row[JournalItemsTable.currencyId] as String,
       exPrice: ((row[JournalItemsTable.exPrice]) as num).toDouble(),
       expriceMain: ((row[JournalItemsTable.expriceMain]) as num).toDouble(),
+      journalStatus: status,
     );
   }
 

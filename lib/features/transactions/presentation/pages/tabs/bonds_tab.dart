@@ -19,7 +19,8 @@ class BondsTab extends StatefulWidget {
 }
 
 class _BondsTabState extends State<BondsTab> {
-  bool _isPaidFilter = false; // false = Receipts (proceeds), true = Payments (paids)
+  bool _isPaidFilter =
+      false; // false = Receipts (proceeds), true = Payments (paids)
   String _searchQuery = '';
   final _searchController = TextEditingController();
 
@@ -35,15 +36,16 @@ class _BondsTabState extends State<BondsTab> {
   Widget build(BuildContext context) {
     return BlocBuilder<FinancialBondsBloc, FinancialBondsState>(
       builder: (context, state) {
-        if (state.status == FinancialBondsStatus.loading && state.bonds.isEmpty) {
+        if (state.status == FinancialBondsStatus.loading &&
+            state.bonds.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
 
         final filteredList = state.bonds.where((b) {
-          final isTargetType = _isPaidFilter 
+          final isTargetType = _isPaidFilter
               ? b.historyGroup == HistoriesGroup.paids
               : b.historyGroup == HistoriesGroup.proceeds;
-          
+
           if (!isTargetType) return false;
 
           if (_searchQuery.isEmpty) return true;
@@ -61,14 +63,24 @@ class _BondsTabState extends State<BondsTab> {
                   // Segmented Switch
                   SegmentedButton<bool>(
                     segments: const [
-                      ButtonSegment(value: false, label: fluent.Text('سندات القبض'), icon: Icon(Icons.download)),
-                      ButtonSegment(value: true, label: fluent.Text('سندات الصرف'), icon: Icon(Icons.upload)),
+                      ButtonSegment(
+                        value: false,
+                        label: fluent.Text('سندات القبض'),
+                        icon: fluent.Icon(Icons.download),
+                      ),
+                      ButtonSegment(
+                        value: true,
+                        label: fluent.Text('سندات الصرف'),
+                        icon: fluent.Icon(Icons.upload),
+                      ),
                     ],
                     selected: {_isPaidFilter},
                     onSelectionChanged: (val) {
                       setState(() {
                         _isPaidFilter = val.first;
-                        context.read<FinancialBondsBloc>().add(const SelectFinancialBondEvent(null));
+                        context.read<FinancialBondsBloc>().add(
+                          const SelectFinancialBondEvent(null),
+                        );
                       });
                     },
                   ),
@@ -79,7 +91,7 @@ class _BondsTabState extends State<BondsTab> {
                       controller: _searchController,
                       decoration: InputDecoration(
                         hintText: 'البحث عن سند مالي...',
-                        prefixIcon: const Icon(Icons.search),
+                        prefixIcon: const fluent.Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -93,15 +105,15 @@ class _BondsTabState extends State<BondsTab> {
                   ),
                   const SizedBox(width: 16),
                   // Add Button
-                  ElevatedButton.icon(
-                    onPressed: () => _showAddBondContentDialog(context),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  fluent.FilledButton(
+child: const fluent.Icon(Icons.add),
+onPressed: () => _showAddBondContentDialog(context),
+label: fluent.Text(
+                      _isPaidFilter
+                          ? 'إضافة سند صرف جديد'
+                          : 'إضافة سند قبض جديد',
                     ),
-                    icon: const Icon(Icons.add),
-                    label: fluent.Text(_isPaidFilter ? 'إضافة سند صرف جديد' : 'إضافة سند قبض جديد'),
-                  ),
+),
                 ],
               ),
             ),
@@ -114,11 +126,18 @@ class _BondsTabState extends State<BondsTab> {
                       children: [
                         Expanded(
                           flex: 6,
-                          child: _buildList(context, filteredList, state.selectedBond),
+                          child: _buildList(
+                            context,
+                            filteredList,
+                            state.selectedBond,
+                          ),
                         ),
                         Expanded(
                           flex: 4,
-                          child: _buildDetailsPanel(context, state.selectedBond),
+                          child: _buildDetailsPanel(
+                            context,
+                            state.selectedBond,
+                          ),
                         ),
                       ],
                     )
@@ -152,16 +171,25 @@ class _BondsTabState extends State<BondsTab> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: isSelected
-                ? BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
+                ? BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 2,
+                  )
                 : BorderSide.none,
           ),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
             title: TextWidget(
-              text: '${_isPaidFilter ? "سند صرف" : "سند قبض"} رقم #${b.billNumber}',
+              text:
+                  '${_isPaidFilter ? "سند صرف" : "سند قبض"} رقم #${b.billNumber}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: fluent.Text('التاريخ: ${b.createdAt.toString().split(' ')[0]} | البيان: ${b.note ?? "بدون بيان"}'),
+            subtitle: fluent.Text(
+              'التاريخ: ${b.createdAt.toString().split(' ')[0]} | البيان: ${b.note ?? "بدون بيان"}',
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -174,23 +202,36 @@ class _BondsTabState extends State<BondsTab> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward, size: 16),
+                const fluent.Icon(Icons.arrow_forward, size: 16),
               ],
             ),
             onTap: () {
-              context.read<FinancialBondsBloc>().add(SelectFinancialBondEvent(b));
+              context.read<FinancialBondsBloc>().add(
+                SelectFinancialBondEvent(b),
+              );
               if (!isDesktop) {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (blocContext) => Scaffold(
-                      appBar: AppBar(title: fluent.Text('${_isPaidFilter ? "سند صرف" : "سند قبض"} #${b.billNumber}')),
+                      appBar: AppBar(
+                        title: fluent.Text(
+                          '${_isPaidFilter ? "سند صرف" : "سند قبض"} #${b.billNumber}',
+                        ),
+                      ),
                       body: BlocProvider.value(
                         value: context.read<FinancialBondsBloc>(),
-                        child: BlocBuilder<FinancialBondsBloc, FinancialBondsState>(
-                          builder: (context, state) {
-                            return _buildDetailsPanel(context, state.selectedBond);
-                          },
-                        ),
+                        child:
+                            BlocBuilder<
+                              FinancialBondsBloc,
+                              FinancialBondsState
+                            >(
+                              builder: (context, state) {
+                                return _buildDetailsPanel(
+                                  context,
+                                  state.selectedBond,
+                                );
+                              },
+                            ),
                       ),
                     ),
                   ),
@@ -229,18 +270,26 @@ class _BondsTabState extends State<BondsTab> {
               children: [
                 fluent.Text(
                   'تفاصيل السند المالي #${b.billNumber}',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _confirmDelete(context, b.id),
+                fluent.Tooltip(
+                  message: 'حذف السند',
+                  child: fluent.IconButton(
+                    icon: const fluent.Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _confirmDelete(context, b.id),
+                  ),
                 ),
               ],
             ),
             const Divider(),
             const SizedBox(height: 12),
             _buildInfoRow('المبلغ:', '${b.offerAmount} \$'),
-            _buildInfoRow('النوع:', b.historyGroup == HistoriesGroup.paids ? 'سند صرف' : 'سند قبض'),
+            _buildInfoRow(
+              'النوع:',
+              b.historyGroup == HistoriesGroup.paids ? 'سند صرف' : 'سند قبض',
+            ),
             _buildInfoRow('التاريخ:', b.createdAt.toString()),
             if (b.note != null) _buildInfoRow('البيان:', b.note!),
             _buildInfoRow('رقم الحساب الفرعي المساعد:', 'حساب #${b.hintId}'),
@@ -257,7 +306,10 @@ class _BondsTabState extends State<BondsTab> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           fluent.Text(label, style: const TextStyle(color: Colors.grey)),
-          fluent.Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          fluent.Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
@@ -268,7 +320,9 @@ class _BondsTabState extends State<BondsTab> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const fluent.Text('حذف السند'),
-        content: const fluent.Text('هل أنت متأكد من رغبتك في حذف هذا السند نهائياً؟'),
+        content: const fluent.Text(
+          'هل أنت متأكد من رغبتك في حذف هذا السند نهائياً؟',
+        ),
         actions: [
           fluent.Button(
             onPressed: () => Navigator.pop(dialogContext),
@@ -276,7 +330,9 @@ class _BondsTabState extends State<BondsTab> {
           ),
           fluent.FilledButton(
             onPressed: () {
-              context.read<FinancialBondsBloc>().add(DeleteFinancialBondEvent(id));
+              context.read<FinancialBondsBloc>().add(
+                DeleteFinancialBondEvent(id),
+              );
               Navigator.pop(dialogContext);
             },
             child: const fluent.Text('حذف'),
@@ -295,7 +351,9 @@ class _BondsTabState extends State<BondsTab> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: fluent.Text(_isPaidFilter ? 'إضافة سند صرف جديد' : 'إضافة سند قبض جديد'),
+        title: fluent.Text(
+          _isPaidFilter ? 'إضافة سند صرف جديد' : 'إضافة سند قبض جديد',
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -313,11 +371,15 @@ class _BondsTabState extends State<BondsTab> {
               TextField(
                 controller: hintIdController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'رقم الحساب المرتبط (hintId)'),
+                decoration: const InputDecoration(
+                  labelText: 'رقم الحساب المرتبط (hintId)',
+                ),
               ),
               TextField(
                 controller: noteController,
-                decoration: const InputDecoration(labelText: 'البيان / ملاحظات'),
+                decoration: const InputDecoration(
+                  labelText: 'البيان / ملاحظات',
+                ),
               ),
             ],
           ),
@@ -343,10 +405,14 @@ class _BondsTabState extends State<BondsTab> {
                 billNumber: num,
                 warehouseId: 1,
                 hintId: hintId,
-                historyGroup: _isPaidFilter ? HistoriesGroup.paids : HistoriesGroup.proceeds,
+                historyGroup: _isPaidFilter
+                    ? HistoriesGroup.paids
+                    : HistoriesGroup.proceeds,
               );
 
-              context.read<FinancialBondsBloc>().add(AddFinancialBondEvent(newBond));
+              context.read<FinancialBondsBloc>().add(
+                AddFinancialBondEvent(newBond),
+              );
               Navigator.pop(dialogContext);
             },
             child: const fluent.Text('حفظ'),

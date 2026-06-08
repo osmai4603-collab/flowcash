@@ -9,6 +9,7 @@ import '../bloc/settings/settings_state.dart';
 import '../widgets/setting_tile.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class CompanyInfoPage extends StatelessWidget {
   const CompanyInfoPage({super.key});
 
@@ -26,18 +27,32 @@ class CompanyInfoPage extends StatelessWidget {
                 return const Center(child: fluent.ProgressRing());
               }
               if (state.status == SettingsStatus.failure) {
-                return Center(child: fluent.Text(state.errorMessage ?? 'Failed to load company info'));
+                return Center(
+                  child: fluent.Text(
+                    state.errorMessage ?? 'Failed to load company info',
+                  ),
+                );
               }
-              final companyValues = state.values.where((value) => value.valueType == AppValueType.companyName || value.valueType == AppValueType.companyAddress).toList();
+              final companyValues = state.values
+                  .where(
+                    (value) =>
+                        value.valueType == AppValueType.companyName ||
+                        value.valueType == AppValueType.companyAddress,
+                  )
+                  .toList();
               if (companyValues.isEmpty) {
-                return const Center(child: Text('No company settings available.'));
+                return const Center(
+                  child: fluent.Text('No company settings available.'),
+                );
               }
               return ListView(
                 children: companyValues.map((value) {
                   return SettingTile(
                     value: value,
                     onSave: (updatedValue) {
-                      context.read<SettingsBloc>().add(UpdateSettingEvent(updatedValue));
+                      context.read<SettingsBloc>().add(
+                        UpdateSettingEvent(updatedValue),
+                      );
                     },
                   );
                 }).toList(),

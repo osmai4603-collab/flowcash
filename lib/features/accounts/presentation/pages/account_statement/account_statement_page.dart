@@ -1,16 +1,22 @@
 import 'package:flowcash/core/theme/spacings.dart';
+import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
+import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
 import 'package:flowcash/features/accounts/presentation/pages/accounts_dashboard.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_simple_entity.dart';
 import 'package:flowcash/features/accounts/domain/repositories/sub_account_repository.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/account_statement/account_statement_bloc.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/account_statement/account_statement_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/account_statement/account_statement_state.dart';
 
+import 'dart:io';
+import 'package:flowcash/core/enums/journal_status_enum.dart';
+import 'package:flowcash/core/formatters/date_formatter.dart';
+import 'package:flowcash/core/theme/styles.dart';
+import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class AccountStatementPage extends StatefulWidget {
@@ -29,6 +35,19 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
   final _searchController = TextEditingController();
   TextEditingController? _autocompleteController;
   int? _pendingSubAccountId;
+
+  bool get isDesktop => Platform.isLinux || Platform.isWindows;
+
+  Map<int, TableColumnWidth> getWidths() {
+    return {
+      0: const FixedColumnWidth(35),
+      1: FixedColumnWidth(isDesktop ? 100 : 77),
+      2: const FlexColumnWidth(0.40),
+      3: const FlexColumnWidth(0.20),
+      4: const FlexColumnWidth(0.20),
+      5: const FlexColumnWidth(0.20),
+    };
+  }
 
   @override
   void initState() {
@@ -175,13 +194,13 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 8.0,
                                     ),
-                                    child: Icon(
+                                    child: fluent.Icon(
                                       fluent.FluentIcons.personalize,
                                     ),
                                   ),
                                   suffix: _selectedAccount != null
-                                      ? IconButton(
-                                          icon: const Icon(
+                                      ? fluent.IconButton(
+                                          icon: const fluent.Icon(
                                             fluent.FluentIcons.clear,
                                           ),
                                           onPressed: () {
@@ -225,8 +244,8 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                 ),
                                 if (_startDate != null) ...[
                                   const SizedBox(width: 6),
-                                  IconButton(
-                                    icon: const Icon(
+                                  fluent.IconButton(
+                                    icon: const fluent.Icon(
                                       fluent.FluentIcons.clear,
                                       size: 18,
                                     ),
@@ -270,8 +289,8 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                 ),
                                 if (_endDate != null) ...[
                                   const SizedBox(width: 6),
-                                  IconButton(
-                                    icon: const Icon(
+                                  fluent.IconButton(
+                                    icon: const fluent.Icon(
                                       fluent.FluentIcons.clear,
                                       size: 18,
                                     ),
@@ -305,7 +324,9 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                         child: Row(
                           spacing: Spacings.xsmall,
                           children: [
-                            const Icon(fluent.FluentIcons.receipt_processing),
+                            const fluent.Icon(
+                              fluent.FluentIcons.receipt_processing,
+                            ),
                             const fluent.Text('عرض الكشف'),
                           ],
                         ),
@@ -324,7 +345,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              fluent.Icon(
                                 fluent.FluentIcons.search,
                                 size: 72,
                                 color: theme.colorScheme.onSurface.withAlpha(
@@ -366,8 +387,14 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                       double totalDebit = 0.0;
                       double totalCredit = 0.0;
                       for (final item in state.items) {
-                        totalDebit += item.debit;
-                        totalCredit += item.credit;
+                        final amount = item.debit > 0
+                            ? item.debit
+                            : item.credit;
+                        if (item.journalStatus == JournalStatus.debit) {
+                          totalDebit += amount;
+                        } else {
+                          totalCredit += amount;
+                        }
                       }
 
                       double runningBalance = state.openingBalance;
@@ -443,232 +470,85 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                             ),
 
                             // Ledger Headers
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12.0,
-                                horizontal: 16.0,
+                            fluent.Table(
+                              border: fluent.TableBorder.all(
+                                width: 0.5,
+                                color: theme.colorScheme.outline,
                               ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: theme.dividerColor.withAlpha(100),
-                                  ),
-                                ),
-                                color: theme.colorScheme.surfaceContainerHighest
-                                    .withAlpha(50),
-                              ),
-                              child: Row(
-                                children: const [
-                                  Expanded(
-                                    flex: 2,
-                                    child: fluent.Text(
-                                      'التاريخ',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: fluent.Text(
-                                      'الرقم المرجعي',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 4,
-                                    child: fluent.Text(
-                                      'البيان التفصيلي',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: fluent.Text(
-                                      'مدين (وارد)',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.end,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: fluent.Text(
-                                      'دائن (صادر)',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.end,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: fluent.Text(
-                                      'الرصيد التراكمي',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.end,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Ledger Scrollable Data Rows
-                            Expanded(
-                              child: state.items.isEmpty
-                                  ? const Center(
+                              defaultVerticalAlignment:
+                                  TableCellVerticalAlignment.middle,
+                              columnWidths: getWidths(),
+                              children: [
+                                TableRow(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
                                       child: fluent.Text(
-                                        'لا توجد معاملات مسجلة في هذه الفترة',
+                                        'No',
+                                        textAlign: TextAlign.center,
+                                        style: Styles.bodySmall.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    )
-                                  : ListView.builder(
-                                      itemCount: state.items.length,
-                                      itemBuilder: (context, idx) {
-                                        final item = state.items[idx];
-                                        final entry =
-                                            state.entries[item.entryId];
-                                        final dateStr = entry != null
-                                            ? DateFormat(
-                                                'yyyy-MM-dd',
-                                              ).format(entry.createdAt)
-                                            : '-';
-                                        final refNum =
-                                            entry?.referenceNumber ?? '-';
-
-                                        // Update running balance
-                                        runningBalance +=
-                                            (item.debit - item.credit);
-
-                                        return Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 12.0,
-                                            horizontal: 16.0,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            border: Border(
-                                              bottom: BorderSide(
-                                                color: theme.dividerColor
-                                                    .withAlpha(30),
-                                              ),
-                                            ),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                flex: 2,
-                                                child: fluent.Text(dateStr),
-                                              ),
-                                              Expanded(
-                                                flex: 2,
-                                                child: fluent.Text(
-                                                  refNum,
-                                                  style: const TextStyle(
-                                                    fontFamily: 'monospace',
-                                                  ),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 4,
-                                                child: fluent.Text(
-                                                  item.lineDescription ??
-                                                      entry?.description ??
-                                                      '',
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 2,
-                                                child: fluent.Text(
-                                                  item.debit > 0
-                                                      ? item.debit
-                                                            .toStringAsFixed(2)
-                                                      : '-',
-                                                  style: const TextStyle(
-                                                    color: Colors.green,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                  textAlign: TextAlign.end,
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 2,
-                                                child: fluent.Text(
-                                                  item.credit > 0
-                                                      ? item.credit
-                                                            .toStringAsFixed(2)
-                                                      : '-',
-                                                  style: const TextStyle(
-                                                    color: Colors.red,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                  textAlign: TextAlign.end,
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 2,
-                                                child: fluent.Text(
-                                                  runningBalance
-                                                      .toStringAsFixed(2),
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: runningBalance >= 0
-                                                        ? Colors.green
-                                                        : Colors.red,
-                                                  ),
-                                                  textAlign: TextAlign.end,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
                                     ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: fluent.Text(
+                                        'التاريخ',
+                                        textAlign: TextAlign.center,
+                                        style: Styles.bodySmall.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: fluent.Text(
+                                        'البيان التفصيلي',
+                                        textAlign: TextAlign.center,
+                                        style: Styles.bodySmall.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: fluent.Text(
+                                        'مدين (وارد)',
+                                        style: Styles.bodySmall.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green.shade900,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: fluent.Text(
+                                        'دائن (صادر)',
+                                        style: Styles.bodySmall.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.red.shade900,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: fluent.Text(
+                                        'الرصيد',
+                                        textAlign: TextAlign.center,
+                                        style: Styles.bodySmall.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
 
-                            // Total Summary Footer Row
-                            Container(
-                              padding: const EdgeInsets.all(16.0),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.surfaceVariant
-                                    .withAlpha(50),
-                                borderRadius: const BorderRadius.vertical(
-                                  bottom: Radius.circular(8),
-                                ),
-                                border: Border(
-                                  top: BorderSide(
-                                    color: theme.dividerColor.withAlpha(100),
-                                  ),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  fluent.Text(
-                                    'إجمالي الفترة:  مدين: ${totalDebit.toStringAsFixed(2)}  |  دائن: ${totalCredit.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  fluent.Text(
-                                    'الرصيد الختامي: ${runningBalance.toStringAsFixed(2)}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 18,
-                                      color: runningBalance >= 0
-                                          ? Colors.green
-                                          : Colors.red,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            Expanded(child: buildListView(context, state)),
                           ],
                         ),
                       );
@@ -679,6 +559,217 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget buildListView(BuildContext context, AccountStatementState state) {
+    if (state.items.isEmpty) {
+      return Center(
+        child: fluent.Text(
+          'لا توجد معاملات مسجلة في هذه الفترة',
+          style: Styles.bodyLarge,
+        ),
+      );
+    }
+    final length = state.items.length;
+    final style = Styles.bodySmall;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    // Pre-compute the list of balances for running balance:
+    final balances = <double>[];
+    double balanceTemp = state.openingBalance;
+    for (final item in state.items) {
+      final amount = item.debit > 0 ? item.debit : item.credit;
+      final displayedDebit = item.journalStatus == JournalStatus.debit
+          ? amount
+          : 0.0;
+      final displayedCredit = item.journalStatus == JournalStatus.credit
+          ? amount
+          : 0.0;
+      balanceTemp += (displayedDebit - displayedCredit);
+      balances.add(balanceTemp);
+    }
+
+    // Compute totals for the summary row:
+    double totalDebit = 0.0;
+    double totalCredit = 0.0;
+    for (final item in state.items) {
+      final amount = item.debit > 0 ? item.debit : item.credit;
+      if (item.journalStatus == JournalStatus.debit) {
+        totalDebit += amount;
+      } else {
+        totalCredit += amount;
+      }
+    }
+
+    return ListView.builder(
+      itemCount: state.items.length,
+      itemBuilder: (_, index) {
+        final item = state.items[index];
+        final entry = state.entries[item.entryId];
+        if (index + 1 == length) {
+          return Column(
+            children: [
+              buildInkWell(index, item, entry, balances[index], context),
+              InkWell(
+                onTap: () {},
+                child: fluent.Table(
+                  border: fluent.TableBorder.all(
+                    width: 0.5,
+                    color: colors.outline,
+                  ),
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  columnWidths: getWidths(),
+                  children: [
+                    TableRow(
+                      children: [
+                        const SizedBox(height: 8),
+                        const SizedBox(height: 8),
+                        fluent.Text(
+                          'الاجمالي',
+                          textAlign: TextAlign.center,
+                          style: style.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        TextWidget(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          text: totalDebit.toStringAsFixed(2),
+                          textDirection: TextDirection.ltr,
+                          textAlign: TextAlign.center,
+                          style: style.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade900,
+                          ),
+                        ),
+                        TextWidget(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          text: totalCredit.toStringAsFixed(2),
+                          textDirection: TextDirection.ltr,
+                          textAlign: TextAlign.center,
+                          style: style.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red.shade900,
+                          ),
+                        ),
+                        TextWidget(
+                          text: balances[index].toStringAsFixed(2),
+                          textDirection: TextDirection.ltr,
+                          textAlign: TextAlign.center,
+                          style: style.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: balances[index] >= 0
+                                ? Colors.green.shade900
+                                : Colors.red.shade900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }
+        return buildInkWell(index, item, entry, balances[index], context);
+      },
+    );
+  }
+
+  Widget buildInkWell(
+    int index,
+    JournalItemEntity item,
+    JournalEntryEntity? entry,
+    double balance,
+    BuildContext context,
+  ) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final style = Styles.bodySmall;
+    final amount = item.debit > 0 ? item.debit : item.credit;
+
+    final dateStr = entry != null
+        ? AppDateFormatter.convertDateTimeToString(entry.createdAt)
+        : '-';
+    final dayName = entry != null
+        ? AppDateFormatter.weekNameInFullArabic[entry.createdAt.weekday] ?? ''
+        : '';
+
+    return InkWell(
+      onTap: () {},
+      child: ColoredBox(
+        color: index % 2 == 0
+            ? Colors.transparent
+            : colors.tertiary.withAlpha(20),
+        child: fluent.Table(
+          border: fluent.TableBorder.all(width: 0.5, color: colors.outline),
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          columnWidths: getWidths(),
+          children: [
+            TableRow(
+              children: [
+                fluent.Text(
+                  '${index + 1}',
+                  textAlign: TextAlign.center,
+                  textDirection: TextDirection.ltr,
+                  style: style,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      fluent.Text(dayName, style: style),
+                      fluent.Text(dateStr, style: style),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: fluent.Text(
+                    item.lineDescription ?? entry?.description ?? '',
+                    style: style,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                item.journalStatus == JournalStatus.debit
+                    ? TextWidget(
+                        text: amount.toStringAsFixed(2),
+                        style: style.copyWith(
+                          color: Colors.green.shade900,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textDirection: TextDirection.ltr,
+                        textAlign: TextAlign.center,
+                      )
+                    : const SizedBox(height: 1),
+                item.journalStatus == JournalStatus.credit
+                    ? TextWidget(
+                        text: amount.toStringAsFixed(2),
+                        style: style.copyWith(
+                          color: Colors.red.shade900,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textDirection: TextDirection.ltr,
+                        textAlign: TextAlign.center,
+                      )
+                    : const SizedBox(height: 1),
+                TextWidget(
+                  text: balance.toStringAsFixed(2),
+                  textDirection: TextDirection.ltr,
+                  textAlign: TextAlign.end,
+                  style: style.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: balance >= 0
+                        ? Colors.green.shade900
+                        : Colors.red.shade900,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

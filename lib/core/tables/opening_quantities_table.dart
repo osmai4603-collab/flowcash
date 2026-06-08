@@ -10,6 +10,8 @@ class OpeningQuantitiesTable {
   static const String createdAt = 'create_at';
   static const String costTotal = 'cost_total';
   static const String periodId = 'period_id';
+  static const String currencyId = 'currency_id';
+  static const String journalEntryId = 'journal_entry_id';
 
   static const List<String> fields = [
     id,
@@ -18,5 +20,7 @@ class OpeningQuantitiesTable {
     createdAt,
     costTotal,
     periodId,
+    currencyId,
+    journalEntryId,
   ];
 }

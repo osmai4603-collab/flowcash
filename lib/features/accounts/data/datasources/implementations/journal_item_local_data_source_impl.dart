@@ -3,6 +3,7 @@ import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.d
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
+import 'package:flowcash/core/enums/journal_status_enum.dart';
 
 final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
   final SqliteService _db;
@@ -70,6 +71,14 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
 
   @override
   JournalItemEntity fromMap(Map<String, dynamic> map) {
+    final statusStr = map[JournalItemsTable.journalStatus] as String?;
+    final JournalStatus status;
+    if (statusStr != null) {
+      status = JournalStatus.of(statusStr);
+    } else {
+      final debitVal = ((map[JournalItemsTable.debit]) as num?)?.toDouble() ?? 0.0;
+      status = debitVal > 0 ? JournalStatus.debit : JournalStatus.credit;
+    }
     return JournalItemEntity(
       id: map[JournalItemsTable.itemId] as int,
       entryId: map[JournalItemsTable.entryId] as int,
@@ -80,6 +89,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
       currencyId: map[JournalItemsTable.currencyId] as String,
       exPrice: ((map[JournalItemsTable.exPrice]) as num).toDouble(),
       expriceMain: ((map[JournalItemsTable.expriceMain]) as num).toDouble(),
+      journalStatus: status,
     );
   }
 
@@ -95,6 +105,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
       JournalItemsTable.currencyId: entity.currencyId,
       JournalItemsTable.exPrice: entity.exPrice,
       JournalItemsTable.expriceMain: entity.expriceMain,
+      JournalItemsTable.journalStatus: entity.journalStatus.name,
     };
   }
 

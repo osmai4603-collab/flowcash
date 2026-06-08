@@ -1,5 +1,6 @@
 import 'package:flowcash/features/auth/domain/entities/program_user_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class UserCard extends StatelessWidget {
   final ProgramUserEntity user;
@@ -11,10 +12,10 @@ class UserCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
-        leading: const Icon(Icons.person),
-        title: Text(user.userName),
-        subtitle: Text(user.userType.name),
-        trailing: Text('Branch ${user.warehouseId}'),
+        leading: const fluent.Icon(Icons.person),
+        title: fluent.Text(user.userName),
+        subtitle: fluent.Text(user.userType.name),
+        trailing: fluent.Text('Branch ${user.warehouseId}'),
       ),
     );
   }

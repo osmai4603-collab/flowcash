@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class MainAccountRow extends StatelessWidget {
   final MainAccountEntity mainAccount;
   final bool isExpanded;
@@ -23,8 +24,7 @@ class MainAccountRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final netBalance =
-        mainAccount.debitBalance - mainAccount.creditBalance;
+    final netBalance = mainAccount.debitBalance - mainAccount.creditBalance;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -36,7 +36,7 @@ class MainAccountRow extends StatelessWidget {
           bottom: BorderSide(color: theme.dividerColor, width: 0.50),
         ),
       ),
-      child: Table(
+      child: fluent.Table(
         columnWidths: const {
           0: FixedColumnWidth(60),
           1: FlexColumnWidth(2),
@@ -54,21 +54,23 @@ class MainAccountRow extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsetsDirectional.only(start: 8.0),
-                child: IconButton(
-                  icon: Icon(
-                  isExpanded
-                    ? fluent.FluentIcons.chevron_down
-                    : fluent.FluentIcons.chevron_left,
+                child: fluent.IconButton(
+                  icon: fluent.Icon(
+                    isExpanded
+                        ? fluent.FluentIcons.chevron_down
+                        : fluent.FluentIcons.chevron_left,
                     size: 20,
                     color: theme.colorScheme.primary,
                   ),
                   onPressed: onToggleExpand,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
                 ),
               ),
               Padding(
-                padding: const EdgeInsetsDirectional.only(top: 4.0, bottom: 4.0, start: 8),
+                padding: const EdgeInsetsDirectional.only(
+                  top: 4.0,
+                  bottom: 4.0,
+                  start: 8,
+                ),
                 child: fluent.Text(
                   mainAccount.accountNumber,
                   style: const TextStyle(
@@ -91,7 +93,10 @@ class MainAccountRow extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.secondaryContainer.withAlpha(100),
                     borderRadius: BorderRadius.circular(4),
@@ -160,34 +165,40 @@ class MainAccountRow extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    IconButton(
-                      icon: const Icon(fluent.FluentIcons.add,
-                        size: 20,
-                        color: Colors.green,
+                    fluent.Tooltip(
+                      message: 'إضافة حساب فرعي',
+                      child: fluent.IconButton(
+                        icon: const fluent.Icon(
+                          fluent.FluentIcons.add,
+                          size: 20,
+                          color: Colors.green,
+                        ),
+                        onPressed: onAddSubAccount,
                       ),
-                      tooltip: 'إضافة حساب فرعي',
-                      onPressed: onAddSubAccount,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      splashRadius: 20,
                     ),
                     const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(fluent.FluentIcons.edit, size: 20, color: Colors.orange),
-                      tooltip: 'تعديل',
-                      onPressed: onEdit,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      splashRadius: 20,
+                    fluent.Tooltip(
+                      message: 'تعديل',
+                      child: fluent.IconButton(
+                        icon: const fluent.Icon(
+                          fluent.FluentIcons.edit,
+                          size: 20,
+                          color: Colors.orange,
+                        ),
+                        onPressed: onEdit,
+                      ),
                     ),
                     const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(fluent.FluentIcons.delete, size: 20, color: Colors.red),
-                      tooltip: 'حذف',
-                      onPressed: onDelete,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      splashRadius: 20,
+                    fluent.Tooltip(
+                      message: 'حذف',
+                      child: fluent.IconButton(
+                        icon: const fluent.Icon(
+                          fluent.FluentIcons.delete,
+                          size: 20,
+                          color: Colors.red,
+                        ),
+                        onPressed: onDelete,
+                      ),
                     ),
                   ],
                 ),

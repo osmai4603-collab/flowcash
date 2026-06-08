@@ -22,6 +22,7 @@ import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class CategoriesDashboard extends StatefulWidget {
   const CategoriesDashboard({super.key});
 
@@ -86,7 +87,7 @@ class _CategoriesDashboardCategoriesTabState
           TextField(
             controller: searchController,
             decoration: const InputDecoration(
-              prefixIcon: Icon(fluent.FluentIcons.search),
+              prefixIcon: fluent.Icon(fluent.FluentIcons.search),
               hintText: 'ابحث عن صنف هنا',
             ),
           ),
@@ -188,7 +189,11 @@ class _CategoriesDashboardCategoriesTabState
     );
   }
 
-  Widget _buildHeaderCell(String text, TextTheme textTheme, ColorScheme colors) {
+  Widget _buildHeaderCell(
+    String text,
+    TextTheme textTheme,
+    ColorScheme colors,
+  ) {
     return Container(
       color: colors.primaryContainer,
       alignment: Alignment.center,
@@ -209,14 +214,31 @@ class _CategoryDataSource extends DataGridSource {
   _CategoryDataSource(List<CategoryEntity> categories, this.textTheme) {
     _dataGridRows = List.generate(categories.length, (index) {
       final category = categories[index];
-      return DataGridRow(cells: [
-        DataGridCell<String>(columnName: 'no', value: '${index + 1}'),
-        DataGridCell<String>(columnName: 'number', value: category.categoryNumber),
-        DataGridCell<String>(columnName: 'name', value: category.categoryName),
-        DataGridCell<String>(columnName: 'unit', value: category.categoryUnit?.unitName ?? 'غير معرف'),
-        DataGridCell<String>(columnName: 'type', value: category.categoryType.displayName()),
-        DataGridCell<String>(columnName: 'barcode', value: category.barcode ?? 'غير معرف'),
-      ]);
+      return DataGridRow(
+        cells: [
+          DataGridCell<String>(columnName: 'no', value: '${index + 1}'),
+          DataGridCell<String>(
+            columnName: 'number',
+            value: category.categoryNumber,
+          ),
+          DataGridCell<String>(
+            columnName: 'name',
+            value: category.categoryName,
+          ),
+          DataGridCell<String>(
+            columnName: 'unit',
+            value: category.categoryUnit?.unitName ?? 'غير معرف',
+          ),
+          DataGridCell<String>(
+            columnName: 'type',
+            value: category.categoryType.displayName(),
+          ),
+          DataGridCell<String>(
+            columnName: 'barcode',
+            value: category.barcode ?? 'غير معرف',
+          ),
+        ],
+      );
     });
   }
 
@@ -234,10 +256,7 @@ class _CategoryDataSource extends DataGridSource {
         return Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: fluent.Text(
-            val,
-            style: textTheme.bodyMedium,
-          ),
+          child: fluent.Text(val, style: textTheme.bodyMedium),
         );
       }).toList(),
     );
@@ -386,7 +405,7 @@ class _CategoriesDashboardMainCategoriesTabState
             TextField(
               controller: searchController,
               decoration: const InputDecoration(
-                prefixIcon: Icon(fluent.FluentIcons.search),
+                prefixIcon: fluent.Icon(fluent.FluentIcons.search),
                 hintText: 'ابحث عن صنف رئيسي هنا',
               ),
             ),
@@ -500,7 +519,7 @@ class _CategoriesDashboardUnitsTabState
           TextField(
             controller: searchController,
             decoration: const InputDecoration(
-              prefixIcon: Icon(fluent.FluentIcons.search),
+              prefixIcon: fluent.Icon(fluent.FluentIcons.search),
               hintText: 'ابحث عن وحدة هنا',
             ),
           ),

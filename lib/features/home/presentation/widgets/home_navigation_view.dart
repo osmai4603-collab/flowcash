@@ -15,9 +15,7 @@ class HomeNavigationView extends StatelessWidget {
       //   title: Text('نظام التدفق المالي'),
       //   isBackButtonVisible: false,
       // ),
-      contentShape: RoundedRectangleBorder(
-        borderRadius: Radiuses.none,
-      ),
+      contentShape: RoundedRectangleBorder(borderRadius: Radiuses.none),
       pane: NavigationPane(
         selected: navigationShell.currentIndex,
         onChanged: (index) {
@@ -29,44 +27,44 @@ class HomeNavigationView extends StatelessWidget {
         displayMode: PaneDisplayMode.auto,
         items: [
           PaneItem(
-            icon: const Icon(FluentIcons.view_dashboard),
+            icon: const fluent.Icon(FluentIcons.view_dashboard),
             title: const Text('لوحة المعلومات'),
             body: navigationShell,
           ),
           PaneItem(
-            icon: const Icon(FluentIcons.system),
+            icon: const fluent.Icon(FluentIcons.system),
             title: const Text('النظام'),
             body: navigationShell,
           ),
           PaneItem(
-            icon: const Icon(FluentIcons.database),
+            icon: const fluent.Icon(FluentIcons.database),
             title: const Text('إدارة قاعدة البيانات'),
             body: navigationShell,
           ),
           PaneItem(
-            icon: const Icon(FluentIcons.people),
+            icon: const fluent.Icon(FluentIcons.people),
             title: const Text('إدارة الحسابات'),
             body: navigationShell,
           ),
           PaneItem(
-            icon: const Icon(FluentIcons.shop),
+            icon: const fluent.Icon(FluentIcons.shop),
             title: const Text('إدارة المخزون'),
             body: navigationShell,
           ),
           PaneItem(
-            icon: const Icon(FluentIcons.check_list),
+            icon: const fluent.Icon(FluentIcons.check_list),
             title: const Text('إدارة الفئات'),
             body: navigationShell,
           ),
           PaneItem(
-            icon: const Icon(FluentIcons.money),
+            icon: const fluent.Icon(FluentIcons.money),
             title: const Text('المعاملات المالية'),
             body: navigationShell,
           ),
         ],
         footerItems: [
           PaneItem(
-            icon: const Icon(FluentIcons.settings),
+            icon: const fluent.Icon(FluentIcons.settings),
             title: const Text('الإعدادات'),
             body: navigationShell,
           ),

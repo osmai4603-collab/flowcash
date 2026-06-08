@@ -4,6 +4,7 @@ import 'package:flowcash/features/inventory/domain/entities/inventory_transactio
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class TransferDetailPanel extends StatelessWidget {
   final InventoryTransactionEntity transaction;
@@ -37,7 +38,9 @@ class TransferDetailPanel extends StatelessWidget {
     if (inventoryId == null) return 'بند بدون صنف';
     try {
       final item = inventoryItems.firstWhere((i) => i.id == inventoryId);
-      final catName = categories.firstWhere((c) => c.id == item.categoryId).categoryName;
+      final catName = categories
+          .firstWhere((c) => c.id == item.categoryId)
+          .categoryName;
       return '$catName (${item.inventoryName})';
     } catch (_) {
       return 'صنف #$inventoryId';
@@ -57,8 +60,10 @@ class TransferDetailPanel extends StatelessWidget {
     InventoryTransactionEntity? counterpart;
     try {
       counterpart = allTransactions.firstWhere(
-        (t) => t.billNumber == transaction.billNumber && t.id != transaction.id && 
-               (t.note?.contains('تحويل مخزني') ?? false)
+        (t) =>
+            t.billNumber == transaction.billNumber &&
+            t.id != transaction.id &&
+            (t.note?.contains('تحويل مخزني') ?? false),
       );
     } catch (_) {
       counterpart = null;
@@ -67,7 +72,7 @@ class TransferDetailPanel extends StatelessWidget {
     final int fromWarehouseId = transaction.note?.contains('صادر') == true
         ? transaction.warehouseId
         : (counterpart?.warehouseId ?? transaction.warehouseId);
-        
+
     final int toWarehouseId = transaction.note?.contains('وارد') == true
         ? transaction.warehouseId
         : (counterpart?.warehouseId ?? transaction.warehouseId);
@@ -76,7 +81,9 @@ class TransferDetailPanel extends StatelessWidget {
     final toWarehouseName = _getWarehouseName(toWarehouseId);
 
     // List of child orders
-    final childOrders = orders.where((o) => o.tranId == transaction.id).toList();
+    final childOrders = orders
+        .where((o) => o.tranId == transaction.id)
+        .toList();
 
     return Card(
       elevation: 4,
@@ -88,7 +95,10 @@ class TransferDetailPanel extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: isDark
-                ? [theme.colorScheme.surface, theme.colorScheme.surface.withAlpha(240)]
+                ? [
+                    theme.colorScheme.surface,
+                    theme.colorScheme.surface.withAlpha(240),
+                  ]
                 : [Colors.white, Colors.grey.shade50],
           ),
         ),
@@ -102,7 +112,8 @@ class TransferDetailPanel extends StatelessWidget {
                 CircleAvatar(
                   backgroundColor: theme.colorScheme.primary.withAlpha(40),
                   radius: 28,
-                  child: Icon(Icons.shopping_cart,
+                  child: fluent.Icon(
+                    Icons.shopping_cart,
                     color: theme.colorScheme.primary,
                     size: 28,
                   ),
@@ -112,7 +123,7 @@ class TransferDetailPanel extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      fluent.Text(
                         'سند نقل: #${transaction.billNumber}',
                         style: const TextStyle(
                           fontSize: 20,
@@ -120,7 +131,7 @@ class TransferDetailPanel extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
+                      const fluent.Text(
                         'إذن تحويل مخزني ثنائي 🚚',
                         style: TextStyle(
                           fontSize: 13,
@@ -138,7 +149,7 @@ class TransferDetailPanel extends StatelessWidget {
             const SizedBox(height: 16),
 
             // 1. Transaction details
-            const Text(
+            const fluent.Text(
               '📋 تفاصيل عملية النقل',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
@@ -176,7 +187,7 @@ class TransferDetailPanel extends StatelessWidget {
             const SizedBox(height: 16),
 
             // 2. Child Items (Orders) List Table
-            const Text(
+            const fluent.Text(
               '📦 الأصناف والكميات المنقولة',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
@@ -185,12 +196,14 @@ class TransferDetailPanel extends StatelessWidget {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
+                  border: Border.all(
+                    color: theme.colorScheme.outline.withAlpha(50),
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: childOrders.isEmpty
                     ? const Center(
-                        child: Text(
+                        child: fluent.Text(
                           'لا توجد أصناف منقولة في هذا السند ⚠️',
                           style: TextStyle(color: Colors.grey),
                         ),
@@ -202,15 +215,21 @@ class TransferDetailPanel extends StatelessWidget {
                           final o = childOrders[index];
                           return Card(
                             elevation: 0,
-                            color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
+                            color: theme.colorScheme.surfaceContainerHighest
+                                .withAlpha(50),
                             child: ListTile(
-                              title: Text(
+                              title: fluent.Text(
                                 _getInventoryLabel(o.inventoryId),
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
                               ),
-                              trailing: Text(
+                              trailing: fluent.Text(
                                 'الكمية: ${o.countUnits}',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           );
@@ -222,25 +241,23 @@ class TransferDetailPanel extends StatelessWidget {
             const Divider(height: 32),
 
             // 3. Revert/Delete Button
-            ElevatedButton.icon(
-              onPressed: () {
-                final counterpartId = counterpart?.id ?? transaction.id;
-                onDelete(transaction.id, counterpartId);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.errorContainer,
-                foregroundColor: theme.colorScheme.onErrorContainer,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              icon: const Icon(Icons.delete_forever),
-              label: const Text(
+            fluent.FilledButton(
+child: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const fluent.Icon(Icons.delete_forever),
+    const SizedBox(width: 8.0),
+    const fluent.Text(
                 'إلغاء وعكس عملية التحويل 🔄',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-            ),
+  ],
+),
+onPressed: () {
+                final counterpartId = counterpart?.id ?? transaction.id;
+                onDelete(transaction.id, counterpartId);
+              },
+),
           ],
         ),
       ),
@@ -260,13 +277,13 @@ class TransferDetailPanel extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
+          fluent.Icon(
             icon,
             size: 18,
             color: theme.colorScheme.primary.withAlpha(180),
           ),
           const SizedBox(width: 10),
-          Text(
+          fluent.Text(
             label,
             style: TextStyle(
               fontWeight: FontWeight.w600,
@@ -278,7 +295,7 @@ class TransferDetailPanel extends StatelessWidget {
           Expanded(
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text(
+              child: fluent.Text(
                 value,
                 textAlign: TextAlign.left,
                 style: TextStyle(
