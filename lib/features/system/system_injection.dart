@@ -74,7 +74,13 @@ void initSystemFeature(GetIt sl) {
   sl.registerFactory(() => FinancialPeriodsBloc(sl()));
   sl.registerFactory(() => WarehousesBloc(sl()));
   sl.registerFactory(() => WarehouseValuesBloc(sl()));
-  sl.registerFactory<ValueCountersBloc>(() => ValueCountersBloc(sl<GetCounter>(), sl<IncrementCounter>(), sl<SetCounter>()));
+  sl.registerFactory<ValueCountersBloc>(
+    () => ValueCountersBloc(
+      sl<GetCounter>(),
+      sl<IncrementCounter>(),
+      sl<SetCounter>(),
+    ),
+  );
   sl.registerFactory(() => DefaultsBloc());
   sl.registerFactory(() => CompanyBloc());
 }

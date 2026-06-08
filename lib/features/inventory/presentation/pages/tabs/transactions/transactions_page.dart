@@ -225,18 +225,20 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
                               // Add transaction button
                               fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(fluent.FluentIcons.add),
-    const SizedBox(width: 8.0),
-    const fluent.Text(
-                                  'إصدار إذن',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const fluent.Icon(fluent.FluentIcons.add),
+                                    const SizedBox(width: 8.0),
+                                    const fluent.Text(
+                                      'إصدار إذن',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-  ],
-),
-onPressed: () async {
+                                onPressed: () async {
                                   final result =
                                       await showDialog<Map<String, dynamic>>(
                                         context: context,
@@ -259,7 +261,7 @@ onPressed: () async {
                                     bloc.add(AddTransactionEvent(t, o));
                                   }
                                 },
-),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 20),

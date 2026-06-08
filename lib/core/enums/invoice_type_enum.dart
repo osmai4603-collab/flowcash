@@ -1,5 +1,3 @@
-
-
 import 'package:flowcash/core/enums/histories_group_enum.dart';
 
 sealed class InvoiceType extends HistoriesGroup {
@@ -9,8 +7,6 @@ sealed class InvoiceType extends HistoriesGroup {
     required super.counterTypeName,
     required super.priority,
   });
-
-
 
   static const sales = SalesInvoiceType._();
   static const purchase = PurchaseInvoiceType._();

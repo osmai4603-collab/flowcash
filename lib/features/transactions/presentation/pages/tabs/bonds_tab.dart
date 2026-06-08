@@ -106,14 +106,13 @@ class _BondsTabState extends State<BondsTab> {
                   const SizedBox(width: 16),
                   // Add Button
                   fluent.FilledButton(
-child: const fluent.Icon(Icons.add),
-onPressed: () => _showAddBondContentDialog(context),
-label: fluent.Text(
+                    child: fluent.Text(
                       _isPaidFilter
                           ? 'إضافة سند صرف جديد'
                           : 'إضافة سند قبض جديد',
                     ),
-),
+                    onPressed: () => _showAddBondContentDialog(context),
+                  ),
                 ],
               ),
             ),

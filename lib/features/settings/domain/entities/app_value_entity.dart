@@ -15,11 +15,7 @@ class AppValueEntity extends Equatable {
   @override
   List<Object?> get props => [id, value, valueType];
 
-  AppValueEntity copyWith({
-    int? id,
-    String? value,
-    AppValueType? valueType,
-  }) {
+  AppValueEntity copyWith({int? id, String? value, AppValueType? valueType}) {
     return AppValueEntity(
       id: id ?? this.id,
       value: value ?? this.value,

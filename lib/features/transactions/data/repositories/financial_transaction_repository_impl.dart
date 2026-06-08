@@ -5,7 +5,8 @@ import 'package:flowcash/core/enums/histories_group_enum.dart';
 import 'package:flowcash/features/transactions/domain/repositories/financial_transaction_repository.dart';
 import 'package:flowcash/features/transactions/data/datasources/interfaces/financial_transaction_data_source.dart';
 
-class FinancialTransactionRepositoryImpl implements FinancialTransactionRepository {
+class FinancialTransactionRepositoryImpl
+    implements FinancialTransactionRepository {
   final FinancialTransactionDataSource _dataSource;
 
   const FinancialTransactionRepositoryImpl(this._dataSource);
@@ -16,7 +17,10 @@ class FinancialTransactionRepositoryImpl implements FinancialTransactionReposito
     HistoriesGroup? historyGroup,
   }) async {
     try {
-      final result = await _dataSource.get(ids: ids, historyGroup: historyGroup);
+      final result = await _dataSource.get(
+        ids: ids,
+        historyGroup: historyGroup,
+      );
       return right(result);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
@@ -35,7 +39,8 @@ class FinancialTransactionRepositoryImpl implements FinancialTransactionReposito
 
   @override
   Future<Either<Failure, FinancialTransactionEntity>> insert(
-      FinancialTransactionEntity entity) async {
+    FinancialTransactionEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return right(entityInserted);
@@ -46,7 +51,8 @@ class FinancialTransactionRepositoryImpl implements FinancialTransactionReposito
 
   @override
   Future<Either<Failure, FinancialTransactionEntity>> update(
-      FinancialTransactionEntity entity) async {
+    FinancialTransactionEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return right(entityUpdated);

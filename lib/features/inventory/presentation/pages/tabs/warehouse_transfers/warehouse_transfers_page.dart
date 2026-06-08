@@ -251,20 +251,22 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
 
                               // Add Transfer button
                               fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(
-                                  fluent.FluentIcons.shopping_cart,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const fluent.Icon(
+                                      fluent.FluentIcons.shopping_cart,
+                                    ),
+                                    const SizedBox(width: 8.0),
+                                    const fluent.Text(
+                                      'إجراء نقل',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-    const SizedBox(width: 8.0),
-    const fluent.Text(
-                                  'إجراء نقل',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-  ],
-),
-onPressed: () async {
+                                onPressed: () async {
                                   if (state.batches.isEmpty) {
                                     fluent.displayInfoBar(
                                       context,
@@ -308,7 +310,7 @@ onPressed: () async {
                                     );
                                   }
                                 },
-),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 20),

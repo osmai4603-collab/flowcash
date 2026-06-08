@@ -4,12 +4,15 @@ import 'package:flowcash/features/inventory/domain/repositories/inventory_transa
 import 'package:flowcash/features/inventory/data/datasources/inventory_transaction_order_data_source.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
 
-class InventoryTransactionOrderRepositoryImpl implements InventoryTransactionOrderRepository {
+class InventoryTransactionOrderRepositoryImpl
+    implements InventoryTransactionOrderRepository {
   final InventoryTransactionOrderDataSource _dataSource;
   const InventoryTransactionOrderRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<InventoryTransactionOrderEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<InventoryTransactionOrderEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);
@@ -21,7 +24,9 @@ class InventoryTransactionOrderRepositoryImpl implements InventoryTransactionOrd
   }
 
   @override
-  Future<Either<Failure, InventoryTransactionOrderEntity?>> getById(int id) async {
+  Future<Either<Failure, InventoryTransactionOrderEntity?>> getById(
+    int id,
+  ) async {
     try {
       final res = await _dataSource.getById(id);
       return Right(res);
@@ -33,7 +38,9 @@ class InventoryTransactionOrderRepositoryImpl implements InventoryTransactionOrd
   }
 
   @override
-  Future<Either<Failure, InventoryTransactionOrderEntity>> insert(InventoryTransactionOrderEntity entity) async {
+  Future<Either<Failure, InventoryTransactionOrderEntity>> insert(
+    InventoryTransactionOrderEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return Right(entityInserted);
@@ -45,7 +52,9 @@ class InventoryTransactionOrderRepositoryImpl implements InventoryTransactionOrd
   }
 
   @override
-  Future<Either<Failure, InventoryTransactionOrderEntity>> update(InventoryTransactionOrderEntity entity) async {
+  Future<Either<Failure, InventoryTransactionOrderEntity>> update(
+    InventoryTransactionOrderEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);

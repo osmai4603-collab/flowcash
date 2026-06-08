@@ -4,7 +4,8 @@ import 'package:flowcash/features/accounts/domain/usecases/journal_item_reposito
 import 'journal_entries_event.dart';
 import 'journal_entries_state.dart';
 
-class JournalEntriesBloc extends Bloc<JournalEntriesEvent, JournalEntriesState> {
+class JournalEntriesBloc
+    extends Bloc<JournalEntriesEvent, JournalEntriesState> {
   final GetJournalEntriesUseCase _getJournalEntries;
   final DeleteJournalEntryUseCase _deleteJournalEntry;
   final GetJournalItemsByEntryIdUseCase _getJournalItemsByEntryId;
@@ -13,10 +14,10 @@ class JournalEntriesBloc extends Bloc<JournalEntriesEvent, JournalEntriesState> 
     required GetJournalEntriesUseCase getJournalEntries,
     required DeleteJournalEntryUseCase deleteJournalEntry,
     required GetJournalItemsByEntryIdUseCase getJournalItemsByEntryId,
-  })  : _getJournalEntries = getJournalEntries,
-        _deleteJournalEntry = deleteJournalEntry,
-        _getJournalItemsByEntryId = getJournalItemsByEntryId,
-        super(JournalEntriesState.initial()) {
+  }) : _getJournalEntries = getJournalEntries,
+       _deleteJournalEntry = deleteJournalEntry,
+       _getJournalItemsByEntryId = getJournalItemsByEntryId,
+       super(JournalEntriesState.initial()) {
     on<LoadJournalEntries>(_onLoadJournalEntries);
     on<SelectJournalEntry>(_onSelectJournalEntry);
     on<DeleteJournalEntry>(_onDeleteJournalEntry);
@@ -29,16 +30,20 @@ class JournalEntriesBloc extends Bloc<JournalEntriesEvent, JournalEntriesState> 
     emit(state.copyWith(status: JournalEntriesStatus.loading));
     final result = await _getJournalEntries();
     result.fold(
-      (failure) => emit(state.copyWith(
-        status: JournalEntriesStatus.failure,
-        errorMessage: failure.message,
-      )),
-      (entries) => emit(state.copyWith(
-        status: JournalEntriesStatus.success,
-        entries: entries,
-        clearSelectedEntry: true,
-        selectedEntryItems: [],
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: JournalEntriesStatus.failure,
+          errorMessage: failure.message,
+        ),
+      ),
+      (entries) => emit(
+        state.copyWith(
+          status: JournalEntriesStatus.success,
+          entries: entries,
+          clearSelectedEntry: true,
+          selectedEntryItems: [],
+        ),
+      ),
     );
   }
 

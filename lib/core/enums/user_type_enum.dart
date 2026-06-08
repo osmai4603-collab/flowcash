@@ -7,11 +7,7 @@ sealed class UserType extends AppEnum {
   static const manager = ManagerUserType._();
   static const user = UserUserType._();
 
-  static const List<UserType> values = [
-    admin,
-    manager,
-    user,
-  ];
+  static const List<UserType> values = [admin, manager, user];
 
   static UserType of(String name) {
     return values.firstWhere(

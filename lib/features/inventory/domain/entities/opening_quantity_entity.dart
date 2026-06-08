@@ -23,15 +23,15 @@ class OpeningQuantityEntity extends Entity {
 
   @override
   List<Object?> get props => [
-        id,
-        inventoryId,
-        countUnits,
-        createdAt,
-        costTotal,
-        periodId,
-        currencyId,
-        journalEntryId,
-      ];
+    id,
+    inventoryId,
+    countUnits,
+    createdAt,
+    costTotal,
+    periodId,
+    currencyId,
+    journalEntryId,
+  ];
 
   @override
   OpeningQuantityEntity copyWith({

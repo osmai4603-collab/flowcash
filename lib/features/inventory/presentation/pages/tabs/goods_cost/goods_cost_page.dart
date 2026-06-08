@@ -159,18 +159,18 @@ class _GoodsCostPageState extends State<GoodsCostPage> {
                         ),
                         const SizedBox(width: 16),
                         fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(fluent.FluentIcons.add),
-    const SizedBox(width: 8.0),
-    const fluent.Text(
-                            'تسجيل تكلفة',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const fluent.Icon(fluent.FluentIcons.add),
+                              const SizedBox(width: 8.0),
+                              const fluent.Text(
+                                'تسجيل تكلفة',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           ),
-  ],
-),
-onPressed: () async {
+                          onPressed: () async {
                             final result = await showDialog<GoodsCostEntity>(
                               context: context,
                               builder: (context) => GoodsCostFormDialog(
@@ -181,7 +181,7 @@ onPressed: () async {
                               bloc.add(AddGoodsCostEvent(result));
                             }
                           },
-),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 20),

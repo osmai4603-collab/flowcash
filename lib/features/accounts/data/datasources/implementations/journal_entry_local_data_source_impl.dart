@@ -257,7 +257,8 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
     if (statusStr != null) {
       status = JournalStatus.of(statusStr);
     } else {
-      final debitVal = ((row[JournalItemsTable.debit]) as num?)?.toDouble() ?? 0.0;
+      final debitVal =
+          ((row[JournalItemsTable.debit]) as num?)?.toDouble() ?? 0.0;
       status = debitVal > 0 ? JournalStatus.debit : JournalStatus.credit;
     }
     return JournalItemEntity(

@@ -1,7 +1,3 @@
-
-
-
-
 class CategoriesAttributesTable {
   static const String tableName = "categories_attributes";
   static const String id = "id";

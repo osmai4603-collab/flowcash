@@ -86,13 +86,17 @@ sealed class SubAccountType extends AppEnum {
   static List<SubAccountType> whereMainAccountTypes(
     List<MainAccountType> mainAccountTypes,
   ) {
-    return values.where((e) => mainAccountTypes.contains(e.mainAccountType)).toList();
+    return values
+        .where((e) => mainAccountTypes.contains(e.mainAccountType))
+        .toList();
   }
 
   static List<SubAccountType> whereMainAccountGroup(
     MainAccountGroup mainAccountGroup,
   ) {
-    return values.where((e) => e.mainAccountType.accountType == mainAccountGroup).toList();
+    return values
+        .where((e) => e.mainAccountType.accountType == mainAccountGroup)
+        .toList();
   }
 
   static List<SubAccountType> whereSubAccountsTypeIsPerson() {

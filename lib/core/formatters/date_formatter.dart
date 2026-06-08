@@ -34,7 +34,7 @@ abstract class AppDateFormatter {
     9: 'سبتمبر',
     10: 'أكتوبر',
     11: 'نوفمبر',
-    12: 'ديسمبر'
+    12: 'ديسمبر',
   };
 
   static String getCurrentDate({String split = '/'}) {
@@ -61,7 +61,16 @@ abstract class AppDateFormatter {
     final tim = time.split(' ').first;
     final digits = tim.split(':').map((e) => int.parse(e)).toList();
     final isPM = time.endsWith('PM');
-    return DateTime(1, 1, 1, isPM ? (digits[0] > 12 ? digits[0] + 12 : 12) : (digits[0] == 12 ? 0 : digits[0]), digits[1], digits[2]);
+    return DateTime(
+      1,
+      1,
+      1,
+      isPM
+          ? (digits[0] > 12 ? digits[0] + 12 : 12)
+          : (digits[0] == 12 ? 0 : digits[0]),
+      digits[1],
+      digits[2],
+    );
   }
 
   static DateTime toDateTime({String? date, String? time}) {
@@ -69,13 +78,30 @@ abstract class AppDateFormatter {
     DateTime? dateTime;
     if (date != null) {
       final list = date.split('/');
-      dateTime = DateTime(list.length > 2 ? int.parse(list[2]) : 0, list.length > 1 ? int.parse(list[1]) : 0, int.parse(list[0]));
+      dateTime = DateTime(
+        list.length > 2 ? int.parse(list[2]) : 0,
+        list.length > 1 ? int.parse(list[1]) : 0,
+        int.parse(list[0]),
+      );
     }
     if (time != null) {
-      final digits = time.split(' ').first.split(':').map((e) => int.parse(e)).toList();
+      final digits = time
+          .split(' ')
+          .first
+          .split(':')
+          .map((e) => int.parse(e))
+          .toList();
       final isPM = time.endsWith('PM');
-      dateTime = DateTime(dateTime?.year ?? 0, dateTime?.month ?? 1, dateTime?.day ?? 1,
-          isPM ? (digits[0] > 12 ? digits[0] + 12 : 12) : (digits[0] == 12 ? 0 : digits[0]), digits[1], digits[2]);
+      dateTime = DateTime(
+        dateTime?.year ?? 0,
+        dateTime?.month ?? 1,
+        dateTime?.day ?? 1,
+        isPM
+            ? (digits[0] > 12 ? digits[0] + 12 : 12)
+            : (digits[0] == 12 ? 0 : digits[0]),
+        digits[1],
+        digits[2],
+      );
     }
     return dateTime!;
   }
@@ -98,7 +124,10 @@ abstract class AppDateFormatter {
     return yearMonthInArabic[dateSel.month]!;
   }
 
-  static String convertDateTimeToStringDaysSeconds(DateTime date, {String split = '_'}) {
+  static String convertDateTimeToStringDaysSeconds(
+    DateTime date, {
+    String split = '_',
+  }) {
     return toDays(toDateString(date)).toString().padLeft(5, '0') +
         split +
         toSeconds(toTimeString(date)).toString().padLeft(5, '0');
@@ -114,14 +143,19 @@ abstract class AppDateFormatter {
 
   // convert count days to string date;
   static String toDate(int countDays, {bool putDayName = false}) {
-    final date = '${'${countDays % 32}'.padLeft(2, '0')}/${getDateMonthYear(countDays)}';
+    final date =
+        '${'${countDays % 32}'.padLeft(2, '0')}/${getDateMonthYear(countDays)}';
     return '$date${putDayName ? ' ${getDayName(date)}' : ''}';
   }
 
   // convert string date to count days;
   static int toDays(String date) {
     final normalizedDate = _normalizeDateString(date);
-    final dd = normalizedDate.split('/').reversed.map((e) => int.parse(e)).toList();
+    final dd = normalizedDate
+        .split('/')
+        .reversed
+        .map((e) => int.parse(e))
+        .toList();
     int days = 0;
     for (var i = 0; i < dd.length; i++) {
       days += _days[i] * (dd[i] - (_days[i] == 32 ? 1 : 0));
@@ -143,7 +177,11 @@ abstract class AppDateFormatter {
 
   static int toSeconds(String tm) {
     final pm = tm.endsWith('PM');
-    final time = tm.substring(0, 8).split(':').map((e) => int.parse(e)).toList();
+    final time = tm
+        .substring(0, 8)
+        .split(':')
+        .map((e) => int.parse(e))
+        .toList();
     if (time[0] == 12 && !pm) time[0] = 0;
     if (pm && time[0] != 12) time[0] += 12;
     return time.fold(0, (int pre, next) => pre * 60 + next);
@@ -152,7 +190,12 @@ abstract class AppDateFormatter {
   static String toTime(int sec) {
     final pm = sec >= 43200;
     var currentSec = sec;
-    final time = List.generate(3, (i) => (i > 0 ? currentSec = currentSec % _times[i - 1] : currentSec) ~/ _times[i]);
+    final time = List.generate(
+      3,
+      (i) =>
+          (i > 0 ? currentSec = currentSec % _times[i - 1] : currentSec) ~/
+          _times[i],
+    );
     if (time[0] > 12) time[0] = time[0] % 12;
     if (time[0] == 0) time[0] = 12;
     return time.map((e) => e < 10 ? '0$e' : e).join(':') + (pm ? ' PM' : ' AM');

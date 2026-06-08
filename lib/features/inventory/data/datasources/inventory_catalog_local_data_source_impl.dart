@@ -39,19 +39,23 @@ final class InventorySubcategoryLocalDataSourceImpl
   }
 
   @override
-  Future<InventorySubcategoryEntity> insert(InventorySubcategoryEntity entity) async {
+  Future<InventorySubcategoryEntity> insert(
+    InventorySubcategoryEntity entity,
+  ) async {
     final entityId = await _db.insert(
       table: InventorySubcategoriesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), InventorySubcategoriesTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert inventory subcategory');
     }
     return entity.copyWith(id: entityId);
   }
 
   @override
-  Future<InventorySubcategoryEntity> update(InventorySubcategoryEntity entity) async {
+  Future<InventorySubcategoryEntity> update(
+    InventorySubcategoryEntity entity,
+  ) async {
     await _db.update(
       table: InventorySubcategoriesTable.tableName,
       data: toMap(entity),

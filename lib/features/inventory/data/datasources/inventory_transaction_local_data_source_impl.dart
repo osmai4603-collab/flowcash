@@ -9,7 +9,8 @@ import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 final class InventoryTransactionLocalDataSourceImpl
     implements InventoryTransactionDataSource {
   final SqliteService _db;
-  final Map<String, dynamic> Function(InventoryTransactionOrderEntity) orderToMap;
+  final Map<String, dynamic> Function(InventoryTransactionOrderEntity)
+  orderToMap;
   const InventoryTransactionLocalDataSourceImpl(this._db, this.orderToMap);
 
   @override
@@ -41,7 +42,9 @@ final class InventoryTransactionLocalDataSourceImpl
   }
 
   @override
-  Future<InventoryTransactionEntity> insert(InventoryTransactionEntity entity) async {
+  Future<InventoryTransactionEntity> insert(
+    InventoryTransactionEntity entity,
+  ) async {
     return await _db.transaction(() async {
       final transactionId = await _db.insert(
         table: InventoryTransactionsTable.tableName,
@@ -56,7 +59,10 @@ final class InventoryTransactionLocalDataSourceImpl
         final order = entity.orders[index].copyWith(tranId: transactionId);
         final orderId = await _db.insert(
           table: InventoryTransactionsOrdersTable.tableName,
-          data: _sanitizeInsertData(orderToMap(order), InventoryTransactionsOrdersTable.id),
+          data: _sanitizeInsertData(
+            orderToMap(order),
+            InventoryTransactionsOrdersTable.id,
+          ),
         );
 
         if (orderId <= 0) {
@@ -71,7 +77,9 @@ final class InventoryTransactionLocalDataSourceImpl
   }
 
   @override
-  Future<InventoryTransactionEntity> update(InventoryTransactionEntity entity) async {
+  Future<InventoryTransactionEntity> update(
+    InventoryTransactionEntity entity,
+  ) async {
     return await _db.transaction(() async {
       await _db.update(
         table: InventoryTransactionsTable.tableName,
@@ -92,10 +100,15 @@ final class InventoryTransactionLocalDataSourceImpl
         } else {
           final orderId = await _db.insert(
             table: InventoryTransactionsOrdersTable.tableName,
-            data: _sanitizeInsertData(orderToMap(order), InventoryTransactionsOrdersTable.id),
+            data: _sanitizeInsertData(
+              orderToMap(order),
+              InventoryTransactionsOrdersTable.id,
+            ),
           );
           if (orderId <= 0) {
-            throw Exception('Failed to insert inventory transaction order at index $index');
+            throw Exception(
+              'Failed to insert inventory transaction order at index $index',
+            );
           }
           updatedOrders.add(order.copyWith(id: orderId));
         }
@@ -152,7 +165,6 @@ final class InventoryTransactionLocalDataSourceImpl
       InventoryTransactionsTable.transactionType: entity.transactionType.name,
     };
   }
-
 
   @override
   Future<List<InventoryTransactionEntity>> whereStoreId(

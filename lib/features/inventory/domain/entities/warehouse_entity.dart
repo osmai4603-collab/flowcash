@@ -17,7 +17,13 @@ class WarehouseEntity extends Entity {
   });
 
   @override
-  List<Object?> get props => [id, warehouseName, location, warehouseType, parentId];
+  List<Object?> get props => [
+    id,
+    warehouseName,
+    location,
+    warehouseType,
+    parentId,
+  ];
 
   WarehouseEntity copyWith({
     int? id,

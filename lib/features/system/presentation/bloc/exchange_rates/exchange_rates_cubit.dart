@@ -8,11 +8,15 @@ part 'exchange_rates_event.dart';
 class ExchangeRatesBloc extends Bloc<ExchangeRatesEvent, ExchangeRatesState> {
   final GetExchangePricesUseCase _getExchangePrices;
 
-  ExchangeRatesBloc(this._getExchangePrices) : super(const ExchangeRatesInitial()) {
+  ExchangeRatesBloc(this._getExchangePrices)
+    : super(const ExchangeRatesInitial()) {
     on<LoadExchangeRatesEvent>(_onLoad);
   }
 
-  Future<void> _onLoad(LoadExchangeRatesEvent event, Emitter<ExchangeRatesState> emit) async {
+  Future<void> _onLoad(
+    LoadExchangeRatesEvent event,
+    Emitter<ExchangeRatesState> emit,
+  ) async {
     emit(const ExchangeRatesLoading());
     try {
       final res = await _getExchangePrices();

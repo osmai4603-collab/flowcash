@@ -17,7 +17,13 @@ class InventoryTransactionOrderEntity extends Entity {
   });
 
   @override
-  List<Object?> get props => [id, inventoryId, countUnits, tranId, transactionType];
+  List<Object?> get props => [
+    id,
+    inventoryId,
+    countUnits,
+    tranId,
+    transactionType,
+  ];
 
   @override
   InventoryTransactionOrderEntity copyWith({

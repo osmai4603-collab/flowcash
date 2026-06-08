@@ -90,17 +90,18 @@ class ExchangePriceFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        fromCurrencyId,
-        toCurrencyId,
-        price,
-        isSubmitting,
-        isSuccess,
-        savedEntity,
-        errorMessage,
-      ];
+    fromCurrencyId,
+    toCurrencyId,
+    price,
+    isSubmitting,
+    isSuccess,
+    savedEntity,
+    errorMessage,
+  ];
 }
 
-class ExchangePriceFormBloc extends Bloc<ExchangePriceFormEvent, ExchangePriceFormState> {
+class ExchangePriceFormBloc
+    extends Bloc<ExchangePriceFormEvent, ExchangePriceFormState> {
   final ExchangePriceEntity? initialValue;
   final InsertExchangePriceUseCase _insertExchangePriceUseCase;
   final UpdateExchangePriceUseCase _updateExchangePriceUseCase;
@@ -109,9 +110,9 @@ class ExchangePriceFormBloc extends Bloc<ExchangePriceFormEvent, ExchangePriceFo
     required this.initialValue,
     required InsertExchangePriceUseCase insertExchangePriceUseCase,
     required UpdateExchangePriceUseCase updateExchangePriceUseCase,
-  })  : _insertExchangePriceUseCase = insertExchangePriceUseCase,
-        _updateExchangePriceUseCase = updateExchangePriceUseCase,
-        super(ExchangePriceFormState.initial(initialValue)) {
+  }) : _insertExchangePriceUseCase = insertExchangePriceUseCase,
+       _updateExchangePriceUseCase = updateExchangePriceUseCase,
+       super(ExchangePriceFormState.initial(initialValue)) {
     on<ExchangePriceFromCurrencyChanged>(_onFromCurrencyChanged);
     on<ExchangePriceToCurrencyChanged>(_onToCurrencyChanged);
     on<ExchangePriceValueChanged>(_onValueChanged);
@@ -122,7 +123,9 @@ class ExchangePriceFormBloc extends Bloc<ExchangePriceFormEvent, ExchangePriceFo
     ExchangePriceFromCurrencyChanged event,
     Emitter<ExchangePriceFormState> emit,
   ) {
-    emit(state.copyWith(fromCurrencyId: event.fromCurrencyId, errorMessage: null));
+    emit(
+      state.copyWith(fromCurrencyId: event.fromCurrencyId, errorMessage: null),
+    );
   }
 
   void _onToCurrencyChanged(
@@ -146,27 +149,33 @@ class ExchangePriceFormBloc extends Bloc<ExchangePriceFormEvent, ExchangePriceFo
     emit(state.copyWith(isSubmitting: true, errorMessage: null));
 
     if (state.fromCurrencyId.trim().isEmpty) {
-      emit(state.copyWith(
-        isSubmitting: false,
-        errorMessage: 'الرجاء إدخال العملة المرسلة',
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: 'الرجاء إدخال العملة المرسلة',
+        ),
+      );
       return;
     }
 
     if (state.toCurrencyId.trim().isEmpty) {
-      emit(state.copyWith(
-        isSubmitting: false,
-        errorMessage: 'الرجاء إدخال العملة المستقبلة',
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: 'الرجاء إدخال العملة المستقبلة',
+        ),
+      );
       return;
     }
 
     final price = double.tryParse(state.price.trim());
     if (price == null) {
-      emit(state.copyWith(
-        isSubmitting: false,
-        errorMessage: 'الرجاء إدخال سعر صرف صالح',
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: 'الرجاء إدخال سعر صرف صالح',
+        ),
+      );
       return;
     }
 
@@ -182,15 +191,16 @@ class ExchangePriceFormBloc extends Bloc<ExchangePriceFormEvent, ExchangePriceFo
         : await _updateExchangePriceUseCase.call(entity);
 
     result.match(
-      (failure) => emit(state.copyWith(
-        isSubmitting: false,
-        errorMessage: failure.message,
-      )),
-      (savedEntity) => emit(state.copyWith(
-        isSubmitting: false,
-        isSuccess: true,
-        savedEntity: savedEntity,
-      )),
+      (failure) => emit(
+        state.copyWith(isSubmitting: false, errorMessage: failure.message),
+      ),
+      (savedEntity) => emit(
+        state.copyWith(
+          isSubmitting: false,
+          isSuccess: true,
+          savedEntity: savedEntity,
+        ),
+      ),
     );
   }
 }

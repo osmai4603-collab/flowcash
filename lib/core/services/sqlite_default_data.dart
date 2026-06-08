@@ -28,12 +28,15 @@ final class DefaultDataInserter {
 
   static void _insertDefaultValues(Database db) {
     try {
-      final rs = db.select('SELECT COUNT(*) AS cnt FROM ${ValuesTable.tableName}');
+      final rs = db.select(
+        'SELECT COUNT(*) AS cnt FROM ${ValuesTable.tableName}',
+      );
       final cnt = rs.isNotEmpty ? (rs.first['cnt'] as int) : 0;
       if (cnt == 0) {
         for (final vt in ValueType.values) {
           final v = vt.defaultValue.replaceAll("'", "''");
-          final sql = "INSERT INTO ${ValuesTable.tableName} (${ValuesTable.value}, ${ValuesTable.valueType}) VALUES ('$v', '${vt.name}')";
+          final sql =
+              "INSERT INTO ${ValuesTable.tableName} (${ValuesTable.value}, ${ValuesTable.valueType}) VALUES ('$v', '${vt.name}')";
           debugPrint(sql);
           db.execute(sql);
         }

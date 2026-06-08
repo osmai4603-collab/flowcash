@@ -284,15 +284,15 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                         ),
                       ),
                       fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(Icons.playlist_add, size: 16),
-    const SizedBox(width: 8.0),
-    const fluent.Text('إضافة بند'),
-  ],
-),
-onPressed: () async {
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const fluent.Icon(Icons.playlist_add, size: 16),
+                            const SizedBox(width: 8.0),
+                            const fluent.Text('إضافة بند'),
+                          ],
+                        ),
+                        onPressed: () async {
                           final result =
                               await showDialog<InventoryTransactionOrderEntity>(
                                 context: context,
@@ -306,7 +306,7 @@ onPressed: () async {
                             });
                           }
                         },
-),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -387,12 +387,11 @@ onPressed: () async {
                       ),
                       const SizedBox(width: 12),
                       fluent.FilledButton(
-child: const fluent.Icon(Icons.save),
-onPressed: _submit,
-label: fluent.Text(
+                        child: fluent.Text(
                           _isEdit ? 'حفظ إذن الحركة' : 'حفظ وإصدار الإذن',
                         ),
-),
+                        onPressed: _submit,
+                      ),
                     ],
                   ),
                 ],

@@ -6,7 +6,8 @@ import 'package:flowcash/features/system/domain/usecases/currency_usecases.dart'
 import 'main_account_form_event.dart';
 import 'main_account_form_state.dart';
 
-class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormState> {
+class MainAccountFormBloc
+    extends Bloc<MainAccountFormEvent, MainAccountFormState> {
   final InsertMainAccountUseCase _insertMainAccount;
   final UpdateMainAccountUseCase _updateMainAccount;
   final GetMaxAccountNumberUseCase _getMaxAccountNumber;
@@ -17,11 +18,11 @@ class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormStat
     required UpdateMainAccountUseCase updateMainAccount,
     required GetMaxAccountNumberUseCase getMaxAccountNumber,
     required GetCurrenciesUseCase getCurrencies,
-  })  : _insertMainAccount = insertMainAccount,
-        _updateMainAccount = updateMainAccount,
-        _getMaxAccountNumber = getMaxAccountNumber,
-        _getCurrencies = getCurrencies,
-        super(MainAccountFormState.initial()) {
+  }) : _insertMainAccount = insertMainAccount,
+       _updateMainAccount = updateMainAccount,
+       _getMaxAccountNumber = getMaxAccountNumber,
+       _getCurrencies = getCurrencies,
+       super(MainAccountFormState.initial()) {
     on<InitMainAccountForm>(_onInitMainAccountForm);
     on<MainAccountNameChanged>(_onMainAccountNameChanged);
     on<MainAccountGroupChanged>(_onMainAccountGroupChanged);
@@ -41,14 +42,17 @@ class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormStat
 
     currenciesResult.fold(
       (failure) {
-        emit(state.copyWith(
-          status: MainAccountFormStatus.failure,
-          currencyErrorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            status: MainAccountFormStatus.failure,
+            currencyErrorMessage: failure.message,
+          ),
+        );
       },
       (currencies) {
         CurrencyEntity? selectedCurrency;
-        if (event.editingAccount != null && event.editingAccount!.currencyId != null) {
+        if (event.editingAccount != null &&
+            event.editingAccount!.currencyId != null) {
           final matches = currencies.where(
             (currency) => currency.id == event.editingAccount!.currencyId,
           );
@@ -66,26 +70,30 @@ class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormStat
 
         if (event.editingAccount != null) {
           final acc = event.editingAccount!;
-          emit(MainAccountFormState(
-            status: MainAccountFormStatus.initial,
-            editingAccount: acc,
-            accountName: acc.accountName,
-            accountNumber: acc.accountNumber,
-            selectedGroup: acc.mainAccountType.accountType,
-            selectedType: acc.mainAccountType,
-            selectedCurrency: selectedCurrency,
-            currencies: currencies,
-            currencyErrorMessage: null,
-          ));
+          emit(
+            MainAccountFormState(
+              status: MainAccountFormStatus.initial,
+              editingAccount: acc,
+              accountName: acc.accountName,
+              accountNumber: acc.accountNumber,
+              selectedGroup: acc.mainAccountType.accountType,
+              selectedType: acc.mainAccountType,
+              selectedCurrency: selectedCurrency,
+              currencies: currencies,
+              currencyErrorMessage: null,
+            ),
+          );
         } else {
-          emit(MainAccountFormState(
-            status: MainAccountFormStatus.initial,
-            accountName: '',
-            accountNumber: '',
-            selectedCurrency: selectedCurrency,
-            currencies: currencies,
-            currencyErrorMessage: null,
-          ));
+          emit(
+            MainAccountFormState(
+              status: MainAccountFormStatus.initial,
+              accountName: '',
+              accountNumber: '',
+              selectedCurrency: selectedCurrency,
+              currencies: currencies,
+              currencyErrorMessage: null,
+            ),
+          );
         }
       },
     );
@@ -106,18 +114,24 @@ class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormStat
     final res = await _getMaxAccountNumber(event.group);
 
     res.fold(
-      (failure) => emit(state.copyWith(
-        status: MainAccountFormStatus.failure,
-        errorMessage: failure.message,
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: MainAccountFormStatus.failure,
+          errorMessage: failure.message,
+        ),
+      ),
       (maxNum) {
-        final nextNum = maxNum != null ? maxNum + 1 : int.parse('${event.group.accountNumber}01');
-        emit(state.copyWith(
-          status: MainAccountFormStatus.initial,
-          selectedGroup: event.group,
-          selectedType: null, // Clear type to enforce re-selection
-          accountNumber: nextNum.toString(),
-        ));
+        final nextNum = maxNum != null
+            ? maxNum + 1
+            : int.parse('${event.group.accountNumber}01');
+        emit(
+          state.copyWith(
+            status: MainAccountFormStatus.initial,
+            selectedGroup: event.group,
+            selectedType: null, // Clear type to enforce re-selection
+            accountNumber: nextNum.toString(),
+          ),
+        );
       },
     );
   }
@@ -168,10 +182,12 @@ class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormStat
       );
       final res = await _updateMainAccount(updated);
       res.fold(
-        (failure) => emit(state.copyWith(
-          status: MainAccountFormStatus.failure,
-          errorMessage: failure.message,
-        )),
+        (failure) => emit(
+          state.copyWith(
+            status: MainAccountFormStatus.failure,
+            errorMessage: failure.message,
+          ),
+        ),
         (_) => emit(state.copyWith(status: MainAccountFormStatus.success)),
       );
     } else {
@@ -184,10 +200,12 @@ class MainAccountFormBloc extends Bloc<MainAccountFormEvent, MainAccountFormStat
       );
       final res = await _insertMainAccount(newAccount);
       res.fold(
-        (failure) => emit(state.copyWith(
-          status: MainAccountFormStatus.failure,
-          errorMessage: failure.message,
-        )),
+        (failure) => emit(
+          state.copyWith(
+            status: MainAccountFormStatus.failure,
+            errorMessage: failure.message,
+          ),
+        ),
         (_) => emit(state.copyWith(status: MainAccountFormStatus.success)),
       );
     }

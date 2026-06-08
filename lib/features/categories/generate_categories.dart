@@ -208,8 +208,8 @@ class GenerateCategories {
     return category;
   }
 
-    // After category is fully created (with attributes), inject it into CategoriesBloc
-    // so UI can listen and update in real time.
+  // After category is fully created (with attributes), inject it into CategoriesBloc
+  // so UI can listen and update in real time.
 
   Future<UnitEntity> _getCurrentUnitOfCategory() async {
     // Find the indexer marked as category unit
@@ -224,14 +224,18 @@ class GenerateCategories {
     }
     // Final fallback: use first indexer if available
     if (indexOfIndexer < 0) {
-      if (indexers.isEmpty) throw 'No indexers available to determine category unit';
+      if (indexers.isEmpty)
+        throw 'No indexers available to determine category unit';
       indexOfIndexer = 0;
     }
     final indexer = indexers[indexOfIndexer];
     final info = indexer.getCurrentSubcategoryUnit;
-    var indexOfUnit = indexer.units.indexWhere((unit) => unit.id == info.unitId);
+    var indexOfUnit = indexer.units.indexWhere(
+      (unit) => unit.id == info.unitId,
+    );
     if (indexOfUnit < 0) {
-      if (indexer.units.isEmpty) throw 'No units available for selected indexer';
+      if (indexer.units.isEmpty)
+        throw 'No units available for selected indexer';
       indexOfUnit = 0; // fallback to first unit
     }
     return indexer.units[indexOfUnit];
@@ -247,14 +251,18 @@ class GenerateCategories {
       );
     }
     if (indexOfIndexer < 0) {
-      if (indexers.isEmpty) throw 'No indexers available to determine pricing unit';
+      if (indexers.isEmpty)
+        throw 'No indexers available to determine pricing unit';
       indexOfIndexer = 0;
     }
     final indexer = indexers[indexOfIndexer];
     final info = indexer.getCurrentSubcategoryUnit;
-    var indexOfUnit = indexer.units.indexWhere((unit) => unit.id == info.unitId);
+    var indexOfUnit = indexer.units.indexWhere(
+      (unit) => unit.id == info.unitId,
+    );
     if (indexOfUnit < 0) {
-      if (indexer.units.isEmpty) throw 'No units available for selected indexer';
+      if (indexer.units.isEmpty)
+        throw 'No units available for selected indexer';
       indexOfUnit = 0;
     }
     return indexer.units[indexOfUnit];
@@ -270,14 +278,18 @@ class GenerateCategories {
       );
     }
     if (indexOfIndexer < 0) {
-      if (indexers.isEmpty) throw 'No indexers available to determine inventory unit';
+      if (indexers.isEmpty)
+        throw 'No indexers available to determine inventory unit';
       indexOfIndexer = 0;
     }
     final indexer = indexers[indexOfIndexer];
     final info = indexer.getCurrentSubcategoryUnit;
-    var indexOfUnit = indexer.units.indexWhere((unit) => unit.id == info.unitId);
+    var indexOfUnit = indexer.units.indexWhere(
+      (unit) => unit.id == info.unitId,
+    );
     if (indexOfUnit < 0) {
-      if (indexer.units.isEmpty) throw 'No units available for selected indexer';
+      if (indexer.units.isEmpty)
+        throw 'No units available for selected indexer';
       indexOfUnit = 0;
     }
     return indexer.units[indexOfUnit];

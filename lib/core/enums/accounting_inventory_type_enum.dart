@@ -11,15 +11,13 @@ sealed class AccountingInventoryType extends AppEnum {
   static const periodic = PeriodicAccountingInventoryType._();
   static const perpetual = PerpetualAccountingInventoryType._();
 
-  static const List<AccountingInventoryType> values = [
-    periodic,
-    perpetual,
-  ];
+  static const List<AccountingInventoryType> values = [periodic, perpetual];
 
   static AccountingInventoryType of(String name) {
     return values.firstWhere(
       (e) => e.name == name,
-      orElse: () => throw ArgumentError('Unknown AccountingInventoryType: $name'),
+      orElse: () =>
+          throw ArgumentError('Unknown AccountingInventoryType: $name'),
     );
   }
 

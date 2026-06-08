@@ -16,7 +16,10 @@ class FinancialBondRepositoryImpl implements FinancialBondRepository {
     HistoriesGroup? historyGroup,
   }) async {
     try {
-      final result = await _dataSource.get(ids: ids, historyGroup: historyGroup);
+      final result = await _dataSource.get(
+        ids: ids,
+        historyGroup: historyGroup,
+      );
       return right(result);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
@@ -35,7 +38,8 @@ class FinancialBondRepositoryImpl implements FinancialBondRepository {
 
   @override
   Future<Either<Failure, FinancialBondEntity>> insert(
-      FinancialBondEntity entity) async {
+    FinancialBondEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return right(entityInserted);
@@ -46,7 +50,8 @@ class FinancialBondRepositoryImpl implements FinancialBondRepository {
 
   @override
   Future<Either<Failure, FinancialBondEntity>> update(
-      FinancialBondEntity entity) async {
+    FinancialBondEntity entity,
+  ) async {
     try {
       await _dataSource.update(entity);
       return right(entity);

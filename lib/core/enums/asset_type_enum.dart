@@ -11,10 +11,7 @@ sealed class AssetType extends HistoriesGroup {
   static const assetsBuys = AssetsBuysType._();
   static const assetsSales = AssetsSalesType._();
 
-  static const List<AssetType> values = [
-    assetsBuys,
-    assetsSales,
-  ];
+  static const List<AssetType> values = [assetsBuys, assetsSales];
 
   static AssetType of(String name) {
     return values.firstWhere(
@@ -26,12 +23,12 @@ sealed class AssetType extends HistoriesGroup {
 
 final class AssetsBuysType extends AssetType {
   const AssetsBuysType._()
-      : super(
-          singleName: 'شراء أصل',
-          totalName: 'مشتريات اصول',
-          counterTypeName: 'مشتريات اصول',
-          priority: 11,
-        );
+    : super(
+        singleName: 'شراء أصل',
+        totalName: 'مشتريات اصول',
+        counterTypeName: 'مشتريات اصول',
+        priority: 11,
+      );
 
   @override
   String get name => 'assets_buys';
@@ -45,12 +42,12 @@ final class AssetsBuysType extends AssetType {
 
 final class AssetsSalesType extends AssetType {
   const AssetsSalesType._()
-      : super(
-          singleName: 'بيع أصل',
-          totalName: 'مبيعات اصول',
-          counterTypeName: 'مبيعات اصول',
-          priority: 12,
-        );
+    : super(
+        singleName: 'بيع أصل',
+        totalName: 'مبيعات اصول',
+        counterTypeName: 'مبيعات اصول',
+        priority: 12,
+      );
 
   @override
   String get name => 'assets_sales';

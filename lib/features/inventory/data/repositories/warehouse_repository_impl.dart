@@ -9,7 +9,9 @@ class WarehouseRepositoryImpl implements WarehouseRepository {
   const WarehouseRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<WarehouseEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<WarehouseEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);
@@ -33,7 +35,9 @@ class WarehouseRepositoryImpl implements WarehouseRepository {
   }
 
   @override
-  Future<Either<Failure, WarehouseEntity>> insert(WarehouseEntity entity) async {
+  Future<Either<Failure, WarehouseEntity>> insert(
+    WarehouseEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return Right(entityInserted);
@@ -45,7 +49,9 @@ class WarehouseRepositoryImpl implements WarehouseRepository {
   }
 
   @override
-  Future<Either<Failure, WarehouseEntity>> update(WarehouseEntity entity) async {
+  Future<Either<Failure, WarehouseEntity>> update(
+    WarehouseEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);

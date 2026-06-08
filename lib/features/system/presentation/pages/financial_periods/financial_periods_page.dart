@@ -25,16 +25,16 @@ class FinancialPeriodsPage extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerRight,
               child: fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(Icons.add),
-    const SizedBox(width: 8.0),
-    const fluent.Text('إضافة فترة مالية'),
-  ],
-),
-onPressed: () => _openFinancialPeriodForm(context, null),
-),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const fluent.Icon(Icons.add),
+                    const SizedBox(width: 8.0),
+                    const fluent.Text('إضافة فترة مالية'),
+                  ],
+                ),
+                onPressed: () => _openFinancialPeriodForm(context, null),
+              ),
             ),
           ),
           Expanded(
@@ -62,16 +62,16 @@ onPressed: () => _openFinancialPeriodForm(context, null),
           child: Align(
             alignment: Alignment.centerRight,
             child: fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(Icons.add),
-    const SizedBox(width: 8.0),
-    const fluent.Text('إضافة فترة مالية'),
-  ],
-),
-onPressed: () => _openFinancialPeriodForm(context, null),
-),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const fluent.Icon(Icons.add),
+                  const SizedBox(width: 8.0),
+                  const fluent.Text('إضافة فترة مالية'),
+                ],
+              ),
+              onPressed: () => _openFinancialPeriodForm(context, null),
+            ),
           ),
         ),
         Expanded(

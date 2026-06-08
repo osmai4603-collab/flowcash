@@ -13,7 +13,10 @@ class WarehousesBloc extends Bloc<WarehousesEvent, WarehousesState> {
     on<LoadWarehousesEvent>(_onLoad);
   }
 
-  Future<void> _onLoad(LoadWarehousesEvent event, Emitter<WarehousesState> emit) async {
+  Future<void> _onLoad(
+    LoadWarehousesEvent event,
+    Emitter<WarehousesState> emit,
+  ) async {
     emit(const WarehousesLoading());
     final result = await _getWarehouses();
     result.fold(

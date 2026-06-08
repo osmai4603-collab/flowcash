@@ -30,16 +30,16 @@ class AssetTransactionEntity extends Entity {
 
   @override
   List<Object?> get props => [
-        id,
-        createdAt,
-        createdBy,
-        note,
-        offerAmount,
-        currencyId,
-        billNumber,
+    id,
+    createdAt,
+    createdBy,
+    note,
+    offerAmount,
+    currencyId,
+    billNumber,
 
-        historyGroup,
-      ];
+    historyGroup,
+  ];
 
   @override
   AssetTransactionEntity copyWith({

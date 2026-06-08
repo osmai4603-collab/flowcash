@@ -128,8 +128,12 @@ void initAccountsFeature(GetIt sl) {
   sl.registerLazySingleton(() => DeleteSubAccountUseCase(sl()));
   sl.registerLazySingleton(() => GetSubaccountBalanceUseCase(sl()));
   sl.registerLazySingleton(() => GetSubaccountCountHistoriesUseCase(sl()));
-  sl.registerLazySingleton(() => GetSubaccountCountCreditorHistoriesUseCase(sl()));
-  sl.registerLazySingleton(() => GetSubaccountCountDebtorHistoriesUseCase(sl()));
+  sl.registerLazySingleton(
+    () => GetSubaccountCountCreditorHistoriesUseCase(sl()),
+  );
+  sl.registerLazySingleton(
+    () => GetSubaccountCountDebtorHistoriesUseCase(sl()),
+  );
   sl.registerLazySingleton(() => GetSubaccountDebtorBalanceUseCase(sl()));
   sl.registerLazySingleton(() => GetSubaccountCreditorBalanceUseCase(sl()));
   sl.registerLazySingleton(() => FirstWhereMainAccountUseCase(sl()));

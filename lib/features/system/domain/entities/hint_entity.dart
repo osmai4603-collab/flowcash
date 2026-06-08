@@ -16,11 +16,7 @@ class HintEntity extends Entity {
   List<Object?> get props => [id, hintName, hintType];
 
   @override
-  HintEntity copyWith({
-    int? id,
-    String? hintName,
-    String? hintType,
-  }) {
+  HintEntity copyWith({int? id, String? hintName, String? hintType}) {
     return HintEntity(
       id: id ?? this.id,
       hintName: hintName ?? this.hintName,

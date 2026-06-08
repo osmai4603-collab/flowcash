@@ -7,9 +7,12 @@ import 'subcategories_event.dart';
 import 'subcategories_state.dart';
 
 class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
-  final GetSubcategoriesByMainCategoryUseCase getSubcategoriesByMainCategoryUseCase;
-  final GetSubcategoryUnitsByMainCategoryUseCase getSubcategoryUnitsByMainCategoryUseCase;
-  final GetCategoryPropertiesByMainCategoryUseCase getCategoryPropertiesByMainCategoryUseCase;
+  final GetSubcategoriesByMainCategoryUseCase
+  getSubcategoriesByMainCategoryUseCase;
+  final GetSubcategoryUnitsByMainCategoryUseCase
+  getSubcategoryUnitsByMainCategoryUseCase;
+  final GetCategoryPropertiesByMainCategoryUseCase
+  getCategoryPropertiesByMainCategoryUseCase;
   final InsertSubcategoryUseCase addSubcategoryUseCase;
   final DeleteSubcategoryUseCase deleteSubcategoryUseCase;
 
@@ -55,13 +58,17 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
           (infos) async {
             final propertiesResult =
                 await getCategoryPropertiesByMainCategoryUseCase(
-              event.mainCategoryId,
-            );
+                  event.mainCategoryId,
+                );
 
             propertiesResult.fold(
               (failure) => emit(SubcategoriesLoadFailure(failure.message)),
               (properties) {
-                _controller = SubcategoriesController(catalogs, infos, properties);
+                _controller = SubcategoriesController(
+                  catalogs,
+                  infos,
+                  properties,
+                );
                 emit(SubcategoriesLoadSuccess(controller: _controller));
               },
             );
@@ -95,10 +102,12 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
     final currentState = state as SubcategoriesLoadSuccess;
 
     _controller.addSubcategory(event.catalog);
-    emit(currentState.copyWith(
-      controller: _controller,
-      statusMessage: 'Subcategory added successfully',
-    ));
+    emit(
+      currentState.copyWith(
+        controller: _controller,
+        statusMessage: 'Subcategory added successfully',
+      ),
+    );
   }
 
   Future<void> _onDeleteSubcategory(
@@ -109,17 +118,16 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
     final currentState = state as SubcategoriesLoadSuccess;
 
     final result = await deleteSubcategoryUseCase(event.catalogId);
-    result.fold(
-      (failure) => emit(SubcategoriesLoadFailure(failure.message)),
-      (success) {
-        if (!success) {
-          emit(const SubcategoriesLoadFailure('Failed to delete catalog'));
-          return;
-        }
-        _controller.removeSubcategory(event.catalogId);
-        emit(currentState.copyWith(controller: _controller));
-      },
-    );
+    result.fold((failure) => emit(SubcategoriesLoadFailure(failure.message)), (
+      success,
+    ) {
+      if (!success) {
+        emit(const SubcategoriesLoadFailure('Failed to delete catalog'));
+        return;
+      }
+      _controller.removeSubcategory(event.catalogId);
+      emit(currentState.copyWith(controller: _controller));
+    });
   }
 
   Future<void> _onGenerateCategories(
@@ -147,7 +155,12 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
       ).startGeneratingCategories(event.catalogId);
 
       final names = categories.map((c) => c.categoryName).toList();
-      emit(currentState.copyWith(generatedCategoryNames: names, statusMessage: null));
+      emit(
+        currentState.copyWith(
+          generatedCategoryNames: names,
+          statusMessage: null,
+        ),
+      );
     } catch (e) {
       emit(SubcategoriesLoadFailure(e.toString()));
     }
@@ -159,7 +172,9 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
   ) async {
     if (state is! SubcategoriesLoadSuccess) return;
     final currentState = state as SubcategoriesLoadSuccess;
-    emit(currentState.copyWith(generatedCategoryNames: null, statusMessage: null));
+    emit(
+      currentState.copyWith(generatedCategoryNames: null, statusMessage: null),
+    );
   }
 
   Future<void> _onAddSubcategoryUnit(

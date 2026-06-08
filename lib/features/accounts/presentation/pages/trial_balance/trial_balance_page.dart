@@ -150,17 +150,17 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
 
                                 // Load button
                                 fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(
-                                    fluent.FluentIcons.compare,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const fluent.Icon(
+                                        fluent.FluentIcons.compare,
+                                      ),
+                                      const SizedBox(width: 8.0),
+                                      const fluent.Text('تحديث الميزان'),
+                                    ],
                                   ),
-    const SizedBox(width: 8.0),
-    const fluent.Text('تحديث الميزان'),
-  ],
-),
-onPressed: () {
+                                  onPressed: () {
                                     context.read<TrialBalanceBloc>().add(
                                       LoadTrialBalance(
                                         startDate: _startDate,
@@ -168,7 +168,7 @@ onPressed: () {
                                       ),
                                     );
                                   },
-),
+                                ),
 
                                 const SizedBox(width: 8),
 

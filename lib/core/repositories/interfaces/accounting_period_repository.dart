@@ -4,6 +4,7 @@ import 'package:flowcash/core/repositories/repository.dart';
 import 'package:fpdart/fpdart.dart';
 
 /// واجهة مستودع فترات المحاسبة
-abstract interface class AccountingPeriodRepository implements RepositoryDB<AccountingPeriodEntity> {
+abstract interface class AccountingPeriodRepository
+    implements RepositoryDB<AccountingPeriodEntity> {
   Future<Either<Failure, AccountingPeriodEntity?>> whereIdOpen();
 }

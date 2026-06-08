@@ -5,7 +5,8 @@ import 'package:flowcash/features/accounts/domain/usecases/journal_item_reposito
 import 'account_statement_event.dart';
 import 'account_statement_state.dart';
 
-class AccountStatementBloc extends Bloc<AccountStatementEvent, AccountStatementState> {
+class AccountStatementBloc
+    extends Bloc<AccountStatementEvent, AccountStatementState> {
   final GetSubAccountByIdUseCase _getSubAccountById;
   final GetJournalItemsByAccountIdUseCase _getJournalItemsByAccountId;
   final GetJournalEntriesUseCase _getJournalEntries;
@@ -14,10 +15,10 @@ class AccountStatementBloc extends Bloc<AccountStatementEvent, AccountStatementS
     required GetSubAccountByIdUseCase getSubAccountById,
     required GetJournalItemsByAccountIdUseCase getJournalItemsByAccountId,
     required GetJournalEntriesUseCase getJournalEntries,
-  })  : _getSubAccountById = getSubAccountById,
-        _getJournalItemsByAccountId = getJournalItemsByAccountId,
-        _getJournalEntries = getJournalEntries,
-        super(AccountStatementState.initial()) {
+  }) : _getSubAccountById = getSubAccountById,
+       _getJournalItemsByAccountId = getJournalItemsByAccountId,
+       _getJournalEntries = getJournalEntries,
+       super(AccountStatementState.initial()) {
     on<LoadAccountStatement>(_onLoadAccountStatement);
   }
 
@@ -25,24 +26,25 @@ class AccountStatementBloc extends Bloc<AccountStatementEvent, AccountStatementS
     LoadAccountStatement event,
     Emitter<AccountStatementState> emit,
   ) async {
-    emit(state.copyWith(
-      status: AccountStatementStatus.loading,
-      startDate: event.startDate,
-      endDate: event.endDate,
-    ));
+    emit(
+      state.copyWith(
+        status: AccountStatementStatus.loading,
+        startDate: event.startDate,
+        endDate: event.endDate,
+      ),
+    );
 
     // 1. Fetch sub-account details
     final accountResult = await _getSubAccountById(event.subAccountId);
-    final subAccount = accountResult.fold(
-      (failure) => null,
-      (acc) => acc,
-    );
+    final subAccount = accountResult.fold((failure) => null, (acc) => acc);
 
     if (subAccount == null) {
-      emit(state.copyWith(
-        status: AccountStatementStatus.failure,
-        errorMessage: 'الحساب الفرعي غير موجود',
-      ));
+      emit(
+        state.copyWith(
+          status: AccountStatementStatus.failure,
+          errorMessage: 'الحساب الفرعي غير موجود',
+        ),
+      );
       return;
     }
 
@@ -50,20 +52,24 @@ class AccountStatementBloc extends Bloc<AccountStatementEvent, AccountStatementS
     final itemsResult = await _getJournalItemsByAccountId(event.subAccountId);
     await itemsResult.fold(
       (failure) async {
-        emit(state.copyWith(
-          status: AccountStatementStatus.failure,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            status: AccountStatementStatus.failure,
+            errorMessage: failure.message,
+          ),
+        );
       },
       (allItems) async {
         if (allItems.isEmpty) {
-          emit(state.copyWith(
-            status: AccountStatementStatus.success,
-            subAccount: subAccount,
-            items: [],
-            entries: {},
-            openingBalance: 0.0,
-          ));
+          emit(
+            state.copyWith(
+              status: AccountStatementStatus.success,
+              subAccount: subAccount,
+              items: [],
+              entries: {},
+              openingBalance: 0.0,
+            ),
+          );
           return;
         }
 
@@ -73,10 +79,12 @@ class AccountStatementBloc extends Bloc<AccountStatementEvent, AccountStatementS
 
         entriesResult.fold(
           (failure) {
-            emit(state.copyWith(
-              status: AccountStatementStatus.failure,
-              errorMessage: failure.message,
-            ));
+            emit(
+              state.copyWith(
+                status: AccountStatementStatus.failure,
+                errorMessage: failure.message,
+              ),
+            );
           },
           (entriesList) {
             final entriesMap = {for (var entry in entriesList) entry.id: entry};
@@ -91,9 +99,11 @@ class AccountStatementBloc extends Bloc<AccountStatementEvent, AccountStatementS
               final entryDate = entry.createdAt;
 
               // If startDate is set and entry is before it, add to opening balance
-              if (event.startDate != null && entryDate.isBefore(event.startDate!)) {
+              if (event.startDate != null &&
+                  entryDate.isBefore(event.startDate!)) {
                 openingBalance += (item.debit - item.credit);
-              } else if (event.endDate != null && entryDate.isAfter(event.endDate!)) {
+              } else if (event.endDate != null &&
+                  entryDate.isAfter(event.endDate!)) {
                 // Ignore transactions after the end date
                 continue;
               } else {
@@ -109,13 +119,15 @@ class AccountStatementBloc extends Bloc<AccountStatementEvent, AccountStatementS
               return entryA.createdAt.compareTo(entryB.createdAt);
             });
 
-            emit(state.copyWith(
-              status: AccountStatementStatus.success,
-              subAccount: subAccount,
-              items: List.from(filteredItems),
-              entries: entriesMap,
-              openingBalance: openingBalance,
-            ));
+            emit(
+              state.copyWith(
+                status: AccountStatementStatus.success,
+                subAccount: subAccount,
+                items: List.from(filteredItems),
+                entries: entriesMap,
+                openingBalance: openingBalance,
+              ),
+            );
           },
         );
       },

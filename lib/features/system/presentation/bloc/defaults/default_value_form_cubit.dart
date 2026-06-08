@@ -5,7 +5,8 @@ import 'package:flowcash/features/system/domain/entities/value_entity.dart';
 part 'default_value_form_state.dart';
 
 class DefaultValueFormCubit extends Cubit<DefaultValueFormState> {
-  DefaultValueFormCubit({ValueEntity? initial}) : super(DefaultValueFormInitial(initial));
+  DefaultValueFormCubit({ValueEntity? initial})
+    : super(DefaultValueFormInitial(initial));
 
   void submit(ValueEntity value) async {
     emit(DefaultValueFormSubmitting(state.initialValue));

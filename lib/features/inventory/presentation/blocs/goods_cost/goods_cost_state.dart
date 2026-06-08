@@ -32,10 +32,7 @@ class GoodsCostState extends Equatable {
   }
 
   GoodsCostState addCost(GoodsCostEntity cost) {
-    return copyWith(
-      costs: [cost, ...costs],
-      status: GoodsCostStatus.success,
-    );
+    return copyWith(costs: [cost, ...costs], status: GoodsCostStatus.success);
   }
 
   GoodsCostState removeCost(int id) {
@@ -46,16 +43,11 @@ class GoodsCostState extends Equatable {
   }
 
   GoodsCostState toError(String message) {
-    return copyWith(
-      status: GoodsCostStatus.error,
-      errorMessage: message,
-    );
+    return copyWith(status: GoodsCostStatus.error, errorMessage: message);
   }
 
   GoodsCostState toLoading() {
-    return copyWith(
-      status: GoodsCostStatus.loading,
-    );
+    return copyWith(status: GoodsCostStatus.loading);
   }
 
   @override

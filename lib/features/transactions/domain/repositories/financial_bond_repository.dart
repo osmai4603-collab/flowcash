@@ -4,7 +4,8 @@ import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/core/repositories/repository.dart';
 import 'package:fpdart/fpdart.dart';
 
-abstract interface class FinancialBondRepository implements RepositoryDB<FinancialBondEntity> {
+abstract interface class FinancialBondRepository
+    implements RepositoryDB<FinancialBondEntity> {
   @override
   Future<Either<Failure, List<FinancialBondEntity>>> get({
     Iterable<int>? ids,

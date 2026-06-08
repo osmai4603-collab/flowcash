@@ -1,7 +1,3 @@
-
-
-
-
 enum DateType {
   day(10, 31, 'يوم', 0),
   month(7, 12, 'شهر', 3),
@@ -14,11 +10,11 @@ enum DateType {
   final int startIndex;
 
   const DateType(
-      this.lengthDate,
-      this.countReference,
-      this.typeName,
-      this.startIndex,
-      );
+    this.lengthDate,
+    this.countReference,
+    this.typeName,
+    this.startIndex,
+  );
 }
 
 enum DatabaseType {

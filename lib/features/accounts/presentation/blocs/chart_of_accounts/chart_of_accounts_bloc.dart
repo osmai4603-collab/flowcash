@@ -4,7 +4,8 @@ import 'package:flowcash/features/accounts/domain/usecases/sub_account_repositor
 import 'chart_of_accounts_event.dart';
 import 'chart_of_accounts_state.dart';
 
-class ChartOfAccountsBloc extends Bloc<ChartOfAccountsEvent, ChartOfAccountsState> {
+class ChartOfAccountsBloc
+    extends Bloc<ChartOfAccountsEvent, ChartOfAccountsState> {
   final GetMainAccountsUseCase _getMainAccounts;
   final GetSubAccountsUseCase _getSubAccounts;
   final DeleteMainAccountUseCase _deleteMainAccount;
@@ -15,11 +16,11 @@ class ChartOfAccountsBloc extends Bloc<ChartOfAccountsEvent, ChartOfAccountsStat
     required GetSubAccountsUseCase getSubAccounts,
     required DeleteMainAccountUseCase deleteMainAccount,
     required DeleteSubAccountUseCase deleteSubAccount,
-  })  : _getMainAccounts = getMainAccounts,
-        _getSubAccounts = getSubAccounts,
-        _deleteMainAccount = deleteMainAccount,
-        _deleteSubAccount = deleteSubAccount,
-        super(ChartOfAccountsState.initial()) {
+  }) : _getMainAccounts = getMainAccounts,
+       _getSubAccounts = getSubAccounts,
+       _deleteMainAccount = deleteMainAccount,
+       _deleteSubAccount = deleteSubAccount,
+       super(ChartOfAccountsState.initial()) {
     on<LoadChartOfAccounts>(_onLoadChartOfAccounts);
     on<FilterChartOfAccounts>(_onFilterChartOfAccounts);
     on<DeleteMainAccount>(_onDeleteMainAccount);
@@ -36,21 +37,27 @@ class ChartOfAccountsBloc extends Bloc<ChartOfAccountsEvent, ChartOfAccountsStat
     final subResult = await _getSubAccounts();
 
     mainResult.fold(
-      (failure) => emit(state.copyWith(
-        status: ChartOfAccountsStatus.failure,
-        errorMessage: failure.message,
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: ChartOfAccountsStatus.failure,
+          errorMessage: failure.message,
+        ),
+      ),
       (mainAccs) {
         subResult.fold(
-          (failure) => emit(state.copyWith(
-            status: ChartOfAccountsStatus.failure,
-            errorMessage: failure.message,
-          )),
-          (subAccs) => emit(state.copyWith(
-            status: ChartOfAccountsStatus.success,
-            mainAccounts: mainAccs,
-            subAccounts: subAccs,
-          )),
+          (failure) => emit(
+            state.copyWith(
+              status: ChartOfAccountsStatus.failure,
+              errorMessage: failure.message,
+            ),
+          ),
+          (subAccs) => emit(
+            state.copyWith(
+              status: ChartOfAccountsStatus.success,
+              mainAccounts: mainAccs,
+              subAccounts: subAccs,
+            ),
+          ),
         );
       },
     );

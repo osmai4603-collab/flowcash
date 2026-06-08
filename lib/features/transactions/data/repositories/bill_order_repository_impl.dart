@@ -10,7 +10,9 @@ class BillOrderRepositoryImpl implements BillOrderRepository {
   const BillOrderRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<BillOrderEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<BillOrderEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final result = await _dataSource.get(ids: ids);
       return right(result);
@@ -30,7 +32,9 @@ class BillOrderRepositoryImpl implements BillOrderRepository {
   }
 
   @override
-  Future<Either<Failure, BillOrderEntity>> insert(BillOrderEntity entity) async {
+  Future<Either<Failure, BillOrderEntity>> insert(
+    BillOrderEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return right(entityInserted);
@@ -40,7 +44,9 @@ class BillOrderRepositoryImpl implements BillOrderRepository {
   }
 
   @override
-  Future<Either<Failure, BillOrderEntity>> update(BillOrderEntity entity) async {
+  Future<Either<Failure, BillOrderEntity>> update(
+    BillOrderEntity entity,
+  ) async {
     try {
       await _dataSource.update(entity);
       return right(entity);
@@ -60,7 +66,9 @@ class BillOrderRepositoryImpl implements BillOrderRepository {
   }
 
   @override
-  Future<Either<Failure, List<BillOrderEntity>>> whereBillId(Iterable<int> ids) async {
+  Future<Either<Failure, List<BillOrderEntity>>> whereBillId(
+    Iterable<int> ids,
+  ) async {
     try {
       final result = await _dataSource.whereBillId(ids);
       return right(result);
@@ -70,9 +78,15 @@ class BillOrderRepositoryImpl implements BillOrderRepository {
   }
 
   @override
-  Future<Either<Failure, double>> getSumUnitWhereOrder(int categoryId, int storeId) async {
+  Future<Either<Failure, double>> getSumUnitWhereOrder(
+    int categoryId,
+    int storeId,
+  ) async {
     try {
-      final result = await _dataSource.getSumUnitWhereOrder(categoryId, storeId);
+      final result = await _dataSource.getSumUnitWhereOrder(
+        categoryId,
+        storeId,
+      );
       return right(result);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
@@ -80,7 +94,9 @@ class BillOrderRepositoryImpl implements BillOrderRepository {
   }
 
   @override
-  Future<Either<Failure, BillOrderEntity?>> firstWhereCategoryId(int categoryId) async {
+  Future<Either<Failure, BillOrderEntity?>> firstWhereCategoryId(
+    int categoryId,
+  ) async {
     try {
       final result = await _dataSource.firstWhereCategoryId(categoryId);
       return right(result);
@@ -90,7 +106,9 @@ class BillOrderRepositoryImpl implements BillOrderRepository {
   }
 
   @override
-  Future<Either<Failure, List<BillOrderEntity>>> whereBatchId(Iterable<int> ids) async {
+  Future<Either<Failure, List<BillOrderEntity>>> whereBatchId(
+    Iterable<int> ids,
+  ) async {
     try {
       final result = await _dataSource.whereBatchId(ids);
       return right(result);
@@ -100,7 +118,9 @@ class BillOrderRepositoryImpl implements BillOrderRepository {
   }
 
   @override
-  Future<Either<Failure, List<BillOrderEntity>>> whereInventory(int inventoryId) async {
+  Future<Either<Failure, List<BillOrderEntity>>> whereInventory(
+    int inventoryId,
+  ) async {
     try {
       final result = await _dataSource.whereInventory(inventoryId);
       return right(result);

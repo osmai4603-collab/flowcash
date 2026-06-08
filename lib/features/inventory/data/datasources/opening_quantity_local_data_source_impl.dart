@@ -44,7 +44,7 @@ final class OpeningQuantityLocalDataSourceImpl
       table: OpeningQuantitiesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), OpeningQuantitiesTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert opening quantity');
     }
     return entity.copyWith(id: entityId);
@@ -94,8 +94,10 @@ final class OpeningQuantityLocalDataSourceImpl
       OpeningQuantitiesTable.createdAt: entity.createdAt.toIso8601String(),
       OpeningQuantitiesTable.costTotal: entity.costTotal,
       OpeningQuantitiesTable.periodId: entity.periodId,
-      if (entity.currencyId != null) OpeningQuantitiesTable.currencyId: entity.currencyId,
-      if (entity.journalEntryId != null) OpeningQuantitiesTable.journalEntryId: entity.journalEntryId,
+      if (entity.currencyId != null)
+        OpeningQuantitiesTable.currencyId: entity.currencyId,
+      if (entity.journalEntryId != null)
+        OpeningQuantitiesTable.journalEntryId: entity.journalEntryId,
     };
   }
 

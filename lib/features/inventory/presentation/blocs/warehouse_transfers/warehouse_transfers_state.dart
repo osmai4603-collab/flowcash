@@ -45,7 +45,8 @@ class WarehouseTransfersState extends Equatable {
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,
       selectedTransfer: selectedTransfer ?? this.selectedTransfer,
-      selectedTransferOrders: selectedTransferOrders ?? this.selectedTransferOrders,
+      selectedTransferOrders:
+          selectedTransferOrders ?? this.selectedTransferOrders,
     );
   }
 
@@ -62,40 +63,45 @@ class WarehouseTransfersState extends Equatable {
   }
 
   WarehouseTransfersState removeTransfer(int fromId, int toId) {
-    final updatedTrans = transactions.where((t) => t.id != fromId && t.id != toId).toList();
-    final updatedOrders = allOrders.where((o) => o.tranId != fromId && o.tranId != toId).toList();
-    
+    final updatedTrans = transactions
+        .where((t) => t.id != fromId && t.id != toId)
+        .toList();
+    final updatedOrders = allOrders
+        .where((o) => o.tranId != fromId && o.tranId != toId)
+        .toList();
+
     return copyWith(
       transactions: updatedTrans,
       allOrders: updatedOrders,
-      selectedTransfer: selectedTransfer?.id == fromId || selectedTransfer?.id == toId ? null : selectedTransfer,
-      selectedTransferOrders: selectedTransfer?.id == fromId || selectedTransfer?.id == toId ? const [] : selectedTransferOrders,
+      selectedTransfer:
+          selectedTransfer?.id == fromId || selectedTransfer?.id == toId
+          ? null
+          : selectedTransfer,
+      selectedTransferOrders:
+          selectedTransfer?.id == fromId || selectedTransfer?.id == toId
+          ? const []
+          : selectedTransferOrders,
       status: TransfersStatus.success,
     );
   }
 
   WarehouseTransfersState toError(String message) {
-    return copyWith(
-      status: TransfersStatus.error,
-      errorMessage: message,
-    );
+    return copyWith(status: TransfersStatus.error, errorMessage: message);
   }
 
   WarehouseTransfersState toLoading() {
-    return copyWith(
-      status: TransfersStatus.loading,
-    );
+    return copyWith(status: TransfersStatus.loading);
   }
 
   @override
   List<Object?> get props => [
-        transactions,
-        allOrders,
-        batches,
-        warehouses,
-        status,
-        errorMessage,
-        selectedTransfer,
-        selectedTransferOrders,
-      ];
+    transactions,
+    allOrders,
+    batches,
+    warehouses,
+    status,
+    errorMessage,
+    selectedTransfer,
+    selectedTransferOrders,
+  ];
 }

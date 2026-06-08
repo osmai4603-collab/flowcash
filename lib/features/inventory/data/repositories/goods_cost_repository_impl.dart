@@ -9,7 +9,9 @@ class GoodsCostRepositoryImpl implements GoodsCostRepository {
   const GoodsCostRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<GoodsCostEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<GoodsCostEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);
@@ -33,7 +35,9 @@ class GoodsCostRepositoryImpl implements GoodsCostRepository {
   }
 
   @override
-  Future<Either<Failure, GoodsCostEntity>> insert(GoodsCostEntity entity) async {
+  Future<Either<Failure, GoodsCostEntity>> insert(
+    GoodsCostEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return Right(entityInserted);
@@ -45,7 +49,9 @@ class GoodsCostRepositoryImpl implements GoodsCostRepository {
   }
 
   @override
-  Future<Either<Failure, GoodsCostEntity>> update(GoodsCostEntity entity) async {
+  Future<Either<Failure, GoodsCostEntity>> update(
+    GoodsCostEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);

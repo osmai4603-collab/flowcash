@@ -43,7 +43,7 @@ final class ValueLocalDataSourceImpl implements ValueDataSource {
       table: ValuesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), ValuesTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert value');
     }
     return entity.copyWith(id: entityId);

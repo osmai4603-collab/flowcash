@@ -11,10 +11,7 @@ sealed class EntryType extends HistoriesGroup {
   static const openingEntries = OpeningEntryType._();
   static const closingEntries = ClosingEntryType._();
 
-  static const List<EntryType> values = [
-    openingEntries,
-    closingEntries,
-  ];
+  static const List<EntryType> values = [openingEntries, closingEntries];
 
   static EntryType of(String name) {
     return values.firstWhere(
@@ -26,12 +23,12 @@ sealed class EntryType extends HistoriesGroup {
 
 final class OpeningEntryType extends EntryType {
   const OpeningEntryType._()
-      : super(
-          singleName: 'قيد افتتاحي',
-          totalName: 'قيد افتتاحي',
-          counterTypeName: 'قيد افتتاحي',
-          priority: 13,
-        );
+    : super(
+        singleName: 'قيد افتتاحي',
+        totalName: 'قيد افتتاحي',
+        counterTypeName: 'قيد افتتاحي',
+        priority: 13,
+      );
 
   @override
   String get name => 'opening_entries';
@@ -45,12 +42,12 @@ final class OpeningEntryType extends EntryType {
 
 final class ClosingEntryType extends EntryType {
   const ClosingEntryType._()
-      : super(
-          singleName: 'قيد ختامي',
-          totalName: 'قيد ختامي',
-          counterTypeName: 'قيد ختامي',
-          priority: 14,
-        );
+    : super(
+        singleName: 'قيد ختامي',
+        totalName: 'قيد ختامي',
+        counterTypeName: 'قيد ختامي',
+        priority: 14,
+      );
 
   @override
   String get name => 'closing_entries';

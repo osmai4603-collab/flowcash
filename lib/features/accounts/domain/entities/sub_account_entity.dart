@@ -30,17 +30,17 @@ class SubAccountEntity extends Entity {
 
   @override
   List<Object?> get props => [
-        id,
-        mainAccountId,
-        accountName,
-        accountNumber,
-        debitBalance,
-        creditBalance,
-        currencyId,
-        balanceMax,
-        subAccountType,
-        createdAt,
-      ];
+    id,
+    mainAccountId,
+    accountName,
+    accountNumber,
+    debitBalance,
+    creditBalance,
+    currencyId,
+    balanceMax,
+    subAccountType,
+    createdAt,
+  ];
 
   @override
   SubAccountEntity copyWith({

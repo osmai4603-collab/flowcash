@@ -10,7 +10,9 @@ class CategoryAttributeRepositoryImpl implements CategoryAttributeRepository {
   const CategoryAttributeRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<CategoryAttributeEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<CategoryAttributeEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);
@@ -34,7 +36,9 @@ class CategoryAttributeRepositoryImpl implements CategoryAttributeRepository {
   }
 
   @override
-  Future<Either<Failure, CategoryAttributeEntity>> insert(CategoryAttributeEntity entity) async {
+  Future<Either<Failure, CategoryAttributeEntity>> insert(
+    CategoryAttributeEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return Right(entityInserted);
@@ -46,7 +50,9 @@ class CategoryAttributeRepositoryImpl implements CategoryAttributeRepository {
   }
 
   @override
-  Future<Either<Failure, CategoryAttributeEntity>> update(CategoryAttributeEntity entity) async {
+  Future<Either<Failure, CategoryAttributeEntity>> update(
+    CategoryAttributeEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);
@@ -70,7 +76,9 @@ class CategoryAttributeRepositoryImpl implements CategoryAttributeRepository {
   }
 
   @override
-  Future<Either<Failure, List<CategoryAttributeEntity>>> whereCategoryId(Iterable<int> ids) async {
+  Future<Either<Failure, List<CategoryAttributeEntity>>> whereCategoryId(
+    Iterable<int> ids,
+  ) async {
     try {
       final res = await _dataSource.whereCategoryId(ids);
       return Right(res);
@@ -82,7 +90,9 @@ class CategoryAttributeRepositoryImpl implements CategoryAttributeRepository {
   }
 
   @override
-  Future<Either<Failure, List<CategoryAttributeEntity>>> whereSubcategoryUnitId(Iterable<int> ids) async {
+  Future<Either<Failure, List<CategoryAttributeEntity>>> whereSubcategoryUnitId(
+    Iterable<int> ids,
+  ) async {
     try {
       final res = await _dataSource.whereSubcategoryUnitId(ids);
       return Right(res);

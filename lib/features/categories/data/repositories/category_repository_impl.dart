@@ -10,7 +10,9 @@ class CategoryRepositoryImpl implements CategoryRepository {
   const CategoryRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<CategoryEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<CategoryEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);
@@ -70,7 +72,9 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<Either<Failure, CategoryEntity?>> firstWhereCategoryName(String categoryName) async {
+  Future<Either<Failure, CategoryEntity?>> firstWhereCategoryName(
+    String categoryName,
+  ) async {
     try {
       final res = await _dataSource.firstWhereCategoryName(categoryName);
       return Right(res);
@@ -94,7 +98,9 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<Either<Failure, List<CategoryEntity>>> whereNotInStore(int storeId) async {
+  Future<Either<Failure, List<CategoryEntity>>> whereNotInStore(
+    int storeId,
+  ) async {
     try {
       final res = await _dataSource.whereNotInStore(storeId);
       return Right(res);
@@ -106,9 +112,15 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<Either<Failure, List<SimpleCategoryEntity>>> whereCategoryNameContains(String categoryName, {int? limit}) async {
+  Future<Either<Failure, List<SimpleCategoryEntity>>> whereCategoryNameContains(
+    String categoryName, {
+    int? limit,
+  }) async {
     try {
-      final res = await _dataSource.whereCategoryNameContains(categoryName, limit: limit);
+      final res = await _dataSource.whereCategoryNameContains(
+        categoryName,
+        limit: limit,
+      );
       return Right(res);
     } on Failure catch (f) {
       return Left(f);

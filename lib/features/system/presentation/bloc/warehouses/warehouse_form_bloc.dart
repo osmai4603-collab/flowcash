@@ -16,10 +16,10 @@ class WarehouseFormBloc extends Bloc<WarehouseFormEvent, WarehouseFormState> {
     required WarehouseEntity? initialValue,
     required InsertWarehouseUseCase insertWarehouseUseCase,
     required UpdateWarehouseUseCase updateWarehouseUseCase,
-  })  : _insertWarehouseUseCase = insertWarehouseUseCase,
-        _updateWarehouseUseCase = updateWarehouseUseCase,
-        _isEdit = initialValue != null,
-        super(WarehouseFormState.initial(initialValue)) {
+  }) : _insertWarehouseUseCase = insertWarehouseUseCase,
+       _updateWarehouseUseCase = updateWarehouseUseCase,
+       _isEdit = initialValue != null,
+       super(WarehouseFormState.initial(initialValue)) {
     on<WarehouseFormNameChanged>(_onNameChanged);
     on<WarehouseFormLocationChanged>(_onLocationChanged);
     on<WarehouseFormTypeChanged>(_onTypeChanged);
@@ -27,23 +27,58 @@ class WarehouseFormBloc extends Bloc<WarehouseFormEvent, WarehouseFormState> {
     on<WarehouseFormSubmitted>(_onSubmitted);
   }
 
-  void _onNameChanged(WarehouseFormNameChanged event, Emitter<WarehouseFormState> emit) {
-    emit(state.copyWith(warehouse: state.warehouse.copyWith(warehouseName: event.name), errorMessage: null));
+  void _onNameChanged(
+    WarehouseFormNameChanged event,
+    Emitter<WarehouseFormState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        warehouse: state.warehouse.copyWith(warehouseName: event.name),
+        errorMessage: null,
+      ),
+    );
   }
 
-  void _onLocationChanged(WarehouseFormLocationChanged event, Emitter<WarehouseFormState> emit) {
-    emit(state.copyWith(warehouse: state.warehouse.copyWith(location: event.location), errorMessage: null));
+  void _onLocationChanged(
+    WarehouseFormLocationChanged event,
+    Emitter<WarehouseFormState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        warehouse: state.warehouse.copyWith(location: event.location),
+        errorMessage: null,
+      ),
+    );
   }
 
-  void _onTypeChanged(WarehouseFormTypeChanged event, Emitter<WarehouseFormState> emit) {
-    emit(state.copyWith(warehouse: state.warehouse.copyWith(warehouseType: event.warehouseType), errorMessage: null));
+  void _onTypeChanged(
+    WarehouseFormTypeChanged event,
+    Emitter<WarehouseFormState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        warehouse: state.warehouse.copyWith(warehouseType: event.warehouseType),
+        errorMessage: null,
+      ),
+    );
   }
 
-  void _onParentIdChanged(WarehouseFormParentIdChanged event, Emitter<WarehouseFormState> emit) {
-    emit(state.copyWith(warehouse: state.warehouse.copyWith(parentId: event.parentId), errorMessage: null));
+  void _onParentIdChanged(
+    WarehouseFormParentIdChanged event,
+    Emitter<WarehouseFormState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        warehouse: state.warehouse.copyWith(parentId: event.parentId),
+        errorMessage: null,
+      ),
+    );
   }
 
-  Future<void> _onSubmitted(WarehouseFormSubmitted event, Emitter<WarehouseFormState> emit) async {
+  Future<void> _onSubmitted(
+    WarehouseFormSubmitted event,
+    Emitter<WarehouseFormState> emit,
+  ) async {
     final warehouse = state.warehouse;
     if (warehouse.warehouseName.trim().isEmpty) {
       emit(state.copyWith(errorMessage: 'الرجاء إدخال اسم المستودع'));
@@ -62,8 +97,16 @@ class WarehouseFormBloc extends Bloc<WarehouseFormEvent, WarehouseFormState> {
         : await _insertWarehouseUseCase(entityToSave);
 
     result.match(
-      (failure) => emit(state.copyWith(isSubmitting: false, errorMessage: failure.message)),
-      (saved) => emit(state.copyWith(isSubmitting: false, isSuccess: true, savedEntity: saved)),
+      (failure) => emit(
+        state.copyWith(isSubmitting: false, errorMessage: failure.message),
+      ),
+      (saved) => emit(
+        state.copyWith(
+          isSubmitting: false,
+          isSuccess: true,
+          savedEntity: saved,
+        ),
+      ),
     );
   }
 }

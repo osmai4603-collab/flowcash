@@ -12,7 +12,10 @@ class CurrenciesBloc extends Bloc<CurrenciesEvent, CurrenciesState> {
     on<LoadCurrenciesEvent>(_onLoad);
   }
 
-  Future<void> _onLoad(LoadCurrenciesEvent event, Emitter<CurrenciesState> emit) async {
+  Future<void> _onLoad(
+    LoadCurrenciesEvent event,
+    Emitter<CurrenciesState> emit,
+  ) async {
     emit(const CurrenciesLoading());
     try {
       final res = await _getCurrencies();

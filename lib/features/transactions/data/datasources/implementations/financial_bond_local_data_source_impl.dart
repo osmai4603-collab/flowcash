@@ -55,7 +55,7 @@ final class FinancialBondLocalDataSourceImpl
       table: FinancialBondsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), FinancialBondsTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert financial bond');
     }
     return entity.copyWith(id: entityId);

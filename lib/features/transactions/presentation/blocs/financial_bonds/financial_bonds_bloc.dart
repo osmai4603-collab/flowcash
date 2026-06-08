@@ -3,7 +3,8 @@ import 'package:flowcash/features/transactions/domain/usecases/financial_bond_re
 import 'financial_bonds_event.dart';
 import 'financial_bonds_state.dart';
 
-class FinancialBondsBloc extends Bloc<FinancialBondsEvent, FinancialBondsState> {
+class FinancialBondsBloc
+    extends Bloc<FinancialBondsEvent, FinancialBondsState> {
   final GetFinancialBondsUseCase _getFinancialBondsUseCase;
   final InsertFinancialBondUseCase _insertFinancialBondUseCase;
   final UpdateFinancialBondUseCase _updateFinancialBondUseCase;
@@ -14,11 +15,11 @@ class FinancialBondsBloc extends Bloc<FinancialBondsEvent, FinancialBondsState> 
     required InsertFinancialBondUseCase insertFinancialBondUseCase,
     required UpdateFinancialBondUseCase updateFinancialBondUseCase,
     required DeleteFinancialBondUseCase deleteFinancialBondUseCase,
-  })  : _getFinancialBondsUseCase = getFinancialBondsUseCase,
-        _insertFinancialBondUseCase = insertFinancialBondUseCase,
-        _updateFinancialBondUseCase = updateFinancialBondUseCase,
-        _deleteFinancialBondUseCase = deleteFinancialBondUseCase,
-        super(const FinancialBondsState()) {
+  }) : _getFinancialBondsUseCase = getFinancialBondsUseCase,
+       _insertFinancialBondUseCase = insertFinancialBondUseCase,
+       _updateFinancialBondUseCase = updateFinancialBondUseCase,
+       _deleteFinancialBondUseCase = deleteFinancialBondUseCase,
+       super(const FinancialBondsState()) {
     on<LoadFinancialBondsEvent>(_onLoadBonds);
     on<AddFinancialBondEvent>(_onAddBond);
     on<UpdateFinancialBondEvent>(_onUpdateBond);
@@ -31,10 +32,9 @@ class FinancialBondsBloc extends Bloc<FinancialBondsEvent, FinancialBondsState> 
     final result = await _getFinancialBondsUseCase();
     result.fold(
       (failure) => emit(state.toError(failure.message)),
-      (bonds) => emit(state.copyWith(
-        bonds: bonds,
-        status: FinancialBondsStatus.success,
-      )),
+      (bonds) => emit(
+        state.copyWith(bonds: bonds, status: FinancialBondsStatus.success),
+      ),
     );
   }
 
@@ -47,7 +47,10 @@ class FinancialBondsBloc extends Bloc<FinancialBondsEvent, FinancialBondsState> 
     );
   }
 
-  Future<void> _onUpdateBond(UpdateFinancialBondEvent event, EmitFn emit) async {
+  Future<void> _onUpdateBond(
+    UpdateFinancialBondEvent event,
+    EmitFn emit,
+  ) async {
     emit(state.toLoading());
     final result = await _updateFinancialBondUseCase(event.bond);
     result.fold(
@@ -56,7 +59,10 @@ class FinancialBondsBloc extends Bloc<FinancialBondsEvent, FinancialBondsState> 
     );
   }
 
-  Future<void> _onDeleteBond(DeleteFinancialBondEvent event, EmitFn emit) async {
+  Future<void> _onDeleteBond(
+    DeleteFinancialBondEvent event,
+    EmitFn emit,
+  ) async {
     emit(state.toLoading());
     final result = await _deleteFinancialBondUseCase(event.id);
     result.fold(

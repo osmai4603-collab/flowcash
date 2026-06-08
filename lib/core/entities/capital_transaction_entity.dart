@@ -32,19 +32,19 @@ class CapitalTransactionEntity extends Entity {
 
   @override
   List<Object?> get props => [
-        id,
-        createdAt,
-        createdBy,
-        note,
-        offerAmount,
-        currencyId,
-        billNumber,
-        periodId,
-        warehouseId,
-        journalEntryId,
-        hintId,
-        historyGroup,
-      ];
+    id,
+    createdAt,
+    createdBy,
+    note,
+    offerAmount,
+    currencyId,
+    billNumber,
+    periodId,
+    warehouseId,
+    journalEntryId,
+    hintId,
+    historyGroup,
+  ];
 
   @override
   CapitalTransactionEntity copyWith({

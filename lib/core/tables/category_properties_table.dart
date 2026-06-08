@@ -5,7 +5,7 @@ class CategoryPropertiesTable {
   static const String tableName = 'categories_properties';
 
   static const String id = 'property_id';
-  
+
   static const String mainCategoryId = 'main_category_id';
   static const String propertyName = 'property_name';
   static const String unitType = 'unit_type';

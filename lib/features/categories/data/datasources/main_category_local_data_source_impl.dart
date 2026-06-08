@@ -48,18 +48,22 @@ final class MainCategoryLocalDataSourceImpl
         table: MainCategoriesTable.tableName,
         data: toMap(entity),
       );
-      if(entityId <= 0) {
+      if (entityId <= 0) {
         throw Exception('Failed to insert main category');
       }
       final insertedEntity = entity.copyWith(id: entityId);
-      final properties = entity.properties.map((property) => property.copyWith(mainCategoryId: insertedEntity.id)).toList();
-      for(var index = 0; index < properties.length; index++) {
+      final properties = entity.properties
+          .map(
+            (property) => property.copyWith(mainCategoryId: insertedEntity.id),
+          )
+          .toList();
+      for (var index = 0; index < properties.length; index++) {
         final property = properties[index];
         final propertyId = await _db.insert(
           table: CategoryPropertiesTable.tableName,
           data: propertyToMap(property),
         );
-        if(propertyId <= 0) {
+        if (propertyId <= 0) {
           throw Exception('Failed to insert category property at index $index');
         }
         properties[index] = property.copyWith(id: propertyId);
@@ -67,8 +71,6 @@ final class MainCategoryLocalDataSourceImpl
       return insertedEntity.copyWith(properties: properties);
     });
   }
-
-
 
   @override
   Future<MainCategoryEntity> update(MainCategoryEntity entity) async {
@@ -98,7 +100,9 @@ final class MainCategoryLocalDataSourceImpl
             data: propertyToMap(property),
           );
           if (propertyId <= 0) {
-            throw Exception('Failed to insert category property at index $index');
+            throw Exception(
+              'Failed to insert category property at index $index',
+            );
           }
           updatedProperties.add(property.copyWith(id: propertyId));
         }
@@ -162,5 +166,4 @@ final class MainCategoryLocalDataSourceImpl
     if (rows.isEmpty) return null;
     return fromMap(rows.first);
   }
-
 }

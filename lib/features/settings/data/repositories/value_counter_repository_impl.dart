@@ -12,7 +12,9 @@ class ValueCounterRepositoryImpl implements ValueCounterRepository {
   const ValueCounterRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, ValueCounterEntity>> getCounter(ValueCounterType type) async {
+  Future<Either<Failure, ValueCounterEntity>> getCounter(
+    ValueCounterType type,
+  ) async {
     try {
       final counter = await _dataSource.getCounter(type);
       return right(counter);
@@ -32,7 +34,9 @@ class ValueCounterRepositoryImpl implements ValueCounterRepository {
   }
 
   @override
-  Future<Either<Failure, ValueCounterEntity>> setCounter(ValueCounterEntity counter) async {
+  Future<Either<Failure, ValueCounterEntity>> setCounter(
+    ValueCounterEntity counter,
+  ) async {
     try {
       final model = ValueCounterModel(
         id: counter.id,

@@ -244,19 +244,19 @@ class TransactionDetailPanel extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(Icons.delete),
-    const SizedBox(width: 8.0),
-    const fluent.Text(
-                      'حذف الإذن بالكامل',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const fluent.Icon(Icons.delete),
+                        const SizedBox(width: 8.0),
+                        const fluent.Text(
+                          'حذف الإذن بالكامل',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
-  ],
-),
-onPressed: onDelete,
-),
+                    onPressed: onDelete,
+                  ),
                 ),
               ],
             ),

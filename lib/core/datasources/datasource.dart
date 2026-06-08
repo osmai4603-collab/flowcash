@@ -1,6 +1,3 @@
-
-
-
 import 'package:flowcash/core/entities/entity.dart';
 
 abstract interface class AppDataSource<Id, E extends Entity, Converter> {

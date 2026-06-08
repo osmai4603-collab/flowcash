@@ -9,10 +9,5 @@ class WarehouseValuesTable {
   static const String valueType = 'value_type';
   static const String value = 'data';
 
-  static const List<String> fields = [
-    id,
-    warehouseId,
-    valueType,
-    value,
-  ];
+  static const List<String> fields = [id, warehouseId, valueType, value];
 }

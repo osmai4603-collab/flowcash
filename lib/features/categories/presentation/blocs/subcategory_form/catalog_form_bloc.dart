@@ -7,7 +7,8 @@ import 'package:flowcash/features/categories/domain/usecases/unit_usecases.dart'
 import 'package:flowcash/features/categories/domain/usecases/subcategory_usecases.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_unit_entity.dart';
 
-class SubcategoryFormBloc extends Bloc<SubcategoryFormEvent, SubcategoryFormState> {
+class SubcategoryFormBloc
+    extends Bloc<SubcategoryFormEvent, SubcategoryFormState> {
   final GetMainCategoryByIdUseCase _getMainCategoryUseCase;
   final GetCategoryPropertiesByMainCategoryUseCase _getPropertiesUseCase;
   final GetUnitsByUnitTypes _getUnitsByUnitType;
@@ -19,7 +20,8 @@ class SubcategoryFormBloc extends Bloc<SubcategoryFormEvent, SubcategoryFormStat
     required GetMainCategoryByIdUseCase getMainCategoryUseCase,
     required GetCategoryPropertiesByMainCategoryUseCase getPropertiesUseCase,
     required GetUnitsByUnitTypes getUnitsUseCase,
-    required GetSubcategoryUnitsByMainCategoryUseCase getSubcategoryUnitsUseCase,
+    required GetSubcategoryUnitsByMainCategoryUseCase
+    getSubcategoryUnitsUseCase,
     required GetSubcategoriesByMainCategoryUseCase getSubcategoriesUseCase,
     required InsertSubcategoryUseCase insertSubcategoryUseCase,
     required UpdateSubcategoryUseCase updateSubcategoryUseCase,
@@ -28,7 +30,7 @@ class SubcategoryFormBloc extends Bloc<SubcategoryFormEvent, SubcategoryFormStat
        _getUnitsByUnitType = getUnitsUseCase,
        _getSubcategoryUnitsUseCase = getSubcategoryUnitsUseCase,
        _insertSubcategoryWithUnitsUseCase = insertSubcategoryUseCase,
-        _updateSubcategoryUseCase = updateSubcategoryUseCase,
+       _updateSubcategoryUseCase = updateSubcategoryUseCase,
        super(const SubcategoryFormState()) {
     on<InitSubcategoryFormEvent>(_onInit);
     on<SubcategoryNameChangedEvent>(_onNameChanged);
@@ -152,13 +154,9 @@ class SubcategoryFormBloc extends Bloc<SubcategoryFormEvent, SubcategoryFormStat
   ) async {
     emit(state.copyWith(status: SubcategoryFormStatus.saving));
     await Future.delayed(const Duration(seconds: 1));
-    final result = state.catalogId == 0 
-      ? await _insertSubcategoryWithUnitsUseCase(
-      state.toEntity(),
-    )
-      : await _updateSubcategoryUseCase(
-      state.toEntity(),
-    );
+    final result = state.catalogId == 0
+        ? await _insertSubcategoryWithUnitsUseCase(state.toEntity())
+        : await _updateSubcategoryUseCase(state.toEntity());
 
     result.fold(
       (failure) => emit(
@@ -263,4 +261,3 @@ class SubcategoryFormBloc extends Bloc<SubcategoryFormEvent, SubcategoryFormStat
     emit(s.copyWith(catalogProperties: newProperties));
   }
 }
-

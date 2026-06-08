@@ -51,11 +51,13 @@ class AppBloc extends Bloc<AppEvent, AppState> {
           errorMessage: failure.message,
         ),
       ),
-      (_) => emit(state.copyWith(
-        status: AppStatus.success,
-        appData: newAppData,
-        themeVersion: state.themeVersion + 1,
-      )),
+      (_) => emit(
+        state.copyWith(
+          status: AppStatus.success,
+          appData: newAppData,
+          themeVersion: state.themeVersion + 1,
+        ),
+      ),
     );
   }
 

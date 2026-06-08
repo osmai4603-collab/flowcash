@@ -23,7 +23,16 @@ class AccountingPeriodEntity extends Entity {
   });
 
   @override
-  List<Object?> get props => [id, periodName, dateOfStartPeriod, dateOfEndPeriod, lastPeriodId, currencyId, balance, inventoryType];
+  List<Object?> get props => [
+    id,
+    periodName,
+    dateOfStartPeriod,
+    dateOfEndPeriod,
+    lastPeriodId,
+    currencyId,
+    balance,
+    inventoryType,
+  ];
 
   @override
   AccountingPeriodEntity copyWith({
@@ -52,10 +61,14 @@ class AccountingPeriodEntity extends Entity {
     if (dateOfEndPeriod == null) return true;
     final today = DateTime.now();
     final currentDate = DateTime(today.year, today.month, today.day);
-    final endDate = DateTime(dateOfEndPeriod!.year, dateOfEndPeriod!.month, dateOfEndPeriod!.day);
-    return endDate.isAtSameMomentAs(currentDate) || endDate.isAfter(currentDate);
+    final endDate = DateTime(
+      dateOfEndPeriod!.year,
+      dateOfEndPeriod!.month,
+      dateOfEndPeriod!.day,
+    );
+    return endDate.isAtSameMomentAs(currentDate) ||
+        endDate.isAfter(currentDate);
   }
 
   bool get hasLocked => dateOfEndPeriod != null;
-
 }

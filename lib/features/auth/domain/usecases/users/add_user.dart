@@ -8,7 +8,9 @@ class AddUser {
 
   AddUser(this.repository);
 
-  Future<Either<Failure, ProgramUserEntity>> call(ProgramUserEntity user) async {
+  Future<Either<Failure, ProgramUserEntity>> call(
+    ProgramUserEntity user,
+  ) async {
     return await repository.insert(user);
   }
 }

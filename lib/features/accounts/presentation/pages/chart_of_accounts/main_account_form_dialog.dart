@@ -59,7 +59,8 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
               ),
             );
           }
-          if (state.currencyErrorMessage != null && state.currencyErrorMessage!.isNotEmpty) {
+          if (state.currencyErrorMessage != null &&
+              state.currencyErrorMessage!.isNotEmpty) {
             fluent.displayInfoBar(
               context,
               builder: (context, close) => fluent.InfoBar(
@@ -113,7 +114,10 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                 ),
               ),
               actions: [
-                fluent.Button(onPressed: null, child: const fluent.Text('إلغاء')),
+                fluent.Button(
+                  onPressed: null,
+                  child: const fluent.Text('إلغاء'),
+                ),
                 fluent.FilledButton(
                   onPressed: null,
                   child: const SizedBox(
@@ -205,9 +209,10 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                                           placeholder: const fluent.Text(
                                             'اختر مجموعة الحساب',
                                           ),
-                                          disabledPlaceholder: const fluent.Text(
-                                            'غير متاح للتعديل',
-                                          ),
+                                          disabledPlaceholder:
+                                              const fluent.Text(
+                                                'غير متاح للتعديل',
+                                              ),
                                           isExpanded: true,
                                           icon: const fluent.Icon(
                                             fluent.FluentIcons.chevron_down,
@@ -288,9 +293,10 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                                           placeholder: const fluent.Text(
                                             'اختر نوع الحساب الرئيسي',
                                           ),
-                                          disabledPlaceholder: const fluent.Text(
-                                            'حدد مجموعة أولاً',
-                                          ),
+                                          disabledPlaceholder:
+                                              const fluent.Text(
+                                                'حدد مجموعة أولاً',
+                                              ),
                                           isExpanded: true,
                                           icon: const fluent.Icon(
                                             fluent.FluentIcons.chevron_down,
@@ -342,15 +348,20 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                           key: ValueKey(state.selectedCurrency?.id ?? ''),
                           initialValue: state.selectedCurrency,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) => value == null ? 'مطلوب اختيار العملة' : null,
+                          validator: (value) =>
+                              value == null ? 'مطلوب اختيار العملة' : null,
                           builder: (field) {
                             final currencyItems = state.currencies
-                                .map((currency) => fluent.ComboBoxItem<CurrencyEntity>(
-                                      value: currency,
-                                      child: fluent.Text(
-                                        '${currency.name} (${currency.symbol})',
-                                      ),
-                                    ))
+                                .map(
+                                  (
+                                    currency,
+                                  ) => fluent.ComboBoxItem<CurrencyEntity>(
+                                    value: currency,
+                                    child: fluent.Text(
+                                      '${currency.name} (${currency.symbol})',
+                                    ),
+                                  ),
+                                )
                                 .toList();
 
                             return Column(

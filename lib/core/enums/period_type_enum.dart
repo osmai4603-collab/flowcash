@@ -6,10 +6,7 @@ sealed class PeriodType extends AppEnum {
   static const permanent = PermanentPeriodType._();
   static const temporary = TemporaryPeriodType._();
 
-  static const List<PeriodType> values = [
-    permanent,
-    temporary,
-  ];
+  static const List<PeriodType> values = [permanent, temporary];
 
   static PeriodType of(String name) {
     return values.firstWhere(

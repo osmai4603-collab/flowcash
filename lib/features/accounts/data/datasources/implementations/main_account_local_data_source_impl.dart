@@ -43,7 +43,7 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
       table: MainAccountsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), MainAccountsTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert main account');
     }
     return entity.copyWith(id: entityId);
@@ -75,10 +75,8 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
       accountName: (map[MainAccountsTable.accountName] as String?) ?? "",
       accountNumber: (map[MainAccountsTable.accountNumber] as String?) ?? "",
       currencyId: map[MainAccountsTable.currencyId],
-      debitBalance: ((map[MainAccountsTable.debitBalance]) as num)
-          .toDouble(),
-      creditBalance: ((map[MainAccountsTable.creditBalance]) as num)
-          .toDouble(),
+      debitBalance: ((map[MainAccountsTable.debitBalance]) as num).toDouble(),
+      creditBalance: ((map[MainAccountsTable.creditBalance]) as num).toDouble(),
       mainAccountType: MainAccountType.values.firstWhere(
         (e) => e.name == map[MainAccountsTable.mainAccountType] as String,
       ),
@@ -210,10 +208,8 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     await _db.update(
       table: MainAccountsTable.tableName,
       data: {
-        MainAccountsTable.debitBalance:
-            mainAcc.debitBalance + debitBalance,
-        MainAccountsTable.creditBalance:
-            mainAcc.creditBalance + creditBalance,
+        MainAccountsTable.debitBalance: mainAcc.debitBalance + debitBalance,
+        MainAccountsTable.creditBalance: mainAcc.creditBalance + creditBalance,
       },
       where: {MainAccountsTable.id: id},
     );
@@ -229,11 +225,9 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     final mainAcc = await firstWhereSubAccountId(subAccountId);
     final data = <String, dynamic>{};
     if (isIncrement) {
-      data[MainAccountsTable.debitBalance] =
-          mainAcc.debitBalance + amount;
+      data[MainAccountsTable.debitBalance] = mainAcc.debitBalance + amount;
     } else {
-      data[MainAccountsTable.creditBalance] =
-          mainAcc.creditBalance + amount;
+      data[MainAccountsTable.creditBalance] = mainAcc.creditBalance + amount;
     }
     await _db.update(
       table: MainAccountsTable.tableName,

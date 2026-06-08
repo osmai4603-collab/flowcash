@@ -11,9 +11,9 @@ class StocktakingBloc extends Bloc<StocktakingEvent, StocktakingState> {
   StocktakingBloc({
     required GetInventorysUseCase getInventorys,
     required GetWarehousesUseCase getWarehouses,
-  })  : _getInventorys = getInventorys,
-        _getWarehouses = getWarehouses,
-        super(const StocktakingState()) {
+  }) : _getInventorys = getInventorys,
+       _getWarehouses = getWarehouses,
+       super(const StocktakingState()) {
     on<LoadStocktakingEvent>(_onLoad);
     on<UpdateActualCountEvent>(_onUpdateActual);
   }
@@ -27,28 +27,24 @@ class StocktakingBloc extends Bloc<StocktakingEvent, StocktakingState> {
     final iRes = await _getInventorys();
     final wRes = await _getWarehouses();
 
-    iRes.fold(
-      (f) => emit(state.toError(f.message)),
-      (itemsList) {
-        wRes.fold(
-          (f) => emit(state.toError(f.message)),
-          (warehousesList) {
-            // Pre-populate actualCounts with book count values initially for comfort
-            final Map<int, double> defaultCounts = {};
-            for (var item in itemsList) {
-              defaultCounts[item.categoryId] = item.countUnits;
-            }
+    iRes.fold((f) => emit(state.toError(f.message)), (itemsList) {
+      wRes.fold((f) => emit(state.toError(f.message)), (warehousesList) {
+        // Pre-populate actualCounts with book count values initially for comfort
+        final Map<int, double> defaultCounts = {};
+        for (var item in itemsList) {
+          defaultCounts[item.categoryId] = item.countUnits;
+        }
 
-            emit(state.copyWith(
-              status: StocktakingStatus.success,
-              items: itemsList,
-              warehouses: warehousesList,
-              actualCounts: defaultCounts,
-            ));
-          },
+        emit(
+          state.copyWith(
+            status: StocktakingStatus.success,
+            items: itemsList,
+            warehouses: warehousesList,
+            actualCounts: defaultCounts,
+          ),
         );
-      },
-    );
+      });
+    });
   }
 
   void _onUpdateActual(

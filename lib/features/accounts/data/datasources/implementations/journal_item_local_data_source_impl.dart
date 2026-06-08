@@ -44,7 +44,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
       table: JournalItemsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), JournalItemsTable.itemId),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert journal item');
     }
     return entity.copyWith(id: entityId);
@@ -76,7 +76,8 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
     if (statusStr != null) {
       status = JournalStatus.of(statusStr);
     } else {
-      final debitVal = ((map[JournalItemsTable.debit]) as num?)?.toDouble() ?? 0.0;
+      final debitVal =
+          ((map[JournalItemsTable.debit]) as num?)?.toDouble() ?? 0.0;
       status = debitVal > 0 ? JournalStatus.debit : JournalStatus.credit;
     }
     return JournalItemEntity(

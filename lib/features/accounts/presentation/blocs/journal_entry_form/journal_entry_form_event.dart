@@ -81,7 +81,15 @@ class JournalItemFieldChanged extends JournalEntryFormEvent {
   });
 
   @override
-  List<Object?> get props => [side, index, accountId, accountName, debit, credit, lineDescription];
+  List<Object?> get props => [
+    side,
+    index,
+    accountId,
+    accountName,
+    debit,
+    credit,
+    lineDescription,
+  ];
 }
 
 class SubmitJournalEntryForm extends JournalEntryFormEvent {

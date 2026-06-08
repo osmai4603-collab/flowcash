@@ -1,4 +1,3 @@
-
 import 'package:flowcash/core/services/navigation_service.dart';
 import 'package:flowcash/core/theme/app_theme.dart';
 import 'package:flowcash/features/auth/presentation/bloc/auth/auth_bloc.dart';
@@ -28,14 +27,15 @@ class Application extends StatelessWidget {
         ChangeNotifierProvider.value(value: sl<UserSession>()),
         BlocProvider<AppBloc>(create: (_) => sl<AppBloc>()..add(AppStarted())),
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
-        BlocProvider<SessionBloc>(create: (_) => sl<SessionBloc>()..add(LoadSessionUsersEvent())),
+        BlocProvider<SessionBloc>(
+          create: (_) => sl<SessionBloc>()..add(LoadSessionUsersEvent()),
+        ),
         BlocProvider<CategoriesBloc>(create: (_) => sl<CategoriesBloc>()),
       ],
       child: const _MaterialApp(),
     );
   }
 }
-
 
 class _MaterialApp extends StatelessWidget {
   const _MaterialApp();

@@ -9,7 +9,9 @@ class ExchangePriceRepositoryImpl implements ExchangePriceRepository {
   const ExchangePriceRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<ExchangePriceEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<ExchangePriceEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);
@@ -33,7 +35,9 @@ class ExchangePriceRepositoryImpl implements ExchangePriceRepository {
   }
 
   @override
-  Future<Either<Failure, ExchangePriceEntity>> insert(ExchangePriceEntity entity) async {
+  Future<Either<Failure, ExchangePriceEntity>> insert(
+    ExchangePriceEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return Right(entityInserted);
@@ -45,7 +49,9 @@ class ExchangePriceRepositoryImpl implements ExchangePriceRepository {
   }
 
   @override
-  Future<Either<Failure, ExchangePriceEntity>> update(ExchangePriceEntity entity) async {
+  Future<Either<Failure, ExchangePriceEntity>> update(
+    ExchangePriceEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);
@@ -69,7 +75,10 @@ class ExchangePriceRepositoryImpl implements ExchangePriceRepository {
   }
 
   @override
-  Future<Either<Failure, double>> getExPrice(String fromCurrencyId, String toCurrencyId) async {
+  Future<Either<Failure, double>> getExPrice(
+    String fromCurrencyId,
+    String toCurrencyId,
+  ) async {
     try {
       final res = await _dataSource.getExPrice(fromCurrencyId, toCurrencyId);
       return Right(res);
@@ -81,7 +90,9 @@ class ExchangePriceRepositoryImpl implements ExchangePriceRepository {
   }
 
   @override
-  Future<Either<Failure, List<ExchangePriceEntity>>> getWhereFromCurrencyId(Iterable<String> ids) async {
+  Future<Either<Failure, List<ExchangePriceEntity>>> getWhereFromCurrencyId(
+    Iterable<String> ids,
+  ) async {
     try {
       final res = await _dataSource.getWhereFromCurrencyId(ids);
       return Right(res);

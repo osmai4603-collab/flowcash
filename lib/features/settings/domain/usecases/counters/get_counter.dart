@@ -9,7 +9,9 @@ class GetCounter {
 
   GetCounter(this.repository);
 
-  Future<Either<Failure, ValueCounterEntity>> call(ValueCounterType type) async {
+  Future<Either<Failure, ValueCounterEntity>> call(
+    ValueCounterType type,
+  ) async {
     return await repository.getCounter(type);
   }
 }

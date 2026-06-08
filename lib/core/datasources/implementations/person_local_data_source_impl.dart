@@ -42,7 +42,7 @@ final class PersonLocalDataSourceImpl implements PersonDataSource {
       table: PersonsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), PersonsTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert person');
     }
     return entity.copyWith(id: entityId);

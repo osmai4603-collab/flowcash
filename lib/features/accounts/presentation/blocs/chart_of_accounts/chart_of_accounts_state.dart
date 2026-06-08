@@ -47,10 +47,10 @@ class ChartOfAccountsState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        mainAccounts,
-        subAccounts,
-        selectedGroup,
-        errorMessage,
-      ];
+    status,
+    mainAccounts,
+    subAccounts,
+    selectedGroup,
+    errorMessage,
+  ];
 }

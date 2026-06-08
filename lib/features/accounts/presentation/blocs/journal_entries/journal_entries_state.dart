@@ -38,7 +38,9 @@ class JournalEntriesState extends Equatable {
     return JournalEntriesState(
       status: status ?? this.status,
       entries: entries ?? this.entries,
-      selectedEntry: clearSelectedEntry ? null : (selectedEntry ?? this.selectedEntry),
+      selectedEntry: clearSelectedEntry
+          ? null
+          : (selectedEntry ?? this.selectedEntry),
       selectedEntryItems: selectedEntryItems ?? this.selectedEntryItems,
       errorMessage: errorMessage ?? this.errorMessage,
     );
@@ -46,10 +48,10 @@ class JournalEntriesState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        entries,
-        selectedEntry,
-        selectedEntryItems,
-        errorMessage,
-      ];
+    status,
+    entries,
+    selectedEntry,
+    selectedEntryItems,
+    errorMessage,
+  ];
 }

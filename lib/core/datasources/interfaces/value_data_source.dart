@@ -4,7 +4,8 @@ import 'package:flowcash/core/datasources/datasource.dart';
 import 'package:flowcash/features/system/domain/entities/value_entity.dart';
 import 'package:flowcash/core/enums/value_type_enum.dart';
 
-abstract interface class ValueDataSource implements AppDataSource<int, ValueEntity, Map<String, dynamic>> {
+abstract interface class ValueDataSource
+    implements AppDataSource<int, ValueEntity, Map<String, dynamic>> {
   Future<ValueEntity?> firstValue(ValueType valueType);
   Future<ValueEntity> getValue(ValueType valueType);
   Future<int> fetchLocalCurrency();

@@ -11,7 +11,6 @@ class MainAccountEntity extends Entity {
   final MainAccountType mainAccountType;
   final int numbersCounter;
 
-
   const MainAccountEntity({
     required this.id,
     this.accountName = '',
@@ -25,15 +24,15 @@ class MainAccountEntity extends Entity {
 
   @override
   List<Object?> get props => [
-        id,
-        accountName,
-        accountNumber,
-        currencyId,
-        debitBalance,
-        creditBalance,
-        mainAccountType,
-        numbersCounter,
-      ];
+    id,
+    accountName,
+    accountNumber,
+    currencyId,
+    debitBalance,
+    creditBalance,
+    mainAccountType,
+    numbersCounter,
+  ];
 
   double get balance {
     return debitBalance - creditBalance;

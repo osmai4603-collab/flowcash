@@ -43,7 +43,7 @@ final class AccountingPeriodLocalDataSourceImpl
       table: AccountingPeriodsTable.tableName,
       data: toMap(entity),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert accounting period');
     }
     return entity.copyWith(id: entityId);

@@ -80,7 +80,7 @@ class JournalEntryDetailPanel extends StatelessWidget {
                 2: FlexColumnWidth(2), // Credit
                 3: FlexColumnWidth(4), // Details/Notes
               },
-              border: TableBorder.all(
+              border: fluent.TableBorder.all(
                 color: theme.dividerColor.withAlpha(50),
                 width: 0.5,
               ),

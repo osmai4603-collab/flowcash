@@ -33,20 +33,20 @@ class BillEntity extends Entity {
   });
   @override
   List<Object?> get props => [
-        id,
-        createdAt,
-        createdBy,
-        note,
-        offerAmount,
-        currencyId,
-        billNumber,
-        warehouseId,
-        journalEntryId,
-        personId,
-        inventoryTransactionId,
-        isCash,
-        orders,
-      ];
+    id,
+    createdAt,
+    createdBy,
+    note,
+    offerAmount,
+    currencyId,
+    billNumber,
+    warehouseId,
+    journalEntryId,
+    personId,
+    inventoryTransactionId,
+    isCash,
+    orders,
+  ];
 
   @override
   BillEntity copyWith({
@@ -75,7 +75,8 @@ class BillEntity extends Entity {
       warehouseId: warehouseId ?? this.warehouseId,
       journalEntryId: journalEntryId ?? this.journalEntryId,
       personId: personId ?? this.personId,
-      inventoryTransactionId: inventoryTransactionId ?? this.inventoryTransactionId,
+      inventoryTransactionId:
+          inventoryTransactionId ?? this.inventoryTransactionId,
       isCash: isCash ?? this.isCash,
       orders: orders ?? this.orders,
     );

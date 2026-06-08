@@ -71,7 +71,11 @@ class AddSubcategoryUnitEvent extends SubcategoriesEvent {
   final int unitId;
   final int propertyId;
 
-  const AddSubcategoryUnitEvent({required this.catalogId, required this.unitId, required this.propertyId});
+  const AddSubcategoryUnitEvent({
+    required this.catalogId,
+    required this.unitId,
+    required this.propertyId,
+  });
 
   @override
   List<Object?> get props => [catalogId, unitId, propertyId];

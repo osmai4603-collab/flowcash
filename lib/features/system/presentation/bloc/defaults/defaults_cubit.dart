@@ -10,7 +10,10 @@ class DefaultsBloc extends Bloc<DefaultsEvent, DefaultsState> {
     on<LoadDefaultsEvent>(_onLoad);
   }
 
-  Future<void> _onLoad(LoadDefaultsEvent event, Emitter<DefaultsState> emit) async {
+  Future<void> _onLoad(
+    LoadDefaultsEvent event,
+    Emitter<DefaultsState> emit,
+  ) async {
     emit(const DefaultsLoading());
     await Future.delayed(const Duration(milliseconds: 50));
     emit(const DefaultsSuccess([]));

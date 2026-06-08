@@ -1,7 +1,5 @@
-
 import 'package:flowcash/core/enums/person_type_enum.dart';
 import 'package:flowcash/core/entities/entity.dart';
-
 
 class PersonEntity extends Entity {
   final int id;
@@ -28,16 +26,16 @@ class PersonEntity extends Entity {
 
   @override
   List<Object?> get props => [
-        id,
-        personName,
-        phoneNumber,
-        address,
-        email,
-        receivableAccountId,
-        payableAccountId,
-        personType,
-        createdAt,
-      ];
+    id,
+    personName,
+    phoneNumber,
+    address,
+    email,
+    receivableAccountId,
+    payableAccountId,
+    personType,
+    createdAt,
+  ];
 
   @override
   PersonEntity copyWith({

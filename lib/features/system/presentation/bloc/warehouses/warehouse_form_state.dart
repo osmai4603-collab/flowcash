@@ -17,12 +17,14 @@ class WarehouseFormState extends Equatable {
 
   factory WarehouseFormState.initial(WarehouseEntity? initialValue) {
     return WarehouseFormState(
-      warehouse: initialValue ?? WarehouseEntity(
-        id: DateTime.now().millisecondsSinceEpoch,
-        warehouseName: '',
-        location: '',
-        warehouseType: WarehouseType.values.first,
-      ),
+      warehouse:
+          initialValue ??
+          WarehouseEntity(
+            id: DateTime.now().millisecondsSinceEpoch,
+            warehouseName: '',
+            location: '',
+            warehouseType: WarehouseType.values.first,
+          ),
       isSubmitting: false,
       isSuccess: false,
       errorMessage: null,
@@ -47,5 +49,11 @@ class WarehouseFormState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [warehouse, isSubmitting, isSuccess, errorMessage, savedEntity];
+  List<Object?> get props => [
+    warehouse,
+    isSubmitting,
+    isSuccess,
+    errorMessage,
+    savedEntity,
+  ];
 }

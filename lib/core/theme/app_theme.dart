@@ -44,9 +44,7 @@ sealed class Themes {
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          shape: ContinuousRectangleBorder(
-            borderRadius: Radiuses.smallAll,
-          ),
+          shape: ContinuousRectangleBorder(borderRadius: Radiuses.smallAll),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -90,9 +88,7 @@ sealed class Themes {
         ),
       ),
       dropdownMenuTheme: DropdownMenuThemeData(
-        textStyle: textTheme.bodyMedium?.copyWith(
-          color: colorScheme.onSurface,
-        ),
+        textStyle: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
         menuStyle: MenuStyle(
           backgroundColor: WidgetStatePropertyAll(colorScheme.surfaceContainer),
           surfaceTintColor: WidgetStatePropertyAll(
@@ -118,8 +114,6 @@ sealed class Themes {
         ),
       ),
 
-      
-
       inputDecorationTheme: InputDecorationThemeData(
         contentPadding: Paddings.smallAll,
         hintStyle: textTheme.bodyMedium?.copyWith(
@@ -138,15 +132,16 @@ sealed class Themes {
         // suffixIconConstraints: BoxConstraints(maxHeight: 40.0, maxWidth: 40.0),
         border: OutlineInputBorder(
           borderRadius: Radiuses.xsmallAll,
-          borderSide: BorderSide(color: colorScheme.outlineVariant, width: 0.50),
+          borderSide: BorderSide(
+            color: colorScheme.outlineVariant,
+            width: 0.50,
+          ),
         ),
       ),
 
       popupMenuTheme: PopupMenuThemeData(
         color: colorScheme.surfaceContainer,
-        textStyle: textTheme.bodyMedium?.copyWith(
-          color: colorScheme.onSurface,
-        ),
+        textStyle: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
       ),
     );
   }

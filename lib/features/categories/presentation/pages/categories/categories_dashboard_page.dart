@@ -166,7 +166,7 @@ class _CategoriesDashboardCategoriesTabState
     return Column(
       children: [
         fluent.Table(
-          border: TableBorder.all(width: 0.5, color: colors.outline),
+          border: fluent.TableBorder.all(width: 0.5, color: colors.outline),
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           columnWidths: const {
             0: FixedColumnWidth(40),
@@ -220,7 +220,10 @@ class _CategoriesDashboardCategoriesTabState
             itemBuilder: (context, index) {
               final category = categories[index];
               return fluent.Table(
-                border: TableBorder.all(width: 0.5, color: colors.outline),
+                border: fluent.TableBorder.all(
+                  width: 0.5,
+                  color: colors.outline,
+                ),
                 defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                 columnWidths: const {
                   0: FixedColumnWidth(40),

@@ -6,7 +6,11 @@ class ValueCounterTile extends StatelessWidget {
   final ValueCounterEntity counter;
   final VoidCallback onIncrement;
 
-  const ValueCounterTile({super.key, required this.counter, required this.onIncrement});
+  const ValueCounterTile({
+    super.key,
+    required this.counter,
+    required this.onIncrement,
+  });
 
   @override
   Widget build(BuildContext context) {

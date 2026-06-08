@@ -1,6 +1,3 @@
-
-
-
 import 'package:flowcash/core/enums/app_enum.dart';
 
 enum HintType {

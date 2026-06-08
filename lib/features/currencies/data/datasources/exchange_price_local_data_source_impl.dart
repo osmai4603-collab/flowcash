@@ -42,7 +42,7 @@ final class ExchangePriceLocalDataSourceImpl
       table: ExchangePricesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), ExchangePricesTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert exchange price');
     }
     return entity.copyWith(id: entityId);
@@ -59,9 +59,7 @@ final class ExchangePriceLocalDataSourceImpl
 
       await _db.update(
         table: ExchangePricesTable.tableName,
-        data: {
-          ExchangePricesTable.exchangePrice: 1 / entity.price,
-        },
+        data: {ExchangePricesTable.exchangePrice: 1 / entity.price},
         where: {
           ExchangePricesTable.fromCurrencyId: entity.toCurrencyId,
           ExchangePricesTable.toCurrencyId: entity.fromCurrencyId,
@@ -128,9 +126,13 @@ final class ExchangePriceLocalDataSourceImpl
     );
 
     if (reverseRows.isNotEmpty) {
-      final reversePrice = (reverseRows.first[ExchangePricesTable.exchangePrice] as num).toDouble();
+      final reversePrice =
+          (reverseRows.first[ExchangePricesTable.exchangePrice] as num)
+              .toDouble();
       if (reversePrice == 0) {
-        throw Exception('Reverse exchange price is zero for $toCurrencyId -> $fromCurrencyId');
+        throw Exception(
+          'Reverse exchange price is zero for $toCurrencyId -> $fromCurrencyId',
+        );
       }
       return 1 / reversePrice;
     }

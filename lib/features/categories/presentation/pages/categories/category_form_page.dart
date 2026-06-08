@@ -14,6 +14,7 @@ import 'package:flowcash/features/categories/presentation/blocs/category_form/ca
 import 'package:flowcash/widgets/message.dart';
 import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
 
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class CategoryFormPage extends StatelessWidget {
@@ -86,8 +87,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = ColorScheme.of(context);
-    final textTheme = TextTheme.of(context);
+    final colors = AppStyle.of(context);
     return BlocListener<CategoryFormBloc, CategoryFormState>(
       listener: (context, state) async {
         if (state.status == CategoryFormStatus.saved) {
@@ -130,7 +130,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                   child: fluent.Text(
                     'بيانات الصنف',
                     textAlign: TextAlign.center,
-                    style: textTheme.titleMedium,
+                    style: colors.subTitle,
                   ),
                 ),
               ),
@@ -190,7 +190,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                           child: fluent.TextFormBox(
                             textInputAction: TextInputAction.next,
                             initialValue: state.categoryName,
-                            style: textTheme.bodyLarge,
+                            style: colors.bodyLarge,
                             autofocus: state.id == 0,
                             cursorHeight: 20.0,
                             onChanged: _onCategoryNameChanged,
@@ -216,9 +216,9 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   readOnly: true,
                                   textInputAction: TextInputAction.next,
                                   initialValue: state.categoryNumber,
-                                  style: textTheme.bodyLarge,
+                                  style: colors.bodyLarge,
                                   cursorHeight: 20.0,
-                                  textDirection: .ltr,
+                                  textDirection: TextDirection.ltr,
                                   validator: categoryNumberValidator,
                                   suffix: fluent.Tooltip(
                                     message: 'تحديث رقم الصنف',
@@ -254,7 +254,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   initialValue: state.barcode,
                                   focusNode: barcodeFocusNode,
                                   cursorHeight: 20.0,
-                                  style: textTheme.bodyLarge,
+                                  style: colors.bodyLarge,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
                                   ],
@@ -280,11 +280,11 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                       value: state.selectedUnit,
                                       disabledPlaceholder: fluent.Text(
                                         'لا يوجد وحدات معرفة',
-                                        style: textTheme.labelMedium,
+                                        style: colors.caption,
                                       ),
                                       placeholder: fluent.Text(
                                         'حدد وحدة الصنف',
-                                        style: textTheme.labelMedium,
+                                        style: colors.caption,
                                       ),
                                       isExpanded: true,
                                       icon: fluent.Icon(
@@ -292,7 +292,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                         color: colors.onSurfaceVariant,
                                       ),
 
-                                      style: textTheme.bodyLarge,
+                                      style: colors.bodyLarge,
                                       items: state.units.map((unit) {
                                         return fluent.ComboBoxItem<UnitEntity>(
                                           value: unit,
@@ -302,12 +302,12 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                             children: [
                                               fluent.Text(
                                                 unit.unitType.fullUnitName,
-                                                style: textTheme.bodyLarge,
+                                                style: colors.bodyLarge,
                                               ),
                                               const SizedBox(width: 10),
                                               fluent.Text(
                                                 unit.unitType.symbolUnit,
-                                                style: textTheme.bodyMedium
+                                                style: colors.body
                                                     ?.copyWith(
                                                       color: colors
                                                           .onSurfaceVariant,
@@ -325,7 +325,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                                   .centerStart,
                                               child: fluent.Text(
                                                 unit.unitType.fullUnitName,
-                                                style: textTheme.bodyLarge,
+                                                style: colors.bodyLarge,
                                               ),
                                             );
                                           }).toList(),
@@ -344,7 +344,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                       fluent.FluentIcons.chevron_down,
                                       color: colors.onSurfaceVariant,
                                     ),
-                                    style: textTheme.bodyLarge,
+                                    style: colors.bodyLarge,
                                     items: CategoryDefineType.values.map((
                                       categoryType,
                                     ) {
@@ -354,7 +354,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                         value: categoryType,
                                         child: fluent.Text(
                                           categoryType.displayName(),
-                                          style: textTheme.titleSmall,
+                                          style: colors.bodyStrong,
                                         ),
                                       );
                                     }).toList(),

@@ -42,20 +42,23 @@ final class InventoryTransactionOrderLocalDataSourceImpl
   }
 
   @override
-  Future<InventoryTransactionOrderEntity> insert(InventoryTransactionOrderEntity entity) async {
+  Future<InventoryTransactionOrderEntity> insert(
+    InventoryTransactionOrderEntity entity,
+  ) async {
     final entityId = await _db.insert(
       table: InventoryTransactionsOrdersTable.tableName,
-      data: 
-        toMap(entity),
+      data: toMap(entity),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert value');
     }
     return entity.copyWith(id: entityId);
   }
 
   @override
-  Future<InventoryTransactionOrderEntity> update(InventoryTransactionOrderEntity entity) async {
+  Future<InventoryTransactionOrderEntity> update(
+    InventoryTransactionOrderEntity entity,
+  ) async {
     await _db.update(
       table: InventoryTransactionsOrdersTable.tableName,
       data: toMap(entity),
@@ -77,8 +80,7 @@ final class InventoryTransactionOrderLocalDataSourceImpl
   InventoryTransactionOrderEntity fromMap(Map<String, dynamic> map) {
     return InventoryTransactionOrderEntity(
       id: map[InventoryTransactionsOrdersTable.id] as int,
-        inventoryId:
-          map[InventoryTransactionsOrdersTable.inventoryId] as int?,
+      inventoryId: map[InventoryTransactionsOrdersTable.inventoryId] as int?,
       countUnits: ((map[InventoryTransactionsOrdersTable.countUnits]) as num)
           .toDouble(),
       tranId: map[InventoryTransactionsOrdersTable.tranId] as int,
@@ -94,8 +96,7 @@ final class InventoryTransactionOrderLocalDataSourceImpl
   Map<String, dynamic> toMap(InventoryTransactionOrderEntity entity) {
     return {
       if (entity.id > 0) InventoryTransactionsOrdersTable.id: entity.id,
-      InventoryTransactionsOrdersTable.inventoryId:
-          entity.inventoryId,
+      InventoryTransactionsOrdersTable.inventoryId: entity.inventoryId,
       InventoryTransactionsOrdersTable.countUnits: entity.countUnits,
       InventoryTransactionsOrdersTable.tranId: entity.tranId,
       InventoryTransactionsOrdersTable.transactionType:

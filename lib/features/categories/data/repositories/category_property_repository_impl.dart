@@ -9,7 +9,9 @@ class CategoryPropertyRepositoryImpl implements CategoryPropertyRepository {
   const CategoryPropertyRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<CategoryPropertyEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<CategoryPropertyEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);
@@ -33,7 +35,9 @@ class CategoryPropertyRepositoryImpl implements CategoryPropertyRepository {
   }
 
   @override
-  Future<Either<Failure, CategoryPropertyEntity>> insert(CategoryPropertyEntity entity) async {
+  Future<Either<Failure, CategoryPropertyEntity>> insert(
+    CategoryPropertyEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return Right(entityInserted);
@@ -45,7 +49,9 @@ class CategoryPropertyRepositoryImpl implements CategoryPropertyRepository {
   }
 
   @override
-  Future<Either<Failure, CategoryPropertyEntity>> update(CategoryPropertyEntity entity) async {
+  Future<Either<Failure, CategoryPropertyEntity>> update(
+    CategoryPropertyEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);
@@ -69,7 +75,9 @@ class CategoryPropertyRepositoryImpl implements CategoryPropertyRepository {
   }
 
   @override
-  Future<Either<Failure, List<CategoryPropertyEntity>>> whereMainCategoryId(Iterable<int> ids) async {
+  Future<Either<Failure, List<CategoryPropertyEntity>>> whereMainCategoryId(
+    Iterable<int> ids,
+  ) async {
     try {
       final res = await _dataSource.whereMainCategoryId(ids);
       return Right(res);

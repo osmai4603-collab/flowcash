@@ -59,9 +59,13 @@ class DeleteUnitUseCase {
 class GetUnitsByUnitTypes {
   final UnitRepository _repository;
   const GetUnitsByUnitTypes(this._repository);
-  Future<Either<Failure, List<UnitEntity>>> call(Iterable<UnitType> types) async {
+  Future<Either<Failure, List<UnitEntity>>> call(
+    Iterable<UnitType> types,
+  ) async {
     final result = await _repository.get();
-    return result.map((list) => list.where((unit) => types.contains(unit.unitType)).toList());
+    return result.map(
+      (list) => list.where((unit) => types.contains(unit.unitType)).toList(),
+    );
   }
 }
 
@@ -72,7 +76,9 @@ class GetUnitsForPropertyUseCase {
     // This depends on Repository support for wherePropertyId
     // For now, filtering from all units if not explicitly supported
     final result = await _repository.get();
-    return result.map((list) => list.where((unit) => unit.propertyId == propertyId).toList());
+    return result.map(
+      (list) => list.where((unit) => unit.propertyId == propertyId).toList(),
+    );
   }
 }
 
@@ -80,17 +86,17 @@ class SaveUnitSelectionUseCase {
   final UnitRepository _repository;
   const SaveUnitSelectionUseCase(this._repository);
   Future<Either<Failure, UnitEntity>> call(UnitEntity unit) {
-    if(unit.id == 0) {
+    if (unit.id == 0) {
       return _repository.insert(unit);
-    } 
+    }
     return _repository.update(unit);
   }
 }
 
 class GetAvailableUnitsForPropertyUseCase {
-    final UnitRepository _repository;
-    const GetAvailableUnitsForPropertyUseCase(this._repository);
-    Future<Either<Failure, List<UnitEntity>>> call(int propertyId) async {
-        return await GetUnitsForPropertyUseCase(_repository)(propertyId);
-    }
+  final UnitRepository _repository;
+  const GetAvailableUnitsForPropertyUseCase(this._repository);
+  Future<Either<Failure, List<UnitEntity>>> call(int propertyId) async {
+    return await GetUnitsForPropertyUseCase(_repository)(propertyId);
+  }
 }

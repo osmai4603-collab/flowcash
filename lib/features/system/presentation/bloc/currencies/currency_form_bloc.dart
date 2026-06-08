@@ -104,15 +104,15 @@ class CurrencyFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        symbol,
-        isDefault,
-        isSubmitting,
-        isSuccess,
-        savedEntity,
-        errorMessage,
-      ];
+    id,
+    name,
+    symbol,
+    isDefault,
+    isSubmitting,
+    isSuccess,
+    savedEntity,
+    errorMessage,
+  ];
 }
 
 class CurrencyFormBloc extends Bloc<CurrencyFormEvent, CurrencyFormState> {
@@ -124,9 +124,9 @@ class CurrencyFormBloc extends Bloc<CurrencyFormEvent, CurrencyFormState> {
     required this.initialValue,
     required InsertCurrencyUseCase insertCurrencyUseCase,
     required UpdateCurrencyUseCase updateCurrencyUseCase,
-  })  : _insertCurrencyUseCase = insertCurrencyUseCase,
-        _updateCurrencyUseCase = updateCurrencyUseCase,
-        super(CurrencyFormState.initial(initialValue)) {
+  }) : _insertCurrencyUseCase = insertCurrencyUseCase,
+       _updateCurrencyUseCase = updateCurrencyUseCase,
+       super(CurrencyFormState.initial(initialValue)) {
     on<CurrencyFormIdChanged>(_onIdChanged);
     on<CurrencyFormNameChanged>(_onNameChanged);
     on<CurrencyFormSymbolChanged>(_onSymbolChanged);
@@ -134,38 +134,57 @@ class CurrencyFormBloc extends Bloc<CurrencyFormEvent, CurrencyFormState> {
     on<CurrencyFormSubmitted>(_onSubmitted);
   }
 
-  void _onIdChanged(CurrencyFormIdChanged event, Emitter<CurrencyFormState> emit) {
+  void _onIdChanged(
+    CurrencyFormIdChanged event,
+    Emitter<CurrencyFormState> emit,
+  ) {
     emit(state.copyWith(id: event.id, errorMessage: null));
   }
 
-  void _onNameChanged(CurrencyFormNameChanged event, Emitter<CurrencyFormState> emit) {
+  void _onNameChanged(
+    CurrencyFormNameChanged event,
+    Emitter<CurrencyFormState> emit,
+  ) {
     emit(state.copyWith(name: event.name, errorMessage: null));
   }
 
-  void _onSymbolChanged(CurrencyFormSymbolChanged event, Emitter<CurrencyFormState> emit) {
+  void _onSymbolChanged(
+    CurrencyFormSymbolChanged event,
+    Emitter<CurrencyFormState> emit,
+  ) {
     emit(state.copyWith(symbol: event.symbol, errorMessage: null));
   }
 
-  void _onIsDefaultChanged(CurrencyFormIsDefaultChanged event, Emitter<CurrencyFormState> emit) {
+  void _onIsDefaultChanged(
+    CurrencyFormIsDefaultChanged event,
+    Emitter<CurrencyFormState> emit,
+  ) {
     emit(state.copyWith(isDefault: event.isDefault, errorMessage: null));
   }
 
-  Future<void> _onSubmitted(CurrencyFormSubmitted event, Emitter<CurrencyFormState> emit) async {
+  Future<void> _onSubmitted(
+    CurrencyFormSubmitted event,
+    Emitter<CurrencyFormState> emit,
+  ) async {
     emit(state.copyWith(isSubmitting: true, errorMessage: null));
 
     if (state.id.trim().isEmpty) {
-      emit(state.copyWith(
-        isSubmitting: false,
-        errorMessage: 'الرجاء إدخال معرف العملة',
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: 'الرجاء إدخال معرف العملة',
+        ),
+      );
       return;
     }
 
     if (state.name.trim().isEmpty) {
-      emit(state.copyWith(
-        isSubmitting: false,
-        errorMessage: 'الرجاء إدخال اسم العملة',
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: 'الرجاء إدخال اسم العملة',
+        ),
+      );
       return;
     }
 
@@ -182,17 +201,18 @@ class CurrencyFormBloc extends Bloc<CurrencyFormEvent, CurrencyFormState> {
 
     result.fold(
       (failure) {
-        emit(state.copyWith(
-          isSubmitting: false,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(isSubmitting: false, errorMessage: failure.message),
+        );
       },
       (savedEntity) {
-        emit(state.copyWith(
-          isSubmitting: false,
-          isSuccess: true,
-          savedEntity: savedEntity,
-        ));
+        emit(
+          state.copyWith(
+            isSubmitting: false,
+            isSuccess: true,
+            savedEntity: savedEntity,
+          ),
+        );
       },
     );
   }

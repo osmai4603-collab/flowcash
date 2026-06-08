@@ -6,10 +6,7 @@ sealed class AccountStatus extends AppEnum {
   static const debtor = DebtorAccountStatus._();
   static const creditor = CreditorAccountStatus._();
 
-  static const List<AccountStatus> values = [
-    debtor,
-    creditor,
-  ];
+  static const List<AccountStatus> values = [debtor, creditor];
 
   bool get isCreditor => false;
   bool get isDebtor => true;
@@ -38,7 +35,7 @@ final class DebtorAccountStatus extends AccountStatus {
 
   @override
   bool get isDebtor => true;
-  
+
   @override
   AccountStatus get not => AccountStatus.creditor;
 }
@@ -57,7 +54,7 @@ final class CreditorAccountStatus extends AccountStatus {
 
   @override
   bool get isCreditor => true;
-  
+
   @override
   AccountStatus get not => AccountStatus.debtor;
 }

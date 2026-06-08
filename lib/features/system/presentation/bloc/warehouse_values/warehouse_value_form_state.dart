@@ -63,14 +63,14 @@ class WarehouseValueFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        initialValue,
-        isEditing,
-        warehouseId,
-        valueType,
-        valueText,
-        isSubmitting,
-        isSuccess,
-        errorMessage,
-        savedEntity,
-      ];
+    initialValue,
+    isEditing,
+    warehouseId,
+    valueType,
+    valueText,
+    isSubmitting,
+    isSuccess,
+    errorMessage,
+    savedEntity,
+  ];
 }

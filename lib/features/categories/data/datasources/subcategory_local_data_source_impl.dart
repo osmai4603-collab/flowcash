@@ -100,7 +100,8 @@ final class SubcategoryLocalDataSourceImpl
 
   @override
   Future<List<SubcategoryUnitEntity>> getUnitsBySubcategoryIds(
-      Iterable<int> ids) async {
+    Iterable<int> ids,
+  ) async {
     if (ids.isEmpty) return const [];
 
     final where =
@@ -135,7 +136,10 @@ final class SubcategoryLocalDataSourceImpl
         final toInsert = unit.copyWith(subcategoryId: subcategoryId);
         final id = await _db.insert(
           table: SubcategoriesUnitsTable.tableName,
-          data: _sanitizeInsertData(unitToMap(toInsert), SubcategoriesUnitsTable.id),
+          data: _sanitizeInsertData(
+            unitToMap(toInsert),
+            SubcategoriesUnitsTable.id,
+          ),
         );
         savedUnits.add(toInsert.copyWith(id: id));
       }
@@ -145,7 +149,9 @@ final class SubcategoryLocalDataSourceImpl
   }
 
   @override
-  Future<SubcategoryUnitEntity> insertSubcategoryUnit(SubcategoryUnitEntity entity) async {
+  Future<SubcategoryUnitEntity> insertSubcategoryUnit(
+    SubcategoryUnitEntity entity,
+  ) async {
     final id = await _db.insert(
       table: SubcategoriesUnitsTable.tableName,
       data: _sanitizeInsertData(unitToMap(entity), SubcategoriesUnitsTable.id),
@@ -155,7 +161,8 @@ final class SubcategoryLocalDataSourceImpl
 
   @override
   Future<SubcategoryUnitEntity> updateSubcategoryUnit(
-      SubcategoryUnitEntity entity) async {
+    SubcategoryUnitEntity entity,
+  ) async {
     await _db.update(
       table: SubcategoriesUnitsTable.tableName,
       data: unitToMap(entity),
@@ -163,7 +170,6 @@ final class SubcategoryLocalDataSourceImpl
     );
     return entity;
   }
-
 
   @override
   Future<SubcategoryEntity> saveWithUnits(
@@ -199,10 +205,7 @@ final class SubcategoryLocalDataSourceImpl
       } else {
         final id = await _db.insert(
           table: SubcategoriesTable.tableName,
-          data: _sanitizeInsertData(
-            toMap(entity),
-            SubcategoriesTable.id,
-          ),
+          data: _sanitizeInsertData(toMap(entity), SubcategoriesTable.id),
         );
         persistedEntity = entity.copyWith(id: id);
       }

@@ -16,6 +16,7 @@ import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class MainCategoryFormPage extends StatefulWidget {
@@ -155,7 +156,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = ColorScheme.of(context);
+    final colors = AppStyle.of(context);
     return BlocProvider.value(
       value: _bloc,
       child: PopScope(
@@ -195,7 +196,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                       countItems: state.properties.length,
                     );
                   }
-                  return _buildForm(context, colors);
+                  return _buildForm(context);
                 },
               ),
             ),
@@ -205,8 +206,8 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
     );
   }
 
-  Widget _buildForm(BuildContext context, ColorScheme colors) {
-    final textTheme = TextTheme.of(context);
+  Widget _buildForm(BuildContext context) {
+    final colors = AppStyle.of(context);
     return Form(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       key: _formKey,
@@ -226,7 +227,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                 text: 'اضافة صنف رئيسي',
                 expanded: true,
                 textAlign: TextAlign.center,
-                style: textTheme.titleMedium,
+                style: colors.subTitle,
               ),
               fluent.Tooltip(
                 message: 'حفظ البيانات',
@@ -245,9 +246,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                 child: TextFormField(
                   textInputAction: TextInputAction.next,
                   controller: categoryNameController,
-                  style: textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: colors.body.copyWith(fontWeight: FontWeight.bold),
                   autofocus: true,
                   cursorHeight: 20.0,
                   decoration: InputDecoration(
@@ -271,9 +270,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                 child: TextFormField(
                   textInputAction: TextInputAction.next,
                   controller: unitNameController,
-                  style: textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: colors.body.copyWith(fontWeight: FontWeight.bold),
                   cursorHeight: 20.0,
                   decoration: InputDecoration(
                     hintText: 'ادخل اسم الوحدة',
@@ -301,7 +298,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   initialValue: unitSelected,
                   disabledHint: fluent.Text(
                     'لا يوجد وحدات معرفة',
-                    style: textTheme.labelMedium,
+                    style: colors.caption,
                   ),
 
                   icon: fluent.Icon(
@@ -330,7 +327,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                           const SizedBox(width: 10),
                           fluent.Text(
                             unit.symbolUnit,
-                            style: textTheme.bodyMedium?.copyWith(
+                            style: colors.body.copyWith(
                               color: colors.onSurfaceVariant,
                             ),
                           ),
@@ -393,7 +390,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                     return TextWidget(
                       text: 'خصائص ${textValue.text}',
                       alignment: Alignment.center,
-                      style: textTheme.titleMedium,
+                      style: colors.subTitle,
                     );
                   },
                 ),
@@ -416,15 +413,8 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   const TextWidget(text: 'لا يوجد اي خصائص'),
                 const SizedBox(height: Spacings.medium),
                 fluent.FilledButton(
+                  child: fluent.Text('اضافة خصائص جديدة'),
                   onPressed: _onAddNewProperty,
-                  child: fluent.Text(
-                    'اضافة خصائص جديدة',
-                    style: textTheme.labelLarge?.copyWith(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: colors.onPrimary,
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -435,15 +425,14 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
   }
 
   Widget buildProperty(_PropertyModel property) {
-    final colors = ColorScheme.of(context);
-    final textTheme = TextTheme.of(context);
+    final colors = AppStyle.of(context);
     return Container(
       padding: Paddings.mediumAll,
       decoration: BoxDecoration(
         borderRadius: Radiuses.smallAll,
         border: Border.all(
           width: 0.50,
-          color: colors.outline.withValues(alpha: 0.80),
+          color: colors.surfaceOutline.withValues(alpha: 0.80),
         ),
       ),
       child: Column(
@@ -455,9 +444,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
             children: [
               Expanded(
                 child: TextFormField(
-                  style: textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: colors.body.copyWith(fontWeight: FontWeight.bold),
                   textInputAction: TextInputAction.next,
                   controller: property.propertyName,
                   cursorHeight: 20.0,
@@ -512,7 +499,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
               setState(() => property.isSingle = value ?? false);
               _markChanged();
             },
-            activeColor: ColorScheme.of(context).primary,
+            activeColor: colors.primary,
             side: BorderSide(color: colors.onSurface, width: 1),
             controlAffinity: .leading,
           ),
@@ -522,14 +509,14 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
   }
 
   Widget _buildUnitModelDismissibleWidget(_PropertyModel property) {
-    final colors = ColorScheme.of(context);
+    final colors = AppStyle.of(context);
     return Dismissible(
       key: ObjectKey(property),
       background: Container(
         padding: Paddings.mediumAll,
         decoration: BoxDecoration(
           borderRadius: Radiuses.smallAll,
-          color: ColorScheme.of(context).error,
+          color: colors.error,
           border: Border.all(width: 0.50),
         ),
         child: Row(
@@ -539,9 +526,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
             const SizedBox(width: 5),
             TextWidget(
               text: 'ازالة',
-              style: TextTheme.of(
-                context,
-              ).titleSmall?.copyWith(color: colors.onError),
+              style: colors.bodyStrong.copyWith(color: colors.onError),
             ),
           ],
         ),

@@ -43,7 +43,7 @@ final class HintLocalDataSourceImpl implements HintDataSource {
       table: HintsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), HintsTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert hint');
     }
     return entity.copyWith(id: entityId);

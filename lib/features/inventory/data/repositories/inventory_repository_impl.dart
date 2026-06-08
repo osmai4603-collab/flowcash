@@ -9,7 +9,9 @@ class InventoryRepositoryImpl implements InventoryRepository {
   const InventoryRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<InventoryEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<InventoryEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);
@@ -33,7 +35,9 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<Either<Failure, InventoryEntity>> insert(InventoryEntity entity) async {
+  Future<Either<Failure, InventoryEntity>> insert(
+    InventoryEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return Right(entityInserted);
@@ -45,7 +49,9 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<Either<Failure, InventoryEntity>> update(InventoryEntity entity) async {
+  Future<Either<Failure, InventoryEntity>> update(
+    InventoryEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);
@@ -81,7 +87,10 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<Either<Failure, InventoryEntity?>> firstWhereCategory(int categoryId, int storeId) async {
+  Future<Either<Failure, InventoryEntity?>> firstWhereCategory(
+    int categoryId,
+    int storeId,
+  ) async {
     try {
       final res = await _dataSource.firstWhereCategory(categoryId, storeId);
       return Right(res);
@@ -93,9 +102,15 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<Either<Failure, InventoryEntity?>> firstWhereCategoryAndStore(int categoryId, int storeId) async {
+  Future<Either<Failure, InventoryEntity?>> firstWhereCategoryAndStore(
+    int categoryId,
+    int storeId,
+  ) async {
     try {
-      final res = await _dataSource.firstWhereCategoryAndStore(categoryId, storeId);
+      final res = await _dataSource.firstWhereCategoryAndStore(
+        categoryId,
+        storeId,
+      );
       return Right(res);
     } on Failure catch (f) {
       return Left(f);
@@ -105,7 +120,10 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<Either<Failure, List<InventoryEntity>>> whereCategories(Iterable<int> ids, {required int storeId}) async {
+  Future<Either<Failure, List<InventoryEntity>>> whereCategories(
+    Iterable<int> ids, {
+    required int storeId,
+  }) async {
     try {
       final res = await _dataSource.whereCategories(ids, storeId: storeId);
       return Right(res);
@@ -117,9 +135,15 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<Either<Failure, InventoryEntity>> getInventory({required int categoryId, required int warehouseId}) async {
+  Future<Either<Failure, InventoryEntity>> getInventory({
+    required int categoryId,
+    required int warehouseId,
+  }) async {
     try {
-      final res = await _dataSource.getInventory(categoryId: categoryId, warehouseId: warehouseId);
+      final res = await _dataSource.getInventory(
+        categoryId: categoryId,
+        warehouseId: warehouseId,
+      );
       return Right(res);
     } on Failure catch (f) {
       return Left(f);

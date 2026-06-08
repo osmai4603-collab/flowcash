@@ -30,18 +30,26 @@ class FinancialTransactionsState extends Equatable {
     );
   }
 
-  FinancialTransactionsState addTransaction(FinancialTransactionEntity transaction) {
+  FinancialTransactionsState addTransaction(
+    FinancialTransactionEntity transaction,
+  ) {
     return copyWith(
       transactions: [transaction, ...transactions],
       status: FinancialTransactionsStatus.success,
     );
   }
 
-  FinancialTransactionsState updateTransaction(FinancialTransactionEntity transaction) {
-    final updatedList = transactions.map((t) => t.id == transaction.id ? transaction : t).toList();
+  FinancialTransactionsState updateTransaction(
+    FinancialTransactionEntity transaction,
+  ) {
+    final updatedList = transactions
+        .map((t) => t.id == transaction.id ? transaction : t)
+        .toList();
     return copyWith(
       transactions: updatedList,
-      selectedTransaction: selectedTransaction?.id == transaction.id ? transaction : selectedTransaction,
+      selectedTransaction: selectedTransaction?.id == transaction.id
+          ? transaction
+          : selectedTransaction,
       status: FinancialTransactionsStatus.success,
     );
   }
@@ -50,7 +58,9 @@ class FinancialTransactionsState extends Equatable {
     final updatedList = transactions.where((t) => t.id != id).toList();
     return copyWith(
       transactions: updatedList,
-      selectedTransaction: selectedTransaction?.id == id ? null : selectedTransaction,
+      selectedTransaction: selectedTransaction?.id == id
+          ? null
+          : selectedTransaction,
       status: FinancialTransactionsStatus.success,
     );
   }
@@ -63,16 +73,14 @@ class FinancialTransactionsState extends Equatable {
   }
 
   FinancialTransactionsState toLoading() {
-    return copyWith(
-      status: FinancialTransactionsStatus.loading,
-    );
+    return copyWith(status: FinancialTransactionsStatus.loading);
   }
 
   @override
   List<Object?> get props => [
-        transactions,
-        status,
-        errorMessage,
-        selectedTransaction,
-      ];
+    transactions,
+    status,
+    errorMessage,
+    selectedTransaction,
+  ];
 }

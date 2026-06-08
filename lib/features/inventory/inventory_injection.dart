@@ -60,7 +60,7 @@ void initInventoryFeature(GetIt sl) {
       getInventorys: sl(),
       insertInventory: sl(),
       updateInventory: sl(),
-      deleteInventory: sl(), 
+      deleteInventory: sl(),
       getInventorySubcategories: sl(),
       getMainAccounts: sl(),
       getSubAccounts: sl(),
@@ -131,7 +131,8 @@ void initInventoryFeature(GetIt sl) {
         InventoryTransactionsOrdersTable.inventoryId: order.inventoryId,
         InventoryTransactionsOrdersTable.countUnits: order.countUnits,
         InventoryTransactionsOrdersTable.tranId: order.tranId,
-        InventoryTransactionsOrdersTable.transactionType: order.transactionType.name,
+        InventoryTransactionsOrdersTable.transactionType:
+            order.transactionType.name,
       },
     ),
   );

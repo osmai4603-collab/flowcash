@@ -1,4 +1,3 @@
-
 import 'package:flowcash/core/enums/warehouse_value_type_enum.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
@@ -12,7 +11,9 @@ class WarehouseValueRepositoryImpl implements WarehouseValueRepository {
   const WarehouseValueRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<WarehouseValueEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<WarehouseValueEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);
@@ -36,7 +37,9 @@ class WarehouseValueRepositoryImpl implements WarehouseValueRepository {
   }
 
   @override
-  Future<Either<Failure, WarehouseValueEntity>> insert(WarehouseValueEntity entity) async {
+  Future<Either<Failure, WarehouseValueEntity>> insert(
+    WarehouseValueEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return Right(entityInserted);
@@ -48,7 +51,9 @@ class WarehouseValueRepositoryImpl implements WarehouseValueRepository {
   }
 
   @override
-  Future<Either<Failure, WarehouseValueEntity>> update(WarehouseValueEntity entity) async {
+  Future<Either<Failure, WarehouseValueEntity>> update(
+    WarehouseValueEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);
@@ -72,9 +77,15 @@ class WarehouseValueRepositoryImpl implements WarehouseValueRepository {
   }
 
   @override
-  Future<Either<Failure, WarehouseValueEntity?>> fetchValue({required int warehouseId, required WarehouseValueType valueType}) async {
+  Future<Either<Failure, WarehouseValueEntity?>> fetchValue({
+    required int warehouseId,
+    required WarehouseValueType valueType,
+  }) async {
     try {
-      final res = await _dataSource.fetchValue(warehouseId: warehouseId, valueType: valueType);
+      final res = await _dataSource.fetchValue(
+        warehouseId: warehouseId,
+        valueType: valueType,
+      );
       return Right(res);
     } on Failure catch (f) {
       return Left(f);
@@ -84,9 +95,13 @@ class WarehouseValueRepositoryImpl implements WarehouseValueRepository {
   }
 
   @override
-  Future<Either<Failure, int>> fetchDefaultSalesAccount({required int warehouseId}) async {
+  Future<Either<Failure, int>> fetchDefaultSalesAccount({
+    required int warehouseId,
+  }) async {
     try {
-      final res = await _dataSource.fetchDefaultSalesAccount(warehouseId: warehouseId);
+      final res = await _dataSource.fetchDefaultSalesAccount(
+        warehouseId: warehouseId,
+      );
       return Right(res);
     } on Failure catch (f) {
       return Left(f);
@@ -96,9 +111,13 @@ class WarehouseValueRepositoryImpl implements WarehouseValueRepository {
   }
 
   @override
-  Future<Either<Failure, int>> fetchDefaultSalesReturnAccount({required int warehouseId}) async {
+  Future<Either<Failure, int>> fetchDefaultSalesReturnAccount({
+    required int warehouseId,
+  }) async {
     try {
-      final res = await _dataSource.fetchDefaultSalesReturnAccount(warehouseId: warehouseId);
+      final res = await _dataSource.fetchDefaultSalesReturnAccount(
+        warehouseId: warehouseId,
+      );
       return Right(res);
     } on Failure catch (f) {
       return Left(f);
@@ -108,9 +127,13 @@ class WarehouseValueRepositoryImpl implements WarehouseValueRepository {
   }
 
   @override
-  Future<Either<Failure, int>> fetchDefaultBuysAccount({required int warehouseId}) async {
+  Future<Either<Failure, int>> fetchDefaultBuysAccount({
+    required int warehouseId,
+  }) async {
     try {
-      final res = await _dataSource.fetchDefaultBuysAccount(warehouseId: warehouseId);
+      final res = await _dataSource.fetchDefaultBuysAccount(
+        warehouseId: warehouseId,
+      );
       return Right(res);
     } on Failure catch (f) {
       return Left(f);
@@ -120,9 +143,13 @@ class WarehouseValueRepositoryImpl implements WarehouseValueRepository {
   }
 
   @override
-  Future<Either<Failure, int>> fetchDefaultBuysReturnAccount({required int warehouseId}) async {
+  Future<Either<Failure, int>> fetchDefaultBuysReturnAccount({
+    required int warehouseId,
+  }) async {
     try {
-      final res = await _dataSource.fetchDefaultBuysReturnAccount(warehouseId: warehouseId);
+      final res = await _dataSource.fetchDefaultBuysReturnAccount(
+        warehouseId: warehouseId,
+      );
       return Right(res);
     } on Failure catch (f) {
       return Left(f);
@@ -132,7 +159,8 @@ class WarehouseValueRepositoryImpl implements WarehouseValueRepository {
   }
 
   @override
-  Future<Either<Failure, Map<WarehouseValueType, WarehouseValueEntity>>> fetchAsMap() async {
+  Future<Either<Failure, Map<WarehouseValueType, WarehouseValueEntity>>>
+  fetchAsMap() async {
     try {
       final res = await _dataSource.fetchAsMap();
       return Right(res);
@@ -144,7 +172,10 @@ class WarehouseValueRepositoryImpl implements WarehouseValueRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> updateValue({required String? value, required int id}) async {
+  Future<Either<Failure, bool>> updateValue({
+    required String? value,
+    required int id,
+  }) async {
     try {
       final res = await _dataSource.updateValue(value: value, id: id);
       return Right(res);

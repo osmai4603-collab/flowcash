@@ -56,23 +56,13 @@ class FinancialBondsState extends Equatable {
   }
 
   FinancialBondsState toError(String message) {
-    return copyWith(
-      status: FinancialBondsStatus.error,
-      errorMessage: message,
-    );
+    return copyWith(status: FinancialBondsStatus.error, errorMessage: message);
   }
 
   FinancialBondsState toLoading() {
-    return copyWith(
-      status: FinancialBondsStatus.loading,
-    );
+    return copyWith(status: FinancialBondsStatus.loading);
   }
 
   @override
-  List<Object?> get props => [
-        bonds,
-        status,
-        errorMessage,
-        selectedBond,
-      ];
+  List<Object?> get props => [bonds, status, errorMessage, selectedBond];
 }

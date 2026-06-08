@@ -45,7 +45,7 @@ final class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
       table: ProgramUsersTable.tableName,
       data: _sanitizeInsertData(toMap(entity), ProgramUsersTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert program user');
     }
     return entity.copyWith(id: entityId);

@@ -61,7 +61,6 @@ class DeleteAccountingPeriodUseCase {
   }
 }
 
-
 final class GetAccountingPeriodWhereIdOpenUseCase {
   final AccountingPeriodRepository _repository;
 

@@ -9,6 +9,5 @@ sealed class Spacings {
   static const large = 24.0;
   static const xlarge = 32.0;
 
-
   static const mediumPadding = EdgeInsets.all(medium);
 }

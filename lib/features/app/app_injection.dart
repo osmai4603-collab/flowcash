@@ -9,10 +9,7 @@ import 'presentation/bloc/app_bloc.dart';
 
 void initAppFeature(GetIt sl) {
   // Bloc
-  sl.registerFactory(() => AppBloc(
-        getAppData: sl(),
-        saveAppData: sl(),
-      ));
+  sl.registerFactory(() => AppBloc(getAppData: sl(), saveAppData: sl()));
 
   // Use cases
   sl.registerLazySingleton(() => GetAppData(sl()));

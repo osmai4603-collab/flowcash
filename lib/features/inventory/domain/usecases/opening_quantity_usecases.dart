@@ -69,9 +69,7 @@ class GetOpeningQuantityUseCase {
   Future<Either<Failure, OpeningQuantityEntity?>> call({
     required int inventoryId,
   }) async {
-    return await _repository.getOpeningQuantity(
-      inventoryId: inventoryId,
-    );
+    return await _repository.getOpeningQuantity(inventoryId: inventoryId);
   }
 }
 

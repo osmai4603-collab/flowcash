@@ -8,11 +8,16 @@ sealed class ValueCounterType extends AppEnum {
   static const receiptNumber = ReceiptNumberValueCounterType._();
   static const categoryNumber = CategoryNumberValueCounterType._();
   static const salesInvoiceNumber = SalesInvoiceNumberValueCounterType._();
-  static const purchaseInvoiceNumber = PurchaseInvoiceNumberValueCounterType._();
-  static const salesReturnInvoiceNumber = SalesReturnInvoiceNumberValueCounterType._();
-  static const purchaseReturnInvoiceNumber = PurchaseReturnInvoiceNumberValueCounterType._();
-  static const stockMovementOutInvoiceNumber = StockMovementOutInvoiceNumberValueCounterType._();
-  static const stockMovementInInvoiceNumber = StockMovementInInvoiceNumberValueCounterType._();
+  static const purchaseInvoiceNumber =
+      PurchaseInvoiceNumberValueCounterType._();
+  static const salesReturnInvoiceNumber =
+      SalesReturnInvoiceNumberValueCounterType._();
+  static const purchaseReturnInvoiceNumber =
+      PurchaseReturnInvoiceNumberValueCounterType._();
+  static const stockMovementOutInvoiceNumber =
+      StockMovementOutInvoiceNumberValueCounterType._();
+  static const stockMovementInInvoiceNumber =
+      StockMovementInInvoiceNumberValueCounterType._();
 
   static const List<ValueCounterType> values = [
     billNumber,
@@ -126,7 +131,8 @@ final class SalesReturnInvoiceNumberValueCounterType extends ValueCounterType {
   String displayName() => 'فاتورة المبيعات المرتجع';
 }
 
-final class PurchaseReturnInvoiceNumberValueCounterType extends ValueCounterType {
+final class PurchaseReturnInvoiceNumberValueCounterType
+    extends ValueCounterType {
   const PurchaseReturnInvoiceNumberValueCounterType._();
 
   @override
@@ -139,7 +145,8 @@ final class PurchaseReturnInvoiceNumberValueCounterType extends ValueCounterType
   String displayName() => 'فاتورة المشتريات المرتجع';
 }
 
-final class StockMovementOutInvoiceNumberValueCounterType extends ValueCounterType {
+final class StockMovementOutInvoiceNumberValueCounterType
+    extends ValueCounterType {
   const StockMovementOutInvoiceNumberValueCounterType._();
 
   @override
@@ -152,7 +159,8 @@ final class StockMovementOutInvoiceNumberValueCounterType extends ValueCounterTy
   String displayName() => 'فاتورة حركة مخزنية صادرة';
 }
 
-final class StockMovementInInvoiceNumberValueCounterType extends ValueCounterType {
+final class StockMovementInInvoiceNumberValueCounterType
+    extends ValueCounterType {
   const StockMovementInInvoiceNumberValueCounterType._();
 
   @override

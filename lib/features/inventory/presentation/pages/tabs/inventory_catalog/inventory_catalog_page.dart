@@ -253,7 +253,7 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       fluent.Table(
-                        border: TableBorder.all(
+                        border: fluent.TableBorder.all(
                           width: 0.50,
                           color: colors.outline,
                         ),
@@ -362,7 +362,10 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
               );
             },
             child: fluent.Table(
-              border: TableBorder.all(width: 0.50, color: colors.outline),
+              border: fluent.TableBorder.all(
+                width: 0.50,
+                color: colors.outline,
+              ),
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               columnWidths: _getInventoryTableWidths(),
               children: [

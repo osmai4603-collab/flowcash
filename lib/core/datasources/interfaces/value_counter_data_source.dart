@@ -3,9 +3,13 @@ import 'package:flowcash/features/system/domain/entities/value_counter_entity.da
 import 'package:flowcash/core/enums/counter_type_enum.dart';
 import 'package:flowcash/core/enums/histories_group_enum.dart';
 
-abstract interface class ValueCounterDataSource implements AppDataSource<int, ValueCounterEntity, Map<String, dynamic>> {
+abstract interface class ValueCounterDataSource
+    implements AppDataSource<int, ValueCounterEntity, Map<String, dynamic>> {
   Future<ValueCounterEntity> getCounter(CounterType counterType);
-  Future<int> getNewCounter(CounterType counterType, {bool shouldUpdate = true});
+  Future<int> getNewCounter(
+    CounterType counterType, {
+    bool shouldUpdate = true,
+  });
   Future<int> getNewCounterOfWithdraws({bool shouldUpdate = true});
   Future<int> getNewCounterOfBuysBills({bool shouldUpdate = true});
   Future<int> getNewCounterOfSalesBills({bool shouldUpdate = true});

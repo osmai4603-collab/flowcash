@@ -104,14 +104,13 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
                   const SizedBox(width: 16),
                   // Add Button
                   fluent.FilledButton(
-child: const fluent.Icon(Icons.add),
-onPressed: () => _showAddTransactionContentDialog(context),
-label: fluent.Text(
+                    child: fluent.Text(
                       _isRevenueFilter
                           ? 'إضافة إيراد جديد'
                           : 'إضافة مصروف جديد',
                     ),
-),
+                    onPressed: () => _showAddTransactionContentDialog(context),
+                  ),
                 ],
               ),
             ),

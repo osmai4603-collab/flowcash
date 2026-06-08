@@ -1,6 +1,4 @@
-
 import 'dart:io';
-
 
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -13,7 +11,6 @@ class PaletteWidget extends StatefulWidget {
 
   @override
   State<PaletteWidget> createState() => _PaletteWidgetState();
-
 }
 
 class _PaletteWidgetState extends State<PaletteWidget> {
@@ -29,7 +26,9 @@ class _PaletteWidgetState extends State<PaletteWidget> {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Platform.isWindows || Platform.isLinux ? Alignment.center : const Alignment(0, -0.5),
+      alignment: Platform.isWindows || Platform.isLinux
+          ? Alignment.center
+          : const Alignment(0, -0.5),
       child: SizedBox(
         height: 730.0,
         width: 500.0,
@@ -52,12 +51,16 @@ class _PaletteWidgetState extends State<PaletteWidget> {
                       ),
                     );
                   }).toList(),
-                  onSelected: (value) => setState(() => paletteTypeSelected = value),
+                  onSelected: (value) =>
+                      setState(() => paletteTypeSelected = value),
                   child: TextWidget(
                     text: 'Palette Type: ${paletteTypeSelected.name}',
                     textDirection: TextDirection.ltr,
                     style: Styles.titleSmall,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 5,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -65,7 +68,9 @@ class _PaletteWidgetState extends State<PaletteWidget> {
                   onColorChanged: (color2) async {
                     colorSelected = color2;
                   },
-                  colorPickerWidth: Platform.isWindows || Platform.isLinux ? 350.0 : 300.0,
+                  colorPickerWidth: Platform.isWindows || Platform.isLinux
+                      ? 350.0
+                      : 300.0,
                   pickerColor: colorSelected,
                   enableAlpha: false,
                   paletteType: paletteTypeSelected,
@@ -74,9 +79,7 @@ class _PaletteWidgetState extends State<PaletteWidget> {
                   displayThumbColor: true,
                 ),
                 ElevatedButton(
-                  child: const TextWidget(
-                    text: 'حفظ بيانات اللون',
-                  ),
+                  child: const TextWidget(text: 'حفظ بيانات اللون'),
                   onPressed: () => Navigator.pop(context, colorSelected),
                 ),
               ],

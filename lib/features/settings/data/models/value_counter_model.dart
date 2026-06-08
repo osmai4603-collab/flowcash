@@ -18,8 +18,8 @@ final class ValueCounterModel extends ValueCounterEntity {
       id: map[ValuesCounterTable.id] ?? 0,
       counterType: _typeFromName(typeName),
       count: map[ValuesCounterTable.count] ?? 0,
-      counterMax: map[ValuesCounterTable.counterMax] ??99999,
-      incrementValue: map[ValuesCounterTable.incrementValue] ??1,
+      counterMax: map[ValuesCounterTable.counterMax] ?? 99999,
+      incrementValue: map[ValuesCounterTable.incrementValue] ?? 1,
       formatValue: map[ValuesCounterTable.formatValue]?.toString() ?? '0000',
     );
   }

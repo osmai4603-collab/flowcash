@@ -292,7 +292,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         fluent.Table(
-          border: TableBorder.all(width: 0.50, color: colors.outline),
+          border: fluent.TableBorder.all(width: 0.50, color: colors.outline),
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           columnWidths: _getTableColumnWidths(),
           children: [
@@ -400,7 +400,10 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
               context.read<JournalEntriesBloc>().add(SelectJournalEntry(entry));
             },
             child: fluent.Table(
-              border: TableBorder.all(width: 0.50, color: colors.outline),
+              border: fluent.TableBorder.all(
+                width: 0.50,
+                color: colors.outline,
+              ),
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               columnWidths: _getTableColumnWidths(),
               children: [

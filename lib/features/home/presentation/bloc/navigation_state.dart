@@ -97,8 +97,6 @@ final class InventoryHomeSection extends HomeSection {
   String displayName() => 'إدارة المخزون';
 }
 
-
-
 final class CategoriesHomeSection extends HomeSection {
   const CategoriesHomeSection._();
 
@@ -137,13 +135,6 @@ class SettingsHomeSection extends HomeSection {
   @override
   String displayName() => 'الإعدادات';
 }
-
-
-
-
-
-
-
 
 class HomeNavigationState extends Equatable {
   final HomeSection selectedSection;

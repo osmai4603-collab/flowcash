@@ -8,7 +8,8 @@ import 'package:flowcash/features/system/domain/usecases/currency_usecases.dart'
 import 'sub_account_form_event.dart';
 import 'sub_account_form_state.dart';
 
-class SubAccountFormBloc extends Bloc<SubAccountFormEvent, SubAccountFormState> {
+class SubAccountFormBloc
+    extends Bloc<SubAccountFormEvent, SubAccountFormState> {
   final InsertSubAccountUseCase _insertSubAccount;
   final UpdateSubAccountUseCase _updateSubAccount;
   final GetMainAccountByIdUseCase _getMainAccountById;
@@ -21,12 +22,12 @@ class SubAccountFormBloc extends Bloc<SubAccountFormEvent, SubAccountFormState> 
     required GetMainAccountByIdUseCase getMainAccountById,
     required UpdateCounterUseCase updateCounter,
     required GetCurrenciesUseCase getCurrencies,
-  })  : _insertSubAccount = insertSubAccount,
-        _updateSubAccount = updateSubAccount,
-        _getMainAccountById = getMainAccountById,
-        _updateCounter = updateCounter,
-        _getCurrencies = getCurrencies,
-        super(SubAccountFormState.initial(0)) {
+  }) : _insertSubAccount = insertSubAccount,
+       _updateSubAccount = updateSubAccount,
+       _getMainAccountById = getMainAccountById,
+       _updateCounter = updateCounter,
+       _getCurrencies = getCurrencies,
+       super(SubAccountFormState.initial(0)) {
     on<InitSubAccountForm>(_onInitSubAccountForm);
     on<SubAccountNameChanged>(_onSubAccountNameChanged);
     on<SubAccountTypeChanged>(_onSubAccountTypeChanged);
@@ -39,17 +40,24 @@ class SubAccountFormBloc extends Bloc<SubAccountFormEvent, SubAccountFormState> 
     InitSubAccountForm event,
     Emitter<SubAccountFormState> emit,
   ) async {
-    emit(state.copyWith(status: SubAccountFormStatus.loading, mainAccountId: event.mainAccountId));
+    emit(
+      state.copyWith(
+        status: SubAccountFormStatus.loading,
+        mainAccountId: event.mainAccountId,
+      ),
+    );
 
     final currenciesResult = await _getCurrencies();
     await Future.delayed(const Duration(seconds: 1));
 
     if (currenciesResult.isLeft()) {
       currenciesResult.fold(
-        (failure) => emit(state.copyWith(
-          status: SubAccountFormStatus.failure,
-          currencyErrorMessage: failure.message,
-        )),
+        (failure) => emit(
+          state.copyWith(
+            status: SubAccountFormStatus.failure,
+            currencyErrorMessage: failure.message,
+          ),
+        ),
         (_) {},
       );
       return;
@@ -63,16 +71,20 @@ class SubAccountFormBloc extends Bloc<SubAccountFormEvent, SubAccountFormState> 
     final parentRes = await _getMainAccountById(event.mainAccountId);
 
     parentRes.fold(
-      (failure) => emit(state.copyWith(
-        status: SubAccountFormStatus.failure,
-        errorMessage: failure.message,
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: SubAccountFormStatus.failure,
+          errorMessage: failure.message,
+        ),
+      ),
       (parent) {
         if (parent == null) {
-          emit(state.copyWith(
-            status: SubAccountFormStatus.failure,
-            errorMessage: 'الحساب الرئيسي غير موجود',
-          ));
+          emit(
+            state.copyWith(
+              status: SubAccountFormStatus.failure,
+              errorMessage: 'الحساب الرئيسي غير موجود',
+            ),
+          );
           return;
         }
 
@@ -102,40 +114,49 @@ class SubAccountFormBloc extends Bloc<SubAccountFormEvent, SubAccountFormState> 
           );
         }
 
-        final subaccountsTypes = SubAccountType.whereMainAccountType(parent.mainAccountType);
+        final subaccountsTypes = SubAccountType.whereMainAccountType(
+          parent.mainAccountType,
+        );
 
         if (event.editingSubAccount != null) {
           final sub = event.editingSubAccount!;
-          emit(SubAccountFormState(
-            status: SubAccountFormStatus.initial,
-            editingSubAccount: sub,
-            mainAccountId: event.mainAccountId,
-            parentMainAccount: parent,
-            accountName: sub.accountName,
-            accountNumber: sub.accountNumber,
-            subAccountTypes: subaccountsTypes,
-            selectedType: subaccountsTypes.firstWhere((type) => type.name == sub.subAccountType.name),
-            selectedCurrency: selectedCurrency,
-            currencies: currencies,
-            balanceMax: sub.balanceMax,
-            
-          ));
+          emit(
+            SubAccountFormState(
+              status: SubAccountFormStatus.initial,
+              editingSubAccount: sub,
+              mainAccountId: event.mainAccountId,
+              parentMainAccount: parent,
+              accountName: sub.accountName,
+              accountNumber: sub.accountNumber,
+              subAccountTypes: subaccountsTypes,
+              selectedType: subaccountsTypes.firstWhere(
+                (type) => type.name == sub.subAccountType.name,
+              ),
+              selectedCurrency: selectedCurrency,
+              currencies: currencies,
+              balanceMax: sub.balanceMax,
+            ),
+          );
         } else {
           final counter = parent.numbersCounter;
           final serial = counter.toString().padLeft(3, '0');
           final generatedNumber = '${parent.accountNumber}$serial';
 
-          emit(SubAccountFormState(
-            status: SubAccountFormStatus.initial,
-            mainAccountId: event.mainAccountId,
-            parentMainAccount: parent,
-            accountName: '',
-            accountNumber: generatedNumber,
-            selectedCurrency: selectedCurrency,
-            currencies: currencies,
-            subAccountTypes: subaccountsTypes,
-            selectedType: subaccountsTypes.isNotEmpty ? subaccountsTypes.first : null,
-          ));
+          emit(
+            SubAccountFormState(
+              status: SubAccountFormStatus.initial,
+              mainAccountId: event.mainAccountId,
+              parentMainAccount: parent,
+              accountName: '',
+              accountNumber: generatedNumber,
+              selectedCurrency: selectedCurrency,
+              currencies: currencies,
+              subAccountTypes: subaccountsTypes,
+              selectedType: subaccountsTypes.isNotEmpty
+                  ? subaccountsTypes.first
+                  : null,
+            ),
+          );
         }
       },
     );
@@ -202,10 +223,12 @@ class SubAccountFormBloc extends Bloc<SubAccountFormEvent, SubAccountFormState> 
       );
       final res = await _updateSubAccount(updated);
       res.fold(
-        (failure) => emit(state.copyWith(
-          status: SubAccountFormStatus.failure,
-          errorMessage: failure.message,
-        )),
+        (failure) => emit(
+          state.copyWith(
+            status: SubAccountFormStatus.failure,
+            errorMessage: failure.message,
+          ),
+        ),
         (_) => emit(state.copyWith(status: SubAccountFormStatus.success)),
       );
     } else {
@@ -222,10 +245,12 @@ class SubAccountFormBloc extends Bloc<SubAccountFormEvent, SubAccountFormState> 
 
       final res = await _insertSubAccount(newSub);
       await res.fold(
-        (failure) async => emit(state.copyWith(
-          status: SubAccountFormStatus.failure,
-          errorMessage: failure.message,
-        )),
+        (failure) async => emit(
+          state.copyWith(
+            status: SubAccountFormStatus.failure,
+            errorMessage: failure.message,
+          ),
+        ),
         (_) async {
           if (state.parentMainAccount != null) {
             await _updateCounter(

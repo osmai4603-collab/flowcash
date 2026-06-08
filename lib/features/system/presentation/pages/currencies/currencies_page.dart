@@ -58,16 +58,16 @@ class CurrenciesPage extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerRight,
               child: fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(fluent.FluentIcons.add),
-    const SizedBox(width: 8.0),
-    const fluent.Text('إضافة عملة'),
-  ],
-),
-onPressed: () => _openCurrencyForm(context, null),
-),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const fluent.Icon(fluent.FluentIcons.add),
+                    const SizedBox(width: 8.0),
+                    const fluent.Text('إضافة عملة'),
+                  ],
+                ),
+                onPressed: () => _openCurrencyForm(context, null),
+              ),
             ),
           ),
           Expanded(
@@ -92,16 +92,16 @@ onPressed: () => _openCurrencyForm(context, null),
           child: Align(
             alignment: Alignment.centerRight,
             child: fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(fluent.FluentIcons.add),
-    const SizedBox(width: 8.0),
-    const fluent.Text('إضافة عملة'),
-  ],
-),
-onPressed: () => _openCurrencyForm(context, null),
-),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const fluent.Icon(fluent.FluentIcons.add),
+                  const SizedBox(width: 8.0),
+                  const fluent.Text('إضافة عملة'),
+                ],
+              ),
+              onPressed: () => _openCurrencyForm(context, null),
+            ),
           ),
         ),
         Expanded(

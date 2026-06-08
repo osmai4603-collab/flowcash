@@ -7,11 +7,7 @@ sealed class BatchSource extends AppEnum {
   static const salesReturn = SalesReturnBatchSource._();
   static const productionUnits = ProductionUnitsBatchSource._();
 
-  static const List<BatchSource> values = [
-    buys,
-    salesReturn,
-    productionUnits,
-  ];
+  static const List<BatchSource> values = [buys, salesReturn, productionUnits];
 
   static BatchSource of(String name) {
     return values.firstWhere(

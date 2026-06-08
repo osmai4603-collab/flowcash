@@ -121,7 +121,9 @@ class FinancialPeriodFormState extends Equatable {
     this.errorMessage,
   });
 
-  factory FinancialPeriodFormState.initial(AccountingPeriodEntity? initialValue) {
+  factory FinancialPeriodFormState.initial(
+    AccountingPeriodEntity? initialValue,
+  ) {
     return FinancialPeriodFormState(
       periodName: initialValue?.periodName ?? '',
       dateOfStartPeriod: initialValue?.dateOfStartPeriod ?? DateTime.now(),
@@ -133,7 +135,8 @@ class FinancialPeriodFormState extends Equatable {
       isLoadingCurrencies: false,
       periods: const [],
       isLoadingPeriods: false,
-      inventoryType: initialValue?.inventoryType ?? AccountingInventoryType.periodic,
+      inventoryType:
+          initialValue?.inventoryType ?? AccountingInventoryType.periodic,
     );
   }
 
@@ -175,25 +178,26 @@ class FinancialPeriodFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        periodName,
-        dateOfStartPeriod,
-        dateOfEndPeriod,
-        lastPeriodId,
-        currencyId,
-        balance,
-        currencies,
-        isLoadingCurrencies,
-        periods,
-        isLoadingPeriods,
-        inventoryType,
-        isSubmitting,
-        isSuccess,
-        savedEntity,
-        errorMessage,
-      ];
+    periodName,
+    dateOfStartPeriod,
+    dateOfEndPeriod,
+    lastPeriodId,
+    currencyId,
+    balance,
+    currencies,
+    isLoadingCurrencies,
+    periods,
+    isLoadingPeriods,
+    inventoryType,
+    isSubmitting,
+    isSuccess,
+    savedEntity,
+    errorMessage,
+  ];
 }
 
-class FinancialPeriodFormBloc extends Bloc<FinancialPeriodFormEvent, FinancialPeriodFormState> {
+class FinancialPeriodFormBloc
+    extends Bloc<FinancialPeriodFormEvent, FinancialPeriodFormState> {
   final InsertAccountingPeriodUseCase _insertAccountingPeriodUseCase;
   final UpdateAccountingPeriodUseCase _updateAccountingPeriodUseCase;
   final GetCurrenciesUseCase _getCurrenciesUseCase;
@@ -206,11 +210,11 @@ class FinancialPeriodFormBloc extends Bloc<FinancialPeriodFormEvent, FinancialPe
     required UpdateAccountingPeriodUseCase updateAccountingPeriodUseCase,
     required GetCurrenciesUseCase getCurrenciesUseCase,
     required GetAccountingPeriodsUseCase getAccountingPeriodsUseCase,
-  })  : _insertAccountingPeriodUseCase = insertAccountingPeriodUseCase,
-        _updateAccountingPeriodUseCase = updateAccountingPeriodUseCase,
-        _getCurrenciesUseCase = getCurrenciesUseCase,
-        _getAccountingPeriodsUseCase = getAccountingPeriodsUseCase,
-        super(FinancialPeriodFormState.initial(initialValue)) {
+  }) : _insertAccountingPeriodUseCase = insertAccountingPeriodUseCase,
+       _updateAccountingPeriodUseCase = updateAccountingPeriodUseCase,
+       _getCurrenciesUseCase = getCurrenciesUseCase,
+       _getAccountingPeriodsUseCase = getAccountingPeriodsUseCase,
+       super(FinancialPeriodFormState.initial(initialValue)) {
     on<FinancialPeriodFormNameChanged>(_onNameChanged);
     on<FinancialPeriodFormStartDateChanged>(_onStartDateChanged);
     on<FinancialPeriodFormEndDateChanged>(_onEndDateChanged);
@@ -227,21 +231,30 @@ class FinancialPeriodFormBloc extends Bloc<FinancialPeriodFormEvent, FinancialPe
     add(_LoadPeriodsEvent());
   }
 
-  Future<void> _onLoadCurrencies(_LoadCurrenciesEvent event, Emitter<FinancialPeriodFormState> emit) async {
+  Future<void> _onLoadCurrencies(
+    _LoadCurrenciesEvent event,
+    Emitter<FinancialPeriodFormState> emit,
+  ) async {
     emit(state.copyWith(isLoadingCurrencies: true));
     final res = await _getCurrenciesUseCase.call();
     res.fold(
       (failure) => emit(state.copyWith(isLoadingCurrencies: false)),
-      (currencies) => emit(state.copyWith(currencies: currencies, isLoadingCurrencies: false)),
+      (currencies) => emit(
+        state.copyWith(currencies: currencies, isLoadingCurrencies: false),
+      ),
     );
   }
 
-  Future<void> _onLoadPeriods(_LoadPeriodsEvent event, Emitter<FinancialPeriodFormState> emit) async {
+  Future<void> _onLoadPeriods(
+    _LoadPeriodsEvent event,
+    Emitter<FinancialPeriodFormState> emit,
+  ) async {
     emit(state.copyWith(isLoadingPeriods: true));
     final res = await _getAccountingPeriodsUseCase.call();
     res.fold(
       (failure) => emit(state.copyWith(isLoadingPeriods: false)),
-      (periods) => emit(state.copyWith(periods: periods, isLoadingPeriods: false)),
+      (periods) =>
+          emit(state.copyWith(periods: periods, isLoadingPeriods: false)),
     );
   }
 
@@ -301,7 +314,8 @@ class FinancialPeriodFormBloc extends Bloc<FinancialPeriodFormEvent, FinancialPe
     emit(state.copyWith(isSubmitting: true, errorMessage: null));
 
     try {
-      final balance = double.tryParse(state.balance.replaceAll(',', '.')) ?? 0.0;
+      final balance =
+          double.tryParse(state.balance.replaceAll(',', '.')) ?? 0.0;
       final int? lastPeriodId = state.lastPeriodId.isNotEmpty
           ? int.tryParse(state.lastPeriodId)
           : null;
@@ -317,30 +331,34 @@ class FinancialPeriodFormBloc extends Bloc<FinancialPeriodFormEvent, FinancialPe
         inventoryType: state.inventoryType,
       );
 
-      final Either<Failure, AccountingPeriodEntity> result = initialValue == null
+      final Either<Failure, AccountingPeriodEntity> result =
+          initialValue == null
           ? await _insertAccountingPeriodUseCase(entity)
           : await _updateAccountingPeriodUseCase(entity);
 
       result.fold(
         (failure) {
-          emit(state.copyWith(
-            isSubmitting: false,
-            errorMessage: failure.message,
-          ));
+          emit(
+            state.copyWith(isSubmitting: false, errorMessage: failure.message),
+          );
         },
         (savedEntity) {
-          emit(state.copyWith(
-            isSubmitting: false,
-            isSuccess: true,
-            savedEntity: savedEntity,
-          ));
+          emit(
+            state.copyWith(
+              isSubmitting: false,
+              isSuccess: true,
+              savedEntity: savedEntity,
+            ),
+          );
         },
       );
     } catch (error) {
-      emit(state.copyWith(
-        isSubmitting: false,
-        errorMessage: 'حدث خطأ أثناء الحفظ',
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: 'حدث خطأ أثناء الحفظ',
+        ),
+      );
     }
   }
 }

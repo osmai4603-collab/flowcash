@@ -22,19 +22,20 @@ sealed class InventoryTransactionType extends HistoriesGroup {
   static InventoryTransactionType of(String name) {
     return values.firstWhere(
       (e) => e.name == name,
-      orElse: () => throw ArgumentError('Unknown InventoryTransactionType: $name'),
+      orElse: () =>
+          throw ArgumentError('Unknown InventoryTransactionType: $name'),
     );
   }
 }
 
 final class InventoryReceiptTransactionType extends InventoryTransactionType {
   const InventoryReceiptTransactionType._()
-      : super(
-          singleName: 'إذن إدخال',
-          totalName: 'أذون إدخال',
-          counterTypeName: 'أذون إخراج',
-          priority: 0,
-        );
+    : super(
+        singleName: 'إذن إدخال',
+        totalName: 'أذون إدخال',
+        counterTypeName: 'أذون إخراج',
+        priority: 0,
+      );
 
   @override
   String get name => 'inventory_receive';
@@ -48,12 +49,12 @@ final class InventoryReceiptTransactionType extends InventoryTransactionType {
 
 final class InventoryDeliveryTransactionType extends InventoryTransactionType {
   const InventoryDeliveryTransactionType._()
-      : super(
-          singleName: 'إذن إخراج',
-          totalName: 'أذون إخراج',
-          counterTypeName: 'أذون إدخال',
-          priority: 1,
-        );
+    : super(
+        singleName: 'إذن إخراج',
+        totalName: 'أذون إخراج',
+        counterTypeName: 'أذون إدخال',
+        priority: 1,
+      );
 
   @override
   String get name => 'inventory_delivery';
@@ -67,12 +68,12 @@ final class InventoryDeliveryTransactionType extends InventoryTransactionType {
 
 final class GoodsCostTransactionType extends InventoryTransactionType {
   const GoodsCostTransactionType._()
-      : super(
-          singleName: 'تكلفة بضاعة',
-          totalName: 'تكلفة البضاعة',
-          counterTypeName: 'تكلفة البضاعة',
-          priority: 2,
-        );
+    : super(
+        singleName: 'تكلفة بضاعة',
+        totalName: 'تكلفة البضاعة',
+        counterTypeName: 'تكلفة البضاعة',
+        priority: 2,
+      );
 
   @override
   String get name => 'goods_cost';

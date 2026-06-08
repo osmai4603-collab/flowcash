@@ -15,11 +15,11 @@ class GoodsCostBloc extends Bloc<GoodsCostEvent, GoodsCostState> {
     required InsertGoodsCostUseCase insertGoodsCost,
     required DeleteGoodsCostUseCase deleteGoodsCost,
     required GetWarehousesUseCase getWarehouses,
-  })  : _getGoodsCosts = getGoodsCosts,
-        _insertGoodsCost = insertGoodsCost,
-        _deleteGoodsCost = deleteGoodsCost,
-        _getWarehouses = getWarehouses,
-        super(const GoodsCostState()) {
+  }) : _getGoodsCosts = getGoodsCosts,
+       _insertGoodsCost = insertGoodsCost,
+       _deleteGoodsCost = deleteGoodsCost,
+       _getWarehouses = getWarehouses,
+       super(const GoodsCostState()) {
     on<LoadGoodsCostEvent>(_onLoad);
     on<AddGoodsCostEvent>(_onAdd);
     on<DeleteGoodsCostEvent>(_onDelete);
@@ -34,21 +34,17 @@ class GoodsCostBloc extends Bloc<GoodsCostEvent, GoodsCostState> {
     final cRes = await _getGoodsCosts();
     final wRes = await _getWarehouses();
 
-    cRes.fold(
-      (f) => emit(state.toError(f.message)),
-      (costsList) {
-        wRes.fold(
-          (f) => emit(state.toError(f.message)),
-          (warehousesList) {
-            emit(state.copyWith(
-              status: GoodsCostStatus.success,
-              costs: costsList,
-              warehouses: warehousesList,
-            ));
-          },
+    cRes.fold((f) => emit(state.toError(f.message)), (costsList) {
+      wRes.fold((f) => emit(state.toError(f.message)), (warehousesList) {
+        emit(
+          state.copyWith(
+            status: GoodsCostStatus.success,
+            costs: costsList,
+            warehouses: warehousesList,
+          ),
         );
-      },
-    );
+      });
+    });
   }
 
   Future<void> _onAdd(

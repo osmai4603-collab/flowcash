@@ -9,7 +9,9 @@ class AccountingPeriodRepositoryImpl implements AccountingPeriodRepository {
   const AccountingPeriodRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<AccountingPeriodEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<AccountingPeriodEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);
@@ -33,7 +35,9 @@ class AccountingPeriodRepositoryImpl implements AccountingPeriodRepository {
   }
 
   @override
-  Future<Either<Failure, AccountingPeriodEntity>> insert(AccountingPeriodEntity entity) async {
+  Future<Either<Failure, AccountingPeriodEntity>> insert(
+    AccountingPeriodEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return Right(entityInserted);
@@ -45,7 +49,9 @@ class AccountingPeriodRepositoryImpl implements AccountingPeriodRepository {
   }
 
   @override
-  Future<Either<Failure, AccountingPeriodEntity>> update(AccountingPeriodEntity entity) async {
+  Future<Either<Failure, AccountingPeriodEntity>> update(
+    AccountingPeriodEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);
@@ -67,7 +73,7 @@ class AccountingPeriodRepositoryImpl implements AccountingPeriodRepository {
       return Left(DatabaseFailure(e.toString()));
     }
   }
-  
+
   @override
   Future<Either<Failure, AccountingPeriodEntity?>> whereIdOpen() async {
     try {

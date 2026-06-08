@@ -10,7 +10,10 @@ class SubcategoryRepositoryImpl implements SubcategoryRepository {
   const SubcategoryRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<SubcategoryEntity>>> get({Iterable<int>? ids, bool getItems = false}) async {
+  Future<Either<Failure, List<SubcategoryEntity>>> get({
+    Iterable<int>? ids,
+    bool getItems = false,
+  }) async {
     try {
       // `getItem` is available for callers; datasource currently ignores it.
       final res = await _dataSource.get(ids: ids);
@@ -23,7 +26,10 @@ class SubcategoryRepositoryImpl implements SubcategoryRepository {
   }
 
   @override
-  Future<Either<Failure, SubcategoryEntity?>> getById(int id, {bool getItems = false}) async {
+  Future<Either<Failure, SubcategoryEntity?>> getById(
+    int id, {
+    bool getItems = false,
+  }) async {
     try {
       // `getItem` is available for callers; datasource currently ignores it.
       final res = await _dataSource.getById(id);
@@ -36,7 +42,9 @@ class SubcategoryRepositoryImpl implements SubcategoryRepository {
   }
 
   @override
-  Future<Either<Failure, SubcategoryEntity>> insert(SubcategoryEntity entity) async {
+  Future<Either<Failure, SubcategoryEntity>> insert(
+    SubcategoryEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return Right(entityInserted);
@@ -48,7 +56,9 @@ class SubcategoryRepositoryImpl implements SubcategoryRepository {
   }
 
   @override
-  Future<Either<Failure, SubcategoryEntity>> update(SubcategoryEntity entity) async {
+  Future<Either<Failure, SubcategoryEntity>> update(
+    SubcategoryEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);
@@ -72,7 +82,9 @@ class SubcategoryRepositoryImpl implements SubcategoryRepository {
   }
 
   @override
-  Future<Either<Failure, List<SubcategoryEntity>>> whereMainCategoryId(Iterable<int> ids) async {
+  Future<Either<Failure, List<SubcategoryEntity>>> whereMainCategoryId(
+    Iterable<int> ids,
+  ) async {
     try {
       final res = await _dataSource.whereMainCategoryId(ids);
       return Right(res);
@@ -85,7 +97,8 @@ class SubcategoryRepositoryImpl implements SubcategoryRepository {
 
   @override
   Future<Either<Failure, List<SubcategoryUnitEntity>>> getUnitsBySubcategoryIds(
-      Iterable<int> ids) async {
+    Iterable<int> ids,
+  ) async {
     try {
       final units = await _dataSource.getUnitsBySubcategoryIds(ids);
       return Right(units);
@@ -112,7 +125,9 @@ class SubcategoryRepositoryImpl implements SubcategoryRepository {
   }
 
   @override
-  Future<Either<Failure, SubcategoryEntity?>> firstWhereCategory(int categoryId) async {
+  Future<Either<Failure, SubcategoryEntity?>> firstWhereCategory(
+    int categoryId,
+  ) async {
     try {
       final res = await _dataSource.firstWhereCategory(categoryId);
       return Right(res);

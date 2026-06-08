@@ -442,6 +442,9 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                     ),
                     const SizedBox(height: 20),
                     fluent.FilledButton(
+                      child: fluent.Text(
+                        'تحديد ${property.property.propertyName} جديد',
+                      ),
                       onPressed: () async {
                         final selectedUnitIds = selectedList
                             .whereType<SubcategoryUnit>()
@@ -483,14 +486,6 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                           availableUnits.first,
                         ]);
                       },
-                      child: fluent.Text(
-                        'تحديد ${property.property.propertyName} جديد',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: colors.onPrimary,
-                        ),
-                      ),
                     ),
                   ],
                 ),

@@ -7,7 +7,8 @@ enum StocktakingStatus { initial, loading, success, error }
 class StocktakingState extends Equatable {
   final List<InventoryEntity> items;
   final List<WarehouseEntity> warehouses;
-  final Map<int, double> actualCounts; // Key: categoryId, Value: actual count inputted
+  final Map<int, double>
+  actualCounts; // Key: categoryId, Value: actual count inputted
   final StocktakingStatus status;
   final String? errorMessage;
 
@@ -37,25 +38,23 @@ class StocktakingState extends Equatable {
 
   StocktakingState updateActualCount(int catId, double val) {
     final updated = Map<int, double>.from(actualCounts)..[catId] = val;
-    return copyWith(
-      actualCounts: updated,
-      status: StocktakingStatus.success,
-    );
+    return copyWith(actualCounts: updated, status: StocktakingStatus.success);
   }
 
   StocktakingState toError(String message) {
-    return copyWith(
-      status: StocktakingStatus.error,
-      errorMessage: message,
-    );
+    return copyWith(status: StocktakingStatus.error, errorMessage: message);
   }
 
   StocktakingState toLoading() {
-    return copyWith(
-      status: StocktakingStatus.loading,
-    );
+    return copyWith(status: StocktakingStatus.loading);
   }
 
   @override
-  List<Object?> get props => [items, warehouses, actualCounts, status, errorMessage];
+  List<Object?> get props => [
+    items,
+    warehouses,
+    actualCounts,
+    status,
+    errorMessage,
+  ];
 }

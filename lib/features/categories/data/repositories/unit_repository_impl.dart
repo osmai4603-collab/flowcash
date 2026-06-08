@@ -67,5 +67,4 @@ class UnitRepositoryImpl implements UnitRepository {
       return Left(DatabaseFailure(e.toString()));
     }
   }
-
 }

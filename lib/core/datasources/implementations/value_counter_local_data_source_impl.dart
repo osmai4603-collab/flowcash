@@ -202,7 +202,7 @@ final class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
       table: ValuesCounterTable.tableName,
       data: _sanitizeInsertData(toMap(entity), ValuesCounterTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert value counter');
     }
     return entity.copyWith(id: entityId);

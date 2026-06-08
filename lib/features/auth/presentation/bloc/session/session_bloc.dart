@@ -15,10 +15,10 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     required GetProgramUsersUseCase getAllUsers,
     required FirstWhereUserNameAndPasswordUseCase authenticateUser,
     required UserSession userSession,
-  })  : _getAllUsers = getAllUsers,
-        _authenticateUser = authenticateUser,
-        _userSession = userSession,
-        super(SessionState.initial()) {
+  }) : _getAllUsers = getAllUsers,
+       _authenticateUser = authenticateUser,
+       _userSession = userSession,
+       super(SessionState.initial()) {
     on<LoadSessionUsersEvent>(_onLoadUsers);
     on<LoginRequested>(_onLoginRequested);
     on<LogoutRequested>(_onLogoutRequested);
@@ -32,15 +32,19 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
 
     final result = await _getAllUsers();
     result.fold(
-      (failure) => emit(state.copyWith(
-        status: SessionStatus.failure,
-        errorMessage: failure.message,
-      )),
-      (users) => emit(state.copyWith(
-        status: SessionStatus.unauthenticated,
-        users: users,
-        errorMessage: null,
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: SessionStatus.failure,
+          errorMessage: failure.message,
+        ),
+      ),
+      (users) => emit(
+        state.copyWith(
+          status: SessionStatus.unauthenticated,
+          users: users,
+          errorMessage: null,
+        ),
+      ),
     );
   }
 
@@ -54,33 +58,41 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     debugPrint('Authentication result: $result');
     await result.fold(
       (failure) async {
-        emit(state.copyWith(
-          status: SessionStatus.failure,
-          errorMessage: failure.message,
-        ));
+        emit(
+          state.copyWith(
+            status: SessionStatus.failure,
+            errorMessage: failure.message,
+          ),
+        );
         debugPrint('Login failed: ${failure.message}');
       },
       (user) async {
         if (user == null) {
-          emit(state.copyWith(
-            status: SessionStatus.failure,
-            errorMessage: 'Invalid credentials',
-          ));
+          emit(
+            state.copyWith(
+              status: SessionStatus.failure,
+              errorMessage: 'Invalid credentials',
+            ),
+          );
           return;
         }
         try {
           await _userSession.initSession(user);
-          emit(state.copyWith(
-            status: SessionStatus.authenticated,
-            currentUser: user,
-            errorMessage: null,
-          ));
+          emit(
+            state.copyWith(
+              status: SessionStatus.authenticated,
+              currentUser: user,
+              errorMessage: null,
+            ),
+          );
           debugPrint('Login successful for user: ${user.userName}');
         } catch (error) {
-          emit(state.copyWith(
-            status: SessionStatus.failure,
-            errorMessage: error.toString(),
-          ));
+          emit(
+            state.copyWith(
+              status: SessionStatus.failure,
+              errorMessage: error.toString(),
+            ),
+          );
           debugPrint('Session initialization failed: ${error.toString()}');
         }
       },
@@ -92,10 +104,12 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     Emitter<SessionState> emit,
   ) async {
     await _userSession.logout();
-    emit(state.copyWith(
-      status: SessionStatus.unauthenticated,
-      currentUser: null,
-      errorMessage: null,
-    ));
+    emit(
+      state.copyWith(
+        status: SessionStatus.unauthenticated,
+        currentUser: null,
+        errorMessage: null,
+      ),
+    );
   }
 }

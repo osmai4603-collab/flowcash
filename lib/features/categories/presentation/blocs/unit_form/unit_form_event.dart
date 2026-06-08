@@ -13,4 +13,3 @@ class SaveUnitFormEvent extends UnitFormEvent {
   final UnitEntity unit;
   SaveUnitFormEvent(this.unit);
 }
-

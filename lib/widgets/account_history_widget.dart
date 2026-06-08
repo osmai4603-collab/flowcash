@@ -1,5 +1,5 @@
 // import 'package:flowcash/core/entities/bill_entity.dart';
-// 
+//
 // import 'package:flowcash/database/models/inventory_transaction.dart';
 // import 'package:flowcash/database/models/asset_buy.dart';
 // import 'package:flowcash/database/models/bill.dart';

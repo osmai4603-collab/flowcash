@@ -314,18 +314,18 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
                           ),
                         ),
                         fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(
-                            fluent.FluentIcons.shopping_cart,
-                            size: 16,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const fluent.Icon(
+                                fluent.FluentIcons.shopping_cart,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8.0),
+                              const fluent.Text('إضافة بند'),
+                            ],
                           ),
-    const SizedBox(width: 8.0),
-    const fluent.Text('إضافة بند'),
-  ],
-),
-onPressed: () async {
+                          onPressed: () async {
                             final result =
                                 await showDialog<
                                   InventoryTransactionOrderEntity
@@ -341,7 +341,7 @@ onPressed: () async {
                               });
                             }
                           },
-),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -422,16 +422,16 @@ onPressed: () async {
                         ),
                         const SizedBox(width: 12),
                         fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(fluent.FluentIcons.save),
-    const SizedBox(width: 8.0),
-    const fluent.Text('إصدار وإتمام التحويل'),
-  ],
-),
-onPressed: _submit,
-),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const fluent.Icon(fluent.FluentIcons.save),
+                              const SizedBox(width: 8.0),
+                              const fluent.Text('إصدار وإتمام التحويل'),
+                            ],
+                          ),
+                          onPressed: _submit,
+                        ),
                       ],
                     ),
                   ],

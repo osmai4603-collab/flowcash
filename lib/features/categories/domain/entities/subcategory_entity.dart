@@ -17,7 +17,13 @@ class SubcategoryEntity extends Entity {
   });
 
   @override
-  List<Object?> get props => [id, mainCategoryId, catalogName, catalogNumber, units];
+  List<Object?> get props => [
+    id,
+    mainCategoryId,
+    catalogName,
+    catalogNumber,
+    units,
+  ];
 
   @override
   SubcategoryEntity copyWith({

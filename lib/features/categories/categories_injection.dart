@@ -57,7 +57,8 @@ void initCategoriesFeature(GetIt sl) {
       sl(),
       (attribute) => {
         if (attribute.id > 0) CategoriesAttributesTable.id: attribute.id,
-        CategoriesAttributesTable.subcategoryUnitId: attribute.subcategoryUnitId,
+        CategoriesAttributesTable.subcategoryUnitId:
+            attribute.subcategoryUnitId,
         CategoriesAttributesTable.categoryId: attribute.categoryId,
       },
     ),
@@ -72,7 +73,9 @@ void initCategoriesFeature(GetIt sl) {
         CategoryPropertiesTable.unitType: property.unitType.name,
         CategoryPropertiesTable.isCategoryUnit: property.isCategoryUnit ? 1 : 0,
         CategoryPropertiesTable.isPricingUnit: property.isPricingUnit ? 1 : 0,
-        CategoryPropertiesTable.isInventoryUnit: property.isInventoryUnit ? 1 : 0,
+        CategoryPropertiesTable.isInventoryUnit: property.isInventoryUnit
+            ? 1
+            : 0,
       },
     ),
   );
@@ -108,9 +111,7 @@ void initCategoriesFeature(GetIt sl) {
   sl.registerLazySingleton<SubcategoryRepository>(
     () => SubcategoryRepositoryImpl(sl()),
   );
-  sl.registerLazySingleton<UnitRepository>(
-    () => UnitRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<UnitRepository>(() => UnitRepositoryImpl(sl()));
   sl.registerLazySingleton<CategoryPropertyRepository>(
     () => CategoryPropertyRepositoryImpl(sl()),
   );
@@ -142,8 +143,12 @@ void initCategoriesFeature(GetIt sl) {
   // Subcategories use cases
   sl.registerLazySingleton(() => GetSubcategoriesByMainCategoryUseCase(sl()));
   sl.registerLazySingleton(() => GetAllSubcategoriesUseCase(sl()));
-  sl.registerLazySingleton(() => GetSubcategoryUnitsByMainCategoryUseCase(sl()));
-  sl.registerLazySingleton(() => GetSubcategoryUnitsBySubcategoryIdsUseCase(sl()));
+  sl.registerLazySingleton(
+    () => GetSubcategoryUnitsByMainCategoryUseCase(sl()),
+  );
+  sl.registerLazySingleton(
+    () => GetSubcategoryUnitsBySubcategoryIdsUseCase(sl()),
+  );
   sl.registerLazySingleton(() => GetSubcategoryByIdUseCase(sl()));
   sl.registerLazySingleton(() => InsertSubcategoryUseCase(sl()));
   sl.registerLazySingleton(() => UpdateSubcategoryUseCase(repository: sl()));
@@ -151,7 +156,9 @@ void initCategoriesFeature(GetIt sl) {
   sl.registerLazySingleton(() => SaveSubcategoryWithUnitsUseCase(sl()));
 
   // Property use cases
-  sl.registerLazySingleton(() => GetCategoryPropertiesByMainCategoryUseCase(sl()));
+  sl.registerLazySingleton(
+    () => GetCategoryPropertiesByMainCategoryUseCase(sl()),
+  );
 
   // Unit use cases
   sl.registerLazySingleton(() => GetUnitsByUnitTypes(sl()));
@@ -176,10 +183,7 @@ void initCategoriesFeature(GetIt sl) {
     ),
   );
   sl.registerFactory(
-    () => MainCategoryFormBloc(
-      initUseCase: sl(),
-      saveUseCase: sl(),
-    ),
+    () => MainCategoryFormBloc(initUseCase: sl(), saveUseCase: sl()),
   );
   sl.registerFactory(
     () => SubcategoriesBloc(

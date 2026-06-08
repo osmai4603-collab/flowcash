@@ -9,10 +9,5 @@ class CurrenciesTable {
   static const String symbol = 'symbol';
   static const String isDefault = 'is_default';
 
-  static const List<String> fields = [
-    id,
-    currencyName,
-    symbol,
-    isDefault,
-  ];
+  static const List<String> fields = [id, currencyName, symbol, isDefault];
 }

@@ -8,9 +8,5 @@ class HintsTable {
   static const String hintName = 'hint_name';
   static const String hintType = 'hint_type';
 
-  static const List<String> fields = [
-    id,
-    hintName,
-    hintType,
-  ];
+  static const List<String> fields = [id, hintName, hintType];
 }

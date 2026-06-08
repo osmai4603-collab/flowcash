@@ -19,18 +19,11 @@ final class AppValueModel extends AppValueEntity {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      ValuesTable.value: value,
-      ValuesTable.valueType: valueType.name,
-    };
+    return {ValuesTable.value: value, ValuesTable.valueType: valueType.name};
   }
 
   @override
-  AppValueModel copyWith({
-    int? id,
-    String? value,
-    AppValueType? valueType,
-  }) {
+  AppValueModel copyWith({int? id, String? value, AppValueType? valueType}) {
     return AppValueModel(
       id: id ?? this.id,
       value: value ?? this.value,

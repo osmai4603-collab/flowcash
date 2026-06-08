@@ -115,15 +115,15 @@ class _WarehousesPageState extends State<WarehousesPage> {
           child: Align(
             alignment: Alignment.centerRight,
             child: fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(fluent.FluentIcons.add),
-    const SizedBox(width: 8.0),
-    const fluent.Text('إضافة مستودع'),
-  ],
-),
-onPressed: () async {
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const fluent.Icon(fluent.FluentIcons.add),
+                  const SizedBox(width: 8.0),
+                  const fluent.Text('إضافة مستودع'),
+                ],
+              ),
+              onPressed: () async {
                 final addedWarehouse = await showDialog<WarehouseEntity?>(
                   context: context,
                   builder: (context) => const WarehouseFormPage(),
@@ -139,7 +139,7 @@ onPressed: () async {
                   context.read<WarehousesBloc>().add(LoadWarehousesEvent());
                 }
               },
-),
+            ),
           ),
         ),
         Expanded(

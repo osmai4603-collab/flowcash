@@ -22,7 +22,9 @@ class GetCategoryPropertiesByMainCategoryUseCase {
 
   const GetCategoryPropertiesByMainCategoryUseCase(this._repository);
 
-  Future<Either<Failure, List<CategoryPropertyEntity>>> call(int mainCategoryId) async {
+  Future<Either<Failure, List<CategoryPropertyEntity>>> call(
+    int mainCategoryId,
+  ) async {
     return await _repository.whereMainCategoryId([mainCategoryId]);
   }
 }

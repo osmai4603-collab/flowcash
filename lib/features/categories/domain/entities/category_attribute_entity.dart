@@ -1,8 +1,6 @@
-
 import 'package:flowcash/core/entities/entity.dart';
 
-
-class CategoryAttributeEntity  extends Entity {
+class CategoryAttributeEntity extends Entity {
   final int id;
   final int subcategoryUnitId;
   final int categoryId;

@@ -14,11 +14,11 @@ class BillsBloc extends Bloc<BillsEvent, BillsState> {
     required InsertBillUseCase insertBillUseCase,
     required UpdateBillUseCase updateBillUseCase,
     required DeleteBillUseCase deleteBillUseCase,
-  })  : _getBillsUseCase = getBillsUseCase,
-        _insertBillUseCase = insertBillUseCase,
-        _updateBillUseCase = updateBillUseCase,
-        _deleteBillUseCase = deleteBillUseCase,
-        super(const BillsState()) {
+  }) : _getBillsUseCase = getBillsUseCase,
+       _insertBillUseCase = insertBillUseCase,
+       _updateBillUseCase = updateBillUseCase,
+       _deleteBillUseCase = deleteBillUseCase,
+       super(const BillsState()) {
     on<LoadBillsEvent>(_onLoadBills);
     on<AddBillEvent>(_onAddBill);
     on<UpdateBillEvent>(_onUpdateBill);
@@ -31,16 +31,16 @@ class BillsBloc extends Bloc<BillsEvent, BillsState> {
     final result = await _getBillsUseCase();
     result.fold(
       (failure) => emit(state.toError(failure.message)),
-      (bills) => emit(state.copyWith(
-        bills: bills,
-        status: BillsStatus.success,
-      )),
+      (bills) =>
+          emit(state.copyWith(bills: bills, status: BillsStatus.success)),
     );
   }
 
   Future<void> _onAddBill(AddBillEvent event, EmitFn emit) async {
     emit(state.toLoading());
-    final result = await _insertBillUseCase(event.bill.copyWith(orders: event.orders));
+    final result = await _insertBillUseCase(
+      event.bill.copyWith(orders: event.orders),
+    );
     result.fold(
       (failure) => emit(state.toError(failure.message)),
       (newBill) => emit(state.addBill(newBill, newBill.orders)),
@@ -49,7 +49,9 @@ class BillsBloc extends Bloc<BillsEvent, BillsState> {
 
   Future<void> _onUpdateBill(UpdateBillEvent event, EmitFn emit) async {
     emit(state.toLoading());
-    final result = await _updateBillUseCase(event.bill.copyWith(orders: event.orders));
+    final result = await _updateBillUseCase(
+      event.bill.copyWith(orders: event.orders),
+    );
     result.fold(
       (failure) => emit(state.toError(failure.message)),
       (updatedBill) => emit(state.updateBill(updatedBill, updatedBill.orders)),
@@ -66,10 +68,12 @@ class BillsBloc extends Bloc<BillsEvent, BillsState> {
   }
 
   void _onSelectBill(SelectBillEvent event, EmitFn emit) {
-    emit(state.copyWith(
-      selectedBill: event.bill,
-      selectedBillOrders: event.bill?.orders ?? const [],
-    ));
+    emit(
+      state.copyWith(
+        selectedBill: event.bill,
+        selectedBillOrders: event.bill?.orders ?? const [],
+      ),
+    );
   }
 }
 

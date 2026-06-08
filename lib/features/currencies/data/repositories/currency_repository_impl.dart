@@ -9,7 +9,9 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
   const CurrencyRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<CurrencyEntity>>> get({Iterable<String>? ids}) async {
+  Future<Either<Failure, List<CurrencyEntity>>> get({
+    Iterable<String>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);

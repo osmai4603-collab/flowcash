@@ -180,18 +180,18 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                         ),
                         const SizedBox(width: 16),
                         fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(fluent.FluentIcons.add),
-    const SizedBox(width: 8.0),
-    const fluent.Text(
-                            'رصيد جديد',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const fluent.Icon(fluent.FluentIcons.add),
+                              const SizedBox(width: 8.0),
+                              const fluent.Text(
+                                'رصيد جديد',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           ),
-  ],
-),
-onPressed: () async {
+                          onPressed: () async {
                             if (state.inventoryItems.isEmpty) {
                               fluent.displayInfoBar(
                                 context,
@@ -216,7 +216,7 @@ onPressed: () async {
                               bloc.add(AddOpeningQuantityEvent(result));
                             }
                           },
-),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 20),

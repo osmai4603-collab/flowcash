@@ -11,7 +11,9 @@ class GetSubcategoriesByMainCategoryUseCase {
 
   const GetSubcategoriesByMainCategoryUseCase(this._repository);
 
-  Future<Either<Failure, List<SubcategoryEntity>>> call(int mainCategoryId) async {
+  Future<Either<Failure, List<SubcategoryEntity>>> call(
+    int mainCategoryId,
+  ) async {
     return await _repository.whereMainCategoryId([mainCategoryId]);
   }
 }
@@ -49,9 +51,12 @@ class InsertSubcategoryUseCase {
 class UpdateSubcategoryUseCase {
   final SubcategoryRepository _repository;
 
-  const UpdateSubcategoryUseCase({required SubcategoryRepository repository}) : _repository = repository;
+  const UpdateSubcategoryUseCase({required SubcategoryRepository repository})
+    : _repository = repository;
 
-  Future<Either<Failure, SubcategoryEntity>> call(SubcategoryEntity subcategory) {
+  Future<Either<Failure, SubcategoryEntity>> call(
+    SubcategoryEntity subcategory,
+  ) {
     return _repository.update(subcategory);
   }
 }
@@ -69,16 +74,20 @@ class DeleteSubcategoryUseCase {
 class GetSubcategoryUnitsByMainCategoryUseCase {
   final SubcategoryRepository _repository;
   const GetSubcategoryUnitsByMainCategoryUseCase(this._repository);
-  Future<Either<Failure, List<SubcategoryUnitEntity>>> call(List<int> ids) async {
-      return await _repository.getUnitsBySubcategoryIds(ids);
+  Future<Either<Failure, List<SubcategoryUnitEntity>>> call(
+    List<int> ids,
+  ) async {
+    return await _repository.getUnitsBySubcategoryIds(ids);
   }
 }
 
 class GetSubcategoryUnitsBySubcategoryIdsUseCase {
   final SubcategoryRepository _repository;
   const GetSubcategoryUnitsBySubcategoryIdsUseCase(this._repository);
-  Future<Either<Failure, List<SubcategoryUnitEntity>>> call(List<int> ids) async {
-      return await _repository.getUnitsBySubcategoryIds(ids);
+  Future<Either<Failure, List<SubcategoryUnitEntity>>> call(
+    List<int> ids,
+  ) async {
+    return await _repository.getUnitsBySubcategoryIds(ids);
   }
 }
 

@@ -3,7 +3,8 @@ import 'package:flowcash/core/enums/accounting_period_type_enum.dart';
 
 import 'app_enum.dart';
 
-sealed class MainAccountGroup extends AppEnum implements NumberBasicAccountModel {
+sealed class MainAccountGroup extends AppEnum
+    implements NumberBasicAccountModel {
   const MainAccountGroup();
 
   int get priority;

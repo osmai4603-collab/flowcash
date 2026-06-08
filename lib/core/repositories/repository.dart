@@ -1,9 +1,6 @@
-
 import 'package:flowcash/core/entities/entity.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:fpdart/fpdart.dart';
-
-
 
 abstract interface class RepositoryDB<E extends Entity> {
   Future<Either<Failure, List<E>>> get({Iterable<int>? ids});

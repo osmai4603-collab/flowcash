@@ -20,7 +20,10 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
   );
 
   @override
-  Future<Either<Failure, List<MainCategoryEntity>>> get({Iterable<int>? ids, bool getItems = false}) async {
+  Future<Either<Failure, List<MainCategoryEntity>>> get({
+    Iterable<int>? ids,
+    bool getItems = false,
+  }) async {
     try {
       // `getItem` is available for callers; datasource currently ignores it.
       final categories = await _dataSource.get(ids: ids);
@@ -29,7 +32,9 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
       }
 
       final categoryIds = categories.map((category) => category.id);
-      final properties = await _propertyDataSource.whereMainCategoryId(categoryIds);
+      final properties = await _propertyDataSource.whereMainCategoryId(
+        categoryIds,
+      );
       final Map<int, List<CategoryPropertyEntity>> propertiesByCategory = {};
       for (final property in properties) {
         propertiesByCategory
@@ -38,9 +43,11 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
       }
 
       final categoriesWithProperties = categories
-          .map((category) => category.copyWith(
-                properties: propertiesByCategory[category.id] ?? const [],
-              ))
+          .map(
+            (category) => category.copyWith(
+              properties: propertiesByCategory[category.id] ?? const [],
+            ),
+          )
           .toList();
       return Right(categoriesWithProperties);
     } on Failure catch (f) {
@@ -51,14 +58,18 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
   }
 
   @override
-  Future<Either<Failure, MainCategoryEntity?>> getById(int id, {bool getItems = false}) async {
+  Future<Either<Failure, MainCategoryEntity?>> getById(
+    int id, {
+    bool getItems = false,
+  }) async {
     try {
       // `getItem` is available for callers; datasource currently ignores it.
       final category = await _dataSource.getById(id);
       if (category == null) return const Right(null);
 
-      final properties =
-          await _propertyDataSource.whereMainCategoryId([category.id]);
+      final properties = await _propertyDataSource.whereMainCategoryId([
+        category.id,
+      ]);
       return Right(category.copyWith(properties: properties));
     } on Failure catch (f) {
       return Left(f);
@@ -69,7 +80,8 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
 
   @override
   Future<Either<Failure, MainCategoryEntity>> insert(
-      MainCategoryEntity entity) async {
+    MainCategoryEntity entity,
+  ) async {
     try {
       final category = await _db.transaction<MainCategoryEntity>(() async {
         final insertedId = await _db.insert(
@@ -99,14 +111,18 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
 
   @override
   Future<Either<Failure, MainCategoryEntity>> update(
-      MainCategoryEntity entity) async {
+    MainCategoryEntity entity,
+  ) async {
     try {
       final category = await _db.transaction<MainCategoryEntity>(() async {
         await _dataSource.update(entity);
 
-        final existingProps =
-            await _propertyDataSource.whereMainCategoryId([entity.id]);
-        final existingIds = existingProps.map((property) => property.id).toSet();
+        final existingProps = await _propertyDataSource.whereMainCategoryId([
+          entity.id,
+        ]);
+        final existingIds = existingProps
+            .map((property) => property.id)
+            .toSet();
         final currentIds = entity.properties
             .where((property) => property.id > 0)
             .map((property) => property.id)
@@ -125,8 +141,9 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
           }
         }
 
-        final updatedProperties =
-            await _propertyDataSource.whereMainCategoryId([entity.id]);
+        final updatedProperties = await _propertyDataSource.whereMainCategoryId(
+          [entity.id],
+        );
         return entity.copyWith(properties: updatedProperties);
       });
       return Right(category);
@@ -153,13 +170,15 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
 
   @override
   Future<Either<Failure, MainCategoryEntity?>> firstWhereCategoryName(
-      String categoryName) async {
+    String categoryName,
+  ) async {
     try {
       final category = await _dataSource.firstWhereCategoryName(categoryName);
       if (category == null) return const Right(null);
 
-      final properties =
-          await _propertyDataSource.whereMainCategoryId([category.id]);
+      final properties = await _propertyDataSource.whereMainCategoryId([
+        category.id,
+      ]);
       return Right(category.copyWith(properties: properties));
     } on Failure catch (f) {
       return Left(f);

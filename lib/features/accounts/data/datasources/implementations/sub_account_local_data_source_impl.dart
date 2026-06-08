@@ -44,7 +44,7 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
       table: SubAccountsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), SubAccountsTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert sub account');
     }
     return entity.copyWith(id: entityId);
@@ -72,25 +72,24 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   @override
   SubAccountEntity fromMap(Map<String, dynamic> map) {
     try {
-      final result =  SubAccountEntity(
-      id: map[SubAccountsTable.id] as int,
-      mainAccountId: map[SubAccountsTable.mainAccountId] as int,
-      accountName: (map[SubAccountsTable.accountName] as String?) ?? "",
-      accountNumber: (map[SubAccountsTable.accountNumber] as String?) ?? "",
-      debitBalance: ((map[SubAccountsTable.debitBalance]) as num)
-          .toDouble(),
-      creditBalance: ((map[SubAccountsTable.creditBalance]) as num)
-          .toDouble(),
-      currencyId: map[SubAccountsTable.currencyId],
-      balanceMax: ((map[SubAccountsTable.balanceMax]) as num?)?.toDouble(),
-      subAccountType: SubAccountType.values.firstWhere(
-        (e) => e.name == map[SubAccountsTable.subAccountType] as String,
-      ),
-      createdAt: DateTime.parse(map[SubAccountsTable.createdAt]),
-    );
-    return result;
+      final result = SubAccountEntity(
+        id: map[SubAccountsTable.id] as int,
+        mainAccountId: map[SubAccountsTable.mainAccountId] as int,
+        accountName: (map[SubAccountsTable.accountName] as String?) ?? "",
+        accountNumber: (map[SubAccountsTable.accountNumber] as String?) ?? "",
+        debitBalance: ((map[SubAccountsTable.debitBalance]) as num).toDouble(),
+        creditBalance: ((map[SubAccountsTable.creditBalance]) as num)
+            .toDouble(),
+        currencyId: map[SubAccountsTable.currencyId],
+        balanceMax: ((map[SubAccountsTable.balanceMax]) as num?)?.toDouble(),
+        subAccountType: SubAccountType.values.firstWhere(
+          (e) => e.name == map[SubAccountsTable.subAccountType] as String,
+        ),
+        createdAt: DateTime.parse(map[SubAccountsTable.createdAt]),
+      );
+      return result;
     } catch (e) {
-      throw FormatException('Failed to parse SubAccountEntity from map: $e'); 
+      throw FormatException('Failed to parse SubAccountEntity from map: $e');
     }
   }
 
@@ -255,10 +254,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     await _db.update(
       table: SubAccountsTable.tableName,
       data: {
-        SubAccountsTable.debitBalance:
-            subAcc.debitBalance + debitBalance,
-        SubAccountsTable.creditBalance:
-            subAcc.creditBalance + creditBalance,
+        SubAccountsTable.debitBalance: subAcc.debitBalance + debitBalance,
+        SubAccountsTable.creditBalance: subAcc.creditBalance + creditBalance,
       },
       where: {SubAccountsTable.id: id},
     );
@@ -288,11 +285,9 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     if (subAcc == null) return false;
     final data = <String, dynamic>{};
     if (isIncrement) {
-      data[SubAccountsTable.debitBalance] =
-          subAcc.debitBalance + amount;
+      data[SubAccountsTable.debitBalance] = subAcc.debitBalance + amount;
     } else {
-      data[SubAccountsTable.creditBalance] =
-          subAcc.creditBalance + amount;
+      data[SubAccountsTable.creditBalance] = subAcc.creditBalance + amount;
     }
     await _db.update(
       table: SubAccountsTable.tableName,

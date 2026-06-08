@@ -47,7 +47,7 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
       table: ProgramUsersTable.tableName,
       data: toMap(entity),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert program user');
     }
     return entity.copyWith(id: entityId);
@@ -98,7 +98,8 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
   }) async {
     final rows = await _db.query(
       table: ProgramUsersTable.tableName,
-      where: '${ProgramUsersTable.userName} = ? AND ${ProgramUsersTable.password} = ?',
+      where:
+          '${ProgramUsersTable.userName} = ? AND ${ProgramUsersTable.password} = ?',
       whereArgs: [userName, password],
       limit: 1,
     );
@@ -123,7 +124,8 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
   ) async {
     final rows = await _db.query(
       table: ProgramUsersTable.tableName,
-      where: '${ProgramUsersTable.userName} = ? AND ${ProgramUsersTable.password} = ?',
+      where:
+          '${ProgramUsersTable.userName} = ? AND ${ProgramUsersTable.password} = ?',
       whereArgs: [userName, password],
       limit: 1,
     );

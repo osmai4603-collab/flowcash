@@ -21,7 +21,5 @@ sealed class Radiuses {
     Radius.circular(xlarge),
   );
 
-  static const BorderRadius none =BorderRadius.all(
-    Radius.circular(0),
-  );
+  static const BorderRadius none = BorderRadius.all(Radius.circular(0));
 }

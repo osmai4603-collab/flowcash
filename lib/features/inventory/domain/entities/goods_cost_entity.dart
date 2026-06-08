@@ -32,19 +32,19 @@ class GoodsCostEntity extends Entity {
 
   @override
   List<Object?> get props => [
-        id,
-        createdAt,
-        createdBy,
-        note,
-        offerAmount,
-        currencyId,
-        billNumber,
-        warehouseId,
-        journalEntryId,
-        hintId,
-        orderId,
-        historyGroup,
-      ];
+    id,
+    createdAt,
+    createdBy,
+    note,
+    offerAmount,
+    currencyId,
+    billNumber,
+    warehouseId,
+    journalEntryId,
+    hintId,
+    orderId,
+    historyGroup,
+  ];
 
   @override
   GoodsCostEntity copyWith({

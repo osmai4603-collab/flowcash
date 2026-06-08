@@ -130,8 +130,7 @@ final class BillLocalDataSourceImpl implements BillDataSource {
       warehouseId: map[BillsTable.warehouseId] as int,
       journalEntryId: map[BillsTable.journalEntryId] as int?,
       personId: map[BillsTable.personId] as int?,
-      inventoryTransactionId:
-          map[BillsTable.inventoryTransactionId] as int?,
+      inventoryTransactionId: map[BillsTable.inventoryTransactionId] as int?,
       isCash: (map[BillsTable.isCash] == true || map[BillsTable.isCash] == 1),
     );
   }
@@ -153,7 +152,6 @@ final class BillLocalDataSourceImpl implements BillDataSource {
       BillsTable.isCash: entity.isCash ? 1 : 0,
     };
   }
-
 
   @override
   Future<List<BillEntity>> whereHasNotGoneInStore({

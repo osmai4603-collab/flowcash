@@ -29,17 +29,17 @@ class JournalItemEntity extends Entity {
 
   @override
   List<Object?> get props => [
-        id,
-        entryId,
-        accountId,
-        debit,
-        credit,
-        lineDescription,
-        currencyId,
-        exPrice,
-        expriceMain,
-        journalStatus,
-      ];
+    id,
+    entryId,
+    accountId,
+    debit,
+    credit,
+    lineDescription,
+    currencyId,
+    exPrice,
+    expriceMain,
+    journalStatus,
+  ];
 
   @override
   JournalItemEntity copyWith({

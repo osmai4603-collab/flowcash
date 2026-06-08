@@ -51,5 +51,12 @@ class SettingsState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, values, companyInfo, counter, currentCounter, errorMessage];
+  List<Object?> get props => [
+    status,
+    values,
+    companyInfo,
+    counter,
+    currentCounter,
+    errorMessage,
+  ];
 }

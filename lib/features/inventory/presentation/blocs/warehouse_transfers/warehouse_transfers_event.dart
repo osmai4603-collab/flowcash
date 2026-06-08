@@ -17,7 +17,7 @@ class AddTransferEvent extends WarehouseTransfersEvent {
   final InventoryTransactionEntity fromTransaction;
   final InventoryTransactionEntity toTransaction;
   final List<InventoryTransactionOrderEntity> items;
-  
+
   const AddTransferEvent({
     required this.fromTransaction,
     required this.toTransaction,

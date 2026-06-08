@@ -8,7 +8,9 @@ class SetCounter {
 
   SetCounter(this.repository);
 
-  Future<Either<Failure, ValueCounterEntity>> call(ValueCounterEntity counter) async {
+  Future<Either<Failure, ValueCounterEntity>> call(
+    ValueCounterEntity counter,
+  ) async {
     return await repository.setCounter(counter);
   }
 }

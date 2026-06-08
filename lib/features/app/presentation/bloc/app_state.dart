@@ -12,7 +12,10 @@ class AppState extends Equatable {
 
   const AppState({
     this.status = AppStatus.initial,
-    this.appData = const AppEntity(themeMode: ThemeMode.system, locale: Locale('ar', 'YE')),
+    this.appData = const AppEntity(
+      themeMode: ThemeMode.system,
+      locale: Locale('ar', 'YE'),
+    ),
     this.themeVersion = 0,
     this.errorMessage,
   });

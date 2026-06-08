@@ -12,7 +12,8 @@ final class AppModel extends AppEntity {
   }
 
   Map<String, dynamic> toJson() {
-    final localeValue = locale.countryCode != null && locale.countryCode!.isNotEmpty
+    final localeValue =
+        locale.countryCode != null && locale.countryCode!.isNotEmpty
         ? '${locale.languageCode}_${locale.countryCode}'
         : locale.languageCode;
 
@@ -20,10 +21,7 @@ final class AppModel extends AppEntity {
   }
 
   @override
-  AppModel copyWith({
-    ThemeMode? themeMode,
-    Locale? locale,
-  }) {
+  AppModel copyWith({ThemeMode? themeMode, Locale? locale}) {
     return AppModel(
       themeMode: themeMode ?? this.themeMode,
       locale: locale ?? this.locale,

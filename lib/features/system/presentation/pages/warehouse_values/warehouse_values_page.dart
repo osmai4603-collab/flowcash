@@ -73,16 +73,16 @@ class WarehouseValuesPage extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerRight,
               child: fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(fluent.FluentIcons.add),
-    const SizedBox(width: 8.0),
-    const fluent.Text('إضافة قيمة'),
-  ],
-),
-onPressed: () => _openWarehouseValueForm(context, null),
-),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const fluent.Icon(fluent.FluentIcons.add),
+                    const SizedBox(width: 8.0),
+                    const fluent.Text('إضافة قيمة'),
+                  ],
+                ),
+                onPressed: () => _openWarehouseValueForm(context, null),
+              ),
             ),
           ),
           Expanded(
@@ -110,16 +110,16 @@ onPressed: () => _openWarehouseValueForm(context, null),
           child: Align(
             alignment: Alignment.centerRight,
             child: fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(fluent.FluentIcons.add),
-    const SizedBox(width: 8.0),
-    const fluent.Text('إضافة قيمة'),
-  ],
-),
-onPressed: () => _openWarehouseValueForm(context, null),
-),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const fluent.Icon(fluent.FluentIcons.add),
+                  const SizedBox(width: 8.0),
+                  const fluent.Text('إضافة قيمة'),
+                ],
+              ),
+              onPressed: () => _openWarehouseValueForm(context, null),
+            ),
           ),
         ),
         Expanded(

@@ -53,7 +53,8 @@ class SubcategoriesLoadSuccess extends SubcategoriesState {
       controller: controller ?? this.controller,
       searchQuery: searchQuery ?? this.searchQuery,
       statusMessage: statusMessage ?? this.statusMessage,
-      generatedCategoryNames: identical(generatedCategoryNames, _generatedCategoryNamesSentinel)
+      generatedCategoryNames:
+          identical(generatedCategoryNames, _generatedCategoryNamesSentinel)
           ? this.generatedCategoryNames
           : generatedCategoryNames as List<String>?,
     );
@@ -70,13 +71,13 @@ class SubcategoriesLoadSuccess extends SubcategoriesState {
 
   @override
   List<Object?> get props => [
-        controller.catalogs,
-        controller.infos,
-        controller.properties,
-        searchQuery,
-        statusMessage,
-        generatedCategoryNames,
-      ];
+    controller.catalogs,
+    controller.infos,
+    controller.properties,
+    searchQuery,
+    statusMessage,
+    generatedCategoryNames,
+  ];
 }
 
 class SubcategoriesLoadFailure extends SubcategoriesState {
@@ -95,11 +96,7 @@ class SubcategoriesController {
   final List<SubcategoryUnitEntity> _infos;
   final List<CategoryPropertyEntity> _properties;
 
-  SubcategoriesController(
-    this._catalogs,
-    this._infos,
-    this._properties,
-  );
+  SubcategoriesController(this._catalogs, this._infos, this._properties);
 
   List<SubcategoryEntity> get catalogs => List.of(_catalogs);
   List<SubcategoryUnitEntity> get infos => List.of(_infos);

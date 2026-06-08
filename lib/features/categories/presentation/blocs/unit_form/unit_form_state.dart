@@ -76,20 +76,19 @@ class UnitFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        property,
-        existingUnit,
-        category,
-        units,
-        saved,
-        messageError,
-        measuresUnits,
-        measureUnitSelected,
-        initialWeight,
-        initialLength,
-        initialWidth,
-        initialThickness,
-        initialName,
-      ];
+    status,
+    property,
+    existingUnit,
+    category,
+    units,
+    saved,
+    messageError,
+    measuresUnits,
+    measureUnitSelected,
+    initialWeight,
+    initialLength,
+    initialWidth,
+    initialThickness,
+    initialName,
+  ];
 }
-

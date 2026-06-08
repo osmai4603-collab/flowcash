@@ -43,7 +43,7 @@ final class CategoryPropertyLocalDataSourceImpl
       table: CategoryPropertiesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), CategoryPropertiesTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert category property');
     }
     return entity.copyWith(id: entityId);

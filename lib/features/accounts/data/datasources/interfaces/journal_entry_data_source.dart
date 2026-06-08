@@ -11,10 +11,7 @@ abstract interface class JournalEntryDataSource
   });
 
   @override
-  Future<JournalEntryEntity?> getById(
-    int id, {
-    bool getItems = false,
-  });
+  Future<JournalEntryEntity?> getById(int id, {bool getItems = false});
 
   Future<List<JournalEntryEntity>> whereWarehouse(int warehouseId);
   Future<List<JournalEntryEntity>> whereCreatedBy(int userId);

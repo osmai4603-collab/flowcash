@@ -41,7 +41,7 @@ final class BillOrderLocalDataSourceImpl implements BillOrderDataSource {
       table: BillOrdersTable.tableName,
       data: _sanitizeInsertData(toMap(entity), BillOrdersTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert bill order');
     }
     return entity.copyWith(id: entityId);

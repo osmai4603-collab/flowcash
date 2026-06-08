@@ -46,10 +46,7 @@ sealed class UnitType extends AppEnum {
   ];
 
   static UnitType of(String name) {
-    return values.firstWhere(
-      (e) => e.name == name,
-      orElse: () => piece,
-    );
+    return values.firstWhere((e) => e.name == name, orElse: () => piece);
   }
 
   @override
@@ -64,22 +61,27 @@ sealed class UnitType extends AppEnum {
   bool get isLinearMeter => false;
   bool get isWeight => false;
   bool get isMeasurable => isWeight || isMeterMeasurable;
-  bool get hasSquareMeter => isSquareMeter || isSquareMeterStatic || isSquareMeterWidthStatic;
-  bool get isMeterMeasurable => hasSquareMeter || isLinearMeter || isCubitMeter || isSquareMeterWidthStatic;
+  bool get hasSquareMeter =>
+      isSquareMeter || isSquareMeterStatic || isSquareMeterWidthStatic;
+  bool get isMeterMeasurable =>
+      hasSquareMeter ||
+      isLinearMeter ||
+      isCubitMeter ||
+      isSquareMeterWidthStatic;
   bool get canWriteUnitOnCategory => isMeterMeasurable || isText || isWeight;
 }
 
 final class ModelUnitType extends UnitType {
   const ModelUnitType._()
-      : super(
-          typeName: '',
-          propertyName: '',
-          propertyData: 'موديل',
-          serial: 8,
-          unitName: '',
-          fullUnitName: '',
-          symbolUnit: '',
-        );
+    : super(
+        typeName: '',
+        propertyName: '',
+        propertyData: 'موديل',
+        serial: 8,
+        unitName: '',
+        fullUnitName: '',
+        symbolUnit: '',
+      );
 
   @override
   String get name => 'model';
@@ -93,18 +95,18 @@ final class ModelUnitType extends UnitType {
 
 final class PieceUnitType extends UnitType {
   const PieceUnitType._()
-      : super(
-          typeName: 'حبة',
-          propertyName: 'وحدة',
-          propertyData: 'حبة',
-          serial: 1,
-          unitName: 'حبة',
-          fullUnitName: 'حبة',
-          symbolUnit: 'حبة',
-          isVisible: false,
-          isBasic: true,
-          isDefault: true,
-        );
+    : super(
+        typeName: 'حبة',
+        propertyName: 'وحدة',
+        propertyData: 'حبة',
+        serial: 1,
+        unitName: 'حبة',
+        fullUnitName: 'حبة',
+        symbolUnit: 'حبة',
+        isVisible: false,
+        isBasic: true,
+        isDefault: true,
+      );
 
   @override
   String get name => 'piece';
@@ -118,16 +120,16 @@ final class PieceUnitType extends UnitType {
 
 final class WeightUnitType extends UnitType {
   const WeightUnitType._()
-      : super(
-          typeName: 'وزن',
-          propertyName: 'وزن',
-          propertyData: 'وزن',
-          serial: 3,
-          unitName: 'كيلو',
-          fullUnitName: 'كيلو جرام',
-          symbolUnit: 'كجم',
-          isBasic: true,
-        );
+    : super(
+        typeName: 'وزن',
+        propertyName: 'وزن',
+        propertyData: 'وزن',
+        serial: 3,
+        unitName: 'كيلو',
+        fullUnitName: 'كيلو جرام',
+        symbolUnit: 'كجم',
+        isBasic: true,
+      );
 
   @override
   String get name => 'weight';
@@ -140,16 +142,16 @@ final class WeightUnitType extends UnitType {
 
 final class LinearMeterUnitType extends UnitType {
   const LinearMeterUnitType._()
-      : super(
-          typeName: 'متر طولي',
-          propertyName: 'طول',
-          propertyData: 'متر طولي',
-          serial: 4,
-          unitName: 'متر',
-          fullUnitName: 'متر طولي',
-          symbolUnit: 'م',
-          isBasic: true,
-        );
+    : super(
+        typeName: 'متر طولي',
+        propertyName: 'طول',
+        propertyData: 'متر طولي',
+        serial: 4,
+        unitName: 'متر',
+        fullUnitName: 'متر طولي',
+        symbolUnit: 'م',
+        isBasic: true,
+      );
 
   @override
   String get name => 'linear_meter';
@@ -162,16 +164,16 @@ final class LinearMeterUnitType extends UnitType {
 
 final class SquareMeterUnitType extends UnitType {
   const SquareMeterUnitType._()
-      : super(
-          typeName: 'متر مربع',
-          propertyName: 'مقاس',
-          propertyData: 'متر مربع (طول x عرض)',
-          serial: 5,
-          unitName: 'متر مربع',
-          fullUnitName: 'متر مربع',
-          symbolUnit: 'م²',
-          isBasic: true,
-        );
+    : super(
+        typeName: 'متر مربع',
+        propertyName: 'مقاس',
+        propertyData: 'متر مربع (طول x عرض)',
+        serial: 5,
+        unitName: 'متر مربع',
+        fullUnitName: 'متر مربع',
+        symbolUnit: 'م²',
+        isBasic: true,
+      );
 
   @override
   String get name => 'square_meter';
@@ -184,15 +186,15 @@ final class SquareMeterUnitType extends UnitType {
 
 final class SquareMeterStaticUnitType extends UnitType {
   const SquareMeterStaticUnitType._()
-      : super(
-          typeName: 'متر مربع',
-          propertyName: 'مقاس',
-          propertyData: 'حبة (طول x عرض) ثابت',
-          serial: 5,
-          unitName: 'متر مربع',
-          fullUnitName: 'متر مربع (ثابث)',
-          symbolUnit: 'م²',
-        );
+    : super(
+        typeName: 'متر مربع',
+        propertyName: 'مقاس',
+        propertyData: 'حبة (طول x عرض) ثابت',
+        serial: 5,
+        unitName: 'متر مربع',
+        fullUnitName: 'متر مربع (ثابث)',
+        symbolUnit: 'م²',
+      );
 
   @override
   String get name => 'square_meter_static';
@@ -205,15 +207,15 @@ final class SquareMeterStaticUnitType extends UnitType {
 
 final class SquareMeterWidthStaticUnitType extends UnitType {
   const SquareMeterWidthStaticUnitType._()
-      : super(
-          typeName: 'متر',
-          propertyName: 'مقاس',
-          propertyData: 'حبة (طول x عرض ثابت)',
-          serial: 5,
-          unitName: 'متر مربع',
-          fullUnitName: 'متر مربع (عرض)',
-          symbolUnit: 'م²',
-        );
+    : super(
+        typeName: 'متر',
+        propertyName: 'مقاس',
+        propertyData: 'حبة (طول x عرض ثابت)',
+        serial: 5,
+        unitName: 'متر مربع',
+        fullUnitName: 'متر مربع (عرض)',
+        symbolUnit: 'م²',
+      );
 
   @override
   String get name => 'square_meter_width_static';
@@ -226,16 +228,16 @@ final class SquareMeterWidthStaticUnitType extends UnitType {
 
 final class CubitMeterUnitType extends UnitType {
   const CubitMeterUnitType._()
-      : super(
-          typeName: 'متر مكعب',
-          propertyName: 'مقاس',
-          propertyData: 'متر مكعب (طول x عرض x سمك) ثابت',
-          serial: 5,
-          unitName: 'متر مكعب',
-          fullUnitName: 'متر مكعب',
-          symbolUnit: 'م³',
-          isBasic: true,
-        );
+    : super(
+        typeName: 'متر مكعب',
+        propertyName: 'مقاس',
+        propertyData: 'متر مكعب (طول x عرض x سمك) ثابت',
+        serial: 5,
+        unitName: 'متر مكعب',
+        fullUnitName: 'متر مكعب',
+        symbolUnit: 'م³',
+        isBasic: true,
+      );
 
   @override
   String get name => 'cubit_meter';

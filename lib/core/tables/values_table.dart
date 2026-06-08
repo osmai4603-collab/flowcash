@@ -8,9 +8,5 @@ class ValuesTable {
   static const String valueType = 'value_type';
   static const String value = 'data';
 
-  static const List<String> fields = [
-    id,
-    value,
-    valueType,
-  ];
+  static const List<String> fields = [id, value, valueType];
 }

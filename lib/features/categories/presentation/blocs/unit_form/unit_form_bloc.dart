@@ -15,19 +15,24 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     required GetMainCategoryByIdUseCase getMainCategory,
     required GetUnitsForPropertyUseCase getUnits,
     required SaveUnitSelectionUseCase saveUnit,
-  })  : _getMainCategory = getMainCategory,
-        _getUnits = getUnits,
-        _saveUnit = saveUnit,
-        super(const UnitFormState()) {
+  }) : _getMainCategory = getMainCategory,
+       _getUnits = getUnits,
+       _saveUnit = saveUnit,
+       super(const UnitFormState()) {
     on<InitUnitFormEvent>(_onInit);
     on<SaveUnitFormEvent>(_onSave);
   }
 
-  Future<void> _onInit(InitUnitFormEvent event, Emitter<UnitFormState> emit) async {
+  Future<void> _onInit(
+    InitUnitFormEvent event,
+    Emitter<UnitFormState> emit,
+  ) async {
     emit(state.copyWith(status: UnitFormStatus.loading));
     await Future.delayed(const Duration(seconds: 1));
 
-    final categoryResult = await _getMainCategory(event.property.mainCategoryId);
+    final categoryResult = await _getMainCategory(
+      event.property.mainCategoryId,
+    );
     final unitsResult = await _getUnits(event.property.id);
 
     final categoryOption = categoryResult.fold(
@@ -36,8 +41,13 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     );
 
     if (categoryOption == null) {
-      final errorMsg = categoryResult.fold((failure) => failure.message, (_) => '');
-      emit(state.copyWith(status: UnitFormStatus.failure, messageError: errorMsg));
+      final errorMsg = categoryResult.fold(
+        (failure) => failure.message,
+        (_) => '',
+      );
+      emit(
+        state.copyWith(status: UnitFormStatus.failure, messageError: errorMsg),
+      );
       return;
     }
 
@@ -58,14 +68,22 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
 
     if (unitType is WeightUnitType) {
       measuresUnits = const ['كيلو', 'جرام', 'مل'];
-      measureUnitSelected = event.unit != null && event.unit!.unitName.isNotEmpty
-          ? (measuresUnits.firstWhere((u) => u == event.unit!.unitName, orElse: () => measuresUnits.first))
+      measureUnitSelected =
+          event.unit != null && event.unit!.unitName.isNotEmpty
+          ? (measuresUnits.firstWhere(
+              (u) => u == event.unit!.unitName,
+              orElse: () => measuresUnits.first,
+            ))
           : measuresUnits.first;
       initialWeight = event.unit?.countUnits ?? 0.0;
     } else if (unitType is LinearMeterUnitType) {
       measuresUnits = const ['متر', 'سم', 'مل'];
-      measureUnitSelected = event.unit != null && event.unit!.unitName.isNotEmpty
-          ? (measuresUnits.firstWhere((u) => u == event.unit!.unitName, orElse: () => measuresUnits.first))
+      measureUnitSelected =
+          event.unit != null && event.unit!.unitName.isNotEmpty
+          ? (measuresUnits.firstWhere(
+              (u) => u == event.unit!.unitName,
+              orElse: () => measuresUnits.first,
+            ))
           : measuresUnits.first;
       initialLength = event.unit?.countUnits ?? 0.0;
     } else if (unitType is SquareMeterUnitType ||
@@ -79,28 +97,38 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
       initialName = event.unit?.unitName ?? '';
     }
 
-    emit(state.copyWith(
-      status: UnitFormStatus.ready,
-      property: event.property,
-      existingUnit: event.unit,
-      category: categoryOption,
-      units: unitsOption,
-      measuresUnits: measuresUnits,
-      measureUnitSelected: measureUnitSelected,
-      initialWeight: initialWeight,
-      initialLength: initialLength,
-      initialWidth: initialWidth,
-      initialThickness: initialThickness,
-      initialName: initialName,
-    ));
+    emit(
+      state.copyWith(
+        status: UnitFormStatus.ready,
+        property: event.property,
+        existingUnit: event.unit,
+        category: categoryOption,
+        units: unitsOption,
+        measuresUnits: measuresUnits,
+        measureUnitSelected: measureUnitSelected,
+        initialWeight: initialWeight,
+        initialLength: initialLength,
+        initialWidth: initialWidth,
+        initialThickness: initialThickness,
+        initialName: initialName,
+      ),
+    );
   }
 
-  Future<void> _onSave(SaveUnitFormEvent event, Emitter<UnitFormState> emit) async {
+  Future<void> _onSave(
+    SaveUnitFormEvent event,
+    Emitter<UnitFormState> emit,
+  ) async {
     emit(state.copyWith(status: UnitFormStatus.saving));
     await Future.delayed(const Duration(seconds: 1));
     final result = await _saveUnit(event.unit);
     await result.fold(
-      (failure) async => emit(state.copyWith(status: UnitFormStatus.failure, messageError: failure.message)),
+      (failure) async => emit(
+        state.copyWith(
+          status: UnitFormStatus.failure,
+          messageError: failure.message,
+        ),
+      ),
       (unit) async {
         emit(state.copyWith(status: UnitFormStatus.saved, saved: unit));
       },

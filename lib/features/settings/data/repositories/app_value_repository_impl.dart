@@ -22,7 +22,9 @@ class AppValueRepositoryImpl implements AppValueRepository {
   }
 
   @override
-  Future<Either<Failure, AppValueEntity>> getValueByType(AppValueType type) async {
+  Future<Either<Failure, AppValueEntity>> getValueByType(
+    AppValueType type,
+  ) async {
     try {
       final value = await _dataSource.getValueByType(type);
       return right(value);
@@ -55,12 +57,15 @@ class AppValueRepositoryImpl implements AppValueRepository {
   Future<Either<Failure, List<AppValueEntity>>> getCompanyInfo() async {
     final result = await getAllValues();
     return result.map((values) {
-      return values.where(
-        (value) => value.valueType == AppValueType.companyName ||
-            value.valueType == AppValueType.companyPhone ||
-            value.valueType == AppValueType.companyAddress ||
-            value.valueType == AppValueType.companyDescription,
-      ).toList();
+      return values
+          .where(
+            (value) =>
+                value.valueType == AppValueType.companyName ||
+                value.valueType == AppValueType.companyPhone ||
+                value.valueType == AppValueType.companyAddress ||
+                value.valueType == AppValueType.companyDescription,
+          )
+          .toList();
     });
   }
 }

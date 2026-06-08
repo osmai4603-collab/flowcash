@@ -105,14 +105,13 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
                   const SizedBox(width: 16),
                   // Add Button
                   fluent.FilledButton(
-child: const fluent.Icon(Icons.add),
-onPressed: () => _showAddTransactionContentDialog(context),
-label: fluent.Text(
+                    child: fluent.Text(
                       _isWithdrawFilter
                           ? 'إضافة عملية سحب جديدة'
                           : 'إضافة عملية إيداع جديدة',
                     ),
-),
+                    onPressed: () => _showAddTransactionContentDialog(context),
+                  ),
                 ],
               ),
             ),

@@ -6,6 +6,7 @@ import 'package:flowcash/features/currencies/domain/usecases/currency_repository
 import 'package:flowcash/features/system/presentation/bloc/currencies/currency_form_bloc.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class CurrencyFormPage extends StatefulWidget {
   const CurrencyFormPage({super.key, this.initialValue});
 
@@ -25,8 +26,12 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
   void initState() {
     super.initState();
     _idController = TextEditingController(text: widget.initialValue?.id ?? '');
-    _nameController = TextEditingController(text: widget.initialValue?.name ?? '');
-    _symbolController = TextEditingController(text: widget.initialValue?.symbol ?? '');
+    _nameController = TextEditingController(
+      text: widget.initialValue?.name ?? '',
+    );
+    _symbolController = TextEditingController(
+      text: widget.initialValue?.symbol ?? '',
+    );
   }
 
   @override
@@ -39,7 +44,6 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    
     return BlocProvider(
       create: (_) => CurrencyFormBloc(
         initialValue: widget.initialValue,
@@ -53,8 +57,10 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
           }
         },
         child: fluent.ContentDialog(
-          title: fluent.Text(widget.initialValue == null ? 'إضافة عملة' : 'تعديل عملة'),
-          
+          title: fluent.Text(
+            widget.initialValue == null ? 'إضافة عملة' : 'تعديل عملة',
+          ),
+
           content: BlocBuilder<CurrencyFormBloc, CurrencyFormState>(
             builder: (context, state) {
               return Form(
@@ -78,9 +84,9 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                           }
                           return null;
                         },
-                        onChanged: (value) => context.read<CurrencyFormBloc>().add(
-                              CurrencyFormIdChanged(value),
-                            ),
+                        onChanged: (value) => context
+                            .read<CurrencyFormBloc>()
+                            .add(CurrencyFormIdChanged(value)),
                         enabled: widget.initialValue == null,
                       ),
                     ),
@@ -100,9 +106,9 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                           }
                           return null;
                         },
-                        onChanged: (value) => context.read<CurrencyFormBloc>().add(
-                              CurrencyFormNameChanged(value),
-                            ),
+                        onChanged: (value) => context
+                            .read<CurrencyFormBloc>()
+                            .add(CurrencyFormNameChanged(value)),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -115,26 +121,26 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                           padding: EdgeInsets.all(8.0),
                           child: fluent.Icon(fluent.FluentIcons.label),
                         ),
-                        onChanged: (value) => context.read<CurrencyFormBloc>().add(
-                              CurrencyFormSymbolChanged(value),
-                            ),
+                        onChanged: (value) => context
+                            .read<CurrencyFormBloc>()
+                            .add(CurrencyFormSymbolChanged(value)),
                       ),
                     ),
                     const SizedBox(height: 12),
                     fluent.ToggleSwitch(
                       content: const fluent.Text('افتراضي'),
                       checked: state.isDefault,
-                      onChanged: (value) => context.read<CurrencyFormBloc>().add(
-                            CurrencyFormIsDefaultChanged(value),
-                          ),
+                      onChanged: (value) => context
+                          .read<CurrencyFormBloc>()
+                          .add(CurrencyFormIsDefaultChanged(value)),
                     ),
                     if (state.errorMessage != null) ...[
                       const SizedBox(height: 12),
                       fluent.Text(
                         state.errorMessage!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                       ),
                     ],
                   ],
@@ -154,7 +160,9 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                       ? null
                       : () {
                           if (!_formKey.currentState!.validate()) return;
-                          context.read<CurrencyFormBloc>().add(const CurrencyFormSubmitted());
+                          context.read<CurrencyFormBloc>().add(
+                            const CurrencyFormSubmitted(),
+                          );
                         },
                   child: state.isSubmitting
                       ? const SizedBox(

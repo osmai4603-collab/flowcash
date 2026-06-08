@@ -20,5 +20,18 @@ sealed class WarehouseType extends AppEnum {
   String displayName() => typeName;
 }
 
-final class BranchWarehouseType extends WarehouseType { const BranchWarehouseType._() : super(typeName: 'فرع'); @override String get name => 'branch'; @override int get index => 0; }
-final class WarehouseWarehouseType extends WarehouseType { const WarehouseWarehouseType._() : super(typeName: 'مستودع'); @override String get name => 'warehouse'; @override int get index => 1; }
+final class BranchWarehouseType extends WarehouseType {
+  const BranchWarehouseType._() : super(typeName: 'فرع');
+  @override
+  String get name => 'branch';
+  @override
+  int get index => 0;
+}
+
+final class WarehouseWarehouseType extends WarehouseType {
+  const WarehouseWarehouseType._() : super(typeName: 'مستودع');
+  @override
+  String get name => 'warehouse';
+  @override
+  int get index => 1;
+}

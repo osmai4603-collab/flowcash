@@ -7,11 +7,12 @@ class AccountTypesManagementPage extends StatefulWidget {
   const AccountTypesManagementPage({super.key});
 
   @override
-  State<AccountTypesManagementPage> createState() => _AccountTypesManagementPageState();
+  State<AccountTypesManagementPage> createState() =>
+      _AccountTypesManagementPageState();
 }
 
-class _AccountTypesManagementPageState extends State<AccountTypesManagementPage> {
-
+class _AccountTypesManagementPageState
+    extends State<AccountTypesManagementPage> {
   @override
   void initState() {
     super.initState();
@@ -34,11 +35,15 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
         closeButtonVisibility: fluent.CloseButtonVisibilityMode.never,
         tabs: [
           fluent.Tab(
-            text: const fluent.Text('أنواع الحسابات الرئيسية (Main Account Types)'),
+            text: const fluent.Text(
+              'أنواع الحسابات الرئيسية (Main Account Types)',
+            ),
             body: _buildMainTypesTable(context),
           ),
           fluent.Tab(
-            text: const fluent.Text('أنواع الحسابات الفرعية (Sub Account Types)'),
+            text: const fluent.Text(
+              'أنواع الحسابات الفرعية (Sub Account Types)',
+            ),
             body: _buildSubTypesTable(context),
           ),
         ],
@@ -75,16 +80,56 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                   children: [
                     // Header Row
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-                      color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12.0,
+                        horizontal: 16.0,
+                      ),
+                      color: theme.colorScheme.surfaceContainerHighest
+                          .withAlpha(50),
                       child: Row(
                         children: const [
-                          Expanded(flex: 2, child: fluent.Text('رقم النوع', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 4, child: fluent.Text('الاسم المعروض', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 3, child: fluent.Text('المجموعة', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 2, child: fluent.Text('حالة الزيادة', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 2, child: fluent.Text('حالة النقصان', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 3, child: fluent.Text('نوع الفترة', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(
+                            flex: 2,
+                            child: fluent.Text(
+                              'رقم النوع',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 4,
+                            child: fluent.Text(
+                              'الاسم المعروض',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: fluent.Text(
+                              'المجموعة',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: fluent.Text(
+                              'حالة الزيادة',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: fluent.Text(
+                              'حالة النقصان',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: fluent.Text(
+                              'نوع الفترة',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -93,7 +138,10 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                     // Data Rows
                     ...types.map((type) {
                       return Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 16.0,
+                        ),
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
@@ -114,36 +162,57 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                                 ),
                               ),
                             ),
-                            Expanded(flex: 4, child: fluent.Text(type.displayName())),
+                            Expanded(
+                              flex: 4,
+                              child: fluent.Text(type.displayName()),
+                            ),
                             Expanded(
                               flex: 3,
-                            child: Material(
-                              type: MaterialType.transparency,
-                              child: Chip(
-                                label: fluent.Text(type.accountType.displayName(), style: const TextStyle(fontSize: 12)),
-                                backgroundColor: theme.colorScheme.primaryContainer.withAlpha(50),
-                              ),
+                              child: Material(
+                                type: MaterialType.transparency,
+                                child: Chip(
+                                  label: fluent.Text(
+                                    type.accountType.displayName(),
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  backgroundColor: theme
+                                      .colorScheme
+                                      .primaryContainer
+                                      .withAlpha(50),
+                                ),
                               ),
                             ),
                             Expanded(
                               flex: 2,
                               child: fluent.Text(
                                 type.incrementName,
-                                style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             Expanded(
                               flex: 2,
                               child: fluent.Text(
                                 type.decrementName,
-                                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             Expanded(
                               flex: 3,
                               child: fluent.Text(
-                                type.isPeriodPermanent ? 'دائمة (Permanent)' : 'مؤقتة (Temporary)',
-                                style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(150)),
+                                type.isPeriodPermanent
+                                    ? 'دائمة (Permanent)'
+                                    : 'مؤقتة (Temporary)',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface.withAlpha(
+                                    150,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -189,15 +258,49 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                   children: [
                     // Header Row
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-                      color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12.0,
+                        horizontal: 16.0,
+                      ),
+                      color: theme.colorScheme.surfaceContainerHighest
+                          .withAlpha(50),
                       child: Row(
                         children: const [
-                          Expanded(flex: 4, child: fluent.Text('الاسم المفرد', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 4, child: fluent.Text('الاسم الجمع', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 4, child: fluent.Text('الحساب الرئيسي الأب', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 3, child: fluent.Text('نوع الشخص', style: TextStyle(fontWeight: FontWeight.bold))),
-                          Expanded(flex: 2, child: fluent.Text('نوع الحساب', style: TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(
+                            flex: 4,
+                            child: fluent.Text(
+                              'الاسم المفرد',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 4,
+                            child: fluent.Text(
+                              'الاسم الجمع',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 4,
+                            child: fluent.Text(
+                              'الحساب الرئيسي الأب',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: fluent.Text(
+                              'نوع الشخص',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: fluent.Text(
+                              'نوع الحساب',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -206,7 +309,10 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                     // Data Rows
                     ...types.map((type) {
                       return Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 16.0,
+                        ),
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
@@ -217,9 +323,20 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                         ),
                         child: Row(
                           children: [
-                            Expanded(flex: 4, child: fluent.Text(type.accountName)),
-                            Expanded(flex: 4, child: fluent.Text(type.totalName)),
-                            Expanded(flex: 4, child: fluent.Text(type.mainAccountType.displayName())),
+                            Expanded(
+                              flex: 4,
+                              child: fluent.Text(type.accountName),
+                            ),
+                            Expanded(
+                              flex: 4,
+                              child: fluent.Text(type.totalName),
+                            ),
+                            Expanded(
+                              flex: 4,
+                              child: fluent.Text(
+                                type.mainAccountType.displayName(),
+                              ),
+                            ),
                             Expanded(
                               flex: 3,
                               child: fluent.Text(
@@ -230,18 +347,24 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                             Expanded(
                               flex: 2,
                               child: Material(
-                              type: MaterialType.transparency,
-                              child: Chip(
-                                label: fluent.Text(
-                                  type.isDefault ? 'افتراضي' : 'مخصص',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: type.isDefault ? Colors.green : Colors.orange,
+                                type: MaterialType.transparency,
+                                child: Chip(
+                                  label: fluent.Text(
+                                    type.isDefault ? 'افتراضي' : 'مخصص',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: type.isDefault
+                                          ? Colors.green
+                                          : Colors.orange,
+                                    ),
                                   ),
+                                  backgroundColor:
+                                      (type.isDefault
+                                              ? Colors.green
+                                              : Colors.orange)
+                                          .withAlpha(30),
                                 ),
-                                backgroundColor: (type.isDefault ? Colors.green : Colors.orange).withAlpha(30),
                               ),
-                            ),
                             ),
                           ],
                         ),

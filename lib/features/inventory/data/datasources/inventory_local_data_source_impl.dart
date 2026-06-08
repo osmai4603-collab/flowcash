@@ -46,7 +46,7 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
       table: InventoriesTable.tableName,
       data: toMap(entity),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert inventory');
     }
     return entity.copyWith(id: entityId);
@@ -173,8 +173,12 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
   }) async {
     // Build base query with JOIN to categories
     final buffer = StringBuffer();
-    buffer.write('SELECT i.${InventoriesTable.id} AS inventory_id, i.${InventoriesTable.categoryId} AS category_id, i.${InventoriesTable.storeId} AS store_id, i.${InventoriesTable.revenueAccountId} AS revenue_id, i.${InventoriesTable.expenseAccountId} AS expense_id, i.${InventoriesTable.incomeStockId} AS income_stock_id, i.${InventoriesTable.outcomeStockId} AS outcome_stock_id, i.${InventoriesTable.costTotal} AS cost_total, i.${InventoriesTable.countUnits} AS count_units, c.${CategoriesTable.categoryName} AS category_name, c.${CategoriesTable.categoryUnitId} AS category_unit_id, u.${UnitsTable.unitName} AS unit_name, u.${UnitsTable.length} AS unit_length, u.${UnitsTable.width} AS unit_width, u.${UnitsTable.thickness} AS unit_thickness, u.${UnitsTable.unitType} AS unit_type');
-    buffer.write(' FROM ${InventoriesTable.tableName} i LEFT JOIN ${CategoriesTable.tableName} c ON i.${InventoriesTable.categoryId} = c.${CategoriesTable.id} LEFT JOIN ${UnitsTable.tableName} u ON c.${CategoriesTable.categoryUnitId} = u.${UnitsTable.id}');
+    buffer.write(
+      'SELECT i.${InventoriesTable.id} AS inventory_id, i.${InventoriesTable.categoryId} AS category_id, i.${InventoriesTable.storeId} AS store_id, i.${InventoriesTable.revenueAccountId} AS revenue_id, i.${InventoriesTable.expenseAccountId} AS expense_id, i.${InventoriesTable.incomeStockId} AS income_stock_id, i.${InventoriesTable.outcomeStockId} AS outcome_stock_id, i.${InventoriesTable.costTotal} AS cost_total, i.${InventoriesTable.countUnits} AS count_units, c.${CategoriesTable.categoryName} AS category_name, c.${CategoriesTable.categoryUnitId} AS category_unit_id, u.${UnitsTable.unitName} AS unit_name, u.${UnitsTable.length} AS unit_length, u.${UnitsTable.width} AS unit_width, u.${UnitsTable.thickness} AS unit_thickness, u.${UnitsTable.unitType} AS unit_type',
+    );
+    buffer.write(
+      ' FROM ${InventoriesTable.tableName} i LEFT JOIN ${CategoriesTable.tableName} c ON i.${InventoriesTable.categoryId} = c.${CategoriesTable.id} LEFT JOIN ${UnitsTable.tableName} u ON c.${CategoriesTable.categoryUnitId} = u.${UnitsTable.id}',
+    );
     final args = <dynamic>[];
     if (warehouseId != null) {
       buffer.write(' WHERE i.${InventoriesTable.storeId} = ?');
@@ -223,8 +227,11 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
   }
 
   @override
-  Future<InventoryCategoryEntity?> getInventoryCategoryByInventoryId(int id) async {
-    final sql = 'SELECT i.${InventoriesTable.id} AS inventory_id, i.${InventoriesTable.categoryId} AS category_id, i.${InventoriesTable.storeId} AS store_id, i.${InventoriesTable.revenueAccountId} AS revenue_id, i.${InventoriesTable.expenseAccountId} AS expense_id, i.${InventoriesTable.incomeStockId} AS income_stock_id, i.${InventoriesTable.outcomeStockId} AS outcome_stock_id, i.${InventoriesTable.costTotal} AS cost_total, i.${InventoriesTable.countUnits} AS count_units, c.${CategoriesTable.categoryName} AS category_name, c.${CategoriesTable.categoryUnitId} AS category_unit_id, u.${UnitsTable.unitName} AS unit_name, u.${UnitsTable.length} AS unit_length, u.${UnitsTable.width} AS unit_width, u.${UnitsTable.thickness} AS unit_thickness, u.${UnitsTable.unitType} AS unit_type FROM ${InventoriesTable.tableName} i LEFT JOIN ${CategoriesTable.tableName} c ON i.${InventoriesTable.categoryId} = c.${CategoriesTable.id} LEFT JOIN ${UnitsTable.tableName} u ON c.${CategoriesTable.categoryUnitId} = u.${UnitsTable.id} WHERE i.${InventoriesTable.id} = ? LIMIT 1';
+  Future<InventoryCategoryEntity?> getInventoryCategoryByInventoryId(
+    int id,
+  ) async {
+    final sql =
+        'SELECT i.${InventoriesTable.id} AS inventory_id, i.${InventoriesTable.categoryId} AS category_id, i.${InventoriesTable.storeId} AS store_id, i.${InventoriesTable.revenueAccountId} AS revenue_id, i.${InventoriesTable.expenseAccountId} AS expense_id, i.${InventoriesTable.incomeStockId} AS income_stock_id, i.${InventoriesTable.outcomeStockId} AS outcome_stock_id, i.${InventoriesTable.costTotal} AS cost_total, i.${InventoriesTable.countUnits} AS count_units, c.${CategoriesTable.categoryName} AS category_name, c.${CategoriesTable.categoryUnitId} AS category_unit_id, u.${UnitsTable.unitName} AS unit_name, u.${UnitsTable.length} AS unit_length, u.${UnitsTable.width} AS unit_width, u.${UnitsTable.thickness} AS unit_thickness, u.${UnitsTable.unitType} AS unit_type FROM ${InventoriesTable.tableName} i LEFT JOIN ${CategoriesTable.tableName} c ON i.${InventoriesTable.categoryId} = c.${CategoriesTable.id} LEFT JOIN ${UnitsTable.tableName} u ON c.${CategoriesTable.categoryUnitId} = u.${UnitsTable.id} WHERE i.${InventoriesTable.id} = ? LIMIT 1';
     final db = await _db.database;
     final stmt = db.prepare(sql);
     final results = stmt.select([id]);
@@ -326,5 +333,4 @@ final class _InventoryLocalEntity extends InventoryEntity {
       countUnits: countUnits ?? this.countUnits,
     );
   }
-
 }

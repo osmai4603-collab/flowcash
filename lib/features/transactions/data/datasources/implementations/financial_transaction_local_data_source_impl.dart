@@ -50,19 +50,23 @@ final class FinancialTransactionLocalDataSourceImpl
   }
 
   @override
-  Future<FinancialTransactionEntity> insert(FinancialTransactionEntity entity) async {
+  Future<FinancialTransactionEntity> insert(
+    FinancialTransactionEntity entity,
+  ) async {
     final entityId = await _db.insert(
       table: FinancialTransactionsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), FinancialTransactionsTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert financial transaction');
     }
     return entity.copyWith(id: entityId);
   }
 
   @override
-  Future<FinancialTransactionEntity> update(FinancialTransactionEntity entity) async {
+  Future<FinancialTransactionEntity> update(
+    FinancialTransactionEntity entity,
+  ) async {
     await _db.update(
       table: FinancialTransactionsTable.tableName,
       data: toMap(entity),

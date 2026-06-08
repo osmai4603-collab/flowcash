@@ -8,7 +8,8 @@ class GroupBalancesState extends Equatable {
   final GroupBalancesStatus status;
   final List<MainAccountEntity> mainAccounts;
   final List<SubAccountEntity> subAccounts;
-  final Map<int, Map<String, double>> subaccountBalances; // Map of subAccountId -> {'debit': value, 'credit': value}
+  final Map<int, Map<String, double>>
+  subaccountBalances; // Map of subAccountId -> {'debit': value, 'credit': value}
   final String? errorMessage;
   final DateTime? startDate;
   final DateTime? endDate;
@@ -55,12 +56,12 @@ class GroupBalancesState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        mainAccounts,
-        subAccounts,
-        subaccountBalances,
-        errorMessage,
-        startDate,
-        endDate,
-      ];
+    status,
+    mainAccounts,
+    subAccounts,
+    subaccountBalances,
+    errorMessage,
+    startDate,
+    endDate,
+  ];
 }

@@ -6,5 +6,7 @@ import '../entities/value_counter_entity.dart';
 abstract class ValueCounterRepository {
   Future<Either<Failure, ValueCounterEntity>> getCounter(ValueCounterType type);
   Future<Either<Failure, int>> incrementCounter(ValueCounterType type);
-  Future<Either<Failure, ValueCounterEntity>> setCounter(ValueCounterEntity counter);
+  Future<Either<Failure, ValueCounterEntity>> setCounter(
+    ValueCounterEntity counter,
+  );
 }

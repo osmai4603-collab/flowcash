@@ -42,7 +42,7 @@ final class CategoryAttributeLocalDataSourceImpl
       table: CategoriesAttributesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), CategoriesAttributesTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert category attribute');
     }
     return entity.copyWith(id: entityId);

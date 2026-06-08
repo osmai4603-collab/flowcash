@@ -43,7 +43,7 @@ final class WarehouseValueLocalDataSourceImpl
       table: WarehouseValuesTable.tableName,
       data: _sanitizeInsertData(toMap(entity), WarehouseValuesTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert warehouse value');
     }
     return entity.copyWith(id: entityId);

@@ -42,7 +42,7 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
       table: UnitsTable.tableName,
       data: toMap(entity),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert unit');
     }
     return entity.copyWith(id: entityId);

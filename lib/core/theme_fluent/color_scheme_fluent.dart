@@ -31,7 +31,7 @@ sealed class ColorSchemesFluent {
 
   static AccentColor createAccentColor(Color color) {
     final hsv = HSVColor.fromColor(color);
-    
+
     Color adjust(double sMod, double vMod) {
       return hsv
           .withSaturation((hsv.saturation * sMod).clamp(0.0, 1.0))
@@ -88,7 +88,7 @@ sealed class ColorSchemesFluent {
     color ??= await getLightTertiaryColor();
     SharedPreferences pref = await SharedPreferences.getInstance();
     await pref.setString('Light Tertiary Color', (color).toHexString());
-    _lightSecondaryColor = color; 
+    _lightSecondaryColor = color;
     _lightTertiaryColor = color;
   }
 

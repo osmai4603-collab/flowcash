@@ -242,22 +242,22 @@ class TransferDetailPanel extends StatelessWidget {
 
             // 3. Revert/Delete Button
             fluent.FilledButton(
-child: Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    const fluent.Icon(Icons.delete_forever),
-    const SizedBox(width: 8.0),
-    const fluent.Text(
-                'إلغاء وعكس عملية التحويل 🔄',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const fluent.Icon(Icons.delete_forever),
+                  const SizedBox(width: 8.0),
+                  const fluent.Text(
+                    'إلغاء وعكس عملية التحويل 🔄',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
-  ],
-),
-onPressed: () {
+              onPressed: () {
                 final counterpartId = counterpart?.id ?? transaction.id;
                 onDelete(transaction.id, counterpartId);
               },
-),
+            ),
           ],
         ),
       ),

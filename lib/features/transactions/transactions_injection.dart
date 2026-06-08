@@ -59,9 +59,7 @@ void initTransactionsFeature(GetIt sl) {
   );
 
   // Repositories
-  sl.registerLazySingleton<BillRepository>(
-    () => BillRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<BillRepository>(() => BillRepositoryImpl(sl()));
   sl.registerLazySingleton<BillOrderRepository>(
     () => BillOrderRepositoryImpl(sl()),
   );

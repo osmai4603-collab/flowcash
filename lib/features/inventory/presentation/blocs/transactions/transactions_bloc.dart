@@ -25,15 +25,15 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
     required InsertInventoryTransactionOrderUseCase insertOrder,
     required DeleteInventoryTransactionOrderUseCase deleteOrder,
     required GetWarehousesUseCase getWarehouses,
-  })  : _getTransactions = getTransactions,
-        _insertTransaction = insertTransaction,
-        _updateTransaction = updateTransaction,
-        _deleteTransaction = deleteTransaction,
-        _getTransactionOrders = getTransactionOrders,
-        _insertOrder = insertOrder,
-        _deleteOrder = deleteOrder,
-        _getWarehouses = getWarehouses,
-        super(const TransactionsState()) {
+  }) : _getTransactions = getTransactions,
+       _insertTransaction = insertTransaction,
+       _updateTransaction = updateTransaction,
+       _deleteTransaction = deleteTransaction,
+       _getTransactionOrders = getTransactionOrders,
+       _insertOrder = insertOrder,
+       _deleteOrder = deleteOrder,
+       _getWarehouses = getWarehouses,
+       super(const TransactionsState()) {
     on<LoadTransactionsEvent>(_onLoadTransactions);
     on<AddTransactionEvent>(_onAddTransaction);
     on<UpdateTransactionEvent>(_onUpdateTransaction);
@@ -50,27 +50,20 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
     final oRes = await _getTransactionOrders();
     final wRes = await _getWarehouses();
 
-    tRes.fold(
-      (f) => emit(state.toError(f.message)),
-      (transList) {
-        oRes.fold(
-          (f) => emit(state.toError(f.message)),
-          (ordersList) {
-            wRes.fold(
-              (f) => emit(state.toError(f.message)),
-              (warehousesList) {
-                emit(state.copyWith(
-                  status: TransactionsStatus.success,
-                  transactions: transList,
-                  allOrders: ordersList,
-                  warehouses: warehousesList,
-                ));
-              },
-            );
-          },
-        );
-      },
-    );
+    tRes.fold((f) => emit(state.toError(f.message)), (transList) {
+      oRes.fold((f) => emit(state.toError(f.message)), (ordersList) {
+        wRes.fold((f) => emit(state.toError(f.message)), (warehousesList) {
+          emit(
+            state.copyWith(
+              status: TransactionsStatus.success,
+              transactions: transList,
+              allOrders: ordersList,
+              warehouses: warehousesList,
+            ),
+          );
+        });
+      });
+    });
   }
 
   Future<void> _onAddTransaction(
@@ -79,22 +72,21 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
   ) async {
     // 1. Insert transaction
     final tRes = await _insertTransaction(event.transaction);
-    await tRes.fold(
-      (f) async => emit(state.toError(f.message)),
-      (newTran) async {
-        // 2. Insert items with inserted tranId
-        final List<InventoryTransactionOrderEntity> insertedOrders = [];
-        for (var item in event.items) {
-          final orderToInsert = item.copyWith(tranId: newTran.id);
-          final oRes = await _insertOrder(orderToInsert);
-          oRes.fold(
-            (f) => emit(state.toError(f.message)),
-            (newOrder) => insertedOrders.add(newOrder),
-          );
-        }
-        emit(state.addTransaction(newTran, insertedOrders));
-      },
-    );
+    await tRes.fold((f) async => emit(state.toError(f.message)), (
+      newTran,
+    ) async {
+      // 2. Insert items with inserted tranId
+      final List<InventoryTransactionOrderEntity> insertedOrders = [];
+      for (var item in event.items) {
+        final orderToInsert = item.copyWith(tranId: newTran.id);
+        final oRes = await _insertOrder(orderToInsert);
+        oRes.fold(
+          (f) => emit(state.toError(f.message)),
+          (newOrder) => insertedOrders.add(newOrder),
+        );
+      }
+      emit(state.addTransaction(newTran, insertedOrders));
+    });
   }
 
   Future<void> _onUpdateTransaction(
@@ -103,30 +95,31 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
   ) async {
     // 1. Update main transaction details
     final tRes = await _updateTransaction(event.transaction);
-    await tRes.fold(
-      (f) async => emit(state.toError(f.message)),
-      (updatedTran) async {
-        // 2. Clear old orders for this transaction in DB
-        // Fetch existing orders first
-        final oldOrders = state.allOrders.where((o) => o.tranId == updatedTran.id).toList();
-        for (var o in oldOrders) {
-          await _deleteOrder(o.id);
-        }
+    await tRes.fold((f) async => emit(state.toError(f.message)), (
+      updatedTran,
+    ) async {
+      // 2. Clear old orders for this transaction in DB
+      // Fetch existing orders first
+      final oldOrders = state.allOrders
+          .where((o) => o.tranId == updatedTran.id)
+          .toList();
+      for (var o in oldOrders) {
+        await _deleteOrder(o.id);
+      }
 
-        // 3. Re-insert updated order lines
-        final List<InventoryTransactionOrderEntity> newOrders = [];
-        for (var item in event.items) {
-          final orderToInsert = item.copyWith(tranId: updatedTran.id);
-          final oRes = await _insertOrder(orderToInsert);
-          oRes.fold(
-            (f) => emit(state.toError(f.message)),
-            (newOrder) => newOrders.add(newOrder),
-          );
-        }
+      // 3. Re-insert updated order lines
+      final List<InventoryTransactionOrderEntity> newOrders = [];
+      for (var item in event.items) {
+        final orderToInsert = item.copyWith(tranId: updatedTran.id);
+        final oRes = await _insertOrder(orderToInsert);
+        oRes.fold(
+          (f) => emit(state.toError(f.message)),
+          (newOrder) => newOrders.add(newOrder),
+        );
+      }
 
-        emit(state.updateTransaction(updatedTran, newOrders));
-      },
-    );
+      emit(state.updateTransaction(updatedTran, newOrders));
+    });
   }
 
   Future<void> _onDeleteTransaction(
@@ -134,7 +127,9 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
     Emitter<TransactionsState> emit,
   ) async {
     // Delete orders first
-    final oldOrders = state.allOrders.where((o) => o.tranId == event.id).toList();
+    final oldOrders = state.allOrders
+        .where((o) => o.tranId == event.id)
+        .toList();
     for (var o in oldOrders) {
       await _deleteOrder(o.id);
     }

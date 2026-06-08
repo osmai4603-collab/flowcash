@@ -1,7 +1,6 @@
 import 'package:flowcash/core/entities/entity.dart';
 import 'package:flowcash/core/enums/warehouse_value_type_enum.dart';
 
-
 class WarehouseValueEntity extends Entity {
   final int id;
   final int warehouseId;

@@ -45,7 +45,8 @@ class TransactionsState extends Equatable {
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,
       selectedTransaction: selectedTransaction ?? this.selectedTransaction,
-      selectedTransactionOrders: selectedTransactionOrders ?? this.selectedTransactionOrders,
+      selectedTransactionOrders:
+          selectedTransactionOrders ?? this.selectedTransactionOrders,
     );
   }
 
@@ -64,16 +65,24 @@ class TransactionsState extends Equatable {
     InventoryTransactionEntity transaction,
     List<InventoryTransactionOrderEntity> orders,
   ) {
-    final updatedTrans = transactions.map((t) => t.id == transaction.id ? transaction : t).toList();
-    
+    final updatedTrans = transactions
+        .map((t) => t.id == transaction.id ? transaction : t)
+        .toList();
+
     // Remove old orders for this tran, then add the updated ones
-    final updatedOrders = allOrders.where((o) => o.tranId != transaction.id).toList()..addAll(orders);
+    final updatedOrders =
+        allOrders.where((o) => o.tranId != transaction.id).toList()
+          ..addAll(orders);
 
     return copyWith(
       transactions: updatedTrans,
       allOrders: updatedOrders,
-      selectedTransaction: selectedTransaction?.id == transaction.id ? transaction : selectedTransaction,
-      selectedTransactionOrders: selectedTransaction?.id == transaction.id ? orders : selectedTransactionOrders,
+      selectedTransaction: selectedTransaction?.id == transaction.id
+          ? transaction
+          : selectedTransaction,
+      selectedTransactionOrders: selectedTransaction?.id == transaction.id
+          ? orders
+          : selectedTransactionOrders,
       status: TransactionsStatus.success,
     );
   }
@@ -81,38 +90,37 @@ class TransactionsState extends Equatable {
   TransactionsState removeTransaction(int id) {
     final updatedTrans = transactions.where((t) => t.id != id).toList();
     final updatedOrders = allOrders.where((o) => o.tranId != id).toList();
-    
+
     return copyWith(
       transactions: updatedTrans,
       allOrders: updatedOrders,
-      selectedTransaction: selectedTransaction?.id == id ? null : selectedTransaction,
-      selectedTransactionOrders: selectedTransaction?.id == id ? const [] : selectedTransactionOrders,
+      selectedTransaction: selectedTransaction?.id == id
+          ? null
+          : selectedTransaction,
+      selectedTransactionOrders: selectedTransaction?.id == id
+          ? const []
+          : selectedTransactionOrders,
       status: TransactionsStatus.success,
     );
   }
 
   TransactionsState toError(String message) {
-    return copyWith(
-      status: TransactionsStatus.error,
-      errorMessage: message,
-    );
+    return copyWith(status: TransactionsStatus.error, errorMessage: message);
   }
 
   TransactionsState toLoading() {
-    return copyWith(
-      status: TransactionsStatus.loading,
-    );
+    return copyWith(status: TransactionsStatus.loading);
   }
 
   @override
   List<Object?> get props => [
-        transactions,
-        allOrders,
-        batches,
-        warehouses,
-        status,
-        errorMessage,
-        selectedTransaction,
-        selectedTransactionOrders,
-      ];
+    transactions,
+    allOrders,
+    batches,
+    warehouses,
+    status,
+    errorMessage,
+    selectedTransaction,
+    selectedTransactionOrders,
+  ];
 }

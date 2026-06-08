@@ -13,7 +13,9 @@ abstract class AppMoneyFormatter {
   /// تنسيق نص المبلغ المالي ليحتوي على فواصل الآلاف
   static String formatString(String money) {
     if (money.isEmpty) return money;
-    final amount = RegExp(r'[0-9.]+').hasMatch(money) ? double.tryParse(money) ?? 0.0 : 0.0;
+    final amount = RegExp(r'[0-9.]+').hasMatch(money)
+        ? double.tryParse(money) ?? 0.0
+        : 0.0;
     return formatDouble(amount);
   }
 

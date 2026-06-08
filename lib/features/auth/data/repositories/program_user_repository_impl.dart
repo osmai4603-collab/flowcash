@@ -12,7 +12,9 @@ class ProgramUserRepositoryImpl implements ProgramUserRepository {
   const ProgramUserRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<ProgramUserEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<ProgramUserEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final users = await _dataSource.get(ids: ids);
       return right(users);
@@ -32,7 +34,9 @@ class ProgramUserRepositoryImpl implements ProgramUserRepository {
   }
 
   @override
-  Future<Either<Failure, ProgramUserEntity>> insert(ProgramUserEntity entity) async {
+  Future<Either<Failure, ProgramUserEntity>> insert(
+    ProgramUserEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return right(entityInserted);
@@ -42,7 +46,9 @@ class ProgramUserRepositoryImpl implements ProgramUserRepository {
   }
 
   @override
-  Future<Either<Failure, ProgramUserEntity>> update(ProgramUserEntity entity) async {
+  Future<Either<Failure, ProgramUserEntity>> update(
+    ProgramUserEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return right(entityUpdated);
@@ -97,7 +103,10 @@ class ProgramUserRepositoryImpl implements ProgramUserRepository {
     String password,
   ) async {
     try {
-      final user = await _dataSource.firstWhereUserNameAndPassword(userName, password);
+      final user = await _dataSource.firstWhereUserNameAndPassword(
+        userName,
+        password,
+      );
       return right(user);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));

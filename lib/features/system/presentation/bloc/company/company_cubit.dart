@@ -9,7 +9,10 @@ class CompanyBloc extends Bloc<CompanyEvent, CompanyState> {
     on<LoadCompanyEvent>(_onLoad);
   }
 
-  Future<void> _onLoad(LoadCompanyEvent event, Emitter<CompanyState> emit) async {
+  Future<void> _onLoad(
+    LoadCompanyEvent event,
+    Emitter<CompanyState> emit,
+  ) async {
     emit(const CompanyLoading());
     await Future.delayed(const Duration(milliseconds: 50));
     emit(const CompanySuccess(null));

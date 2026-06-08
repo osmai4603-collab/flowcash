@@ -5,7 +5,8 @@ import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/core/repositories/repository.dart';
 import '../entities/program_user_entity.dart';
 
-abstract interface class ProgramUserRepository implements RepositoryDB<ProgramUserEntity> {
+abstract interface class ProgramUserRepository
+    implements RepositoryDB<ProgramUserEntity> {
   Future<Either<Failure, ProgramUserEntity?>> getUserWhereArgs({
     required String userName,
     required String password,

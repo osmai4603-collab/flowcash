@@ -4,12 +4,15 @@ import 'package:flowcash/features/inventory/domain/repositories/inventory_catalo
 import 'package:flowcash/features/inventory/data/datasources/inventory_catalog_data_source.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_catalog_entity.dart';
 
-class InventorySubcategoryRepositoryImpl implements InventorySubcategoryRepository {
+class InventorySubcategoryRepositoryImpl
+    implements InventorySubcategoryRepository {
   final InventorySubcategoryDataSource _dataSource;
   const InventorySubcategoryRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<InventorySubcategoryEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<InventorySubcategoryEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);
@@ -33,7 +36,9 @@ class InventorySubcategoryRepositoryImpl implements InventorySubcategoryReposito
   }
 
   @override
-  Future<Either<Failure, InventorySubcategoryEntity>> insert(InventorySubcategoryEntity entity) async {
+  Future<Either<Failure, InventorySubcategoryEntity>> insert(
+    InventorySubcategoryEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return Right(entityInserted);
@@ -45,7 +50,9 @@ class InventorySubcategoryRepositoryImpl implements InventorySubcategoryReposito
   }
 
   @override
-  Future<Either<Failure, InventorySubcategoryEntity>> update(InventorySubcategoryEntity entity) async {
+  Future<Either<Failure, InventorySubcategoryEntity>> update(
+    InventorySubcategoryEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);
@@ -69,9 +76,16 @@ class InventorySubcategoryRepositoryImpl implements InventorySubcategoryReposito
   }
 
   @override
-  Future<Either<Failure, InventorySubcategoryEntity?>> firstWhereStoreAndCategory({required int categoryId, required int warehouseId}) async {
+  Future<Either<Failure, InventorySubcategoryEntity?>>
+  firstWhereStoreAndCategory({
+    required int categoryId,
+    required int warehouseId,
+  }) async {
     try {
-      final res = await _dataSource.firstWhereStoreAndCategory(categoryId: categoryId, warehouseId: warehouseId);
+      final res = await _dataSource.firstWhereStoreAndCategory(
+        categoryId: categoryId,
+        warehouseId: warehouseId,
+      );
       return Right(res);
     } on Failure catch (f) {
       return Left(f);

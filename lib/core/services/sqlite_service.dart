@@ -84,10 +84,10 @@ final class SqliteService {
     final columns = data.keys.join(', ');
     final placeholders = List.filled(data.length, '?').join(', ');
     final query = 'INSERT INTO $table ($columns) VALUES ($placeholders)';
-    debugPrint('INSERT INTO $table ($columns) VALUES ("${data.values.join('", "')}")');
-    final stmt = db.prepare(
-      query
+    debugPrint(
+      'INSERT INTO $table ($columns) VALUES ("${data.values.join('", "')}")',
     );
+    final stmt = db.prepare(query);
     stmt.execute(data.values.toList());
     final lastInsertId = db.lastInsertRowId;
     stmt.dispose();
@@ -105,9 +105,7 @@ final class SqliteService {
     final placeholders = List.filled(dataList.first.length, '?').join(', ');
     final sql = 'INSERT INTO $table ($columns) VALUES ($placeholders)';
     debugPrint(sql);
-    final stmt = db.prepare(
-      sql
-    );
+    final stmt = db.prepare(sql);
 
     for (final data in dataList) {
       _validateNotNullBillNumber(table: table, data: data);
@@ -160,7 +158,6 @@ final class SqliteService {
     }
   }
 
-
   /// Delete rows matching [where] conditions.
   Future<void> deleteWhere({
     required String table,
@@ -202,14 +199,15 @@ final class SqliteService {
 
     final List<Map<String, dynamic>> list = [];
     for (final row in results) {
-      debugPrint('  ${row.entries.map((entry) => '${entry.key}: ${entry.value}').join(', ')}');
+      debugPrint(
+        '  ${row.entries.map((entry) => '${entry.key}: ${entry.value}').join(', ')}',
+      );
       list.add(Map<String, dynamic>.from(row));
     }
     list.isEmpty ? debugPrint('  NO ROWS RETURNED.\n') : debugPrint('');
     stmt.dispose();
     return list;
   }
-
 
   Future<String> get databasePath async {
     if (SqliteDatabaseManager._databasePath != null) {
@@ -232,7 +230,9 @@ final class SqliteService {
 
   Future<List<String>> getTableNames() async {
     final db = await database;
-    final stmt = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
+    final stmt = db.prepare(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';",
+    );
     final ResultSet result = stmt.select();
     final names = <String>[];
     for (final row in result) {

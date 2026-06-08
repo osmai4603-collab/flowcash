@@ -10,7 +10,9 @@ class OpeningQuantityRepositoryImpl implements OpeningQuantityRepository {
   const OpeningQuantityRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<OpeningQuantityEntity>>> get({Iterable<int>? ids}) async {
+  Future<Either<Failure, List<OpeningQuantityEntity>>> get({
+    Iterable<int>? ids,
+  }) async {
     try {
       final res = await _dataSource.get(ids: ids);
       return Right(res);
@@ -34,7 +36,9 @@ class OpeningQuantityRepositoryImpl implements OpeningQuantityRepository {
   }
 
   @override
-  Future<Either<Failure, OpeningQuantityEntity>> insert(OpeningQuantityEntity entity) async {
+  Future<Either<Failure, OpeningQuantityEntity>> insert(
+    OpeningQuantityEntity entity,
+  ) async {
     try {
       final entityInserted = await _dataSource.insert(entity);
       return Right(entityInserted);
@@ -46,7 +50,9 @@ class OpeningQuantityRepositoryImpl implements OpeningQuantityRepository {
   }
 
   @override
-  Future<Either<Failure, OpeningQuantityEntity>> update(OpeningQuantityEntity entity) async {
+  Future<Either<Failure, OpeningQuantityEntity>> update(
+    OpeningQuantityEntity entity,
+  ) async {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);
@@ -70,9 +76,13 @@ class OpeningQuantityRepositoryImpl implements OpeningQuantityRepository {
   }
 
   @override
-  Future<Either<Failure, OpeningQuantityEntity?>> getOpeningQuantity({required int inventoryId}) async {
+  Future<Either<Failure, OpeningQuantityEntity?>> getOpeningQuantity({
+    required int inventoryId,
+  }) async {
     try {
-      final res = await _dataSource.getOpeningQuantity(inventoryId: inventoryId);
+      final res = await _dataSource.getOpeningQuantity(
+        inventoryId: inventoryId,
+      );
       return Right(res);
     } on Failure catch (f) {
       return Left(f);
@@ -82,7 +92,9 @@ class OpeningQuantityRepositoryImpl implements OpeningQuantityRepository {
   }
 
   @override
-  Future<Either<Failure, double>> getSumUnitsByInventory(int inventoryId) async {
+  Future<Either<Failure, double>> getSumUnitsByInventory(
+    int inventoryId,
+  ) async {
     try {
       final res = await _dataSource.getSumUnitsByInventory(inventoryId);
       return Right(res);
@@ -94,7 +106,9 @@ class OpeningQuantityRepositoryImpl implements OpeningQuantityRepository {
   }
 
   @override
-  Future<Either<Failure, List<OpeningQuantityEntity>>> whereCommodity(InventoryEntity commodity) async {
+  Future<Either<Failure, List<OpeningQuantityEntity>>> whereCommodity(
+    InventoryEntity commodity,
+  ) async {
     try {
       final res = await _dataSource.whereCommodity(commodity);
       return Right(res);
@@ -106,7 +120,9 @@ class OpeningQuantityRepositoryImpl implements OpeningQuantityRepository {
   }
 
   @override
-  Future<Either<Failure, List<OpeningQuantityEntity>>> whereStore(int storeId) async {
+  Future<Either<Failure, List<OpeningQuantityEntity>>> whereStore(
+    int storeId,
+  ) async {
     try {
       final res = await _dataSource.whereStore(storeId);
       return Right(res);

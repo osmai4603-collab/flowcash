@@ -205,7 +205,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     return Column(
       children: [
         fluent.Table(
-          border: TableBorder.all(width: 0.5, color: colors.outline),
+          border: fluent.TableBorder.all(width: 0.5, color: colors.outline),
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           columnWidths: getWidths(state.properties),
           children: [
@@ -285,7 +285,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             final widths = getWidths(state.properties);
             return fluent.Table(
               textDirection: TextDirection.rtl,
-              border: TableBorder.all(width: 0.5, color: colors.outline),
+              border: fluent.TableBorder.all(width: 0.5, color: colors.outline),
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               columnWidths: widths,
               children: [

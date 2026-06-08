@@ -42,7 +42,7 @@ final class GoodsCostLocalDataSourceImpl implements GoodsCostDataSource {
       table: GoodsCostsTable.tableName,
       data: _sanitizeInsertData(toMap(entity), GoodsCostsTable.id),
     );
-    if(entityId < 0) {
+    if (entityId < 0) {
       throw Exception('Failed to insert goods cost');
     }
     return entity.copyWith(id: entityId);
@@ -71,7 +71,9 @@ final class GoodsCostLocalDataSourceImpl implements GoodsCostDataSource {
   GoodsCostEntity fromMap(Map<String, dynamic> map) {
     return GoodsCostEntity(
       id: map[GoodsCostsTable.id] as int,
-      createdAt: DateTime.parse(map[GoodsCostsTable.createdAt] as String? ?? ""),
+      createdAt: DateTime.parse(
+        map[GoodsCostsTable.createdAt] as String? ?? "",
+      ),
       createdBy: map[GoodsCostsTable.createdBy],
       note: map[GoodsCostsTable.note] as String?,
       offerAmount: ((map[GoodsCostsTable.offerAmount]) as num).toDouble(),

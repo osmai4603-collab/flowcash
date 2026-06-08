@@ -27,19 +27,20 @@ sealed class FinancialTransactionType extends HistoriesGroup {
   static FinancialTransactionType of(String name) {
     return values.firstWhere(
       (e) => e.name == name,
-      orElse: () => throw ArgumentError('Unknown FinancialTransactionType: $name'),
+      orElse: () =>
+          throw ArgumentError('Unknown FinancialTransactionType: $name'),
     );
   }
 }
 
 final class SalesFinancialTransactionType extends FinancialTransactionType {
   const SalesFinancialTransactionType._()
-      : super(
-          singleName: 'فاتورة بيع',
-          totalName: 'فواتير مبيعات',
-          counterTypeName: 'فواتير مبيعات',
-          priority: 1,
-        );
+    : super(
+        singleName: 'فاتورة بيع',
+        totalName: 'فواتير مبيعات',
+        counterTypeName: 'فواتير مبيعات',
+        priority: 1,
+      );
 
   @override
   String get name => 'sales';
@@ -53,12 +54,12 @@ final class SalesFinancialTransactionType extends FinancialTransactionType {
 
 final class BuysFinancialTransactionType extends FinancialTransactionType {
   const BuysFinancialTransactionType._()
-      : super(
-          singleName: 'فاتورة شراء',
-          totalName: 'فواتير مشتريات',
-          counterTypeName: 'فواتير مشتريات',
-          priority: 2,
-        );
+    : super(
+        singleName: 'فاتورة شراء',
+        totalName: 'فواتير مشتريات',
+        counterTypeName: 'فواتير مشتريات',
+        priority: 2,
+      );
 
   @override
   String get name => 'buys';
@@ -70,14 +71,15 @@ final class BuysFinancialTransactionType extends FinancialTransactionType {
   String displayName() => 'فاتورة شراء';
 }
 
-final class BuysReturnFinancialTransactionType extends FinancialTransactionType {
+final class BuysReturnFinancialTransactionType
+    extends FinancialTransactionType {
   const BuysReturnFinancialTransactionType._()
-      : super(
-          singleName: 'فاتورة مرتجع شراء',
-          totalName: 'فواتير مرتجع مشتريات',
-          counterTypeName: 'فواتير مشتريات',
-          priority: 3,
-        );
+    : super(
+        singleName: 'فاتورة مرتجع شراء',
+        totalName: 'فواتير مرتجع مشتريات',
+        counterTypeName: 'فواتير مشتريات',
+        priority: 3,
+      );
 
   @override
   String get name => 'buys_return';
@@ -89,14 +91,15 @@ final class BuysReturnFinancialTransactionType extends FinancialTransactionType 
   String displayName() => 'فاتورة مرتجع شراء';
 }
 
-final class SalesReturnFinancialTransactionType extends FinancialTransactionType {
+final class SalesReturnFinancialTransactionType
+    extends FinancialTransactionType {
   const SalesReturnFinancialTransactionType._()
-      : super(
-          singleName: 'فاتورة مرتجع بيع',
-          totalName: 'فواتير مرتجع مبيعات',
-          counterTypeName: 'فواتير مبيعات',
-          priority: 4,
-        );
+    : super(
+        singleName: 'فاتورة مرتجع بيع',
+        totalName: 'فواتير مرتجع مبيعات',
+        counterTypeName: 'فواتير مبيعات',
+        priority: 4,
+      );
 
   @override
   String get name => 'sales_return';
@@ -110,12 +113,12 @@ final class SalesReturnFinancialTransactionType extends FinancialTransactionType
 
 final class ExpensesFinancialTransactionType extends FinancialTransactionType {
   const ExpensesFinancialTransactionType._()
-      : super(
-          singleName: 'مصروف',
-          totalName: 'مصروفات',
-          counterTypeName: 'مصروفات',
-          priority: 5,
-        );
+    : super(
+        singleName: 'مصروف',
+        totalName: 'مصروفات',
+        counterTypeName: 'مصروفات',
+        priority: 5,
+      );
 
   @override
   String get name => 'expenses';
@@ -129,12 +132,12 @@ final class ExpensesFinancialTransactionType extends FinancialTransactionType {
 
 final class RevenuesFinancialTransactionType extends FinancialTransactionType {
   const RevenuesFinancialTransactionType._()
-      : super(
-          singleName: 'ايراد',
-          totalName: 'ايرادات',
-          counterTypeName: 'ايرادات',
-          priority: 6,
-        );
+    : super(
+        singleName: 'ايراد',
+        totalName: 'ايرادات',
+        counterTypeName: 'ايرادات',
+        priority: 6,
+      );
 
   @override
   String get name => 'revenues';

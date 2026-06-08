@@ -17,10 +17,9 @@ class AppLocalDataSourceImpl implements AppLocalDataSource {
     if (jsonString != null) {
       return Future.value(AppModel.fromJson(jsonDecode(jsonString)));
     } else {
-      return Future.value(const AppModel(
-        themeMode: ThemeMode.system,
-        locale: Locale('ar', 'YE'),
-      ));
+      return Future.value(
+        const AppModel(themeMode: ThemeMode.system, locale: Locale('ar', 'YE')),
+      );
     }
   }
 

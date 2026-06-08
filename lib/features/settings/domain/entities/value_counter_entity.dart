@@ -19,7 +19,14 @@ class ValueCounterEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, counterType, count, counterMax, incrementValue, formatValue];
+  List<Object?> get props => [
+    id,
+    counterType,
+    count,
+    counterMax,
+    incrementValue,
+    formatValue,
+  ];
 
   ValueCounterEntity copyWith({
     int? id,

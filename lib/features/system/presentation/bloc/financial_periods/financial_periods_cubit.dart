@@ -6,11 +6,12 @@ import 'package:flowcash/features/system/domain/entities/accounting_period_entit
 part 'financial_periods_state.dart';
 part 'financial_periods_event.dart';
 
-class FinancialPeriodsBloc extends Bloc<FinancialPeriodsEvent, FinancialPeriodsState> {
+class FinancialPeriodsBloc
+    extends Bloc<FinancialPeriodsEvent, FinancialPeriodsState> {
   final GetAccountingPeriodsUseCase _getAccountingPeriodsUseCase;
 
   FinancialPeriodsBloc(this._getAccountingPeriodsUseCase)
-      : super(const FinancialPeriodsInitial()) {
+    : super(const FinancialPeriodsInitial()) {
     on<LoadFinancialPeriodsEvent>(_onLoad);
   }
 

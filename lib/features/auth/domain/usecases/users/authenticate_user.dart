@@ -8,7 +8,10 @@ class AuthenticateUser {
 
   AuthenticateUser(this.repository);
 
-  Future<Either<Failure, ProgramUserEntity?>> call(String userName, String password) async {
+  Future<Either<Failure, ProgramUserEntity?>> call(
+    String userName,
+    String password,
+  ) async {
     return await repository.firstWhereUserNameAndPassword(userName, password);
   }
 }

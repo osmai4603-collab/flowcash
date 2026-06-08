@@ -3,7 +3,8 @@ import 'main_categories_event.dart';
 import 'main_categories_state.dart';
 import 'package:flowcash/features/categories/domain/usecases/main_category_usecases.dart';
 
-class MainCategoriesBloc extends Bloc<MainCategoriesEvent, MainCategoriesState> {
+class MainCategoriesBloc
+    extends Bloc<MainCategoriesEvent, MainCategoriesState> {
   final GetAllMainCategoriesUseCase getAllUseCase;
   final AddMainCategoryUseCase addUseCase;
   final DeleteMainCategoryUseCase deleteUseCase;

@@ -6,10 +6,7 @@ sealed class BatchStatus extends AppEnum {
   static const available = AvailableBatchStatus._();
   static const stopped = StoppedBatchStatus._();
 
-  static const List<BatchStatus> values = [
-    available,
-    stopped,
-  ];
+  static const List<BatchStatus> values = [available, stopped];
 
   static BatchStatus of(String name) {
     return values.firstWhere(

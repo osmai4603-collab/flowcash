@@ -58,11 +58,15 @@ class OpeningQuantitiesState extends Equatable {
   }
 
   OpeningQuantitiesState toLoading() {
-    return copyWith(
-      status: OpeningQuantitiesStatus.loading,
-    );
+    return copyWith(status: OpeningQuantitiesStatus.loading);
   }
 
   @override
-  List<Object?> get props => [items, inventoryItems, warehouses, status, errorMessage];
+  List<Object?> get props => [
+    items,
+    inventoryItems,
+    warehouses,
+    status,
+    errorMessage,
+  ];
 }

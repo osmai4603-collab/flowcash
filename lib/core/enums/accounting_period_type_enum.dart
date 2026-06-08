@@ -1,4 +1,3 @@
-
 import 'app_enum.dart';
 
 sealed class AccountingsPeriodType extends AppEnum {
@@ -13,11 +12,8 @@ sealed class AccountingsPeriodType extends AppEnum {
   static const temporary = TemporaryAccountingsPeriodType._();
   static const permanent = ContinuedAccountingsPeriodType._();
 
-  static List<AccountingsPeriodType> values = [
-    temporary, permanent,
-  ];
+  static List<AccountingsPeriodType> values = [temporary, permanent];
 }
-
 
 final class TemporaryAccountingsPeriodType extends AccountingsPeriodType {
   const TemporaryAccountingsPeriodType._() : super(typeName: 'مؤقت');

@@ -15,6 +15,7 @@ import 'package:flowcash/features/categories/presentation/blocs/main_categories/
 import 'package:flowcash/features/categories/presentation/blocs/main_categories/main_categories_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class MainCategoriesPage extends StatelessWidget {
@@ -32,7 +33,6 @@ class MainCategoriesPage extends StatelessWidget {
 class MainCategoryDataGridSource extends DataGridSource {
   MainCategoryDataGridSource({
     required List<MainCategoryEntity> items,
-    required this.textTheme,
     required this.colors,
     required this.onItemTap,
     required this.onItemDoubleTap,
@@ -67,8 +67,7 @@ class MainCategoryDataGridSource extends DataGridSource {
     }).toList();
   }
 
-  final TextTheme textTheme;
-  final ColorScheme colors;
+  final AppStyle colors;
   final void Function(MainCategoryEntity) onItemTap;
   final void Function(MainCategoryEntity) onItemDoubleTap;
   final void Function(MainCategoryEntity) onItemLongPress;
@@ -82,7 +81,7 @@ class MainCategoryDataGridSource extends DataGridSource {
   DataGridRowAdapter buildRow(DataGridRow row) {
     final index = _dataGridRows.indexOf(row);
     return DataGridRowAdapter(
-      color: index.isEven ? null : colors.surfaceVariant.withOpacity(0.12),
+      color: index.isEven ? null : colors.surfaceContainerHighest.withOpacity(0.12),
       cells: row.getCells().map<Widget>((dataGridCell) {
         return Container(
           alignment: Alignment.center,
@@ -90,7 +89,7 @@ class MainCategoryDataGridSource extends DataGridSource {
           child: fluent.Text(
             dataGridCell.value.toString(),
             overflow: TextOverflow.ellipsis,
-            style: textTheme.bodyMedium,
+            style: colors.body,
           ),
         );
       }).toList(),
@@ -130,8 +129,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
 
   Widget _buildHeaderCell(
     String text,
-    TextTheme textTheme,
-    ColorScheme colors,
+    AppStyle colors,
   ) {
     return Container(
       alignment: Alignment.center,
@@ -140,7 +138,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
       child: fluent.Text(
         text,
         textAlign: TextAlign.center,
-        style: textTheme.bodyMedium?.copyWith(
+        style: colors.body.copyWith(
           color: colors.onSurface,
           fontWeight: FontWeight.bold,
         ),
@@ -152,8 +150,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
     BuildContext context,
     List<MainCategoryEntity> mainCategories,
   ) {
-    final colors = ColorScheme.of(context);
-    final textTheme = TextTheme.of(context);
+    final colors = AppStyle.of(context);
     if (mainCategories.isEmpty) {
       return const Center(
         child: TextWidget(text: 'لا يوجد اصاناف رئيسية معرفة'),
@@ -164,12 +161,11 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(color: colors.outlineVariant, width: 0.5),
+              border: Border.all(color: colors.surfaceOutlineVariant, width: 0.5),
             ),
             child: SfDataGrid(
               source: MainCategoryDataGridSource(
                 items: mainCategories,
-                textTheme: textTheme,
                 colors: colors,
                 onItemTap: (category) {
                   Navigator.push(
@@ -233,31 +229,31 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
                 GridColumn(
                   columnName: 'no',
                   width: isDesktop ? 60.0 : 50.0,
-                  label: _buildHeaderCell('No', textTheme, colors),
+                  label: _buildHeaderCell('No', colors),
                 ),
                 GridColumn(
                   columnName: 'name',
-                  label: _buildHeaderCell('اسم الصنف', textTheme, colors),
+                  label: _buildHeaderCell('اسم الصنف', colors),
                 ),
                 GridColumn(
                   columnName: 'unitName',
-                  label: _buildHeaderCell('وحدة الصنف', textTheme, colors),
+                  label: _buildHeaderCell('وحدة الصنف', colors),
                 ),
                 GridColumn(
                   columnName: 'priceUnit',
-                  label: _buildHeaderCell('وحدة السعر', textTheme, colors),
+                  label: _buildHeaderCell('وحدة السعر', colors),
                 ),
                 GridColumn(
                   columnName: 'stockUnit',
-                  label: _buildHeaderCell('وحدة الجرد', textTheme, colors),
+                  label: _buildHeaderCell('وحدة الجرد', colors),
                 ),
                 GridColumn(
                   columnName: 'type',
-                  label: _buildHeaderCell('نوع الصنف', textTheme, colors),
+                  label: _buildHeaderCell('نوع الصنف', colors),
                 ),
                 GridColumn(
                   columnName: 'containerName',
-                  label: _buildHeaderCell('اسم الحاوية', textTheme, colors),
+                  label: _buildHeaderCell('اسم الحاوية', colors),
                 ),
               ],
             ),
@@ -296,8 +292,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = ColorScheme.of(context);
-    final textTheme = TextTheme.of(context);
+    final colors = AppStyle.of(context);
     return fluent.ScaffoldPage(
       header: fluent.PageHeader(
         title: const fluent.Text('الأصناف الرئيسية'),

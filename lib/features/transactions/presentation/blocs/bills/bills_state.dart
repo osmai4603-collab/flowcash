@@ -49,13 +49,16 @@ class BillsState extends Equatable {
 
   BillsState updateBill(BillEntity bill, List<BillOrderEntity> orders) {
     final updatedBills = bills.map((b) => b.id == bill.id ? bill : b).toList();
-    final updatedOrders = allOrders.where((o) => o.billId != bill.id).toList()..addAll(orders);
+    final updatedOrders = allOrders.where((o) => o.billId != bill.id).toList()
+      ..addAll(orders);
 
     return copyWith(
       bills: updatedBills,
       allOrders: updatedOrders,
       selectedBill: selectedBill?.id == bill.id ? bill : selectedBill,
-      selectedBillOrders: selectedBill?.id == bill.id ? orders : selectedBillOrders,
+      selectedBillOrders: selectedBill?.id == bill.id
+          ? orders
+          : selectedBillOrders,
       status: BillsStatus.success,
     );
   }
@@ -68,31 +71,28 @@ class BillsState extends Equatable {
       bills: updatedBills,
       allOrders: updatedOrders,
       selectedBill: selectedBill?.id == id ? null : selectedBill,
-      selectedBillOrders: selectedBill?.id == id ? const [] : selectedBillOrders,
+      selectedBillOrders: selectedBill?.id == id
+          ? const []
+          : selectedBillOrders,
       status: BillsStatus.success,
     );
   }
 
   BillsState toError(String message) {
-    return copyWith(
-      status: BillsStatus.error,
-      errorMessage: message,
-    );
+    return copyWith(status: BillsStatus.error, errorMessage: message);
   }
 
   BillsState toLoading() {
-    return copyWith(
-      status: BillsStatus.loading,
-    );
+    return copyWith(status: BillsStatus.loading);
   }
 
   @override
   List<Object?> get props => [
-        bills,
-        allOrders,
-        status,
-        errorMessage,
-        selectedBill,
-        selectedBillOrders,
-      ];
+    bills,
+    allOrders,
+    status,
+    errorMessage,
+    selectedBill,
+    selectedBillOrders,
+  ];
 }

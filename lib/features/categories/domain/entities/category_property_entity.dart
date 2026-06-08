@@ -23,7 +23,16 @@ class CategoryPropertyEntity extends Entity {
   });
 
   @override
-  List<Object?> get props => [id, mainCategoryId, propertyName, unitType, isSingle, isCategoryUnit, isPricingUnit, isInventoryUnit];
+  List<Object?> get props => [
+    id,
+    mainCategoryId,
+    propertyName,
+    unitType,
+    isSingle,
+    isCategoryUnit,
+    isPricingUnit,
+    isInventoryUnit,
+  ];
 
   CategoryPropertyEntity copyWith({
     int? id,

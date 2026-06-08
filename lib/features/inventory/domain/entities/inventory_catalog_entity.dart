@@ -20,7 +20,15 @@ class InventorySubcategoryEntity extends Entity {
   });
 
   @override
-  List<Object?> get props => [id, storeId, catalogId, revenueAccountId, expenseAccountId, incomeStockId, outcomeStockId];
+  List<Object?> get props => [
+    id,
+    storeId,
+    catalogId,
+    revenueAccountId,
+    expenseAccountId,
+    incomeStockId,
+    outcomeStockId,
+  ];
 
   InventorySubcategoryEntity copyWith({
     int? id,

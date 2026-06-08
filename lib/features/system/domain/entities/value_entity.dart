@@ -6,21 +6,13 @@ class ValueEntity extends Entity {
   final Object? value;
   final ValueType valueType;
 
-  const ValueEntity({
-    required this.id,
-    this.value,
-    required this.valueType,
-  });
+  const ValueEntity({required this.id, this.value, required this.valueType});
 
   @override
   List<Object?> get props => [id, value, valueType];
 
   @override
-  ValueEntity copyWith({
-    int? id,
-    Object? value,
-    ValueType? valueType,
-  }) {
+  ValueEntity copyWith({int? id, Object? value, ValueType? valueType}) {
     return ValueEntity(
       id: id ?? this.id,
       value: value ?? this.value,
