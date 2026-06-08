@@ -67,6 +67,7 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                       label: 'المعرف',
                       child: fluent.TextFormBox(
                         controller: _idController,
+                        placeholder: 'مثال: YER',
                         prefix: const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: fluent.Icon(fluent.FluentIcons.lock12),
@@ -88,6 +89,7 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                       label: 'الاسم',
                       child: fluent.TextFormBox(
                         controller: _nameController,
+                        placeholder: 'مثال: ريال يمني',
                         prefix: const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: fluent.Icon(fluent.FluentIcons.text_field),
@@ -108,6 +110,7 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
                       label: 'الرمز',
                       child: fluent.TextFormBox(
                         controller: _symbolController,
+                        placeholder: 'مثال: ر.ي أو ر.س',
                         prefix: const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: fluent.Icon(fluent.FluentIcons.label),
@@ -144,22 +147,24 @@ class _CurrencyFormPageState extends State<CurrencyFormPage> {
               onPressed: () => Navigator.of(context).pop(),
               child: const fluent.Text('إلغاء'),
             ),
-            fluent.FilledButton(
-              onPressed: () {
-                if (!_formKey.currentState!.validate()) return;
-                context.read<CurrencyFormBloc>().add(const CurrencyFormSubmitted());
-              },
-              child: BlocBuilder<CurrencyFormBloc, CurrencyFormState>(
-                builder: (context, state) {
-                  return state.isSubmitting
+            BlocBuilder<CurrencyFormBloc, CurrencyFormState>(
+              builder: (context, state) {
+                return fluent.FilledButton(
+                  onPressed: state.isSubmitting
+                      ? null
+                      : () {
+                          if (!_formKey.currentState!.validate()) return;
+                          context.read<CurrencyFormBloc>().add(const CurrencyFormSubmitted());
+                        },
+                  child: state.isSubmitting
                       ? const SizedBox(
                           height: 18,
                           width: 18,
                           child: fluent.ProgressRing(strokeWidth: 2),
                         )
-                      : const fluent.Text('حفظ');
-                },
-              ),
+                      : const fluent.Text('حفظ'),
+                );
+              },
             ),
           ],
         ),

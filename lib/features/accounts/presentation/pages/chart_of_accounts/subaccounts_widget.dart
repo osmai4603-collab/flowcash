@@ -1,5 +1,7 @@
 import 'package:flowcash/core/formatters/money_formatter.dart';
+import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/core/theme/styles.dart';
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/chart_of_accounts/chart_of_accounts_bloc.dart';
@@ -12,6 +14,7 @@ import 'package:flowcash/widgets/message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class SubAccountsViewWidget extends StatefulWidget {
   final MainAccountEntity mainAccount;
@@ -94,6 +97,7 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
   }
 
   Widget _buildListView(BuildContext context, List<SubAccountEntity> accounts) {
+    final colors = AppStyle.of(context);
     return ValueListenableBuilder(
       valueListenable: searchBarController,
       builder: (_, value, child) {
@@ -108,7 +112,6 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
         );
         final totalBalance = incrementsSum - decrementsSum;
 
-        final colors = ColorScheme.of(context);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -117,15 +120,15 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(
+                  child: fluent.Text(
                     'الحسابات الفرعية لـ ${widget.mainAccount.accountName}',
-                    style: Styles.titleMedium,
+                    
                   ),
                 ),
-                ElevatedButton.icon(
+                fluent.FilledButton(
+
                   onPressed: () => _showAddSubAccountDialog(context),
-                  icon: const Icon(Icons.add),
-                  label: const Text('إضافة حساب فرعي'),
+                  child: const Text('إضافة حساب فرعي'),
                 ),
               ],
             ),
@@ -135,7 +138,7 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
                   ? Center(
                       child: Text(
                         'لا يوجد حسابات ${widget.mainAccount.accountName}',
-                        style: Styles.bodyLarge,
+                        style: colors.bodyLarge,
                         textAlign: TextAlign.center,
                       ),
                     )
@@ -156,17 +159,17 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
                 children: [
                   Text(
                     'له: ${AppMoneyFormatter.formatDouble(incrementsSum)}',
-                    style: Styles.titleSmall.copyWith(color: Colors.white),
+                    style: colors.title.copyWith(color: Colors.white),
                   ),
                   const SizedBox(width: 30),
                   Text(
                     'الرصيد: ${AppMoneyFormatter.formatDouble(totalBalance)}',
-                    style: Styles.titleSmall.copyWith(color: Colors.white),
+                    style: colors.title.copyWith(color: Colors.white),
                   ),
                   const SizedBox(width: 30),
                   Text(
                     'عليه: ${AppMoneyFormatter.formatDouble(decrementsSum)}',
-                    style: Styles.titleSmall.copyWith(color: Colors.white),
+                    style: colors.title.copyWith(color: Colors.white),
                   ),
                 ],
               ),
@@ -180,7 +183,6 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
   Widget _buildPersonRow(BuildContext context, SubAccountEntity subAccount) {
     final imagePath = _getImagePathForType(subAccount.subAccountType.name);
     final currencyLabel = subAccount.currencyId;
-
     return Material(
       color: Colors.transparent,
       child: ListTile(
@@ -190,12 +192,11 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
           vertical: 4.0,
         ),
         leading: SizedBox(width: 50, child: Image.asset(imagePath)),
-        title: Text(subAccount.accountName, style: Styles.titleMedium),
+        title: Text(subAccount.accountName),
         subtitle: Text(subAccount.accountNumber),
         trailing: Text(
           '$currencyLabel ${AppMoneyFormatter.formatDouble(subAccount.balance)}',
           textDirection: TextDirection.ltr,
-          style: Styles.titleSmall,
         ),
         onTap: () => _onNavigateToHistories(context, subAccount),
         onLongPress: () => _onLongPressSubAccount(context, subAccount),

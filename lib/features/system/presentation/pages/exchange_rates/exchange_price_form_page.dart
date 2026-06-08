@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
 import 'package:flowcash/features/currencies/domain/entities/exchange_price_entity.dart';
+import 'package:flowcash/features/currencies/domain/usecases/currency_repository_usecases.dart';
 import 'package:flowcash/features/currencies/domain/usecases/exchange_price_repository_usecases.dart';
 import 'package:flowcash/features/system/presentation/bloc/exchange_rates/exchange_price_form_bloc.dart';
 
@@ -17,22 +19,58 @@ class ExchangePriceFormPage extends StatefulWidget {
 
 class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _fromCurrencyController;
-  late final TextEditingController _toCurrencyController;
   late final TextEditingController _priceController;
+  late final GetCurrenciesUseCase _getCurrenciesUseCase;
+
+  final List<CurrencyEntity> _currencies = [];
+  CurrencyEntity? _selectedFromCurrency;
+  CurrencyEntity? _selectedToCurrency;
+  bool _isLoadingCurrencies = true;
 
   @override
   void initState() {
     super.initState();
-    _fromCurrencyController = TextEditingController(text: widget.initialValue?.fromCurrencyId ?? '');
-    _toCurrencyController = TextEditingController(text: widget.initialValue?.toCurrencyId ?? '');
+    _getCurrenciesUseCase = GetIt.instance<GetCurrenciesUseCase>();
     _priceController = TextEditingController(text: widget.initialValue?.price.toString() ?? '');
+    _fetchCurrencies();
+  }
+
+  Future<void> _fetchCurrencies() async {
+    final result = await _getCurrenciesUseCase.call();
+
+    result.fold(
+      (failure) {
+        setState(() {
+          _isLoadingCurrencies = false;
+        });
+      },
+      (currencies) {
+        CurrencyEntity? findCurrency(String id) {
+          try {
+            return currencies.firstWhere((currency) => currency.id == id);
+          } catch (_) {
+            return null;
+          }
+        }
+
+        setState(() {
+          _currencies
+            ..clear()
+            ..addAll(currencies);
+          _selectedFromCurrency = widget.initialValue == null
+              ? null
+              : findCurrency(widget.initialValue!.fromCurrencyId);
+          _selectedToCurrency = widget.initialValue == null
+              ? null
+              : findCurrency(widget.initialValue!.toCurrencyId);
+          _isLoadingCurrencies = false;
+        });
+      },
+    );
   }
 
   @override
   void dispose() {
-    _fromCurrencyController.dispose();
-    _toCurrencyController.dispose();
     _priceController.dispose();
     super.dispose();
   }
@@ -62,44 +100,126 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    fluent.InfoLabel(
-                      label: 'من العملة',
-                      child: fluent.TextFormBox(
-                        controller: _fromCurrencyController,
-                        prefix: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.arrow_back),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: fluent.InfoLabel(
+                            label: 'من العملة',
+                            child: _isLoadingCurrencies
+                                ? fluent.Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14.0,
+                                      horizontal: 12.0,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(color: Colors.grey.shade400),
+                                    ),
+                                    child: Row(
+                                      children: const [
+                                        fluent.ProgressRing(strokeWidth: 2),
+                                        SizedBox(width: 8),
+                                        fluent.Text('جارٍ تحميل العملات...'),
+                                      ],
+                                    ),
+                                  )
+                                : _currencies.isEmpty
+                                    ? const fluent.Text('لا توجد عملات متاحة')
+                                    : fluent.ComboboxFormField<CurrencyEntity>(
+                                        items: _currencies
+                                            .map(
+                                              (currency) => fluent.ComboBoxItem<CurrencyEntity>(
+                                                value: currency,
+                                                child: fluent.Text(
+                                                  '${currency.name} (${currency.symbol})',
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                        value: _selectedFromCurrency,
+                                        placeholder: const fluent.Text('اختر العملة المرسلة'),
+                                        isExpanded: true,
+                                        validator: (value) {
+                                          if (value == null) {
+                                            return 'الرجاء اختيار العملة المرسلة';
+                                          }
+                                          return null;
+                                        },
+                                        onChanged: widget.initialValue != null
+                                            ? null
+                                            : (currency) {
+                                                setState(() {
+                                                  _selectedFromCurrency = currency;
+                                                });
+                                                context.read<ExchangePriceFormBloc>().add(
+                                                      ExchangePriceFromCurrencyChanged(
+                                                        currency?.id ?? '',
+                                                      ),
+                                                    );
+                                              },
+                                      ),
+                          ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'الرجاء إدخال رمز العملة المرسلة';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) => context.read<ExchangePriceFormBloc>().add(
-                              ExchangePriceFromCurrencyChanged(value),
-                            ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    fluent.InfoLabel(
-                      label: 'إلى العملة',
-                      child: fluent.TextFormBox(
-                        controller: _toCurrencyController,
-                        prefix: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.arrow_forward),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: fluent.InfoLabel(
+                            label: 'إلى العملة',
+                            child: _isLoadingCurrencies
+                                ? fluent.Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14.0,
+                                      horizontal: 12.0,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(color: Colors.grey.shade400),
+                                    ),
+                                    child: Row(
+                                      children: const [
+                                        fluent.ProgressRing(strokeWidth: 2),
+                                        SizedBox(width: 8),
+                                        fluent.Text('جارٍ تحميل العملات...'),
+                                      ],
+                                    ),
+                                  )
+                                : _currencies.isEmpty
+                                    ? const fluent.Text('لا توجد عملات متاحة')
+                                    : fluent.ComboboxFormField<CurrencyEntity>(
+                                        items: _currencies
+                                            .map(
+                                              (currency) => fluent.ComboBoxItem<CurrencyEntity>(
+                                                value: currency,
+                                                child: fluent.Text(
+                                                  '${currency.name} (${currency.symbol})',
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                        value: _selectedToCurrency,
+                                        placeholder: const fluent.Text('اختر العملة المستقبلة'),
+                                        isExpanded: true,
+                                        validator: (value) {
+                                          if (value == null) {
+                                            return 'الرجاء اختيار العملة المستقبلة';
+                                          }
+                                          return null;
+                                        },
+                                        onChanged: widget.initialValue != null
+                                            ? null
+                                            : (currency) {
+                                                setState(() {
+                                                  _selectedToCurrency = currency;
+                                                });
+                                                context.read<ExchangePriceFormBloc>().add(
+                                                      ExchangePriceToCurrencyChanged(
+                                                        currency?.id ?? '',
+                                                      ),
+                                                    );
+                                              },
+                                      ),
+                          ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'الرجاء إدخال رمز العملة المستقبلة';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) => context.read<ExchangePriceFormBloc>().add(
-                              ExchangePriceToCurrencyChanged(value),
-                            ),
-                      ),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     fluent.InfoLabel(
@@ -107,10 +227,8 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
                       child: fluent.TextFormBox(
                         controller: _priceController,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        prefix: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.receipt_long),
-                        ),
+                        // 
+                        textDirection: .ltr,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'الرجاء إدخال سعر الصرف';

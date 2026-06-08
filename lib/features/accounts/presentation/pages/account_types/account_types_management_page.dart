@@ -117,9 +117,12 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                             Expanded(flex: 4, child: fluent.Text(type.displayName())),
                             Expanded(
                               flex: 3,
+                            child: Material(
+                              type: MaterialType.transparency,
                               child: Chip(
                                 label: fluent.Text(type.accountType.displayName(), style: const TextStyle(fontSize: 12)),
                                 backgroundColor: theme.colorScheme.primaryContainer.withAlpha(50),
+                              ),
                               ),
                             ),
                             Expanded(
@@ -226,6 +229,8 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                             ),
                             Expanded(
                               flex: 2,
+                              child: Material(
+                              type: MaterialType.transparency,
                               child: Chip(
                                 label: fluent.Text(
                                   type.isDefault ? 'افتراضي' : 'مخصص',
@@ -236,6 +241,7 @@ class _AccountTypesManagementPageState extends State<AccountTypesManagementPage>
                                 ),
                                 backgroundColor: (type.isDefault ? Colors.green : Colors.orange).withAlpha(30),
                               ),
+                            ),
                             ),
                           ],
                         ),

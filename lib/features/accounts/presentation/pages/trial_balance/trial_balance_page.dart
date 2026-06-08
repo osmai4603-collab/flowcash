@@ -9,6 +9,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/trial_balance/tria
 import 'package:flowcash/features/accounts/presentation/blocs/trial_balance/trial_balance_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class TrialBalancePage extends StatefulWidget {
   const TrialBalancePage({super.key});
 
@@ -49,151 +50,167 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
         builder: (context) {
           return BlocBuilder<TrialBalanceBloc, TrialBalanceState>(
             builder: (context, state) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    // 1. Filter & Status Header Bar
-                    Container(
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surface,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: theme.dividerColor.withAlpha(50),
-                        ),
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
                       ),
-                      child: Row(
+                      child: Column(
                         children: [
-                          // Start Date
-                          Expanded(
-                            child: InkWell(
-                              onTap: () => _selectDate(context, true),
-                              child: InputDecorator(
-                                decoration: InputDecoration(
-                                  labelText: 'من تاريخ',
-                                  border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(fluent.FluentIcons.calendar_settings,
+                          // 1. Filter & Status Header Bar
+                          Container(
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surface,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: theme.dividerColor.withAlpha(50),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                // Start Date
+                                Expanded(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => _selectDate(context, true),
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        labelText: 'من تاريخ',
+                                        border: const OutlineInputBorder(),
+                                        prefixIcon: const Icon(
+                                          fluent.FluentIcons.calendar_settings,
+                                        ),
+                                        suffixIcon: _startDate != null
+                                            ? IconButton(
+                                                icon: const Icon(
+                                                  fluent.FluentIcons.clear,
+                                                  size: 18,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _startDate = null;
+                                                  });
+                                                },
+                                              )
+                                            : null,
+                                      ),
+                                      child: fluent.Text(
+                                        _startDate != null
+                                            ? DateFormat(
+                                                'yyyy-MM-dd',
+                                              ).format(_startDate!)
+                                            : 'البداية',
+                                      ),
+                                    ),
                                   ),
-                                  suffixIcon: _startDate != null
-                                      ? IconButton(
-                                          icon: const Icon(fluent.FluentIcons.clear,
-                                            size: 18,
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              _startDate = null;
-                                            });
-                                          },
-                                        )
-                                      : null,
                                 ),
-                                child: fluent.Text(
-                                  _startDate != null
-                                      ? DateFormat(
-                                          'yyyy-MM-dd',
-                                        ).format(_startDate!)
-                                      : 'البداية',
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
+                                const SizedBox(width: 16),
 
-                          // End Date
-                          Expanded(
-                            child: InkWell(
-                              onTap: () => _selectDate(context, false),
-                              child: InputDecorator(
-                                decoration: InputDecoration(
-                                  labelText: 'إلى تاريخ',
-                                  border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(fluent.FluentIcons.calendar_settings,
+                                // End Date
+                                Expanded(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => _selectDate(context, false),
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        labelText: 'إلى تاريخ',
+                                        border: const OutlineInputBorder(),
+                                        prefixIcon: const Icon(
+                                          fluent.FluentIcons.calendar_settings,
+                                        ),
+                                        suffixIcon: _endDate != null
+                                            ? IconButton(
+                                                icon: const Icon(
+                                                  fluent.FluentIcons.clear,
+                                                  size: 18,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _endDate = null;
+                                                  });
+                                                },
+                                              )
+                                            : null,
+                                      ),
+                                      child: fluent.Text(
+                                        _endDate != null
+                                            ? DateFormat(
+                                                'yyyy-MM-dd',
+                                              ).format(_endDate!)
+                                            : 'النهاية',
+                                      ),
+                                    ),
                                   ),
-                                  suffixIcon: _endDate != null
-                                      ? IconButton(
-                                          icon: const Icon(fluent.FluentIcons.clear,
-                                            size: 18,
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              _endDate = null;
-                                            });
-                                          },
-                                        )
-                                      : null,
                                 ),
-                                child: fluent.Text(
-                                  _endDate != null
-                                      ? DateFormat(
-                                          'yyyy-MM-dd',
-                                        ).format(_endDate!)
-                                      : 'النهاية',
+                                const SizedBox(width: 16),
+
+                                // Load button
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    context.read<TrialBalanceBloc>().add(
+                                      LoadTrialBalance(
+                                        startDate: _startDate,
+                                        endDate: _endDate,
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(fluent.FluentIcons.compare),
+                                  label: const fluent.Text('تحديث الميزان'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: theme.colorScheme.primary,
+                                    foregroundColor:
+                                        theme.colorScheme.onPrimary,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 18,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
                                 ),
-                              ),
+
+                                const SizedBox(width: 8),
+
+                                // Refresh Button
+                                IconButton(
+                                  icon: const Icon(fluent.FluentIcons.refresh),
+                                  tooltip: 'إعادة تحميل البيانات',
+                                  onPressed: () {
+                                    context.read<TrialBalanceBloc>().add(
+                                      LoadTrialBalance(
+                                        startDate: _startDate,
+                                        endDate: _endDate,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(height: 16),
 
-                          // Load button
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              context.read<TrialBalanceBloc>().add(
-                                LoadTrialBalance(
-                                  startDate: _startDate,
-                                  endDate: _endDate,
-                                ),
-                              );
-                            },
-                            icon: const Icon(fluent.FluentIcons.compare),
-                            label: const fluent.Text('تحديث الميزان'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.primary,
-                              foregroundColor: theme.colorScheme.onPrimary,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 18,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(width: 8),
-
-                          // Refresh Button
-                          IconButton(
-                            icon: const Icon(fluent.FluentIcons.refresh),
-                            tooltip: 'إعادة تحميل البيانات',
-                            onPressed: () {
-                              context.read<TrialBalanceBloc>().add(
-                                LoadTrialBalance(
-                                  startDate: _startDate,
-                                  endDate: _endDate,
-                                ),
-                              );
-                            },
+                          // 2. Trial Balance Content
+                          Expanded(
+                            child: state.status == TrialBalanceStatus.loading
+                                ? const Center(child: fluent.ProgressRing())
+                                : state.status == TrialBalanceStatus.failure
+                                ? Center(
+                                    child: fluent.Text(
+                                      'خطأ في تحميل ميزان المراجعة: ${state.errorMessage}',
+                                    ),
+                                  )
+                                : _buildTrialBalanceTable(context, state),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-
-                    // 2. Trial Balance Content
-                    Expanded(
-                      child: state.status == TrialBalanceStatus.loading
-                          ? const Center(child: fluent.ProgressRing())
-                          : state.status == TrialBalanceStatus.failure
-                          ? Center(
-                              child: fluent.Text(
-                                'خطأ في تحميل ميزان المراجعة: ${state.errorMessage}',
-                              ),
-                            )
-                          : _buildTrialBalanceTable(context, state),
-                    ),
-                  ],
-                ),
+                  );
+                },
               );
             },
           );
@@ -342,7 +359,8 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                       color: theme.colorScheme.primaryContainer.withAlpha(20),
                       child: Row(
                         children: [
-                          Icon(fluent.FluentIcons.folder_open,
+                          Icon(
+                            fluent.FluentIcons.folder_open,
                             size: 18,
                             color: theme.colorScheme.primary,
                           ),
@@ -393,7 +411,10 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                                 ),
                               ),
                             ),
-                            Expanded(flex: 5, child: fluent.Text(sub.accountName)),
+                            Expanded(
+                              flex: 5,
+                              child: fluent.Text(sub.accountName),
+                            ),
                             Expanded(
                               flex: 2,
                               child: fluent.Text(
@@ -508,7 +529,9 @@ class _TrialBalancePageState extends State<TrialBalancePage> {
                 Row(
                   children: [
                     Icon(
-                      isBalanced ? fluent.FluentIcons.skype_circle_check : fluent.FluentIcons.error,
+                      isBalanced
+                          ? fluent.FluentIcons.skype_circle_check
+                          : fluent.FluentIcons.error,
                       color: isBalanced ? Colors.green : Colors.red,
                       size: 20,
                     ),

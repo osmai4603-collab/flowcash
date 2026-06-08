@@ -97,7 +97,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Text(
-                                'اضغط على حساب رئيسي من العمود الأيمن لعرض الحسابات الفرعية.',
+                                'اضغط على حساب رئيسي لعرض الحسابات الفرعية.',
                                 textAlign: TextAlign.center,
                                 style: theme.textTheme.bodyLarge,
                               ),

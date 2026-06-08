@@ -9,11 +9,13 @@ import 'package:flowcash/features/accounts/presentation/blocs/group_balances/gro
 import 'package:flowcash/features/accounts/presentation/blocs/group_balances/group_balances_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 class GroupBalancesReportPage extends StatefulWidget {
   const GroupBalancesReportPage({super.key});
 
   @override
-  State<GroupBalancesReportPage> createState() => _GroupBalancesReportPageState();
+  State<GroupBalancesReportPage> createState() =>
+      _GroupBalancesReportPageState();
 }
 
 class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
@@ -44,126 +46,172 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
     final theme = Theme.of(context);
 
     return BlocProvider(
-      create: (context) => GetIt.instance<GroupBalancesBloc>()..add(const LoadGroupBalances()),
+      create: (context) =>
+          GetIt.instance<GroupBalancesBloc>()..add(const LoadGroupBalances()),
       child: Builder(
         builder: (context) {
           return BlocBuilder<GroupBalancesBloc, GroupBalancesState>(
             builder: (context, state) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    // 1. Date Range Toolbar
-                    Container(
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surface,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: theme.dividerColor.withAlpha(50)),
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
                       ),
-                      child: Row(
+                      child: Column(
                         children: [
-                          // Start Date
-                          Expanded(
-                            child: InkWell(
-                              onTap: () => _selectDate(context, true),
-                              child: InputDecorator(
-                                decoration: InputDecoration(
-                                  labelText: 'من تاريخ',
-                                  border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(fluent.FluentIcons.calendar_settings),
-                                  suffixIcon: _startDate != null
-                                      ? IconButton(
-                                          icon: const Icon(fluent.FluentIcons.clear, size: 18),
-                                          onPressed: () {
-                                            setState(() {
-                                              _startDate = null;
-                                            });
-                                          },
-                                        )
-                                      : null,
-                                ),
-                                child: fluent.Text(
-                                  _startDate != null ? DateFormat('yyyy-MM-dd').format(_startDate!) : 'البداية',
-                                ),
+                          // 1. Date Range Toolbar
+                          Container(
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surface,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: theme.dividerColor.withAlpha(50),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
+                            child: Row(
+                              children: [
+                                // Start Date
+                                Expanded(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => _selectDate(context, true),
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        labelText: 'من تاريخ',
+                                        border: const OutlineInputBorder(),
+                                        prefixIcon: const Icon(
+                                          fluent.FluentIcons.calendar_settings,
+                                        ),
+                                        suffixIcon: _startDate != null
+                                            ? IconButton(
+                                                icon: const Icon(
+                                                  fluent.FluentIcons.clear,
+                                                  size: 18,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _startDate = null;
+                                                  });
+                                                },
+                                              )
+                                            : null,
+                                      ),
+                                      child: fluent.Text(
+                                        _startDate != null
+                                            ? DateFormat(
+                                                'yyyy-MM-dd',
+                                              ).format(_startDate!)
+                                            : 'البداية',
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
 
-                          // End Date
+                                // End Date
+                                Expanded(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => _selectDate(context, false),
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        labelText: 'إلى تاريخ',
+                                        border: const OutlineInputBorder(),
+                                        prefixIcon: const Icon(
+                                          fluent.FluentIcons.calendar_settings,
+                                        ),
+                                        suffixIcon: _endDate != null
+                                            ? IconButton(
+                                                icon: const Icon(
+                                                  fluent.FluentIcons.clear,
+                                                  size: 18,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _endDate = null;
+                                                  });
+                                                },
+                                              )
+                                            : null,
+                                      ),
+                                      child: fluent.Text(
+                                        _endDate != null
+                                            ? DateFormat(
+                                                'yyyy-MM-dd',
+                                              ).format(_endDate!)
+                                            : 'النهاية',
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+
+                                // Load button
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    context.read<GroupBalancesBloc>().add(
+                                      LoadGroupBalances(
+                                        startDate: _startDate,
+                                        endDate: _endDate,
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(fluent.FluentIcons.chart),
+                                  label: const fluent.Text('عرض التقرير'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: theme.colorScheme.primary,
+                                    foregroundColor:
+                                        theme.colorScheme.onPrimary,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 18,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+
+                                // Refresh Button
+                                IconButton(
+                                  icon: const Icon(fluent.FluentIcons.refresh),
+                                  tooltip: 'إعادة تحميل البيانات',
+                                  onPressed: () {
+                                    context.read<GroupBalancesBloc>().add(
+                                      LoadGroupBalances(
+                                        startDate: _startDate,
+                                        endDate: _endDate,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // 2. Main Content
                           Expanded(
-                            child: InkWell(
-                              onTap: () => _selectDate(context, false),
-                              child: InputDecorator(
-                                decoration: InputDecoration(
-                                  labelText: 'إلى تاريخ',
-                                  border: const OutlineInputBorder(),
-                                  prefixIcon: const Icon(fluent.FluentIcons.calendar_settings),
-                                  suffixIcon: _endDate != null
-                                      ? IconButton(
-                                          icon: const Icon(fluent.FluentIcons.clear, size: 18),
-                                          onPressed: () {
-                                            setState(() {
-                                              _endDate = null;
-                                            });
-                                          },
-                                        )
-                                      : null,
-                                ),
-                                child: fluent.Text(
-                                  _endDate != null ? DateFormat('yyyy-MM-dd').format(_endDate!) : 'النهاية',
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-
-                          // Load button
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              context.read<GroupBalancesBloc>().add(LoadGroupBalances(
-                                    startDate: _startDate,
-                                    endDate: _endDate,
-                                  ));
-                            },
-                            icon: const Icon(fluent.FluentIcons.chart),
-                            label: const fluent.Text('عرض التقرير'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.primary,
-                              foregroundColor: theme.colorScheme.onPrimary,
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-
-                          // Refresh Button
-                          IconButton(
-                            icon: const Icon(fluent.FluentIcons.refresh),
-                            tooltip: 'إعادة تحميل البيانات',
-                            onPressed: () {
-                              context.read<GroupBalancesBloc>().add(LoadGroupBalances(
-                                    startDate: _startDate,
-                                    endDate: _endDate,
-                                  ));
-                            },
+                            child: state.status == GroupBalancesStatus.loading
+                                ? const Center(child: fluent.ProgressRing())
+                                : state.status == GroupBalancesStatus.failure
+                                ? Center(
+                                    child: fluent.Text(
+                                      'خطأ في تحميل التقرير: ${state.errorMessage}',
+                                    ),
+                                  )
+                                : _buildReportContent(context, state),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-
-                    // 2. Main Content
-                    Expanded(
-                      child: state.status == GroupBalancesStatus.loading
-                          ? const Center(child: fluent.ProgressRing())
-                          : state.status == GroupBalancesStatus.failure
-                              ? Center(child: fluent.Text('خطأ في تحميل التقرير: ${state.errorMessage}'))
-                              : _buildReportContent(context, state),
-                    ),
-                  ],
-                ),
+                  );
+                },
               );
             },
           );
@@ -200,7 +248,8 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
       final subs = groupData[group] ?? [];
 
       for (final sub in subs) {
-        final bal = state.subaccountBalances[sub.id] ?? {'debit': 0.0, 'credit': 0.0};
+        final bal =
+            state.subaccountBalances[sub.id] ?? {'debit': 0.0, 'credit': 0.0};
         totalDebit += bal['debit']!;
         totalCredit += bal['credit']!;
       }
@@ -239,11 +288,14 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                   side: BorderSide(
-                    color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+                    color: isSelected
+                        ? theme.colorScheme.primary
+                        : Colors.transparent,
                     width: 2,
                   ),
                 ),
-                child: InkWell(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () {
                     setState(() {
                       if (_selectedGroupFilter == group) {
@@ -253,7 +305,6 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                       }
                     });
                   },
-                  borderRadius: BorderRadius.circular(8),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
@@ -264,9 +315,13 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                           children: [
                             fluent.Text(
                               group.displayName(),
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
                             ),
-                            Icon(fluent.FluentIcons.folder,
+                            Icon(
+                              fluent.FluentIcons.folder,
                               color: theme.colorScheme.primary.withAlpha(180),
                               size: 20,
                             ),
@@ -275,7 +330,10 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                         const SizedBox(height: 8),
                         fluent.Text(
                           '$count حسابات فرعية',
-                          style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(120), fontSize: 12),
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurface.withAlpha(120),
+                            fontSize: 12,
+                          ),
                         ),
                         const SizedBox(height: 12),
                         fluent.Text(
@@ -333,20 +391,70 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
               children: [
                 // Table Header
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 16.0,
+                  ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                    border: Border(bottom: BorderSide(color: theme.dividerColor.withAlpha(80))),
+                    color: theme.colorScheme.surfaceContainerHighest.withAlpha(
+                      50,
+                    ),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(8),
+                    ),
+                    border: Border(
+                      bottom: BorderSide(
+                        color: theme.dividerColor.withAlpha(80),
+                      ),
+                    ),
                   ),
                   child: Row(
                     children: const [
-                      Expanded(flex: 3, child: fluent.Text('رقم الحساب', style: TextStyle(fontWeight: FontWeight.bold))),
-                      Expanded(flex: 5, child: fluent.Text('اسم الحساب', style: TextStyle(fontWeight: FontWeight.bold))),
-                      Expanded(flex: 3, child: fluent.Text('المجموعة الرئيسية', style: TextStyle(fontWeight: FontWeight.bold))),
-                      Expanded(flex: 2, child: fluent.Text('مدين (وارد)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
-                      Expanded(flex: 2, child: fluent.Text('دائن (صادر)', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
-                      Expanded(flex: 2, child: fluent.Text('صافي الرصيد', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.end)),
+                      Expanded(
+                        flex: 3,
+                        child: fluent.Text(
+                          'رقم الحساب',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 5,
+                        child: fluent.Text(
+                          'اسم الحساب',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: fluent.Text(
+                          'المجموعة الرئيسية',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: fluent.Text(
+                          'مدين (وارد)',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: fluent.Text(
+                          'دائن (صادر)',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: fluent.Text(
+                          'صافي الرصيد',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -354,23 +462,38 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                 // Table Items
                 Expanded(
                   child: displayedSubs.isEmpty
-                      ? const Center(child: fluent.Text('لا توجد حسابات فرعية لعرضها'))
+                      ? const Center(
+                          child: fluent.Text('لا توجد حسابات فرعية لعرضها'),
+                        )
                       : ListView.builder(
                           itemCount: displayedSubs.length,
                           itemBuilder: (context, index) {
                             final sub = displayedSubs[index];
-                            final bal = state.subaccountBalances[sub.id] ?? {'debit': 0.0, 'credit': 0.0};
+                            final bal =
+                                state.subaccountBalances[sub.id] ??
+                                {'debit': 0.0, 'credit': 0.0};
                             final debit = bal['debit']!;
                             final credit = bal['credit']!;
                             final net = debit - credit;
 
                             final parent = mainAccountsMap[sub.mainAccountId];
-                            final groupName = parent?.mainAccountType.accountType.displayName() ?? '';
+                            final groupName =
+                                parent?.mainAccountType.accountType
+                                    .displayName() ??
+                                '';
 
                             return Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 10.0,
+                                horizontal: 16.0,
+                              ),
                               decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide(color: theme.dividerColor.withAlpha(20), width: 0.5)),
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: theme.dividerColor.withAlpha(20),
+                                    width: 0.5,
+                                  ),
+                                ),
                               ),
                               child: Row(
                                 children: [
@@ -378,23 +501,44 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                     flex: 3,
                                     child: fluent.Text(
                                       sub.accountNumber,
-                                      style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold),
+                                      style: const TextStyle(
+                                        fontFamily: 'monospace',
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                  Expanded(flex: 5, child: fluent.Text(sub.accountName)),
-                                  Expanded(flex: 3, child: fluent.Text(groupName, style: TextStyle(color: theme.colorScheme.onSurface.withAlpha(120)))),
+                                  Expanded(
+                                    flex: 5,
+                                    child: fluent.Text(sub.accountName),
+                                  ),
+                                  Expanded(
+                                    flex: 3,
+                                    child: fluent.Text(
+                                      groupName,
+                                      style: TextStyle(
+                                        color: theme.colorScheme.onSurface
+                                            .withAlpha(120),
+                                      ),
+                                    ),
+                                  ),
                                   Expanded(
                                     flex: 2,
                                     child: fluent.Text(
-                                      debit > 0 ? debit.toStringAsFixed(2) : '-',
-                                      style: const TextStyle(color: Colors.green),
+                                      debit > 0
+                                          ? debit.toStringAsFixed(2)
+                                          : '-',
+                                      style: const TextStyle(
+                                        color: Colors.green,
+                                      ),
                                       textAlign: TextAlign.end,
                                     ),
                                   ),
                                   Expanded(
                                     flex: 2,
                                     child: fluent.Text(
-                                      credit > 0 ? credit.toStringAsFixed(2) : '-',
+                                      credit > 0
+                                          ? credit.toStringAsFixed(2)
+                                          : '-',
                                       style: const TextStyle(color: Colors.red),
                                       textAlign: TextAlign.end,
                                     ),
@@ -405,7 +549,9 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
                                       net.toStringAsFixed(2),
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: net >= 0 ? Colors.green : Colors.red,
+                                        color: net >= 0
+                                            ? Colors.green
+                                            : Colors.red,
                                       ),
                                       textAlign: TextAlign.end,
                                     ),

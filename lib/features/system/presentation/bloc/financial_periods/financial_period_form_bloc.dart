@@ -4,6 +4,8 @@ import 'package:flowcash/core/enums/accounting_inventory_type_enum.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/core/usecases/accounting_period_repository_usecases.dart';
 import 'package:flowcash/features/system/domain/entities/accounting_period_entity.dart';
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
+import 'package:flowcash/features/currencies/domain/usecases/currency_repository_usecases.dart';
 import 'package:fpdart/fpdart.dart';
 
 abstract class FinancialPeriodFormEvent extends Equatable {
@@ -67,6 +69,10 @@ class FinancialPeriodFormBalanceChanged extends FinancialPeriodFormEvent {
   List<Object?> get props => [value];
 }
 
+class _LoadCurrenciesEvent extends FinancialPeriodFormEvent {}
+
+class _LoadPeriodsEvent extends FinancialPeriodFormEvent {}
+
 class FinancialPeriodFormInventoryTypeChanged extends FinancialPeriodFormEvent {
   final AccountingInventoryType value;
 
@@ -88,6 +94,10 @@ class FinancialPeriodFormState extends Equatable {
   final String currencyId;
   final String balance;
   final AccountingInventoryType inventoryType;
+  final List<CurrencyEntity> currencies;
+  final bool isLoadingCurrencies;
+  final List<AccountingPeriodEntity> periods;
+  final bool isLoadingPeriods;
   final bool isSubmitting;
   final bool isSuccess;
   final AccountingPeriodEntity? savedEntity;
@@ -101,6 +111,10 @@ class FinancialPeriodFormState extends Equatable {
     required this.currencyId,
     required this.balance,
     required this.inventoryType,
+    this.currencies = const [],
+    this.isLoadingCurrencies = false,
+    this.periods = const [],
+    this.isLoadingPeriods = false,
     this.isSubmitting = false,
     this.isSuccess = false,
     this.savedEntity,
@@ -115,6 +129,10 @@ class FinancialPeriodFormState extends Equatable {
       lastPeriodId: initialValue?.lastPeriodId?.toString() ?? '',
       currencyId: initialValue?.currencyId ?? '',
       balance: initialValue?.balance.toStringAsFixed(2) ?? '0.00',
+      currencies: const [],
+      isLoadingCurrencies: false,
+      periods: const [],
+      isLoadingPeriods: false,
       inventoryType: initialValue?.inventoryType ?? AccountingInventoryType.periodic,
     );
   }
@@ -126,6 +144,10 @@ class FinancialPeriodFormState extends Equatable {
     String? lastPeriodId,
     String? currencyId,
     String? balance,
+    List<CurrencyEntity>? currencies,
+    bool? isLoadingCurrencies,
+    List<AccountingPeriodEntity>? periods,
+    bool? isLoadingPeriods,
     AccountingInventoryType? inventoryType,
     bool? isSubmitting,
     bool? isSuccess,
@@ -139,6 +161,10 @@ class FinancialPeriodFormState extends Equatable {
       lastPeriodId: lastPeriodId ?? this.lastPeriodId,
       currencyId: currencyId ?? this.currencyId,
       balance: balance ?? this.balance,
+      currencies: currencies ?? this.currencies,
+      isLoadingCurrencies: isLoadingCurrencies ?? this.isLoadingCurrencies,
+      periods: periods ?? this.periods,
+      isLoadingPeriods: isLoadingPeriods ?? this.isLoadingPeriods,
       inventoryType: inventoryType ?? this.inventoryType,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       isSuccess: isSuccess ?? this.isSuccess,
@@ -155,6 +181,10 @@ class FinancialPeriodFormState extends Equatable {
         lastPeriodId,
         currencyId,
         balance,
+        currencies,
+        isLoadingCurrencies,
+        periods,
+        isLoadingPeriods,
         inventoryType,
         isSubmitting,
         isSuccess,
@@ -166,14 +196,20 @@ class FinancialPeriodFormState extends Equatable {
 class FinancialPeriodFormBloc extends Bloc<FinancialPeriodFormEvent, FinancialPeriodFormState> {
   final InsertAccountingPeriodUseCase _insertAccountingPeriodUseCase;
   final UpdateAccountingPeriodUseCase _updateAccountingPeriodUseCase;
+  final GetCurrenciesUseCase _getCurrenciesUseCase;
+  final GetAccountingPeriodsUseCase _getAccountingPeriodsUseCase;
   final AccountingPeriodEntity? initialValue;
 
   FinancialPeriodFormBloc({
     required this.initialValue,
     required InsertAccountingPeriodUseCase insertAccountingPeriodUseCase,
     required UpdateAccountingPeriodUseCase updateAccountingPeriodUseCase,
+    required GetCurrenciesUseCase getCurrenciesUseCase,
+    required GetAccountingPeriodsUseCase getAccountingPeriodsUseCase,
   })  : _insertAccountingPeriodUseCase = insertAccountingPeriodUseCase,
         _updateAccountingPeriodUseCase = updateAccountingPeriodUseCase,
+        _getCurrenciesUseCase = getCurrenciesUseCase,
+        _getAccountingPeriodsUseCase = getAccountingPeriodsUseCase,
         super(FinancialPeriodFormState.initial(initialValue)) {
     on<FinancialPeriodFormNameChanged>(_onNameChanged);
     on<FinancialPeriodFormStartDateChanged>(_onStartDateChanged);
@@ -183,6 +219,30 @@ class FinancialPeriodFormBloc extends Bloc<FinancialPeriodFormEvent, FinancialPe
     on<FinancialPeriodFormBalanceChanged>(_onBalanceChanged);
     on<FinancialPeriodFormInventoryTypeChanged>(_onInventoryTypeChanged);
     on<FinancialPeriodFormSubmitted>(_onSubmitted);
+    on<_LoadCurrenciesEvent>(_onLoadCurrencies);
+    on<_LoadPeriodsEvent>(_onLoadPeriods);
+
+    // trigger initial loads
+    add(_LoadCurrenciesEvent());
+    add(_LoadPeriodsEvent());
+  }
+
+  Future<void> _onLoadCurrencies(_LoadCurrenciesEvent event, Emitter<FinancialPeriodFormState> emit) async {
+    emit(state.copyWith(isLoadingCurrencies: true));
+    final res = await _getCurrenciesUseCase.call();
+    res.fold(
+      (failure) => emit(state.copyWith(isLoadingCurrencies: false)),
+      (currencies) => emit(state.copyWith(currencies: currencies, isLoadingCurrencies: false)),
+    );
+  }
+
+  Future<void> _onLoadPeriods(_LoadPeriodsEvent event, Emitter<FinancialPeriodFormState> emit) async {
+    emit(state.copyWith(isLoadingPeriods: true));
+    final res = await _getAccountingPeriodsUseCase.call();
+    res.fold(
+      (failure) => emit(state.copyWith(isLoadingPeriods: false)),
+      (periods) => emit(state.copyWith(periods: periods, isLoadingPeriods: false)),
+    );
   }
 
   void _onNameChanged(
