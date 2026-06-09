@@ -11,9 +11,13 @@ import 'package:flowcash/features/settings/data/datasources/implementations/valu
 import 'package:flowcash/features/settings/data/repositories/app_value_repository_impl.dart';
 import 'package:flowcash/features/settings/data/repositories/value_counter_repository_impl.dart';
 import 'package:flowcash/features/settings/domain/repositories/app_value_repository.dart';
-import 'package:flowcash/features/settings/domain/repositories/value_counter_repository.dart';
+import 'package:flowcash/features/settings/domain/repositories/value_counter_repository.dart'
+    as settings_repo;
+import 'package:flowcash/core/repositories/interfaces/value_counter_repository.dart'
+    as core_repo;
 
 // Use cases
+import 'package:flowcash/core/usecases/value_counter_repository_usecases.dart';
 import 'package:flowcash/features/settings/domain/usecases/values/get_all_values.dart';
 import 'package:flowcash/features/settings/domain/usecases/values/get_value_by_type.dart';
 import 'package:flowcash/features/settings/domain/usecases/values/update_value.dart';
@@ -38,8 +42,11 @@ void initSettingsFeature(GetIt sl) {
   sl.registerLazySingleton<AppValueRepository>(
     () => AppValueRepositoryImpl(sl()),
   );
-  sl.registerLazySingleton<ValueCounterRepository>(
+  sl.registerLazySingleton<core_repo.ValueCounterRepository>(
     () => ValueCounterRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<settings_repo.ValueCounterRepository>(
+    () => sl<core_repo.ValueCounterRepository>() as settings_repo.ValueCounterRepository,
   );
 
   // Use cases
@@ -51,6 +58,16 @@ void initSettingsFeature(GetIt sl) {
   sl.registerLazySingleton(() => GetCounter(sl()));
   sl.registerLazySingleton(() => IncrementCounter(sl()));
   sl.registerLazySingleton(() => SetCounter(sl()));
+
+  // Core ValueCounter UseCases
+  sl.registerLazySingleton(() => GetValueCountersUseCase(sl()));
+  sl.registerLazySingleton(() => GetValueCounterByIdUseCase(sl()));
+  sl.registerLazySingleton(() => GetValueCounterByCounterTypeUseCase(sl()));
+  sl.registerLazySingleton(() => InsertValueCounterUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateValueCounterUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteValueCounterUseCase(sl()));
+  sl.registerLazySingleton(() => GetNextCounterUseCase(sl()));
+  sl.registerLazySingleton(() => GetNextCounterByGroupUseCase(sl()));
 
   // Blocs
   sl.registerFactory(

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/system/presentation/bloc/value_counters/value_counters_cubit.dart';
-import 'package:flowcash/features/settings/domain/entities/value_counter_entity.dart';
+import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';

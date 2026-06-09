@@ -35,6 +35,11 @@ import 'package:flowcash/features/accounts/data/datasources/implementations/jour
 import 'package:flowcash/features/accounts/domain/repositories/journal_item_repository.dart';
 import 'package:flowcash/features/accounts/data/repositories/journal_item_repository_impl.dart';
 import 'package:flowcash/features/accounts/domain/usecases/journal_item_repository_usecases.dart';
+import 'package:flowcash/core/datasources/interfaces/person_data_source.dart';
+import 'package:flowcash/core/datasources/implementations/person_local_data_source_impl.dart';
+import 'package:flowcash/core/repositories/interfaces/person_repository.dart';
+import 'package:flowcash/core/repositories/implementations/person_repository_impl.dart';
+import 'package:flowcash/core/usecases/person_repository_usecases.dart';
 
 import 'app/app_injection.dart';
 
@@ -89,6 +94,9 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<JournalItemDataSource>(
     () => JournalItemLocalDataSourceImpl(sl()),
   );
+  sl.registerLazySingleton<PersonDataSource>(
+    () => PersonLocalDataSourceImpl(sl()),
+  );
 
   //============================================================
   // Core - Repositories
@@ -105,10 +113,20 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<JournalItemRepository>(
     () => JournalItemRepositoryImpl(sl()),
   );
+  sl.registerLazySingleton<PersonRepository>(
+    () => PersonRepositoryImpl(sl()),
+  );
 
   //============================================================
   // Core - Use cases
   //============================================================
+  sl.registerLazySingleton(() => GetPersonsUseCase(sl()));
+  sl.registerLazySingleton(() => GetPersonByIdUseCase(sl()));
+  sl.registerLazySingleton(() => InsertPersonUseCase(sl()));
+  sl.registerLazySingleton(() => UpdatePersonUseCase(sl()));
+  sl.registerLazySingleton(() => DeletePersonUseCase(sl()));
+  sl.registerLazySingleton(() => FirstWherePersonNameUseCase(sl()));
+
   sl.registerLazySingleton(() => GetWarehouseByIdUseCase(sl()));
   sl.registerLazySingleton(() => GetAccountingPeriodWhereIdOpenUseCase(sl()));
   sl.registerLazySingleton(() => GetJournalEntriesUseCase(sl()));

@@ -1,16 +1,16 @@
 import 'package:flowcash/core/tables/values_counter_table.dart';
 import 'package:flowcash/core/enums/value_counter_type_enum.dart';
-import '../../domain/entities/value_counter_entity.dart';
+import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart';
 
 final class ValueCounterModel extends ValueCounterEntity {
   const ValueCounterModel({
     required super.id,
     required super.counterType,
-    required super.count,
+    required int count,
     required super.counterMax,
     required super.incrementValue,
     required super.formatValue,
-  });
+  }) : super(count: count);
 
   factory ValueCounterModel.fromMap(Map<String, dynamic> map) {
     final typeName = map[ValuesCounterTable.counterType] as String? ?? '';

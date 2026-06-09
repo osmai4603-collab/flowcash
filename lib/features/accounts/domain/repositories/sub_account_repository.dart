@@ -53,9 +53,8 @@ abstract interface class SubAccountRepository
   Future<Either<Failure, List<SubAccountEntity>>> whereWarehouse(
     int warehouseId,
   );
-  Future<Either<Failure, List<SubAccountEntity>>> whereAccountTypeAndWarehouse(
+  Future<Either<Failure, List<SubAccountEntity>>> whereAccountType(
     Iterable<SubAccountType> types,
-    int warehouseId,
   );
   Future<Either<Failure, List<SubAccountEntity>>> wherePerson(
     int personId,

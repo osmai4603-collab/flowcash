@@ -304,9 +304,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   }
 
   @override
-  Future<List<SubAccountEntity>> whereAccountTypeAndWarehouse(
+  Future<List<SubAccountEntity>> whereAccountType(
     Iterable<SubAccountType> types,
-    int warehouseId,
   ) async {
     return await whereSubAccountType(types);
   }

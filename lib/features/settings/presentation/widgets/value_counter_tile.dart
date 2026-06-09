@@ -1,4 +1,4 @@
-import 'package:flowcash/features/settings/domain/entities/value_counter_entity.dart';
+import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 

@@ -40,9 +40,8 @@ abstract interface class SubAccountDataSource
     required int id,
   });
   Future<List<SubAccountEntity>> whereWarehouse(int warehouseId);
-  Future<List<SubAccountEntity>> whereAccountTypeAndWarehouse(
+  Future<List<SubAccountEntity>> whereAccountType(
     Iterable<SubAccountType> types,
-    int warehouseId,
   );
   Future<List<SubAccountEntity>> wherePerson(int personId, int warehouseId);
   Future<SubAccountEntity?> firstWhereMainAccountAndPerson(

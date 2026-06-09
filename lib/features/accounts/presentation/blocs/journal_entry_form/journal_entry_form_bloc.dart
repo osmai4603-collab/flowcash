@@ -113,8 +113,7 @@ class JournalEntryFormBloc
             });
 
             return JournalItemDraft(
-              accountId: item.accountId,
-              accountName: accName,
+              account: state.ac,
               debit: item.debit,
               credit: item.credit,
               side: item.debit > 0
@@ -244,7 +243,7 @@ class JournalEntryFormBloc
     final updatedCredit = event.credit ?? target.credit;
 
     newList[globalIndex] = target.copyWith(
-      accountId: event.accountId,
+      account: event.accountId,
       accountName: event.accountName ?? target.accountName,
       debit: updatedDebit,
       credit: updatedCredit,

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flowcash/features/sales/presentation/pages/sales/sale_form_page.dart';
+import 'package:flowcash/features/sales/presentation/pages/sales/bill_form_page.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +14,8 @@ import 'package:flowcash/features/sales/presentation/bloc/sales_page/sales_page_
 import 'package:flowcash/features/sales/presentation/bloc/sales_page/sales_page_state.dart';
 import 'package:flowcash/features/transactions/domain/usecases/bill_repository_usecases.dart';
 import 'package:flowcash/widgets/message.dart';
+
+import '../../../../../core/enums/invoice_type_enum.dart';
 
 class SalesPage extends StatelessWidget {
   const SalesPage({super.key});
@@ -246,7 +248,7 @@ class _SalesPageViewState extends State<_SalesPageView> {
     final bloc = context.read<SalesPageBloc>();
     final saleBill = await showDialog<BillEntity>(
       context: context,
-      builder: (context) => const SaleFormPage(),
+      builder: (context) => const BillFormPage(billType: InvoiceType.sales),
     );
     if (saleBill != null && context.mounted) {
       bloc.add(AddSalesDocumentEvent(saleBill));

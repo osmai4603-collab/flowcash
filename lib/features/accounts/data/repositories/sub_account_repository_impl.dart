@@ -318,14 +318,12 @@ class SubAccountRepositoryImpl implements SubAccountRepository {
   }
 
   @override
-  Future<Either<Failure, List<SubAccountEntity>>> whereAccountTypeAndWarehouse(
+  Future<Either<Failure, List<SubAccountEntity>>> whereAccountType(
     Iterable<SubAccountType> types,
-    int warehouseId,
   ) async {
     try {
-      final res = await _dataSource.whereAccountTypeAndWarehouse(
+      final res = await _dataSource.whereAccountType(
         types,
-        warehouseId,
       );
       return Right(res);
     } on Failure catch (f) {

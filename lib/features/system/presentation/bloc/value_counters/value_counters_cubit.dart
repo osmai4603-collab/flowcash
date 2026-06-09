@@ -1,8 +1,8 @@
-import 'package:flowcash/features/settings/domain/entities/value_counter_entity.dart';
+import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowcash/core/enums/value_counter_type_enum.dart';
-import 'package:flowcash/features/settings/domain/entities/value_counter_entity.dart'
+import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart'
     as settings_entity;
 import 'package:flowcash/features/settings/domain/usecases/counters/get_counter.dart';
 import 'package:flowcash/features/settings/domain/usecases/counters/increment_counter.dart';

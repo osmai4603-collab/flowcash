@@ -1,3 +1,4 @@
+import 'package:flowcash/core/enums/sub_account_type_enum.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
@@ -88,6 +89,16 @@ class GetSubaccountCountCreditorHistoriesUseCase {
 
   Future<Either<Failure, int>> call(int subAccountId) async {
     return await _repository.getCountCreditorHistories(subAccountId);
+  }
+}
+
+class GetSubaccountsWhereAccountTypeUseCase {
+  final SubAccountRepository _repository;
+
+  const GetSubaccountsWhereAccountTypeUseCase(this._repository);
+
+  Future<Either<Failure, List<SubAccountEntity>>> call(Iterable<SubAccountType> types) async {
+    return await _repository.whereAccountType(types);
   }
 }
 

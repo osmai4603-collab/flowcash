@@ -1,4 +1,5 @@
 import 'package:flowcash/core/enums/histories_group_enum.dart';
+import 'package:flowcash/core/enums/value_counter_type_enum.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart';
@@ -25,6 +26,16 @@ class GetValueCounterByIdUseCase {
 
   Future<Either<Failure, ValueCounterEntity?>> call(int id) async {
     return await _repository.getById(id);
+  }
+}
+
+class GetValueCounterByCounterTypeUseCase {
+  final ValueCounterRepository _repository;
+
+  const GetValueCounterByCounterTypeUseCase(this._repository);
+
+  Future<Either<Failure, ValueCounterEntity>> call(ValueCounterType counterType) async {
+    return await _repository.getValueCounterByCounterType(counterType);
   }
 }
 

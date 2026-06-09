@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../domain/entities/app_value_entity.dart';
-import '../../../domain/entities/value_counter_entity.dart';
+import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart';
 
 enum SettingsStatus { initial, loading, success, failure }
 

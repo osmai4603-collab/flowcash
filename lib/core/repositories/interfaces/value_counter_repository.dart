@@ -1,4 +1,5 @@
 import 'package:flowcash/core/enums/histories_group_enum.dart';
+import 'package:flowcash/core/enums/value_counter_type_enum.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart';
@@ -11,4 +12,6 @@ abstract interface class ValueCounterRepository
   Future<Either<Failure, int>> getNextCounterByGroup(
     HistoriesGroup historyGroup,
   );
+
+  Future<Either<Failure, ValueCounterEntity>> getValueCounterByCounterType(ValueCounterType counterType);
 }

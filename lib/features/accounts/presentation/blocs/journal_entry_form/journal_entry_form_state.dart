@@ -1,53 +1,59 @@
 import 'package:equatable/equatable.dart';
+import 'package:flowcash/core/enums/journal_status_enum.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
+import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
 import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
 
-enum JournalItemSide { debit, credit }
+import '../../../../../core/enums/account_status_enum.dart';
 
 enum JournalEntryFormStatus { initial, loading, success, failure }
 
 class JournalItemDraft extends Equatable {
-  final int? accountId;
-  final String? accountName;
-  final double debit;
-  final double credit;
-  final JournalItemSide side;
+  final SubAccountEntity? account;
+  final AccountStatus side;
+  final double amount;
   final String lineDescription;
+  JournalStatus? get journalStatus {
+    if(account == null) {
+      return null;
+    }
+    return (account!.subAccountType.mainAccountType.accountStatus.isDebtor && side.isDebtor) ||
+        (account!.subAccountType.mainAccountType.accountStatus.isCreditor && side.isCreditor)
+        ? JournalStatus.increment
+        : JournalStatus.decrement;
+
+  }
 
   const JournalItemDraft({
-    this.accountId,
-    this.accountName,
-    this.debit = 0.0,
-    this.credit = 0.0,
-    this.side = JournalItemSide.debit,
+    required this.side,
+    this.account,
+    this.amount = 0.0,
     this.lineDescription = '',
   });
 
   JournalItemDraft copyWith({
-    int? accountId,
+    AccountStatus? accountStatus,
+    SubAccountEntity? account,
     String? accountName,
     double? debit,
     double? credit,
     String? lineDescription,
-    JournalItemSide? side,
+    AccountStatus? side,
     bool clearAccount = false,
   }) {
     return JournalItemDraft(
-      accountId: clearAccount ? null : (accountId ?? this.accountId),
-      accountName: clearAccount ? null : (accountName ?? this.accountName),
-      debit: debit ?? this.debit,
-      credit: credit ?? this.credit,
-      side: side ?? this.side,
+      side: accountStatus ?? this.side,
+      account: clearAccount ? null : (account ?? this.account),
+      amount: debit ?? amount,
       lineDescription: lineDescription ?? this.lineDescription,
     );
   }
 
   @override
   List<Object?> get props => [
-    accountId,
-    accountName,
-    debit,
-    credit,
+    account,
+    side,
+    amount,
     side,
     lineDescription,
   ];
@@ -85,8 +91,8 @@ class JournalEntryFormState extends Equatable {
       currencies: const [],
       isLoadingCurrencies: false,
       items: const [
-        JournalItemDraft(side: JournalItemSide.debit),
-        JournalItemDraft(side: JournalItemSide.credit),
+        JournalItemDraft(side: AccountStatus.debtor),
+        JournalItemDraft(side: AccountStatus.creditor),
       ], // Default to 2 empty rows: one debit and one credit
     );
   }
@@ -116,8 +122,8 @@ class JournalEntryFormState extends Equatable {
     );
   }
 
-  double get totalDebit => items.fold(0.0, (sum, item) => sum + item.debit);
-  double get totalCredit => items.fold(0.0, (sum, item) => sum + item.credit);
+  double get totalDebit => items.where((item) => item.side.isDebtor).fold(0.0, (sum, item) => sum + item.amount);
+  double get totalCredit => items.where((item) => item.side.isDebtor).fold(0.0, (sum, item) => sum + item.amount);
   double get difference => totalDebit - totalCredit;
   bool get isBalanced => difference.abs() < 0.001;
 
