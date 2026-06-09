@@ -1,7 +1,6 @@
 import 'package:flowcash/core/theme/radiuses.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
-import '../bloc/navigation_state.dart';
 
 class HomeNavigationView extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -37,11 +36,6 @@ class HomeNavigationView extends StatelessWidget {
             body: navigationShell,
           ),
           PaneItem(
-            icon: const Icon(FluentIcons.database),
-            title: const Text('إدارة قاعدة البيانات'),
-            body: navigationShell,
-          ),
-          PaneItem(
             icon: const Icon(FluentIcons.people),
             title: const Text('إدارة الحسابات'),
             body: navigationShell,
@@ -59,6 +53,11 @@ class HomeNavigationView extends StatelessWidget {
           PaneItem(
             icon: const Icon(FluentIcons.money),
             title: const Text('المعاملات المالية'),
+            body: navigationShell,
+          ),
+          PaneItem(
+            icon: const Icon(FluentIcons.shop),
+            title: const Text('المبيعات'),
             body: navigationShell,
           ),
         ],

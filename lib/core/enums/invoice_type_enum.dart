@@ -9,15 +9,15 @@ sealed class InvoiceType extends HistoriesGroup {
   });
 
   static const sales = SalesInvoiceType._();
-  static const purchase = PurchaseInvoiceType._();
+  static const buys = PurchaseInvoiceType._();
   static const salesReturn = SalesReturnInvoiceType._();
-  static const purchaseReturn = PurchaseReturnInvoiceType._();
+  static const buysReturn = PurchaseReturnInvoiceType._();
 
   static const List<InvoiceType> values = [
     sales,
-    purchase,
+    buys,
     salesReturn,
-    purchaseReturn,
+    buysReturn,
   ];
 
   static InvoiceType of(String name) {

@@ -1,3 +1,7 @@
+import 'package:fpdart/fpdart.dart';
+import 'package:flowcash/core/errors/failure.dart';
+import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_property_usecases.dart';
@@ -9,6 +13,7 @@ import 'subcategories_state.dart';
 class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
   final GetSubcategoriesByMainCategoryUseCase
   getSubcategoriesByMainCategoryUseCase;
+  final GetAllSubcategoriesUseCase getAllSubcategoriesUseCase;
   final GetSubcategoryUnitsByMainCategoryUseCase
   getSubcategoryUnitsByMainCategoryUseCase;
   final GetCategoryPropertiesByMainCategoryUseCase
@@ -20,6 +25,7 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
 
   SubcategoriesBloc({
     required this.getSubcategoriesByMainCategoryUseCase,
+    required this.getAllSubcategoriesUseCase,
     required this.getSubcategoryUnitsByMainCategoryUseCase,
     required this.getCategoryPropertiesByMainCategoryUseCase,
     required this.addSubcategoryUseCase,
@@ -42,9 +48,9 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
   ) async {
     emit(const SubcategoriesLoadInProgress());
 
-    final catalogsResult = await getSubcategoriesByMainCategoryUseCase(
-      event.mainCategoryId,
-    );
+    final catalogsResult = event.mainCategoryId == null
+        ? await getAllSubcategoriesUseCase()
+        : await getSubcategoriesByMainCategoryUseCase(event.mainCategoryId!);
 
     await catalogsResult.fold(
       (failure) async => emit(SubcategoriesLoadFailure(failure.message)),
@@ -56,10 +62,7 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
         await infosResult.fold(
           (failure) async => emit(SubcategoriesLoadFailure(failure.message)),
           (infos) async {
-            final propertiesResult =
-                await getCategoryPropertiesByMainCategoryUseCase(
-                  event.mainCategoryId,
-                );
+            final propertiesResult = await _loadPropertiesForSubcategories(catalogs);
 
             propertiesResult.fold(
               (failure) => emit(SubcategoriesLoadFailure(failure.message)),
@@ -76,6 +79,43 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
         );
       },
     );
+  }
+
+  Future<Either<Failure, List<CategoryPropertyEntity>>> _loadPropertiesForSubcategories(
+    List<SubcategoryEntity> catalogs,
+  ) async {
+    final mainCategoryIds = catalogs
+        .map((catalog) => catalog.mainCategoryId)
+        .toSet()
+        .toList();
+
+    final properties = <CategoryPropertyEntity>[];
+
+    for (final mainCategoryId in mainCategoryIds) {
+      final propertiesResult = await getCategoryPropertiesByMainCategoryUseCase(
+        mainCategoryId,
+      );
+
+      final addResult = propertiesResult.fold(
+        (failure) {
+          // ignore: invalid_use_of_visible_for_testing_member
+          emit(SubcategoriesLoadFailure('Failed to load properties for main category $mainCategoryId: \n  ${failure.message}'));
+          return [];
+        },
+        (foundProperties) {
+          properties.addAll(foundProperties);
+          return Right<void, List<CategoryPropertyEntity>>(foundProperties);
+        },
+      );
+
+    }
+
+    final uniqueProperties = <int, CategoryPropertyEntity>{};
+    for (final property in properties) {
+      uniqueProperties[property.id] = property;
+    }
+
+    return Right(uniqueProperties.values.toList());
   }
 
   Future<void> _onRefreshSubcategories(

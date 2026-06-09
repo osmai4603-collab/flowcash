@@ -16,8 +16,6 @@ class JournalEntryFormBloc
     extends Bloc<JournalEntryFormEvent, JournalEntryFormState> {
   final InsertJournalEntryUseCase _insertJournalEntryWithItems;
   final GetJournalItemsByEntryIdUseCase _getJournalItemsByEntryId;
-  final UpdateSubaccountBalanceUseCase _updateSubaccountBalance;
-  final UpdateMainAccountBalanceUseCase _updateMainAccountBalance;
   final GetSubAccountsUseCase _getSubAccounts;
   final GetSubAccountByIdUseCase _getSubAccountById;
   final GetMainAccountByIdUseCase _getMainAccountById;
@@ -36,8 +34,6 @@ class JournalEntryFormBloc
     required GetExPriceUseCase getExPrice,
   }) : _insertJournalEntryWithItems = insertJournalEntryWithItems,
        _getJournalItemsByEntryId = getJournalItemsByEntryId,
-       _updateSubaccountBalance = updateSubaccountBalance,
-       _updateMainAccountBalance = updateMainAccountBalance,
        _getSubAccounts = getSubAccounts,
        _getSubAccountById = getSubAccountById,
        _getMainAccountById = getMainAccountById,
@@ -405,8 +401,8 @@ class JournalEntryFormBloc
       final isDebtorAccount =
           subAccount.subAccountType.mainAccountType.accountStatus.isDebtor;
       final journalStatus = isDebtorAccount
-          ? (itemDraft.debit > 0 ? JournalStatus.debit : JournalStatus.credit)
-          : (itemDraft.credit > 0 ? JournalStatus.debit : JournalStatus.credit);
+          ? (itemDraft.debit > 0 ? JournalStatus.increment : JournalStatus.decrement)
+          : (itemDraft.credit > 0 ? JournalStatus.increment : JournalStatus.decrement);
 
       items.add(
         JournalItemEntity(

@@ -156,7 +156,6 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppStyle.of(context);
     return BlocProvider.value(
       value: _bloc,
       child: PopScope(
@@ -167,38 +166,35 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
         },
         child: fluent.ContentDialog(
           constraints: BoxConstraints(maxWidth: 500),
-          content: Padding(
-            padding: Paddings.mediumAll,
-            child: SingleChildScrollView(
-              child: BlocConsumer<MainCategoryFormBloc, MainCategoryFormState>(
-                listener: (context, state) {
-                  if (state.status == MainCategoryFormStatus.saved) {
-                    Navigator.of(context).pop(state.entity);
-                  }
-                  if (state.status == MainCategoryFormStatus.failure) {
-                    fluent.displayInfoBar(
-                      context,
-                      builder: (context, close) => fluent.InfoBar(
-                        title: const fluent.Text('تنبيه'),
-                        content: fluent.Text(
-                          state.messageError ?? 'حدث خطأ في حفظ الصنف',
-                        ),
+          content: SingleChildScrollView(
+            child: BlocConsumer<MainCategoryFormBloc, MainCategoryFormState>(
+              listener: (context, state) {
+                if (state.status == MainCategoryFormStatus.saved) {
+                  Navigator.of(context).pop(state.entity);
+                }
+                if (state.status == MainCategoryFormStatus.failure) {
+                  fluent.displayInfoBar(
+                    context,
+                    builder: (context, close) => fluent.InfoBar(
+                      title: const fluent.Text('تنبيه'),
+                      content: fluent.Text(
+                        state.messageError ?? 'حدث خطأ في حفظ الصنف',
                       ),
-                    );
-                  }
-                },
-                builder: (context, state) {
-                  // Show shimmer during initial load and while saving; freeze screen when saving.
-
-                  if (state.status == MainCategoryFormStatus.initial ||
-                      state.status == MainCategoryFormStatus.saving) {
-                    return MainCategoryFormShimmer(
-                      countItems: state.properties.length,
-                    );
-                  }
-                  return _buildForm(context);
-                },
-              ),
+                    ),
+                  );
+                }
+              },
+              builder: (context, state) {
+                // Show shimmer during initial load and while saving; freeze screen when saving.
+          
+                if (state.status == MainCategoryFormStatus.initial ||
+                    state.status == MainCategoryFormStatus.saving) {
+                  return MainCategoryFormShimmer(
+                    countItems: state.properties.length,
+                  );
+                }
+                return _buildForm(context);
+              },
             ),
           ),
         ),
@@ -212,14 +208,14 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       key: _formKey,
       child: Column(
-        spacing: Spacings.medium,
+        spacing: Spacings.small,
         children: [
           Row(
             children: [
               fluent.Tooltip(
                 message: 'رجوع',
                 child: fluent.IconButton(
-                  icon: const fluent.Icon(Icons.arrow_back),
+                  icon: const fluent.Icon(fluent.FluentIcons.back_to_window, size: 20),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -232,7 +228,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
               fluent.Tooltip(
                 message: 'حفظ البيانات',
                 child: fluent.IconButton(
-                  icon: const fluent.Icon(Icons.save),
+                  icon: const fluent.Icon(fluent.FluentIcons.save, size: 20),
                   onPressed: _onSaveButtonClicked,
                 ),
               ),
@@ -243,49 +239,57 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
             crossAxisAlignment: .start,
             children: [
               Expanded(
-                child: TextFormField(
-                  textInputAction: TextInputAction.next,
-                  controller: categoryNameController,
-                  style: colors.body.copyWith(fontWeight: FontWeight.bold),
-                  autofocus: true,
-                  cursorHeight: 20.0,
-                  decoration: InputDecoration(
-                    hintText: 'ادخل اسم الصنف الرئيسي',
-                    label: fluent.Text('اسم الصنف'),
-                    prefixIcon: fluent.Icon(Icons.category),
+                child: fluent.InfoLabel(
+                  label: 'اسم الصنف',
+                  child: fluent.TextFormBox(
+                    textInputAction: TextInputAction.next,
+                    controller: categoryNameController,
+                    style: colors.body.copyWith(fontWeight: FontWeight.bold),
+                    autofocus: true,
+                    cursorHeight: 20.0,
+                    placeholder: 'ادخل اسم الصنف الرئيسي',
+                    prefix: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: const fluent.Icon(
+                        fluent.FluentIcons.category_classification,
+                      ),
+                    ),
+                    onChanged: (value) {
+                      _markChanged();
+                      _bloc.add(MainCategoryNameChangedEvent(value));
+                    },
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'اسم الصنف الرئيسي مطلوب';
+                      }
+                      return null;
+                    },
                   ),
-                  onChanged: (value) {
-                    _markChanged();
-                    _bloc.add(MainCategoryNameChangedEvent(value));
-                  },
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'اسم الصنف الرئيسي مطلوب';
-                    }
-                    return null;
-                  },
                 ),
               ),
               Expanded(
-                child: TextFormField(
-                  textInputAction: TextInputAction.next,
-                  controller: unitNameController,
-                  style: colors.body.copyWith(fontWeight: FontWeight.bold),
-                  cursorHeight: 20.0,
-                  decoration: InputDecoration(
-                    hintText: 'ادخل اسم الوحدة',
-                    label: fluent.Text('اسم الوحدة'),
-                    prefixIcon: fluent.Icon(
-                      Icons.radio_button_unchecked,
-                      color: colors.primary,
+                child: fluent.InfoLabel(
+                  label: 'اسم الوحدة',
+                  child: fluent.TextFormBox(
+                    textInputAction: TextInputAction.next,
+                    controller: unitNameController,
+                    style: colors.body.copyWith(fontWeight: FontWeight.bold),
+                    cursorHeight: 20.0,
+                    placeholder: 'ادخل اسم الوحدة',
+                    prefix: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: fluent.Icon(
+                        Icons.radio_button_unchecked,
+                        color: colors.primary,
+                      ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'اسم الوحدة مطلوب';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'اسم الوحدة مطلوب';
-                    }
-                    return null;
-                  },
                 ),
               ),
             ],
@@ -294,81 +298,65 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
             spacing: Spacings.medium,
             children: [
               Expanded(
-                child: DropdownButtonFormField<UnitType>(
-                  initialValue: unitSelected,
-                  disabledHint: fluent.Text(
-                    'لا يوجد وحدات معرفة',
-                    style: colors.caption,
-                  ),
-
-                  icon: fluent.Icon(
-                    Icons.expand_more,
-                    color: colors.onSurfaceVariant,
-                  ),
-                  isExpanded: true,
-                  validator: (value) {
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    label: fluent.Text('الوحدة'),
-                    hint: fluent.Text('حدد وحدة الصنف'),
-
-                    prefixIcon: fluent.Icon(Icons.merge_type),
-                  ),
-                  items: UnitType.values.where((type) => type.isBasic).map((
-                    unit,
-                  ) {
-                    return DropdownMenuItem<UnitType>(
-                      value: unit,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          fluent.Text(unit.fullUnitName),
-                          const SizedBox(width: 10),
-                          fluent.Text(
-                            unit.symbolUnit,
-                            style: colors.body.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
+                child: fluent.InfoLabel(
+                  label: 'الوحدة',
+                  child: fluent.ComboboxFormField<UnitType>(
+                    value: unitSelected,
+                    placeholder: const fluent.Text('حدد وحدة الصنف'),
+                    isExpanded: true,
+                    validator: (value) {
+                      return null;
+                    },
+                    items: UnitType.values.where((type) => type.isBasic).map(
+                      (unit) {
+                        return fluent.ComboBoxItem<UnitType>(
+                          value: unit,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              fluent.Text(unit.fullUnitName),
+                              const SizedBox(width: 10),
+                              fluent.Text(
+                                unit.symbolUnit,
+                                style: colors.body.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      _markChanged();
-                      setState(() => unitSelected = value);
-                    }
-                  },
+                        );
+                      },
+                    ).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        _markChanged();
+                        setState(() => unitSelected = value);
+                      }
+                    },
+                  ),
                 ),
               ),
               Expanded(
-                child: DropdownButtonFormField<CategoryDefineType>(
-                  initialValue: categoryTypeSelected,
-                  decoration: InputDecoration(
-                    label: fluent.Text('نوع الصنف'),
-
-                    prefixIcon: fluent.Icon(
-                      Icons.radio_button_unchecked,
-                      color: colors.primary,
-                    ),
+                child: fluent.InfoLabel(
+                  label: 'نوع الصنف',
+                  child: fluent.ComboboxFormField<CategoryDefineType>(
+                    value: categoryTypeSelected,
+                    placeholder: const fluent.Text('اختر نوع الصنف'),
+                    isExpanded: true,
+                    items: CategoryDefineType.values.map((type) {
+                      return fluent.ComboBoxItem<CategoryDefineType>(
+                        value: type,
+                        child: fluent.Text(type.displayName()),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        _markChanged();
+                        setState(() => categoryTypeSelected = value);
+                        _bloc.add(MainCategoryTypeChangedEvent(value));
+                      }
+                    },
                   ),
-                  isExpanded: true,
-                  items: CategoryDefineType.values.map((type) {
-                    return DropdownMenuItem<CategoryDefineType>(
-                      value: type,
-                      child: fluent.Text(type.displayName()),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      _markChanged();
-                      setState(() => categoryTypeSelected = value);
-                      _bloc.add(MainCategoryTypeChangedEvent(value));
-                    }
-                  },
-                  disabledHint: fluent.Text('لا يوجد انواع اصناف '),
                 ),
               ),
             ],
@@ -382,7 +370,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
             ),
             padding: Paddings.mediumAll,
             child: Column(
-              spacing: Spacings.medium,
+              spacing: Spacings.small,
               children: [
                 ValueListenableBuilder<TextEditingValue>(
                   valueListenable: categoryNameController,
@@ -413,8 +401,8 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                   const TextWidget(text: 'لا يوجد اي خصائص'),
                 const SizedBox(height: Spacings.medium),
                 fluent.FilledButton(
-                  child: fluent.Text('اضافة خصائص جديدة'),
                   onPressed: _onAddNewProperty,
+                  child: fluent.Text('اضافة خصائص جديدة'),
                 ),
               ],
             ),
@@ -432,10 +420,11 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
         borderRadius: Radiuses.smallAll,
         border: Border.all(
           width: 0.50,
-          color: colors.surfaceOutline.withValues(alpha: 0.80),
+          color: colors.outline.withValues(alpha: 0.80),
         ),
       ),
       child: Column(
+        crossAxisAlignment: .start,
         spacing: Spacings.medium,
         children: [
           Row(
@@ -443,65 +432,65 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
             spacing: Spacings.medium,
             children: [
               Expanded(
-                child: TextFormField(
-                  style: colors.body.copyWith(fontWeight: FontWeight.bold),
-                  textInputAction: TextInputAction.next,
-                  controller: property.propertyName,
-                  cursorHeight: 20.0,
-                  decoration: InputDecoration(
-                    hintText: 'ادخل اسم الخاصية',
-                    label: fluent.Text('اسم الخاصية'),
-                    prefixIcon: fluent.Icon(Icons.category),
+                child: fluent.InfoLabel(
+                  label: 'اسم الخاصية',
+                  child: fluent.TextFormBox(
+                    style: colors.body.copyWith(fontWeight: FontWeight.bold),
+                    textInputAction: TextInputAction.next,
+                    controller: property.propertyName,
+                    cursorHeight: 20.0,
+                    placeholder: 'ادخل اسم الخاصية',
+                    prefix: const fluent.Icon(
+                      fluent.FluentIcons.category_classification,
+                    ),
+                    onChanged: (_) => _markChanged(),
                   ),
-                  onChanged: (_) => _markChanged(),
                 ),
               ),
               Expanded(
-                child: DropdownButtonFormField<UnitType>(
-                  initialValue: property.unitTypeSelected,
-                  decoration: InputDecoration(
-                    prefixIcon: fluent.Icon(Icons.merge_type),
-                    label: fluent.Text('نوع الوحدة'),
-                    hint: fluent.Text('حدد نوع الوحدة'),
+                child: fluent.InfoLabel(
+                  label: 'نوع الوحدة',
+                  child: fluent.ComboboxFormField<UnitType>(
+                    value: property.unitTypeSelected,
+                    placeholder: const fluent.Text('حدد نوع الوحدة'),
+                    isExpanded: true,
+                    items: getPropertiesTypes(property).map((unitType) {
+                      return fluent.ComboBoxItem<UnitType>(
+                        value: unitType,
+                        child: fluent.Text(unitType.propertyData),
+                      );
+                    }).toList(),
+                    onChanged: (unitType) {
+                      if (unitType != null) {
+                        property.isInventoryUnit = false;
+                        setState(() => property.unitTypeSelected = unitType);
+                        _markChanged();
+                      }
+                    },
                   ),
-                  disabledHint: fluent.Text('لا يوجد اي وحدات متاحة'),
-                  isExpanded: true,
-                  items: getPropertiesTypes(property).map((unitType) {
-                    return DropdownMenuItem<UnitType>(
-                      value: unitType,
-                      child: fluent.Text(unitType.propertyData),
-                    );
-                  }).toList(),
-                  onChanged: (unitType) {
-                    if (unitType != null) {
-                      property.isInventoryUnit = false;
-                      setState(() => property.unitTypeSelected = unitType);
-                      _markChanged();
-                    }
-                  },
                 ),
               ),
             ],
           ),
-          CheckboxListTile(
-            tileColor: colors.surfaceContainerHigh,
-            title: ValueListenableBuilder<TextEditingValue>(
-              valueListenable: property.propertyName,
-              builder: (_, value, _) {
-                return TextWidget(
-                  text:
-                      '${value.text} واحد لكل ${categoryTypeSelected.displayName()}',
-                );
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            color: colors.surfaceContainerHigh,
+            child: fluent.Checkbox(
+              checked: property.isSingle,
+              onChanged: (value) {
+                setState(() => property.isSingle = value ?? false);
+                _markChanged();
               },
+              content: ValueListenableBuilder<TextEditingValue>(
+                valueListenable: property.propertyName,
+                builder: (_, value, __) {
+                  return TextWidget(
+                    text:
+                        '${value.text} واحد لكل ${categoryTypeSelected.displayName()}',
+                  );
+                },
+              ),
             ),
-            value: property.isSingle,
-            onChanged: (value) {
-              setState(() => property.isSingle = value ?? false);
-              _markChanged();
-            },
-            activeColor: colors.primary,
-            side: BorderSide(color: colors.onSurface, width: 1),
-            controlAffinity: .leading,
           ),
         ],
       ),

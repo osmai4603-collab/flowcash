@@ -9,18 +9,18 @@ abstract class SubcategoriesEvent extends Equatable {
 }
 
 class LoadSubcategoriesEvent extends SubcategoriesEvent {
-  final int mainCategoryId;
+  final int? mainCategoryId;
 
-  const LoadSubcategoriesEvent(this.mainCategoryId);
+  const LoadSubcategoriesEvent([this.mainCategoryId]);
 
   @override
   List<Object?> get props => [mainCategoryId];
 }
 
 class RefreshSubcategoriesEvent extends SubcategoriesEvent {
-  final int mainCategoryId;
+  final int? mainCategoryId;
 
-  const RefreshSubcategoriesEvent(this.mainCategoryId);
+  const RefreshSubcategoriesEvent([this.mainCategoryId]);
 
   @override
   List<Object?> get props => [mainCategoryId];

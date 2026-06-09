@@ -27,7 +27,7 @@ sealed class ThemesFluent {
       shadowColor: colors.surfaceShadow,
       inactiveColor: colors.onSurfaceVariant,
       acrylicBackgroundColor: colors.surfaceContainerHighest,
-      inactiveBackgroundColor: colors.surfaceOutlineVariant,
+      inactiveBackgroundColor: colors.outlineVariant,
       micaBackgroundColor: colors.surfaceContainerLowest,
       menuColor: colors.surfaceContainerHigh,
 

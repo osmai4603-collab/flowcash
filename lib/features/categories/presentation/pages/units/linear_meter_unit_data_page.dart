@@ -165,22 +165,17 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
                           children: [
                             Expanded(
                               flex: 2,
-                              child: TextFormField(
+                              child: fluent.TextFormBox(
                                 textInputAction: TextInputAction.done,
                                 onFieldSubmitted: (_) => _onSaveButtonClicked(),
                                 controller: lengthController,
                                 textDirection: TextDirection.ltr,
                                 keyboardType: TextInputType.number,
-                                textAlignVertical: isDesktop
-                                    ? TextAlignVertical.top
-                                    : TextAlignVertical.center,
-                                style: Styles.labelMedium,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(
                                     RegExp(r'\d+\.?\d*'),
                                   ),
                                 ],
-                                cursorHeight: 20.0,
                                 onChanged: (_) => _markChanged(),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
@@ -196,45 +191,22 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
                                   }
                                   return null;
                                 },
-                                decoration: InputDecoration(
-                                  hintText:
-                                      'ادخل ال${widget.property.propertyName}',
-                                  hintStyle: Styles.labelMedium.copyWith(
-                                    color: colors.onSurfaceVariant,
-                                  ),
-                                  labelText: widget.property.propertyName,
-                                  labelStyle: Styles.titleMedium.copyWith(
-                                    color: colors.primary,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: colors.onSurfaceVariant,
-                                      width: 0.50,
-                                    ),
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: colors.onSurfaceVariant,
-                                      width: 0.20,
-                                    ),
-                                  ),
-                                  prefixIcon: fluent.Icon(
-                                    Icons.fitness_center,
-                                    color: colors.primary,
-                                  ),
+                                placeholder: 'ادخل ال${widget.property.propertyName}',
+                                placeholderStyle: Styles.labelMedium.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                                prefix: fluent.Icon(
+                                  Icons.fitness_center,
+                                  color: colors.primary,
                                 ),
                               ),
                             ),
                             Expanded(
-                              child: DropdownButtonFormField<String>(
-                                initialValue: measureUnitSelected,
-                                decoration: const InputDecoration(
-                                  labelText: 'الوحدة',
-                                  hintText: 'حدد الوحدة',
-                                  prefixIcon: fluent.Icon(Icons.merge_type),
-                                ),
+                              child: fluent.ComboboxFormField<String>(
+                                value: measureUnitSelected,
+                                placeholder: const fluent.Text('حدد الوحدة'),
                                 items: measuresUnits.map((String value) {
-                                  return DropdownMenuItem<String>(
+                                  return fluent.ComboBoxItem<String>(
                                     value: value,
                                     child: fluent.Text(
                                       value,

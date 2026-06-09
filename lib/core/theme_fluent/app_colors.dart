@@ -9,8 +9,8 @@ class AppStyle extends ThemeExtension<AppStyle> {
   final Color surfaceContainer;
   final Color surfaceContainerHigh;
   final Color surfaceContainerHighest;
-  final Color surfaceOutline;
-  final Color surfaceOutlineVariant;
+  final Color outline;
+  final Color outlineVariant;
   final Color surfaceScrim;
   final Color surfaceShadow;
 
@@ -49,8 +49,8 @@ class AppStyle extends ThemeExtension<AppStyle> {
     required this.surfaceContainer,
     required this.surfaceContainerHigh,
     required this.surfaceContainerHighest,
-    required this.surfaceOutline,
-    required this.surfaceOutlineVariant,
+    required this.outline,
+    required this.outlineVariant,
     required this.surfaceScrim,
     required this.surfaceShadow,
     required this.primary,
@@ -86,8 +86,8 @@ class AppStyle extends ThemeExtension<AppStyle> {
     surfaceContainer: const Color(0xFFF0F0F0),
     surfaceContainerHigh: const Color(0xFFE8E8E8),
     surfaceContainerHighest: const Color(0xFFDADADA),
-    surfaceOutline: const Color(0xFFB0B0B0),
-    surfaceOutlineVariant: const Color(0xFFCFD0D1),
+    outline: const Color(0xFFB0B0B0),
+    outlineVariant: const Color(0xFFCFD0D1),
     surfaceScrim: const Color(0x66000000),
     surfaceShadow: const Color(0x33000000),
     primary: const Color(0xFF1565C0),
@@ -123,8 +123,8 @@ class AppStyle extends ThemeExtension<AppStyle> {
     surfaceContainer: const Color(0xFF242424),
     surfaceContainerHigh: const Color(0xFF2E2E2E),
     surfaceContainerHighest: const Color(0xFF393939),
-    surfaceOutline: const Color(0xFF6E6E6E),
-    surfaceOutlineVariant: const Color(0xFF4A4A4A),
+    outline: const Color(0xFF6E6E6E),
+    outlineVariant: const Color(0xFF4A4A4A),
     surfaceScrim: const Color(0xCC000000),
     surfaceShadow: const Color(0x8A000000),
     primary: const Color(0xFF1565C0),
@@ -199,9 +199,9 @@ class AppStyle extends ThemeExtension<AppStyle> {
       surfaceContainerHigh: surfaceContainerHigh ?? this.surfaceContainerHigh,
       surfaceContainerHighest:
           surfaceContainerHighest ?? this.surfaceContainerHighest,
-      surfaceOutline: surfaceOutline ?? this.surfaceOutline,
-      surfaceOutlineVariant:
-          surfaceOutlineVariant ?? this.surfaceOutlineVariant,
+      outline: surfaceOutline ?? this.outline,
+      outlineVariant:
+          surfaceOutlineVariant ?? this.outlineVariant,
       surfaceScrim: surfaceScrim ?? this.surfaceScrim,
       surfaceShadow: surfaceShadow ?? this.surfaceShadow,
       primary: primary ?? this.primary,
@@ -261,11 +261,11 @@ class AppStyle extends ThemeExtension<AppStyle> {
             t,
           ) ??
           surfaceContainerHighest,
-      surfaceOutline:
-          Color.lerp(surfaceOutline, other.surfaceOutline, t) ?? surfaceOutline,
-      surfaceOutlineVariant:
-          Color.lerp(surfaceOutlineVariant, other.surfaceOutlineVariant, t) ??
-          surfaceOutlineVariant,
+      outline:
+          Color.lerp(outline, other.outline, t) ?? outline,
+      outlineVariant:
+          Color.lerp(outlineVariant, other.outlineVariant, t) ??
+          outlineVariant,
       surfaceScrim:
           Color.lerp(surfaceScrim, other.surfaceScrim, t) ?? surfaceScrim,
       surfaceShadow:

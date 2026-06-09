@@ -1,3 +1,4 @@
+import 'package:flowcash/features/categories/domain/entities/simple_category_entity.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
@@ -14,6 +15,18 @@ class GetAllCategoriesUseCase {
     Iterable<int>? ids,
   }) async {
     return await _repository.get(ids: ids);
+  }
+}
+
+class GetCategoriesWhereContainsNameUseCase {
+  final CategoryRepository _repository;
+
+  const GetCategoriesWhereContainsNameUseCase(this._repository);
+
+  Future<Either<Failure, List<SimpleCategoryEntity>>> call(
+    String categoryName,
+  ) async {
+    return _repository.whereCategoryNameContains(categoryName);
   }
 }
 

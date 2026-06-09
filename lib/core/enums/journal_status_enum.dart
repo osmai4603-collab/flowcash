@@ -3,10 +3,10 @@ import 'app_enum.dart';
 sealed class JournalStatus extends AppEnum {
   const JournalStatus();
 
-  static const debit = DebitJournalStatus._();
-  static const credit = CreditJournalStatus._();
+  static const increment = DebitJournalStatus._();
+  static const decrement = CreditJournalStatus._();
 
-  static const List<JournalStatus> values = [debit, credit];
+  static const List<JournalStatus> values = [increment, decrement];
 
   static JournalStatus of(String name) {
     return values.firstWhere(

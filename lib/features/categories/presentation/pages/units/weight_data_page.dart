@@ -170,14 +170,11 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                           children: [
                             Expanded(
                               flex: 2,
-                              child: TextFormField(
+                              child: fluent.TextFormBox(
                                 textInputAction: TextInputAction.next,
                                 controller: weightController,
                                 textDirection: TextDirection.ltr,
                                 keyboardType: TextInputType.number,
-                                textAlignVertical: isDesktop
-                                    ? TextAlignVertical.top
-                                    : TextAlignVertical.center,
                                 style: Styles.labelMedium,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(
@@ -200,50 +197,26 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                                   }
                                   return null;
                                 },
-                                decoration: InputDecoration(
-                                  hintText: 'ادخل الوزن',
-                                  hintStyle: Styles.labelMedium.copyWith(
-                                    color: colors.onSurfaceVariant,
-                                  ),
-                                  labelText: 'الوزن',
-                                  labelStyle: Styles.titleMedium.copyWith(
-                                    color: colors.primary,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: colors.onSurfaceVariant,
-                                      width: 0.50,
-                                    ),
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: colors.onSurfaceVariant,
-                                      width: 0.20,
-                                    ),
-                                  ),
-                                  prefixIcon: fluent.Icon(
-                                    fluent.FluentIcons.light_weight,
-                                    color: colors.primary,
-                                  ),
+                                placeholder: 'ادخل الوزن',
+                                placeholderStyle: Styles.labelMedium.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                                prefix: fluent.Icon(
+                                  fluent.FluentIcons.light_weight,
+                                  color: colors.primary,
                                 ),
                               ),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
-                              child: DropdownButtonFormField<String>(
-                                initialValue: measureUnitSelected,
-                                disabledHint: const fluent.Text(
+                              child: fluent.ComboboxFormField<String>(
+                                value: measureUnitSelected,
+                                placeholder: const fluent.Text('حدد الوحدة'),
+                                disabledPlaceholder: const fluent.Text(
                                   'لا يوجد وحدات معرفة',
                                 ),
-                                decoration: const InputDecoration(
-                                  labelText: 'الوحدة',
-                                  hintText: 'حدد الوحدة',
-                                  prefixIcon: fluent.Icon(
-                                    fluent.FluentIcons.unite_shape,
-                                  ),
-                                ),
                                 items: measuresUnits.map((String value) {
-                                  return DropdownMenuItem<String>(
+                                  return fluent.ComboBoxItem<String>(
                                     value: value,
                                     child: fluent.Text(
                                       value,

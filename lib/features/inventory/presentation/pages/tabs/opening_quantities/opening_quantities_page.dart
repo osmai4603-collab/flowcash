@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flowcash/features/injection_container.dart';
-import 'package:flowcash/features/inventory/domain/entities/opening_quantity_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
+import 'package:flowcash/features/inventory/domain/entities/opening_quantity_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/opening_quantities/opening_quantities_bloc.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/opening_quantities/opening_quantities_event.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/opening_quantities/opening_quantities_state.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import 'opening_quantity_form_dialog.dart';
 
@@ -25,6 +29,8 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
 
   final bool _isLoadingMetaData = false;
 
+  bool get isDesktop => Platform.isLinux || Platform.isWindows;
+
   String _getInventoryName(int inventoryId, List<InventoryEntity> items) {
     try {
       final item = items.firstWhere((i) => i.id == inventoryId);
@@ -39,14 +45,6 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
       return items.firstWhere((i) => i.id == inventoryId).storeId;
     } catch (_) {
       return null;
-    }
-  }
-
-  String _getWarehouseName(int id, List<WarehouseEntity> warehouses) {
-    try {
-      return warehouses.firstWhere((w) => w.id == id).warehouseName;
-    } catch (_) {
-      return 'مستودع (#$id)';
     }
   }
 
@@ -221,61 +219,6 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Table Header
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withAlpha(50),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: fluent.Text(
-                              'اسم صنف المخزون 📦',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            child: fluent.Text(
-                              'المستودع الرئيسي 🏢',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            child: fluent.Text(
-                              'الكمية الافتتاحية 🔢',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            child: fluent.Text(
-                              'إجمالي التكلفة الدفترية 💰',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            child: fluent.Text(
-                              'السنة/الفترة المالية 📅',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            child: fluent.Text(
-                              'الإجراءات ⚙️',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Table Rows
                     Expanded(
                       child: filteredItems.isEmpty
                           ? const Center(
@@ -287,129 +230,7 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                                 ),
                               ),
                             )
-                          : ListView.builder(
-                              itemCount: filteredItems.length,
-                              itemBuilder: (context, index) {
-                                final item = filteredItems[index];
-                                return Card(
-                                  elevation: 0,
-                                  margin: const EdgeInsets.symmetric(
-                                    vertical: 4,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: theme.colorScheme.outline
-                                          .withAlpha(20),
-                                    ),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 12,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 2,
-                                          child: fluent.Text(
-                                            _getInventoryName(
-                                              item.inventoryId,
-                                              state.inventoryItems,
-                                            ),
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: fluent.Text(
-                                            _getWarehouseName(
-                                              _getInventoryWarehouseId(
-                                                    item.inventoryId,
-                                                    state.inventoryItems,
-                                                  ) ??
-                                                  0,
-                                              state.warehouses,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: fluent.Text(
-                                            item.countUnits.toString(),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: fluent.Text(
-                                            '${item.costTotal.toStringAsFixed(2)} SAR',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: fluent.Text(
-                                            'فترة #${item.periodId}',
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Align(
-                                            alignment: Alignment.centerRight,
-                                            child: fluent.IconButton(
-                                              icon: const fluent.Icon(
-                                                fluent.FluentIcons.delete,
-                                                color: Colors.red,
-                                              ),
-                                              onPressed: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) => fluent.ContentDialog(
-                                                    title: const fluent.Text(
-                                                      'حذف الرصيد الافتتاحي ⚠️',
-                                                    ),
-                                                    content: const fluent.Text(
-                                                      'هل أنت متأكد من رغبتك في حذف هذا الرصيد الافتتاحي؟',
-                                                    ),
-                                                    actions: [
-                                                      fluent.Button(
-                                                        onPressed: () =>
-                                                            Navigator.pop(
-                                                              context,
-                                                            ),
-                                                        child:
-                                                            const fluent.Text(
-                                                              'إلغاء',
-                                                            ),
-                                                      ),
-                                                      fluent.FilledButton(
-                                                        onPressed: () {
-                                                          bloc.add(
-                                                            DeleteOpeningQuantityEvent(
-                                                              item.id,
-                                                            ),
-                                                          );
-                                                          Navigator.pop(
-                                                            context,
-                                                          );
-                                                        },
-                                                        child:
-                                                            const fluent.Text(
-                                                              'تأكيد الحذف',
-                                                            ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                          : listView(filteredItems, state),
                     ),
                     const Divider(height: 24),
 
@@ -450,5 +271,219 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
         },
       ),
     );
+  }
+
+  Widget listView(
+    List<OpeningQuantityEntity> items,
+    OpeningQuantitiesState state,
+  ) {
+    final style = AppStyle.of(context);
+    final dataSource = OpeningQuantitiesDataGridSource(
+      items: items,
+      state: state,
+      style: style,
+      onDelete: _onDeleteOpeningQuantityPressed,
+    );
+
+    return SfDataGrid(
+      source: dataSource,
+      headerRowHeight: 40,
+      rowHeight: 45,
+      gridLinesVisibility: GridLinesVisibility.both,
+      headerGridLinesVisibility: GridLinesVisibility.both,
+      columnWidthMode: ColumnWidthMode.fill,
+      columns: [
+        GridColumn(
+          columnName: 'no',
+          width: isDesktop ? 60.0 : 50.0,
+          label: _buildHeaderCell('No', style),
+        ),
+        GridColumn(
+          columnName: 'inventoryName',
+          label: _buildHeaderCell('اسم صنف المخزون', style),
+        ),
+        GridColumn(
+          columnName: 'warehouse',
+          width: isDesktop ? 140.0 : 110.0,
+          label: _buildHeaderCell('المستودع الرئيسي', style),
+        ),
+        GridColumn(
+          columnName: 'countUnits',
+          width: isDesktop ? 110.0 : 90.0,
+          label: _buildHeaderCell('الكمية الافتتاحية', style),
+        ),
+        GridColumn(
+          columnName: 'costTotal',
+          width: isDesktop ? 130.0 : 110.0,
+          label: _buildHeaderCell('إجمالي التكلفة', style),
+        ),
+        GridColumn(
+          columnName: 'period',
+          width: isDesktop ? 120.0 : 100.0,
+          label: _buildHeaderCell('الفترة المالية', style),
+        ),
+        GridColumn(
+          columnName: 'actions',
+          width: isDesktop ? 100.0 : 90.0,
+          label: _buildHeaderCell('الإجراءات', style),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeaderCell(String text, AppStyle style) {
+    return fluent.Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(4),
+      decoration: fluent.BoxDecoration(color: style.surfaceContainerHighest),
+      child: fluent.Text(
+        text,
+        textAlign: TextAlign.center,
+        style: style.bodyStrong,
+      ),
+    );
+  }
+
+  void _onDeleteOpeningQuantityPressed(OpeningQuantityEntity item) async {
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (context) => fluent.ContentDialog(
+        title: const fluent.Text('حذف الرصيد الافتتاحي ⚠️'),
+        content: const fluent.Text(
+          'هل أنت متأكد من رغبتك في حذف هذا الرصيد الافتتاحي؟',
+        ),
+        actions: [
+          fluent.Button(
+            onPressed: () => Navigator.pop(context, false),
+            child: const fluent.Text('إلغاء'),
+          ),
+          fluent.FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const fluent.Text('تأكيد الحذف'),
+          ),
+        ],
+      ),
+    );
+
+    if (sure == true && context.mounted) {
+      context.read<OpeningQuantitiesBloc>().add(
+        DeleteOpeningQuantityEvent(item.id),
+      );
+    }
+  }
+}
+
+class OpeningQuantitiesDataGridSource extends DataGridSource {
+  OpeningQuantitiesDataGridSource({
+    required List<OpeningQuantityEntity> items,
+    required this.state,
+    required this.style,
+    required this.onDelete,
+  }) {
+    _dataGridRows = items.asMap().entries.map<DataGridRow>((entry) {
+      final index = entry.key;
+      final item = entry.value;
+      return DataGridRow(
+        cells: [
+          DataGridCell<String>(columnName: 'no', value: '${index + 1}'),
+          DataGridCell<String>(
+            columnName: 'inventoryName',
+            value: _getInventoryName(item.inventoryId, state.inventoryItems),
+          ),
+          DataGridCell<String>(
+            columnName: 'warehouse',
+            value: _getWarehouseName(
+              item.inventoryId,
+              state.inventoryItems,
+              state.warehouses,
+            ),
+          ),
+          DataGridCell<String>(
+            columnName: 'countUnits',
+            value: item.countUnits.toString(),
+          ),
+          DataGridCell<String>(
+            columnName: 'costTotal',
+            value: '${item.costTotal.toStringAsFixed(2)} SAR',
+          ),
+          DataGridCell<String>(
+            columnName: 'period',
+            value: 'فترة #${item.periodId}',
+          ),
+          DataGridCell<OpeningQuantityEntity>(
+            columnName: 'actions',
+            value: item,
+          ),
+        ],
+      );
+    }).toList();
+  }
+
+  final OpeningQuantitiesState state;
+  final AppStyle style;
+  final void Function(OpeningQuantityEntity item) onDelete;
+  List<DataGridRow> _dataGridRows = [];
+
+  @override
+  List<DataGridRow> get rows => _dataGridRows;
+
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    return DataGridRowAdapter(
+      color: _dataGridRows.indexOf(row).isEven ? null : style.surfaceContainer,
+      cells: row.getCells().map<Widget>((dataGridCell) {
+        if (dataGridCell.columnName == 'actions') {
+          final openingItem = dataGridCell.value as OpeningQuantityEntity;
+          return Align(
+            alignment: Alignment.center,
+            child: fluent.IconButton(
+              icon: const fluent.Icon(
+                fluent.FluentIcons.delete,
+                color: Colors.red,
+              ),
+              onPressed: () => onDelete(openingItem),
+            ),
+          );
+        }
+
+        final displayValue = _resolveCellValue(dataGridCell);
+        return Container(
+          alignment: AlignmentDirectional.centerStart,
+          padding: const EdgeInsets.all(8.0),
+          child: fluent.Text(
+            displayValue,
+            overflow: TextOverflow.ellipsis,
+            style: style.body,
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  String _resolveCellValue(DataGridCell cell) {
+    return cell.value?.toString() ?? '';
+  }
+
+  String _getInventoryName(int inventoryId, List<InventoryEntity> items) {
+    try {
+      return items.firstWhere((i) => i.id == inventoryId).inventoryName;
+    } catch (_) {
+      return 'صنف (#$inventoryId)';
+    }
+  }
+
+  String _getWarehouseName(
+    int inventoryId,
+    List<InventoryEntity> items,
+    List<WarehouseEntity> warehouses,
+  ) {
+    try {
+      final inventory = items.firstWhere((i) => i.id == inventoryId);
+      return warehouses
+          .firstWhere((w) => w.id == inventory.storeId)
+          .warehouseName;
+    } catch (_) {
+      return 'غير معرف';
+    }
   }
 }

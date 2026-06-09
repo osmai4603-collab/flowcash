@@ -36,7 +36,7 @@ import 'package:flowcash/core/tables/warehouse_values_table.dart';
 final class SqliteSchemaManager {
   const SqliteSchemaManager._();
 
-  static const int currentVersion = 10;
+  static const int currentVersion = 11;
 
   /// Create the full schema for a new database in sequential version order.
   /// This builds the tables from version 1 through the last schema-only version,
@@ -86,6 +86,9 @@ final class SqliteSchemaManager {
             break;
           case 10:
             _applyV10Migration(db);
+            break;
+          case 11:
+            _applyV11Migration(db);
             break;
           default:
             throw StateError('No migration defined for version $v');
@@ -841,5 +844,9 @@ final class SqliteSchemaManager {
         'Adding journal_status column to journal_items failed or already exists: $e',
       );
     }
+  }
+
+  static void _applyV11Migration(Database db) {
+    _createJournalItemTriggers(db);
   }
 }

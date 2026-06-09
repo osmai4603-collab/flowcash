@@ -144,7 +144,7 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                     ],
                   ),
                   const SizedBox(height: Spacings.small),
-                  TextFormField(
+                  fluent.TextFormBox(
                     textInputAction: TextInputAction.next,
                     controller: categoryNameController,
                     onChanged: (_) => _markChanged(),
@@ -159,20 +159,13 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                       }
                       return null;
                     },
-                    decoration: InputDecoration(
-                      hintText: 'ادخل اسم الصنف',
-                      hintStyle: Styles.titleSmall.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                      labelText: 'اسم الصنف',
-                      labelStyle: Styles.titleMedium.copyWith(
-                        color: colors.primary,
-                      ),
-
-                      prefixIcon: fluent.Icon(
-                        fluent.FluentIcons.category_classification,
-                        color: colors.primary,
-                      ),
+                    placeholder: 'ادخل اسم الصنف',
+                    placeholderStyle: Styles.titleSmall.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                    prefix: fluent.Icon(
+                      fluent.FluentIcons.category_classification,
+                      color: colors.primary,
                     ),
                   ),
                   Row(
@@ -180,16 +173,11 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: DropdownButtonFormField<CategoryPropertyEntity>(
-                          initialValue: state.pricingPropertySelected,
-                          decoration: InputDecoration(
-                            labelText: 'وحدة السعر',
-                            labelStyle: Styles.titleMedium.copyWith(
-                              color: colors.primary,
-                            ),
-                          ),
+                        child: fluent.ComboboxFormField<CategoryPropertyEntity>(
+                          value: state.pricingPropertySelected,
+                          placeholder: const fluent.Text('حدد وحدة السعر'),
                           items: state.properties.map((property) {
-                            return DropdownMenuItem<CategoryPropertyEntity>(
+                            return fluent.ComboBoxItem<CategoryPropertyEntity>(
                               value: property,
                               child: fluent.Text(
                                 property.unitType.fullUnitName,
@@ -213,16 +201,11 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                         ),
                       ),
                       Expanded(
-                        child: DropdownButtonFormField<CategoryPropertyEntity>(
-                          initialValue: state.inventoryPropertySelected,
-                          decoration: InputDecoration(
-                            labelText: 'وحدة الجرد',
-                            labelStyle: Styles.titleMedium.copyWith(
-                              color: colors.primary,
-                            ),
-                          ),
+                        child: fluent.ComboboxFormField<CategoryPropertyEntity>(
+                          value: state.inventoryPropertySelected,
+                          placeholder: const fluent.Text('حدد وحدة الجرد'),
                           items: state.properties.map((property) {
-                            return DropdownMenuItem<CategoryPropertyEntity>(
+                            return fluent.ComboBoxItem<CategoryPropertyEntity>(
                               value: property,
                               child: fluent.Text(
                                 property.unitType.fullUnitName,

@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flowcash/features/categories/presentation/pages/categories/categories_page.dart';
+import 'package:flowcash/features/categories/presentation/pages/main_categories/main_categories_page.dart';
+import 'package:flowcash/features/categories/presentation/pages/units_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
@@ -21,6 +23,7 @@ import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class CategoriesDashboardPage extends StatefulWidget {
   const CategoriesDashboardPage({super.key});
@@ -33,6 +36,8 @@ class CategoriesDashboardPage extends StatefulWidget {
 class _CategoriesDashboardPageState extends State<CategoriesDashboardPage> {
   bool get isDesktop => Platform.isLinux || Platform.isWindows;
 
+  int _selectedIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -43,32 +48,34 @@ class _CategoriesDashboardPageState extends State<CategoriesDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return CategoriesPage();
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          title: fluent.Text(isDesktop ? 'لوحة إدارة التصنيفات' : 'التصنيفات'),
-          centerTitle: true,
-          bottom: TabBar(
-            isScrollable: true,
-            tabs: [
-              Tab(text: 'الأصناف'),
-              Tab(text: 'الأصناف الفرعية'),
-              Tab(text: 'الأصناف الرئيسية'),
-              Tab(text: 'الوحدات'),
-            ],
+    return fluent.NavigationView(
+      pane: fluent.NavigationPane(
+        displayMode: fluent.PaneDisplayMode.top,
+        selected: _selectedIndex,
+        onChanged: (i) => setState(() => _selectedIndex = i),
+        // We'll control content via IndexedStack below for simpler state handling.
+        items: [
+          fluent.PaneItem(
+            icon: fluent.Icon(fluent.FluentIcons.category_classification),
+            title: fluent.Text('الأصناف'),
+            body: CategoriesPage(),
           ),
-        ),
-        body: const TabBarView(
-          physics: NeverScrollableScrollPhysics(),
-          children: [
-            CategoriesPage(),
-            CategoriesDashboardSubcategoriesTab(),
-            CategoriesDashboardMainCategoriesTab(),
-            CategoriesDashboardUnitsTab(),
-          ],
-        ),
+          fluent.PaneItem(
+            icon: fluent.Icon(fluent.FluentIcons.box_subtract_solid),
+            title: fluent.Text('الأصناف الفرعية'),
+            body: SubcategoriesPage(),
+          ),
+          fluent.PaneItem(
+            icon: fluent.Icon(fluent.FluentIcons.group_list),
+            title: fluent.Text('الأصناف الرئيسية'),
+            body: MainCategoriesPage(),
+          ),
+          fluent.PaneItem(
+            icon: fluent.Icon(fluent.FluentIcons.unite_shape),
+            title: fluent.Text('الوحدات'),
+            body: CategoriesDashboardUnitsTab(),
+          ),
+        ],
       ),
     );
   }
@@ -108,12 +115,17 @@ class _CategoriesDashboardCategoriesTabState
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Column(
+        crossAxisAlignment: .start,
         children: [
-          TextField(
-            controller: searchController,
-            decoration: const InputDecoration(
-              prefixIcon: fluent.Icon(fluent.FluentIcons.search),
-              hintText: 'ابحث عن صنف هنا',
+          SizedBox(
+            width: 300,
+            child: fluent.TextBox(
+              controller: searchController,
+              prefix: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                child: fluent.Icon(fluent.FluentIcons.search),
+              ),
+              placeholder: 'ابحث عن صنف هنا',
             ),
           ),
           const SizedBox(height: 12),
@@ -437,12 +449,13 @@ class _CategoriesDashboardMainCategoriesTabState
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            TextField(
+            fluent.TextBox(
               controller: searchController,
-              decoration: const InputDecoration(
-                prefixIcon: fluent.Icon(fluent.FluentIcons.search),
-                hintText: 'ابحث عن صنف رئيسي هنا',
+              prefix: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                child: fluent.Icon(fluent.FluentIcons.search),
               ),
+              placeholder: 'ابحث عن صنف رئيسي هنا',
             ),
             const SizedBox(height: 12),
             Expanded(
@@ -487,8 +500,7 @@ class _CategoriesDashboardMainCategoriesTabState
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    SubcategoriesPage(mainCategory: category),
+                                builder: (_) => const SubcategoriesPage(),
                               ),
                             );
                           },
@@ -509,99 +521,3 @@ class _CategoriesDashboardMainCategoriesTabState
   }
 }
 
-class CategoriesDashboardUnitsTab extends StatefulWidget {
-  const CategoriesDashboardUnitsTab({super.key});
-
-  @override
-  State<CategoriesDashboardUnitsTab> createState() =>
-      _CategoriesDashboardUnitsTabState();
-}
-
-class _CategoriesDashboardUnitsTabState
-    extends State<CategoriesDashboardUnitsTab> {
-  final searchController = TextEditingController();
-  String _searchQuery = '';
-  late Future<List<UnitEntity>> _unitsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _unitsFuture = _loadUnits();
-    searchController.addListener(() {
-      setState(() {
-        _searchQuery = searchController.text;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
-
-  Future<List<UnitEntity>> _loadUnits() async {
-    final unitsResult = await sl<GetUnitsUseCase>()();
-    return unitsResult.getOrElse((_) => const []);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
-        children: [
-          TextField(
-            controller: searchController,
-            decoration: const InputDecoration(
-              prefixIcon: fluent.Icon(fluent.FluentIcons.search),
-              hintText: 'ابحث عن وحدة هنا',
-            ),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: FutureBuilder<List<UnitEntity>>(
-              future: _unitsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: fluent.ProgressRing());
-                }
-                if (snapshot.hasError) {
-                  return const Center(
-                    child: TextWidget(text: 'حدث خطأ أثناء تحميل الوحدات'),
-                  );
-                }
-                final units = snapshot.data ?? const [];
-                final filtered = _searchQuery.isEmpty
-                    ? units
-                    : units
-                          .where((unit) => unit.unitName.contains(_searchQuery))
-                          .toList();
-                if (filtered.isEmpty) {
-                  return const Center(
-                    child: TextWidget(text: 'لا يوجد وحدات مطابقة'),
-                  );
-                }
-                return ListView.separated(
-                  itemCount: filtered.length,
-                  separatorBuilder: (context, index) =>
-                      const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final unit = filtered[index];
-                    return ListTile(
-                      title: fluent.Text(unit.unitName),
-                      subtitle: fluent.Text(unit.unitType.fullUnitName),
-                      trailing: fluent.Text(
-                        'أبعاد: ${unit.length}×${unit.width}×${unit.thickness}',
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

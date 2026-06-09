@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategory_form/catalog_form_state.dart';
 
 abstract class SubcategoryFormEvent extends Equatable {
@@ -10,9 +11,9 @@ abstract class SubcategoryFormEvent extends Equatable {
 }
 
 class InitSubcategoryFormEvent extends SubcategoryFormEvent {
-  final int mainCategoryId;
+  final int? mainCategoryId;
   final SubcategoryEntity? catalog;
-  const InitSubcategoryFormEvent(this.mainCategoryId, {this.catalog});
+  const InitSubcategoryFormEvent({this.mainCategoryId, this.catalog});
 
   @override
   List<Object?> get props => [mainCategoryId, catalog];
@@ -24,6 +25,14 @@ class SubcategoryNameChangedEvent extends SubcategoryFormEvent {
 
   @override
   List<Object?> get props => [name];
+}
+
+class MainCategorySelectedEvent extends SubcategoryFormEvent {
+  final MainCategoryEntity mainCategory;
+  const MainCategorySelectedEvent(this.mainCategory);
+
+  @override
+  List<Object?> get props => [mainCategory];
 }
 
 class SaveSubcategoryEvent extends SubcategoryFormEvent {

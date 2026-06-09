@@ -253,7 +253,9 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
       if (context.mounted) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const AccountStatementPage()),
+          MaterialPageRoute(
+            builder: (_) => AccountStatementPage(subAccount: entity),
+          ),
         );
       }
     }

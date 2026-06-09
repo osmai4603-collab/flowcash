@@ -3,6 +3,8 @@ import 'package:flowcash/features/inventory/domain/entities/opening_quantity_ent
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
+import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
+import 'package:flowcash/features/currencies/domain/usecases/currency_repository_usecases.dart';
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/combo_box_form.dart';
 
@@ -23,10 +25,12 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
 
   final _inventoryItemController = TextEditingController();
   int? _selectedInventoryId;
+  String? _selectedCurrencyId;
   final _quantityController = TextEditingController();
   final _costTotalController = TextEditingController();
 
   List<CategoryEntity> _categories = [];
+  List<CurrencyEntity> _currencies = [];
   bool _isLoading = true;
 
   @override
@@ -34,17 +38,20 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
     super.initState();
     _quantityController.text = "1.0";
     _costTotalController.text = "0.0";
-    _loadCategories();
+    _loadData();
   }
 
-  Future<void> _loadCategories() async {
-    final res = await sl<GetAllCategoriesUseCase>().call();
-    if (mounted) {
-      setState(() {
-        res.fold((_) => null, (list) => _categories = list);
-        _isLoading = false;
-      });
-    }
+  Future<void> _loadData() async {
+    final categoriesRes = await sl<GetAllCategoriesUseCase>().call();
+    final currenciesRes = await sl<GetCurrenciesUseCase>().call();
+
+    if (!mounted) return;
+
+    setState(() {
+      categoriesRes.fold((_) => null, (list) => _categories = list);
+      currenciesRes.fold((_) => null, (list) => _currencies = list);
+      _isLoading = false;
+    });
   }
 
   String _getInventoryLabel(InventoryEntity item) {
@@ -55,6 +62,10 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
     } catch (_) {
       return 'صنف مخزون (#${item.id})';
     }
+  }
+
+  String _getCurrencyLabel(CurrencyEntity item) {
+    return '${item.name} (${item.symbol})';
   }
 
   @override
@@ -79,6 +90,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
       costTotal: totalCost,
       createdAt: DateTime.now(),
       periodId: 1, // Standard accounting period
+      currencyId: _selectedCurrencyId,
     );
 
     Navigator.of(context).pop(entity);
@@ -87,59 +99,48 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return fluent.ContentDialog(
-      content: Container(
-        width: 500,
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            colors: isDark
-                ? [
-                    theme.colorScheme.surface,
-                    theme.colorScheme.surface.withAlpha(240),
-                  ]
-                : [Colors.white, Colors.grey.shade50],
-          ),
-        ),
-        child: _isLoading
-            ? const SizedBox(
-                height: 200,
-                child: Center(child: fluent.ProgressRing()),
-              )
-            : Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        fluent.Icon(
-                          fluent.FluentIcons.page_checked_out,
-                          color: theme.colorScheme.primary,
-                          size: 28,
+      constraints: BoxConstraints(maxWidth: 500),
+      content: _isLoading
+          ? const SizedBox(
+              height: 200,
+              child: Center(child: fluent.ProgressRing()),
+            )
+          : Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      fluent.Icon(
+                        fluent.FluentIcons.page_checked_out,
+                        color: theme.colorScheme.primary,
+                        size: 28,
+                      ),
+                      const SizedBox(width: 8),
+                      const fluent.Text(
+                        'إضافة رصيد افتتاحي 📊',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(width: 8),
-                        const fluent.Text(
-                          'إضافة رصيد افتتاحي 📊',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Divider(height: 24),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 24),
 
-                    // Inventory Item
-                    ComboBoxForm<InventoryEntity>(
+                  // Inventory Item
+                  fluent.InfoLabel(
+                    label: 'اختر صنف المخزون',
+                    child: ComboBoxForm<InventoryEntity>(
+                      placeHolder: 'ادخل اسم الصنف',
                       controller: _inventoryItemController,
-                      decoration: const InputDecoration(
-                        labelText: 'اختر صنف المخزون',
-                        prefixIcon: fluent.Icon(fluent.FluentIcons.product),
+                      prefix: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: fluent.Icon(fluent.FluentIcons.product),
                       ),
                       labelMenu: (item) => _getInventoryLabel(item),
                       labelString: (item) => _getInventoryLabel(item),
@@ -172,18 +173,52 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                       validator: (_) =>
                           _selectedInventoryId == null ? 'الصنف مطلوب' : null,
                     ),
-                    const SizedBox(height: 16),
+                  ),
+                  const SizedBox(height: 16),
 
-                    // Quantity & Total Cost
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
+                  // Currency
+                  fluent.ComboboxFormField<CurrencyEntity>(
+                    items: _currencies
+                        .map(
+                          (currency) => fluent.ComboBoxItem<CurrencyEntity>(
+                            value: currency,
+                            child: fluent.Text(_getCurrencyLabel(currency)),
+                          ),
+                        )
+                        .toList(),
+                    value: _selectedCurrencyId == null || _currencies.isEmpty
+                        ? null
+                        : _currencies.firstWhere(
+                            (item) => item.id == _selectedCurrencyId,
+                            orElse: () => _currencies.first,
+                          ),
+                    placeholder: const fluent.Text('اختر العملة'),
+                    isExpanded: true,
+                    validator: (value) {
+                      if (value == null) return 'العملة مطلوبة';
+                      return null;
+                    },
+                    onChanged: (currency) {
+                      setState(() {
+                        _selectedCurrencyId = currency?.id;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Quantity & Total Cost
+                  Row(
+                    children: [
+                      Expanded(
+                        child: fluent.InfoLabel(
+                          label: 'الكمية الافتتاحية',
+                          child: fluent.TextFormBox(
                             controller: _quantityController,
                             textDirection: TextDirection.ltr,
-                            decoration: const InputDecoration(
-                              labelText: 'الكمية الافتتاحية',
-                              prefixIcon: fluent.Icon(
+                            placeholder: 'ادخل الكمية الافتتاحية',
+                            prefix: const fluent.Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: fluent.Icon(
                                 fluent.FluentIcons.numbered_list_number,
                               ),
                             ),
@@ -195,15 +230,16 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                                 : null,
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextFormField(
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: fluent.InfoLabel(
+                          label: 'إجمالي التكلفة الدفترية',
+                          child: fluent.TextFormBox(
                             controller: _costTotalController,
                             textDirection: TextDirection.ltr,
-                            decoration: const InputDecoration(
-                              labelText: 'إجمالي التكلفة الدفترية',
-                              prefixIcon: fluent.Icon(fluent.FluentIcons.money),
-                            ),
+                            placeholder: 'إجمالي التكلفة الدفترية',
+                            prefix: const fluent.Icon(fluent.FluentIcons.money),
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),
@@ -212,28 +248,28 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
                                 : null,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
 
-                    const Divider(height: 32),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        fluent.Button(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const fluent.Text('إلغاء'),
-                        ),
-                        const SizedBox(width: 12),
-                        fluent.FilledButton(
-                          onPressed: _submit,
-                          child: const fluent.Text('حفظ الرصيد الافتتاحي'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  const Divider(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      fluent.Button(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const fluent.Text('إلغاء'),
+                      ),
+                      const SizedBox(width: 12),
+                      fluent.FilledButton(
+                        onPressed: _submit,
+                        child: const fluent.Text('حفظ الرصيد الافتتاحي'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-      ),
+            ),
     );
   }
 }

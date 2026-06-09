@@ -1,3 +1,5 @@
+import 'package:flowcash/core/enums/invoice_type_enum.dart';
+
 import 'app_enum.dart';
 import 'counter_type_enum.dart';
 import 'asset_type_enum.dart';
@@ -73,10 +75,10 @@ abstract class HistoriesGroup extends AppEnum {
   bool get isSales => name == 'sales';
   bool get isBuysReturn => name == 'buys_return';
 
-  static const sales = FinancialTransactionType.sales;
-  static const buys = FinancialTransactionType.buys;
-  static const buysReturn = FinancialTransactionType.buysReturn;
-  static const salesReturn = FinancialTransactionType.salesReturn;
+  static const sales = InvoiceType.sales;
+  static const buys = InvoiceType.buys;
+  static const buysReturn = InvoiceType.buysReturn;
+  static const salesReturn = InvoiceType.salesReturn;
   static const expenses = FinancialTransactionType.expenses;
   static const revenues = FinancialTransactionType.revenues;
   static const proceeds = FinancialBondType.proceeds;

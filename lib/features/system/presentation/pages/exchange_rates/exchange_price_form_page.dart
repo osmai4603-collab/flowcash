@@ -93,7 +93,10 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
           return BlocListener<ExchangePriceFormBloc, ExchangePriceFormState>(
             listener: (context, state) {
               if (state.isSuccess && state.savedEntity != null) {
-                Navigator.of(context).pop(state.savedEntity);
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!context.mounted) return;
+                  Navigator.of(context).pop(state.savedEntity);
+                });
               }
             },
             child: fluent.ContentDialog(

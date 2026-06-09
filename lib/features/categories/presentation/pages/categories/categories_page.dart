@@ -1,15 +1,20 @@
 import 'dart:io';
-import 'package:flowcash/core/theme/radiuses.dart';
+import 'package:flowcash/core/theme/paddings.dart';
+import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flowcash/core/theme/spacings.dart';
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_state.dart';
 import 'package:flowcash/features/categories/presentation/pages/categories/category_form_page.dart';
-import 'package:flowcash/core/constants/app_route_keys.dart';
-import 'package:go_router/go_router.dart';
-import 'package:flowcash/widgets/my_text_widget.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:flowcash/widgets/message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,8 +43,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
   }
 
   Widget listView(List<CategoryEntity> categories) {
-    final textTheme = Theme.of(context).textTheme;
-    final colors = Theme.of(context).colorScheme;
+    final style = AppStyle.of(context);
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: searchBarController,
       builder: (_, edit, child) {
@@ -55,17 +59,13 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
         if (filtered.isEmpty) {
           return Center(
-            child: fluent.Text(
-              'لا يوجد اصناف موجودة',
-              style: textTheme.bodyLarge,
-            ),
+            child: fluent.Text('لا يوجد اصناف موجودة', style: style.bodyLarge),
           );
         }
 
         final dataSource = CategoryDataGridSource(
           items: filtered,
-          textTheme: textTheme,
-          colors: colors,
+          style: style,
           onItemTap: _onUpdateCategoryPressed,
           onItemLongPress: _onDeleteCategoryPressed,
         );
@@ -73,7 +73,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
         return SfDataGrid(
           source: dataSource,
           headerRowHeight: 40,
-          rowHeight: 30,
+          rowHeight: 35,
           gridLinesVisibility: GridLinesVisibility.both,
           headerGridLinesVisibility: GridLinesVisibility.both,
           columnWidthMode: ColumnWidthMode.fill,
@@ -87,30 +87,30 @@ class _CategoriesPageState extends State<CategoriesPage> {
             GridColumn(
               columnName: 'no',
               width: isDesktop ? 60.0 : 50.0,
-              label: _buildHeaderCell('No', textTheme, colors),
+              label: _buildHeaderCell('No', style),
             ),
             GridColumn(
               columnName: 'categoryNumber',
               width: isDesktop ? 80.0 : 60.0,
-              label: _buildHeaderCell('الرقم', textTheme, colors),
+              label: _buildHeaderCell('الرقم', style),
             ),
             GridColumn(
               columnName: 'categoryName',
-              label: _buildHeaderCell('الصنف', textTheme, colors),
+              label: _buildHeaderCell('الصنف', style),
             ),
             GridColumn(
               columnName: 'unitName',
               width: isDesktop ? 90.0 : 70.0,
-              label: _buildHeaderCell('الوحدة', textTheme, colors),
+              label: _buildHeaderCell('الوحدة', style),
             ),
             GridColumn(
               columnName: 'type',
               width: isDesktop ? 140.0 : 100.0,
-              label: _buildHeaderCell('نوع تعريف الصنف', textTheme, colors),
+              label: _buildHeaderCell('نوع تعريف الصنف', style),
             ),
             GridColumn(
               columnName: 'barcode',
-              label: _buildHeaderCell('الباركود', textTheme, colors),
+              label: _buildHeaderCell('الباركود', style),
             ),
           ],
         );
@@ -118,22 +118,15 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
-  Widget _buildHeaderCell(
-    String text,
-    TextTheme textTheme,
-    ColorScheme colors,
-  ) {
-    return Container(
+  Widget _buildHeaderCell(String text, AppStyle style) {
+    return fluent.Container(
       alignment: Alignment.center,
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: colors.surfaceContainerHigh),
+      decoration: fluent.BoxDecoration(color: style.surfaceContainerHighest),
       child: fluent.Text(
         text,
         textAlign: TextAlign.center,
-        style: textTheme.bodyMedium?.copyWith(
-          color: colors.onSurface,
-          fontWeight: FontWeight.bold,
-        ),
+        style: style.bodyStrong,
       ),
     );
   }
@@ -148,76 +141,80 @@ class _CategoriesPageState extends State<CategoriesPage> {
       },
       child: fluent.ScaffoldPage(
         header: fluent.PageHeader(
-          title: Row(children: [const fluent.Text('الأصناف')]),
-          commandBar: SizedBox(
-            height: 30,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Center(
-                child: Row(
-                  spacing: Spacings.small,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    BlocBuilder<CategoriesBloc, CategoriesState>(
-                      builder: (context, state) {
-                        final categories = state is CategoriesLoadSuccess
-                            ? state.categories
-                            : <CategoryEntity>[];
-                        final filtered = searchBarController.text.isEmpty
-                            ? categories
-                            : categories
-                                  .where(
-                                    (category) =>
-                                        category.categoryName.contains(
-                                          searchBarController.text,
-                                        ) ||
-                                        category.categoryNumber.contains(
-                                          searchBarController.text,
-                                        ),
-                                  )
-                                  .toList();
-                        return Tooltip(
-                          message: 'عدد الأصناف',
-                          child: TextWidget(text: filtered.length.toString()),
-                        );
-                      },
-                    ),
-                    fluent.Tooltip(
-                      message: 'الاصناف الرئيسية',
-                      child: fluent.IconButton(
-                        icon: fluent.Icon(fluent.FluentIcons.add),
-                        onPressed: () {
-                          context.go(AppRouteKeys.mainCategories);
-                        },
-                      ),
-                    ),
-                    fluent.Tooltip(
-                      message: 'إعادة تحميل الأصناف',
-                      child: fluent.IconButton(
-                        icon: fluent.Icon(fluent.FluentIcons.refresh),
-                        onPressed: () => context.read<CategoriesBloc>().add(
-                          LoadCategoriesEvent(),
+          title: Row(
+            crossAxisAlignment: .start,
+            spacing: Spacings.medium,
+            mainAxisAlignment: .spaceBetween,
+            children: [
+              Expanded(child: const fluent.Text('الأصناف')),
+              SizedBox(
+                width: isDesktop ? 400.0 : 250.0,
+                child: BlocBuilder<CategoriesBloc, CategoriesState>(
+                  builder: (context, state) {
+                    return fluent.TextBox(
+                      prefix: Padding(
+                        padding: Paddings.smallAll,
+                        child: fluent.Icon(
+                          fluent.FluentIcons.search,
+                          color: AppStyle.of(context).onSurfaceVariant,
                         ),
                       ),
-                    ),
-                    fluent.Tooltip(
-                      message: 'اضافة صنف جديد',
-                      child: fluent.IconButton(
-                        icon: const fluent.Icon(fluent.FluentIcons.add),
-                        onPressed: _onAddNewCategoryPressed,
-                      ),
-                    ),
-                    fluent.Tooltip(
-                      message: 'طباعة بيانات الأصناف',
-                      child: fluent.IconButton(
-                        icon: fluent.Icon(fluent.FluentIcons.print),
-                        onPressed: () async {},
-                      ),
-                    ),
+                      placeholder: 'ابحث عن نوع صنف هنا',
+                      onChanged: (value) {
+                        searchBarController.text = value;
+                      },
+                    );
+                  },
+                ),
+              ),
+              BlocBuilder<CategoriesBloc, CategoriesState>(
+                builder: (context, state) {
+                  final categories = state is CategoriesLoadSuccess
+                      ? state.categories
+                      : <CategoryEntity>[];
+                  final filtered = searchBarController.text.isEmpty
+                      ? categories
+                      : categories
+                            .where(
+                              (category) =>
+                                  category.categoryName.contains(
+                                    searchBarController.text,
+                                  ) ||
+                                  category.categoryNumber.contains(
+                                    searchBarController.text,
+                                  ),
+                            )
+                            .toList();
+                  return Text(filtered.length.toString(),
+                  style: AppStyle.of(context).subTitle,
+                  );
+                },
+              ),
+              fluent.Tooltip(
+                message: 'إعادة تحميل الأصناف',
+                child: fluent.IconButton(
+                  icon: fluent.Icon(fluent.FluentIcons.refresh),
+                  onPressed: () =>
+                      context.read<CategoriesBloc>().add(LoadCategoriesEvent()),
+                ),
+              ),
+              fluent.Tooltip(
+                message: 'طباعة بيانات الأصناف',
+                child: fluent.IconButton(
+                  icon: fluent.Icon(fluent.FluentIcons.print),
+                  onPressed: () async {},
+                ),
+              ),
+              fluent.FilledButton(
+                onPressed: _onAddNewCategoryPressed,
+                child: Row(
+                  children: [
+                    const fluent.Icon(fluent.FluentIcons.add),
+                    fluent.Text('اضافة صنف جديد'),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
         ),
         content: Column(
@@ -225,22 +222,18 @@ class _CategoriesPageState extends State<CategoriesPage> {
             Expanded(
               child: Align(
                 alignment: Alignment.topCenter,
-                child: Container(
-                  width: 1000,
-                  padding: const EdgeInsets.all(2),
-                  child: BlocBuilder<CategoriesBloc, CategoriesState>(
-                    builder: (context, state) {
-                      if (state is CategoriesLoadInProgress) {
-                        return const Center(child: fluent.ProgressRing());
-                      }
-                      if (state is CategoriesLoadSuccess) {
-                        return listView(state.categories);
-                      }
-                      return const Center(
-                        child: fluent.Text('لا يوجد اصناف موجودة'),
-                      );
-                    },
-                  ),
+                child: BlocBuilder<CategoriesBloc, CategoriesState>(
+                  builder: (context, state) {
+                    if (state is CategoriesLoadInProgress) {
+                      return const Center(child: fluent.ProgressRing());
+                    }
+                    if (state is CategoriesLoadSuccess) {
+                      return listView(state.categories);
+                    }
+                    return const Center(
+                      child: fluent.Text('لا يوجد اصناف موجودة'),
+                    );
+                  },
                 ),
               ),
             ),
@@ -268,7 +261,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
       context: context(),
       builder: (_) => const CategoryFormPage(),
     );
-    print('Category Inserted: $category');
+    if (kDebugMode) {
+      print('Category Inserted: $category');
+    }
     if (category != null && context().mounted) {
       context().read<CategoriesBloc>().add(InjectCategoryEvent(category));
       showSnackBar(context(), 'تمت إضافة الصنف بنجاح');
@@ -302,8 +297,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
 class CategoryDataGridSource extends DataGridSource {
   CategoryDataGridSource({
     required List<CategoryEntity> items,
-    required this.textTheme,
-    required this.colors,
+    required this.style,
     required this.onItemTap,
     required this.onItemLongPress,
   }) {
@@ -338,8 +332,7 @@ class CategoryDataGridSource extends DataGridSource {
     }).toList();
   }
 
-  final TextTheme textTheme;
-  final ColorScheme colors;
+  final AppStyle style;
   final void Function(CategoryEntity) onItemTap;
   final void Function(CategoryEntity) onItemLongPress;
 
@@ -352,15 +345,15 @@ class CategoryDataGridSource extends DataGridSource {
   DataGridRowAdapter buildRow(DataGridRow row) {
     final index = _dataGridRows.indexOf(row);
     return DataGridRowAdapter(
-      color: index.isEven ? null : colors.surfaceVariant.withOpacity(0.12),
+      color: index.isEven ? null : style.surfaceContainer,
       cells: row.getCells().map<Widget>((dataGridCell) {
         return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(4.0),
+          alignment: AlignmentDirectional.centerStart,
+          padding: const EdgeInsets.all(8.0),
           child: fluent.Text(
             dataGridCell.value.toString(),
             overflow: TextOverflow.ellipsis,
-            style: textTheme.bodyMedium,
+            style: style.body,
           ),
         );
       }).toList(),
@@ -413,7 +406,7 @@ class MainCategoriesDataGridSource extends DataGridSource {
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>((dataGridCell) {
         return Container(
-          alignment: Alignment.center,
+          alignment: AlignmentDirectional.centerStart,
           padding: const EdgeInsets.all(8.0),
           child: fluent.Text(
             dataGridCell.value.toString(),

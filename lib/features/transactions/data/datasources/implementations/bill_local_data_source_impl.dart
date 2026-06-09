@@ -1,6 +1,7 @@
 import 'package:flowcash/features/transactions/data/datasources/interfaces/bill_data_source.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_order_entity.dart';
+import 'package:flowcash/core/enums/invoice_type_enum.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/bill_orders_table.dart';
 import 'package:flowcash/core/tables/bills_table.dart';
@@ -132,6 +133,7 @@ final class BillLocalDataSourceImpl implements BillDataSource {
       personId: map[BillsTable.personId] as int?,
       inventoryTransactionId: map[BillsTable.inventoryTransactionId] as int?,
       isCash: (map[BillsTable.isCash] == true || map[BillsTable.isCash] == 1),
+      billType: InvoiceType.of(map[BillsTable.billType] as String? ?? 'sales'),
     );
   }
 
@@ -150,6 +152,7 @@ final class BillLocalDataSourceImpl implements BillDataSource {
       BillsTable.personId: entity.personId,
       BillsTable.inventoryTransactionId: entity.inventoryTransactionId,
       BillsTable.isCash: entity.isCash ? 1 : 0,
+      BillsTable.billType: entity.billType.name,
     };
   }
 

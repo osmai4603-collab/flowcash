@@ -18,6 +18,7 @@ sealed class AppRouteKeys {
   static const String inventory = '/dashboard/inventory';
   static const String categories = '/dashboard/categories';
   static const String transactions = '/dashboard/transactions';
+  static const String sales = '/dashboard/sales';
   static const String settings = '/dashboard/settings';
 
   // ── Categories Sub-Routes ────────────────────────────────────────────────

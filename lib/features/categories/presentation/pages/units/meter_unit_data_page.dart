@@ -176,7 +176,7 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
                                 message: 'رجوع',
                                 child: fluent.IconButton(
                                   icon: const fluent.Icon(
-                                    fluent.FluentIcons.back,
+                                    fluent.FluentIcons.back_to_window,
                                   ),
                                   onPressed: () => Navigator.pop(context),
                                 ),
@@ -273,7 +273,7 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                const Expanded(child: SizedBox(height: 40)),
+                                const Expanded(child: SizedBox()),
                               ],
                             ),
                         ],
@@ -297,7 +297,7 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
     String? Function(String?)? validator,
   ) {
     final colors = ColorScheme.of(context);
-    return TextFormField(
+    return fluent.TextFormBox(
       textInputAction: isDoneAction
           ? TextInputAction.done
           : TextInputAction.next,
@@ -313,23 +313,15 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
       autofocus: autoFocus,
       textDirection: TextDirection.ltr,
       keyboardType: TextInputType.number,
-      textAlign: TextAlign.center,
-      textAlignVertical: isDesktop
-          ? TextAlignVertical.center
-          : TextAlignVertical.bottom,
-      style: Styles.labelMedium,
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'\d+\.?\d*')),
       ],
       validator: validator,
-      cursorHeight: 20.0,
-      decoration: InputDecoration(
-        hintText: 'ادخل ال$title',
-        hintStyle: Styles.titleSmall.copyWith(color: colors.onSurfaceVariant),
-        labelText: 'ال$title',
-        labelStyle: Styles.titleMedium.copyWith(color: colors.primary),
-        prefixIcon: fluent.Icon(
-          fluent.FluentIcons.light_weight,
+      placeholder: 'ادخل ال$title',
+      prefix: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: fluent.Icon(
+          fluent.FluentIcons.number_field,
           color: colors.primary,
         ),
       ),

@@ -44,28 +44,7 @@ class ExchangeRatesPage extends StatelessWidget {
               gridLinesVisibility: GridLinesVisibility.both,
               headerGridLinesVisibility: GridLinesVisibility.both,
               columnWidthMode: ColumnWidthMode.fill,
-              onCellTap: (DataGridCellTapDetails details) async {
-                if (details.rowColumnIndex.rowIndex > 0) {
-                  final item = items[details.rowColumnIndex.rowIndex - 1];
-                  final didUpdate = await showDialog<bool>(
-                    context: context,
-                    builder: (context) =>
-                        ExchangePriceFormPage(initialValue: item),
-                  );
-                  if (didUpdate == true && context.mounted) {
-                    fluent.displayInfoBar(
-                      context,
-                      builder: (context, close) => fluent.InfoBar(
-                        title: const fluent.Text('تنبيه'),
-                        content: fluent.Text('تم تحديث سعر الصرف'),
-                      ),
-                    );
-                    context.read<ExchangeRatesBloc>().add(
-                      LoadExchangeRatesEvent(),
-                    );
-                  }
-                }
-              },
+              onCellTap: (cell) => _onPressedCell(cell, context, items),
               columns: [
                 GridColumn(
                   columnName: 'no',
@@ -156,6 +135,26 @@ class ExchangeRatesPage extends StatelessWidget {
         return const SizedBox.shrink();
       },
     );
+  }
+
+  void _onPressedCell(DataGridCellTapDetails details, BuildContext context, List<ExchangePriceEntity> items) async {
+    if (details.rowColumnIndex.rowIndex > 0) {
+      final item = items[details.rowColumnIndex.rowIndex - 1];
+      final didUpdate = await showDialog<ExchangePriceEntity>(
+        context: context,
+        builder: (context) => ExchangePriceFormPage(initialValue: item),
+      );
+      if (didUpdate != null && context.mounted) {
+        fluent.displayInfoBar(
+          context,
+          builder: (context, close) => fluent.InfoBar(
+            title: const fluent.Text('تنبيه'),
+            content: fluent.Text('تم تحديث سعر الصرف'),
+          ),
+        );
+        context.read<ExchangeRatesBloc>().add(LoadExchangeRatesEvent());
+      }
+    }
   }
 }
 

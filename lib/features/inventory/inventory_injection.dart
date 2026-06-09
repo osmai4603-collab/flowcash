@@ -14,8 +14,6 @@ import 'package:flowcash/features/inventory/data/datasources/goods_cost_data_sou
 import 'package:flowcash/features/inventory/data/datasources/goods_cost_local_data_source_impl.dart';
 import 'package:flowcash/features/inventory/data/datasources/warehouse_value_data_source.dart';
 import 'package:flowcash/features/inventory/data/datasources/warehouse_value_local_data_source_impl.dart';
-import 'package:flowcash/features/inventory/data/datasources/inventory_catalog_data_source.dart';
-import 'package:flowcash/features/inventory/data/datasources/inventory_catalog_local_data_source_impl.dart';
 
 // Repositories
 import 'package:flowcash/features/inventory/domain/repositories/inventory_repository.dart';
@@ -28,10 +26,6 @@ import 'package:flowcash/features/inventory/domain/repositories/opening_quantity
 import 'package:flowcash/features/inventory/data/repositories/opening_quantity_repository_impl.dart';
 import 'package:flowcash/features/inventory/domain/repositories/goods_cost_repository.dart';
 import 'package:flowcash/features/inventory/data/repositories/goods_cost_repository_impl.dart';
-import 'package:flowcash/features/inventory/domain/repositories/warehouse_value_repository.dart';
-import 'package:flowcash/features/inventory/data/repositories/warehouse_value_repository_impl.dart';
-import 'package:flowcash/features/inventory/domain/repositories/inventory_catalog_repository.dart';
-import 'package:flowcash/features/inventory/data/repositories/inventory_catalog_repository_impl.dart';
 
 // Use Cases
 import 'package:flowcash/features/inventory/domain/usecases/inventory_usecases.dart';
@@ -41,7 +35,6 @@ import 'package:flowcash/features/inventory/domain/usecases/opening_quantity_use
 import 'package:flowcash/features/inventory/domain/usecases/goods_cost_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/warehouse_value_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/warehouse_usecases.dart';
-import 'package:flowcash/features/inventory/domain/usecases/inventory_catalog_usecases.dart';
 
 // Blocs (to be created)
 import 'package:flowcash/features/inventory/presentation/blocs/inventory_catalog/inventory_catalog_bloc.dart';
@@ -61,7 +54,6 @@ void initInventoryFeature(GetIt sl) {
       insertInventory: sl(),
       updateInventory: sl(),
       deleteInventory: sl(),
-      getInventorySubcategories: sl(),
       getMainAccounts: sl(),
       getSubAccounts: sl(),
     ),
@@ -148,10 +140,6 @@ void initInventoryFeature(GetIt sl) {
   sl.registerLazySingleton<WarehouseValueDataSource>(
     () => WarehouseValueLocalDataSourceImpl(sl()),
   );
-  sl.registerLazySingleton<InventorySubcategoryDataSource>(
-    () => InventorySubcategoryLocalDataSourceImpl(sl()),
-  );
-
   //============================================================
   // Repositories
   //============================================================
@@ -170,12 +158,6 @@ void initInventoryFeature(GetIt sl) {
   sl.registerLazySingleton<GoodsCostRepository>(
     () => GoodsCostRepositoryImpl(sl()),
   );
-  sl.registerLazySingleton<WarehouseValueRepository>(
-    () => WarehouseValueRepositoryImpl(sl()),
-  );
-  sl.registerLazySingleton<InventorySubcategoryRepository>(
-    () => InventorySubcategoryRepositoryImpl(sl()),
-  );
 
   //============================================================
   // Use Cases
@@ -189,26 +171,6 @@ void initInventoryFeature(GetIt sl) {
   sl.registerLazySingleton(() => FirstWhereCategoryUseCase(sl()));
   sl.registerLazySingleton(() => FirstWhereCategoryAndStoreUseCase(sl()));
   sl.registerLazySingleton(() => GetInventoryUseCase(sl()));
-
-  // Subcategories (Catalog)
-  sl.registerLazySingleton<GetInventorySubcategoriesUseCase>(
-    () => GetInventorySubcategoriesUseCase(sl()),
-  );
-  sl.registerLazySingleton<GetInventorySubcategoryByIdUseCase>(
-    () => GetInventorySubcategoryByIdUseCase(sl()),
-  );
-  sl.registerLazySingleton<InsertInventorySubcategoryUseCase>(
-    () => InsertInventorySubcategoryUseCase(sl()),
-  );
-  sl.registerLazySingleton<UpdateInventorySubcategoryUseCase>(
-    () => UpdateInventorySubcategoryUseCase(sl()),
-  );
-  sl.registerLazySingleton<DeleteInventorySubcategoryUseCase>(
-    () => DeleteInventorySubcategoryUseCase(sl()),
-  );
-  sl.registerLazySingleton<FirstWhereStoreAndCategoryUseCase>(
-    () => FirstWhereStoreAndCategoryUseCase(sl()),
-  );
 
   // Transactions
   sl.registerLazySingleton(() => GetInventoryTransactionsUseCase(sl()));

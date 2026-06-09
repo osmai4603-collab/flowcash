@@ -1,3 +1,4 @@
+import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'catalog_form_event.dart';
 import 'catalog_form_state.dart';
@@ -9,7 +10,7 @@ import 'package:flowcash/features/categories/domain/entities/subcategory_unit_en
 
 class SubcategoryFormBloc
     extends Bloc<SubcategoryFormEvent, SubcategoryFormState> {
-  final GetMainCategoryByIdUseCase _getMainCategoryUseCase;
+  final GetAllMainCategoriesUseCase _getAllMainCategoriesUseCase;
   final GetCategoryPropertiesByMainCategoryUseCase _getPropertiesUseCase;
   final GetUnitsByUnitTypes _getUnitsByUnitType;
   final GetSubcategoryUnitsByMainCategoryUseCase _getSubcategoryUnitsUseCase;
@@ -17,7 +18,7 @@ class SubcategoryFormBloc
   final UpdateSubcategoryUseCase _updateSubcategoryUseCase;
 
   SubcategoryFormBloc({
-    required GetMainCategoryByIdUseCase getMainCategoryUseCase,
+    required GetAllMainCategoriesUseCase getAllMainCategoriesUseCase,
     required GetCategoryPropertiesByMainCategoryUseCase getPropertiesUseCase,
     required GetUnitsByUnitTypes getUnitsUseCase,
     required GetSubcategoryUnitsByMainCategoryUseCase
@@ -25,7 +26,7 @@ class SubcategoryFormBloc
     required GetSubcategoriesByMainCategoryUseCase getSubcategoriesUseCase,
     required InsertSubcategoryUseCase insertSubcategoryUseCase,
     required UpdateSubcategoryUseCase updateSubcategoryUseCase,
-  }) : _getMainCategoryUseCase = getMainCategoryUseCase,
+  }) : _getAllMainCategoriesUseCase = getAllMainCategoriesUseCase,
        _getPropertiesUseCase = getPropertiesUseCase,
        _getUnitsByUnitType = getUnitsUseCase,
        _getSubcategoryUnitsUseCase = getSubcategoryUnitsUseCase,
@@ -33,6 +34,7 @@ class SubcategoryFormBloc
        _updateSubcategoryUseCase = updateSubcategoryUseCase,
        super(const SubcategoryFormState()) {
     on<InitSubcategoryFormEvent>(_onInit);
+    on<MainCategorySelectedEvent>(_onMainCategorySelected);
     on<SubcategoryNameChangedEvent>(_onNameChanged);
     on<SaveSubcategoryEvent>(_onSave);
     on<UpdateSelectedUnitEvent>(_onUpdateSelectedUnit);
@@ -51,39 +53,92 @@ class SubcategoryFormBloc
         catalogNumber: event.catalog?.catalogNumber,
         status: SubcategoryFormStatus.initial,
         catalogProperties: const [],
+        mainCategory: null,
+        mainCategories: const [],
       ),
     );
     await Future.delayed(const Duration(seconds: 1));
 
-    // 1. Fetch MainCategory
-    final mainCategoryResult = await _getMainCategoryUseCase(
-      event.mainCategoryId,
-    );
-    final mainCategory = mainCategoryResult.fold((failure) {
+    final mainCategoriesResult = await _getAllMainCategoriesUseCase();
+    final mainCategories = mainCategoriesResult.fold((failure) {
       emit(
         state.copyWith(
           status: SubcategoryFormStatus.failure,
           messageError: failure.message,
         ),
       );
-      return null;
-    }, (category) => category);
-    if (mainCategory == null) return;
+      return const <MainCategoryEntity>[];
+    }, (categories) => categories);
 
-    // 2. Fetch properties matching mainCategoryId
-    final propertiesResult = await _getPropertiesUseCase(event.mainCategoryId);
+    final int? selectedId = event.catalog?.mainCategoryId;
+    MainCategoryEntity? selectedMainCategory;
+    if (selectedId != null && selectedId > 0) {
+      try {
+        selectedMainCategory = mainCategories
+            .firstWhere((category) => category.id == selectedId);
+      } catch (_) {
+        selectedMainCategory = null;
+      }
+    }
+
+    if (selectedMainCategory == null) {
+      emit(
+        state.copyWith(
+          status: SubcategoryFormStatus.ready,
+          mainCategories: mainCategories,
+        ),
+      );
+      return;
+    }
+
+    await _loadPropertiesForMainCategory(
+      selectedMainCategory,
+      state.catalogId,
+      emit,
+      mainCategories,
+    );
+  }
+
+  Future<void> _onMainCategorySelected(
+    MainCategorySelectedEvent event,
+    Emitter<SubcategoryFormState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        status: SubcategoryFormStatus.initial,
+        mainCategory: event.mainCategory,
+        catalogProperties: const [],
+      ),
+    );
+
+    await _loadPropertiesForMainCategory(
+      event.mainCategory,
+      state.catalogId,
+      emit,
+      state.mainCategories,
+    );
+  }
+
+  Future<void> _loadPropertiesForMainCategory(
+    MainCategoryEntity mainCategory,
+    int catalogId,
+    Emitter<SubcategoryFormState> emit,
+    List<MainCategoryEntity> mainCategories,
+  ) async {
+    final propertiesResult = await _getPropertiesUseCase(mainCategory.id);
     final properties = propertiesResult.fold((failure) {
       emit(
         state.copyWith(
           status: SubcategoryFormStatus.failure,
           messageError: failure.message,
+          mainCategories: mainCategories,
+          mainCategory: mainCategory,
         ),
       );
       return null;
     }, (props) => props);
     if (properties == null) return;
 
-    // 3. Fetch basic units
     final unitsResult = await _getUnitsByUnitType(
       properties.map((property) => property.unitType),
     );
@@ -92,20 +147,20 @@ class SubcategoryFormBloc
         state.copyWith(
           status: SubcategoryFormStatus.failure,
           messageError: failure.message,
+          mainCategories: mainCategories,
+          mainCategory: mainCategory,
         ),
       );
       return null;
     }, (uts) => uts);
     if (units == null) return;
 
-    // 4. Fetch catalogInfo if catalogId > 0
     List<SubcategoryUnitEntity> catalogInfos = [];
-    if (state.catalogId > 0) {
-      final infoResult = await _getSubcategoryUnitsUseCase([event.catalog!.id]);
+    if (catalogId > 0) {
+      final infoResult = await _getSubcategoryUnitsUseCase([catalogId]);
       catalogInfos = infoResult.fold((_) => [], (infos) => infos);
     }
 
-    // Initialize empty/selected slots for each property
     final listProperties = properties.map((property) {
       final catalogUnits = units
           .where((unit) => unit.unitType == property.unitType)
@@ -122,18 +177,19 @@ class SubcategoryFormBloc
             );
           })
           .toList();
+      final selectedUnits = catalogUnits.where((unit) => unit.id > 0).toList();
       return SubcategoryProperty(
         property: property,
         subcatgoriesUnits: catalogUnits,
-        selectedUnits: catalogUnits.where((unit) => unit.id > 0).toList(),
+        selectedUnits: selectedUnits.isEmpty ? [null] : selectedUnits,
       );
     }).toList();
 
-    // 5. emit state with copyWith
     emit(
       state.copyWith(
         status: SubcategoryFormStatus.ready,
         mainCategory: mainCategory,
+        mainCategories: mainCategories,
         catalogProperties: listProperties,
       ),
     );
@@ -180,10 +236,18 @@ class SubcategoryFormBloc
   ) {
     final s = state;
     if (s.status != SubcategoryFormStatus.ready) return;
+    final selectedUnits = List.of(event.property.selectedUnits);
+    if (event.unit == null) {
+      if (event.index >= 0 && event.index < selectedUnits.length) {
+        selectedUnits.removeAt(event.index);
+      }
+    } else if (event.index >= 0 && event.index < selectedUnits.length) {
+      selectedUnits[event.index] = event.unit!;
+    } else {
+      selectedUnits.add(event.unit!);
+    }
     final property = event.property.copyWith(
-      selectedUnits: event.unit == null
-          ? (List.of(event.property.selectedUnits)..removeAt(event.index))
-          : (List.of(event.property.selectedUnits)..add(event.unit!)),
+      selectedUnits: selectedUnits,
     );
     final properties = List.of(state.catalogProperties);
     final idx = properties.indexWhere(

@@ -1,21 +1,19 @@
 import 'package:flowcash/core/constants/app_route_keys.dart';
 import 'package:flowcash/features/accounts/presentation/pages/accounts_dashboard.dart';
-import 'package:flowcash/features/accounts/presentation/pages/accounts_page.dart';
 import 'package:flowcash/features/auth/presentation/pages/login_page.dart';
 import 'package:flowcash/features/categories/presentation/pages/categories/categories_dashboard_page.dart';
 import 'package:flowcash/features/categories/presentation/pages/main_categories/main_categories_page.dart';
-import 'package:flowcash/features/home/presentation/pages/home_page.dart';
+import 'package:flowcash/features/home/presentation/pages/dashboard_view.dart';
 import 'package:flowcash/features/home/presentation/widgets/home_navigation_view.dart';
 import 'package:flowcash/features/inventory/presentation/pages/inventory_dashboard.dart';
 import 'package:flowcash/features/settings/presentation/pages/settings_page.dart';
 import 'package:flowcash/features/system/presentation/pages/system_page.dart';
 import 'package:flowcash/features/transactions/presentation/pages/transactions_dashboard.dart';
-import 'package:flowcash/features/inventory/presentation/pages/inventory_page.dart';
+import 'package:flowcash/features/sales/presentation/pages/sales_dashboard.dart';
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/user_session.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 /// ثوابت ومنافذ نظام التنقل.
 ///
@@ -25,7 +23,6 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 /// StatefulShellRoute                  ← MainScreen (Stateful Shell)
 ///   ├── Branch: Dashboard             ← DashboardPage
 ///   ├── Branch: System                ← SystemPage
-///   ├── Branch: DatabaseAdmin         ← DatabaseAdminPage (قيد الإنشاء)
 ///   ├── Branch: Accounts              ← AccountsPage
 ///   ├── Branch: Inventory             ← InventoryPage (قيد الإنشاء)
 ///   ├── Branch: Categories            ← CategoriesPage
@@ -74,11 +71,7 @@ sealed class NavigationService {
             routes: [
               GoRoute(
                 path: AppRouteKeys.dashboard,
-                builder: (context, state) => const Scaffold(
-                  body: Center(
-                    child: fluent.Text('لوحة المعلومات (قيد الإنشاء)'),
-                  ),
-                ),
+                builder: (context, state) => DashboardView(),
               ),
             ],
           ),
@@ -87,18 +80,6 @@ sealed class NavigationService {
               GoRoute(
                 path: AppRouteKeys.system,
                 builder: (context, state) => const SystemPage(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRouteKeys.databaseAdmin,
-                builder: (context, state) => const Scaffold(
-                  body: Center(
-                    child: fluent.Text('إدارة قاعدة البيانات (قيد الإنشاء)'),
-                  ),
-                ),
               ),
             ],
           ),
@@ -143,6 +124,14 @@ sealed class NavigationService {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: AppRouteKeys.sales,
+                builder: (context, state) => const SalesDashboard(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: AppRouteKeys.settings,
                 builder: (context, state) => SettingsPage(),
               ),
@@ -160,8 +149,6 @@ sealed class NavigationService {
   static void toDashboard(BuildContext context) =>
       context.go(AppRouteKeys.dashboard);
   static void toSystem(BuildContext context) => context.go(AppRouteKeys.system);
-  static void toDatabaseAdmin(BuildContext context) =>
-      context.go(AppRouteKeys.databaseAdmin);
   static void toAccounts(BuildContext context) =>
       context.go(AppRouteKeys.accounts);
   static void toInventory(BuildContext context) =>
@@ -170,6 +157,8 @@ sealed class NavigationService {
       context.go(AppRouteKeys.categories);
   static void toTransactions(BuildContext context) =>
       context.go(AppRouteKeys.transactions);
+  static void toSales(BuildContext context) =>
+      context.go(AppRouteKeys.sales);
   static void toSettings(BuildContext context) =>
       context.go(AppRouteKeys.settings);
   static void toMainCategories(BuildContext context) =>

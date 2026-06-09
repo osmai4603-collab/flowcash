@@ -224,8 +224,9 @@ class GenerateCategories {
     }
     // Final fallback: use first indexer if available
     if (indexOfIndexer < 0) {
-      if (indexers.isEmpty)
+      if (indexers.isEmpty) {
         throw 'No indexers available to determine category unit';
+      }
       indexOfIndexer = 0;
     }
     final indexer = indexers[indexOfIndexer];
@@ -234,8 +235,9 @@ class GenerateCategories {
       (unit) => unit.id == info.unitId,
     );
     if (indexOfUnit < 0) {
-      if (indexer.units.isEmpty)
+      if (indexer.units.isEmpty) {
         throw 'No units available for selected indexer';
+      }
       indexOfUnit = 0; // fallback to first unit
     }
     return indexer.units[indexOfUnit];
@@ -251,8 +253,9 @@ class GenerateCategories {
       );
     }
     if (indexOfIndexer < 0) {
-      if (indexers.isEmpty)
+      if (indexers.isEmpty) {
         throw 'No indexers available to determine pricing unit';
+      }
       indexOfIndexer = 0;
     }
     final indexer = indexers[indexOfIndexer];
@@ -261,8 +264,9 @@ class GenerateCategories {
       (unit) => unit.id == info.unitId,
     );
     if (indexOfUnit < 0) {
-      if (indexer.units.isEmpty)
+      if (indexer.units.isEmpty) {
         throw 'No units available for selected indexer';
+      }
       indexOfUnit = 0;
     }
     return indexer.units[indexOfUnit];
@@ -278,8 +282,9 @@ class GenerateCategories {
       );
     }
     if (indexOfIndexer < 0) {
-      if (indexers.isEmpty)
+      if (indexers.isEmpty) {
         throw 'No indexers available to determine inventory unit';
+      }
       indexOfIndexer = 0;
     }
     final indexer = indexers[indexOfIndexer];
@@ -288,8 +293,9 @@ class GenerateCategories {
       (unit) => unit.id == info.unitId,
     );
     if (indexOfUnit < 0) {
-      if (indexer.units.isEmpty)
+      if (indexer.units.isEmpty) {
         throw 'No units available for selected indexer';
+      }
       indexOfUnit = 0;
     }
     return indexer.units[indexOfUnit];
@@ -340,7 +346,7 @@ class Indexer {
       throw 'Index Can Not Be $index on get Unit from ${info.toString()}';
     }
     return units[index].unitType.canWriteUnitOnCategory
-        ? units[index].unitName
+        ? units[index].getCategoryName()
         : '';
   }
 }

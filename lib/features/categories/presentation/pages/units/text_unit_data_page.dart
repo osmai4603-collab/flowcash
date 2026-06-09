@@ -112,77 +112,63 @@ class _TextUnitDataPageState extends State<TextUnitDataPage> {
           },
           child: fluent.ContentDialog(
             constraints: const BoxConstraints(maxWidth: 400.0),
-            content: Padding(
-              padding: Paddings.mediumAll,
-              child: ShimmerLoadingWidget(
-                canShimmer: isLoading,
-                freezeScreen: isSaving,
-                period: const Duration(milliseconds: 900),
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    child: Column(
-                      spacing: Spacings.medium,
-                      children: [
-                        Row(
-                          children: [
-                            fluent.Tooltip(
-                              message: 'رجوع',
-                              child: fluent.IconButton(
-                                icon: const fluent.Icon(Icons.arrow_back),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ),
-                            TextWidget(
-                              text:
-                                  'ادخال ${widget.property.propertyName} ${category?.unitName ?? 'حبة'}',
-                              expanded: true,
-                              textAlign: TextAlign.center,
-                            ),
-                            fluent.Tooltip(
-                              message: 'حفظ البيانات',
-                              child: fluent.IconButton(
-                                icon: const fluent.Icon(Icons.save),
-                                onPressed: _onSaveButtonClicked,
-                              ),
-                            ),
-                          ],
-                        ),
-                        TextFormField(
-                          controller: textUnitNameController,
-                          onChanged: (_) => _markChanged(),
-                          autofocus: true,
-                          textAlignVertical: isDesktop
-                              ? TextAlignVertical.center
-                              : TextAlignVertical.bottom,
-                          style: Styles.labelMedium,
-                          onFieldSubmitted: (_) => _onSaveButtonClicked(),
-                          cursorHeight: 20.0,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'اسم ال${widget.property.propertyName} فارغ';
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            hintText:
-                                'ادخل اسم ال${widget.property.propertyName}',
-                            hintStyle: Styles.labelMedium.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
-                            labelText: 'اسم ال${widget.property.propertyName}',
-                            labelStyle: Styles.titleMedium.copyWith(
-                              color: ColorScheme.of(context).primary,
-                            ),
-                            prefixIcon: fluent.Icon(
-                              Icons.widgets,
-                              color: ColorScheme.of(context).primary,
+            content: ShimmerLoadingWidget(
+              canShimmer: isLoading,
+              freezeScreen: isSaving,
+              period: const Duration(milliseconds: 900),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: Column(
+                    spacing: Spacings.medium,
+                    children: [
+                      Row(
+                        children: [
+                          fluent.Tooltip(
+                            message: 'رجوع',
+                            child: fluent.IconButton(
+                              icon: fluent.Icon(fluent.FluentIcons.back_to_window, size: 20,),
+                              onPressed: () => Navigator.pop(context),
                             ),
                           ),
+                          TextWidget(
+                            text:
+                                'ادخال ${widget.property.propertyName} ${category?.unitName ?? 'حبة'}',
+                            expanded: true,
+                            textAlign: TextAlign.center,
+                          ),
+                          fluent.Tooltip(
+                            message: 'حفظ البيانات',
+                            child: fluent.IconButton(
+                              icon: fluent.Icon(fluent.FluentIcons.save, size: 20,),
+                              onPressed: _onSaveButtonClicked,
+                            ),
+                          ),
+                        ],
+                      ),
+                      fluent.TextFormBox(
+                        controller: textUnitNameController,
+                        onChanged: (_) => _markChanged(),
+                        autofocus: true,
+                        onFieldSubmitted: (_) => _onSaveButtonClicked(),
+                        cursorHeight: 20.0,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'اسم ال${widget.property.propertyName} فارغ';
+                          }
+                          return null;
+                        },
+                        placeholder: 'ادخل اسم ال${widget.property.propertyName}',
+                        prefix: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: fluent.Icon(
+                            fluent.FluentIcons.modeling_view,
+                            color: ColorScheme.of(context).primary,
+                          ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),

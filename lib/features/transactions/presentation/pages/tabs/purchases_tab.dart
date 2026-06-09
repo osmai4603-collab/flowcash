@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flowcash/core/enums/invoice_type_enum.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_order_entity.dart';
 import 'package:flowcash/features/transactions/presentation/blocs/bills/bills_bloc.dart';
@@ -32,8 +33,6 @@ class _PurchasesTabState extends State<PurchasesTab> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return BlocBuilder<BillsBloc, BillsState>(
       builder: (context, state) {
         if (state.status == BillsStatus.loading && state.bills.isEmpty) {
@@ -382,6 +381,7 @@ class _PurchasesTabState extends State<PurchasesTab> {
                   billNumber: num,
                   warehouseId: 1,
                   isCash: isCash,
+                  billType: _isReturnFilter ? InvoiceType.buysReturn : InvoiceType.buys,
                 );
 
                 context.read<BillsBloc>().add(AddBillEvent(bill: newBill, orders: const []));

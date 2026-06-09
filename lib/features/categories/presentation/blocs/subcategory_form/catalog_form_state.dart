@@ -11,6 +11,7 @@ class SubcategoryFormState extends Equatable {
   final int catalogId;
   final SubcategoryFormStatus status;
   final MainCategoryEntity? mainCategory;
+  final List<MainCategoryEntity> mainCategories;
   final String? catalogName;
   final String? catalogNumber;
   final List<SubcategoryProperty> catalogProperties;
@@ -21,6 +22,7 @@ class SubcategoryFormState extends Equatable {
     this.catalogId = 0,
     this.status = SubcategoryFormStatus.initial,
     this.mainCategory,
+    this.mainCategories = const [],
     this.catalogName,
     this.catalogNumber,
     this.catalogProperties = const [],
@@ -32,6 +34,7 @@ class SubcategoryFormState extends Equatable {
     int? catalogId,
     SubcategoryFormStatus? status,
     MainCategoryEntity? mainCategory,
+    List<MainCategoryEntity>? mainCategories,
     String? catalogName,
     String? catalogNumber,
     List<SubcategoryProperty>? catalogProperties,
@@ -42,6 +45,7 @@ class SubcategoryFormState extends Equatable {
       catalogId: catalogId ?? this.catalogId,
       status: status ?? this.status,
       mainCategory: mainCategory ?? this.mainCategory,
+      mainCategories: mainCategories ?? this.mainCategories,
       catalogName: catalogName ?? this.catalogName,
       catalogNumber: catalogNumber ?? this.catalogNumber,
       catalogProperties: catalogProperties ?? this.catalogProperties,
@@ -55,6 +59,7 @@ class SubcategoryFormState extends Equatable {
     catalogId,
     status,
     mainCategory,
+    mainCategories,
     catalogName,
     catalogNumber,
     catalogProperties,

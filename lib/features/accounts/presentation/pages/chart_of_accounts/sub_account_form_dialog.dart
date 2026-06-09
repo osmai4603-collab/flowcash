@@ -170,47 +170,34 @@ class _SubAccountFormDialogState extends State<SubAccountFormDialog> {
                             Expanded(
                               child: fluent.InfoLabel(
                                 label: 'نوع الحساب الفرعي',
-                                child: fluent.AutoSuggestBox<SubAccountType>(
-                                  // value: state.selectedType,
-                                  placeholder:
-                                      'اختر نوع الحساب الفرعي', //  const fluent.Text(
-                                  //   'اختر نوع الحساب الفرعي',
-                                  // ),
-                                  // icon: const fluent.Icon(
-                                  //   fluent.FluentIcons.chevron_down,
-                                  // ),
-                                  // isExpanded: true,
+                                child: fluent.ComboboxFormField<SubAccountType>(
+                                  key: ValueKey(state.selectedType),
                                   items: state.subAccountTypes
                                       .map(
                                         (type) =>
-                                            fluent.AutoSuggestBoxItem<
-                                              SubAccountType
-                                            >(
+                                            fluent.ComboBoxItem<SubAccountType>(
                                               value: type,
                                               child: fluent.Text(
                                                 type.displayName(),
                                               ),
-                                              label: type.displayName(),
                                             ),
                                       )
                                       .toList(),
-                                  onChanged: (type, _) {
-                                    final selected = state.subAccountTypes
-                                        .indexWhere((t) => t.name == type);
-                                    if (selected > -1) {
-                                      bloc.add(
-                                        SubAccountTypeChanged(
-                                          state.subAccountTypes[selected],
-                                        ),
-                                      );
+                                  value: state.selectedType,
+                                  placeholder: const fluent.Text(
+                                    'اختر نوع الحساب الفرعي',
+                                  ),
+                                  isExpanded: true,
+                                  validator: (value) {
+                                    if (value == null) {
+                                      return 'الرجاء اختيار نوع الحساب الفرعي';
                                     }
+                                    return null;
                                   },
-
-                                  onSelected: (value) {
-                                    if (value.value != null)
-                                      bloc.add(
-                                        SubAccountTypeChanged(value.value!),
-                                      );
+                                  onChanged: (type) {
+                                    if (type != null) {
+                                      bloc.add(SubAccountTypeChanged(type));
+                                    }
                                   },
                                 ),
                               ),

@@ -78,7 +78,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
     } else {
       final debitVal =
           ((map[JournalItemsTable.debit]) as num?)?.toDouble() ?? 0.0;
-      status = debitVal > 0 ? JournalStatus.debit : JournalStatus.credit;
+      status = debitVal > 0 ? JournalStatus.increment : JournalStatus.decrement;
     }
     return JournalItemEntity(
       id: map[JournalItemsTable.itemId] as int,

@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:flowcash/core/theme/paddings.dart';
+import 'package:flowcash/core/theme/spacings.dart';
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
-import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategories/subcategories_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategories/subcategories_event.dart';
@@ -15,14 +16,10 @@ import 'package:flowcash/widgets/message.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flowcash/core/theme/styles.dart';
-
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class SubcategoriesPage extends StatefulWidget {
-  final MainCategoryEntity mainCategory;
-
-  const SubcategoriesPage({super.key, required this.mainCategory});
+  const SubcategoriesPage({super.key});
 
   @override
   State<SubcategoriesPage> createState() => _SubcategoriesPageState();
@@ -33,10 +30,10 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppStyle.of(context);
     return BlocProvider(
       create: (_) =>
-          sl<SubcategoriesBloc>()
-            ..add(LoadSubcategoriesEvent(widget.mainCategory.id)),
+          sl<SubcategoriesBloc>()..add(const LoadSubcategoriesEvent()),
       child: BlocListener<SubcategoriesBloc, SubcategoriesState>(
         listener: (context, state) async {
           if (state is SubcategoriesLoadFailure) {
@@ -88,85 +85,59 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             successToast(context: context, toast: state.statusMessage!);
           }
         },
-        child: Scaffold(
-          appBar: AppBar(
+        child: fluent.ScaffoldPage(
+          header: fluent.PageHeader(
             title: Row(
+              spacing: Spacings.medium,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(child: fluent.Text(widget.mainCategory.name)),
+                const Expanded(
+                  child: fluent.Text('الأصناف الفرعية'),
+                ),
                 SizedBox(
-                  height: 40.0,
                   width: isDesktop ? 400.0 : 250.0,
                   child: BlocBuilder<SubcategoriesBloc, SubcategoriesState>(
                     builder: (context, state) {
-                      return SearchBar(
-                        elevation: const WidgetStatePropertyAll(0.0),
-                        backgroundColor: WidgetStatePropertyAll(
-                          ColorScheme.of(
-                            context,
-                          ).secondary.withValues(alpha: 0.25),
+                      return fluent.TextBox(
+                        prefix: Padding(
+                          padding: Paddings.smallAll,
+                          child: fluent.Icon(
+                            fluent.FluentIcons.search,
+                            color: colors.onSurfaceVariant,
+                          ),
                         ),
-                        leading: const fluent.Icon(
-                          fluent.FluentIcons.search,
-                          color: Colors.white70,
-                        ),
-                        hintText: 'ابحث عن نوع صنف هنا',
+                        placeholder: 'ابحث عن نوع صنف هنا',
                         onChanged: (value) => context
                             .read<SubcategoriesBloc>()
                             .add(SearchSubcategoriesEvent(value)),
-                        textStyle: isDesktop
-                            ? WidgetStatePropertyAll(
-                                Styles.titleMedium.copyWith(
-                                  color: Colors.white,
-                                ),
-                              )
-                            : WidgetStatePropertyAll(
-                                Styles.titleSmall.copyWith(color: Colors.white),
-                              ),
-                        shape: const WidgetStatePropertyAll(
-                          RoundedRectangleBorder(),
-                        ),
                       );
                     },
                   ),
                 ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        fluent.Tooltip(
-                          message: 'اضافة نوع صنف جديد',
-                          child: fluent.IconButton(
-                            icon: const fluent.Icon(
-                              fluent.FluentIcons.add,
-                              color: Colors.white,
-                            ),
-                            onPressed: () async {
-                              final catalog =
-                                  await showDialog<SubcategoryEntity>(
-                                    context: context,
-                                    builder: (_) => SubcategoryFormPage(
-                                      mainCategoryId: widget.mainCategory.id,
-                                    ),
-                                  );
-                              if (catalog != null && context.mounted) {
-                                context.read<SubcategoriesBloc>().add(
-                                  AddSubcategoryEvent(catalog),
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
+                fluent.Tooltip(
+                  message: 'إعادة تحميل البيانات',
+                  child: fluent.IconButton(
+                    icon: const fluent.Icon(fluent.FluentIcons.refresh),
+                    onPressed: () => context
+                        .read<SubcategoriesBloc>()
+                        .add(const RefreshSubcategoriesEvent()),
                   ),
+                ),
+                fluent.FilledButton(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      fluent.Icon(fluent.FluentIcons.add),
+                      SizedBox(width: 6),
+                      fluent.Text('اضافة صنف فرعي جديد'),
+                    ],
+                  ),
+                  onPressed: () => _onAddSubcategory(context),
                 ),
               ],
             ),
-            centerTitle: true,
           ),
-          body: Padding(
+          content: Padding(
             padding: const EdgeInsets.all(4),
             child: BlocBuilder<SubcategoriesBloc, SubcategoriesState>(
               builder: (context, state) {
@@ -188,15 +159,25 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     );
   }
 
+  Future<void> _onAddSubcategory(BuildContext context) async {
+    final newSubcategory = await showDialog<SubcategoryEntity>(
+      context: context,
+      builder: (ctx) => const SubcategoryFormPage(),
+    );
+
+    if (newSubcategory != null && context.mounted) {
+      context.read<SubcategoriesBloc>().add(AddSubcategoryEvent(newSubcategory));
+    }
+  }
+
   Widget buildSubcategories(
     BuildContext context,
     SubcategoriesLoadSuccess state,
   ) {
-    final textTheme = TextTheme.of(context);
-    final colors = ColorScheme.of(context);
+    final colors = AppStyle.of(context);
     if (state.catalogs.isEmpty) {
       return TextWidget(
-        text: 'لا يوجد اي نوع صنف ${widget.mainCategory.name}',
+        text: 'لا يوجد اي أصناف فرعية',
         alignment: Alignment.center,
         textAlign: TextAlign.center,
         padding: Paddings.mediumAll,
@@ -205,7 +186,10 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     return Column(
       children: [
         fluent.Table(
-          border: fluent.TableBorder.all(width: 0.5, color: colors.outline),
+          border: fluent.TableBorder.all(
+            width: 0.5,
+            color: colors.outline,
+          ),
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           columnWidths: getWidths(state.properties),
           children: [
@@ -216,20 +200,20 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                   textAlign: TextAlign.center,
                   textDirection: TextDirection.ltr,
                   padding: const EdgeInsets.all(4),
-                  style: textTheme.labelMedium,
+                  style: colors.bodyStrong,
                 ),
                 TextWidget(
                   text: 'اسم النوع',
                   textAlign: TextAlign.center,
                   padding: const EdgeInsets.all(4),
-                  style: textTheme.labelMedium,
+                  style: colors.bodyStrong,
                 ),
                 ...state.properties.map(
                   (property) => TextWidget(
                     text: 'ال${property.propertyName}',
                     textAlign: TextAlign.center,
                     padding: const EdgeInsets.all(4),
-                    style: textTheme.labelMedium,
+                    style: colors.bodyStrong,
                   ),
                 ),
                 const SizedBox(height: 1),
@@ -268,14 +252,13 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
               .toList();
     if (filteredSubcategories.isEmpty) {
       return TextWidget(
-        text: 'لا يوجد اي نوع للصنف ${widget.mainCategory.name}',
+        text: 'لا يوجد اي نوع',
         alignment: Alignment.center,
         textAlign: TextAlign.center,
         padding: Paddings.mediumAll,
       );
     }
-    final textTheme = TextTheme.of(context);
-    final colors = ColorScheme.of(context);
+    final style = AppStyle.of(context);
     return Builder(
       builder: (context) {
         return ListView.builder(
@@ -284,14 +267,13 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             final catalog = filteredSubcategories[index];
             final widths = getWidths(state.properties);
             return fluent.Table(
-              textDirection: TextDirection.rtl,
-              border: fluent.TableBorder.all(width: 0.5, color: colors.outline),
+              border: fluent.TableBorder.all(width: 0.5, color: style.outline),
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               columnWidths: widths,
               children: [
                 TableRow(
                   decoration: BoxDecoration(
-                    color: index % 2 == 0 ? colors.primaryContainer : null,
+                    color: index % 2 == 0 ? style.surfaceContainer : null,
                   ),
                   children: [
                     TextWidget(
@@ -299,13 +281,13 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                       textAlign: TextAlign.center,
                       textDirection: TextDirection.ltr,
                       padding: const EdgeInsets.all(4),
-                      style: textTheme.bodyMedium,
+                      style: style.body,
                     ),
-                    InkWell(
+                    fluent.GestureDetector(
                       child: TextWidget(
                         text: catalog.catalogName,
                         padding: const EdgeInsets.all(4),
-                        style: textTheme.bodySmall,
+                        style: style.body,
                       ),
                       onLongPress: () =>
                           _onDeleteSubcategory(rowContext, catalog),
@@ -314,12 +296,12 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                       (property) =>
                           buildPropertyData(context, property, catalog, state),
                     ),
-                    InkWell(
+                    fluent.GestureDetector(
                       child: Tooltip(
                         message: 'تعريف اصناف ${catalog.catalogName}',
                         child: fluent.Icon(
                           fluent.FluentIcons.generate,
-                          color: colors.primary,
+                          color: style.primary,
                           size: 20,
                         ),
                       ),
@@ -340,8 +322,8 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     SubcategoryEntity catalog,
   ) async {
     final sure = await makeSure(
-      title: 'حذف نوع صنف ${widget.mainCategory.name}',
-      content: 'هل تريد حذف النوع ${catalog.catalogName}',
+      title: 'حذف نوع الصنف',
+      content: 'هل تريد حذف النوع ${catalog.catalogName}?',
       context: context,
     );
 
@@ -356,8 +338,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     SubcategoryEntity catalog,
     SubcategoriesLoadSuccess state,
   ) {
-    final textTheme = TextTheme.of(context);
-
+    final colors = AppStyle.of(context);
     final propertyInfos = state.infos
         .where(
           (info) =>
@@ -369,7 +350,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
       (a, b) => (a.unitName ?? '').compareTo(b.unitName ?? ''),
     );
     if (propertyInfos.isEmpty) {
-      return InkWell(
+      return fluent.GestureDetector(
         child: const fluent.Icon(fluent.FluentIcons.add),
         onTap: () => _onAddPropertyInfo(context, catalog, property),
       );
@@ -382,7 +363,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             : propertyInfos.first.unitName ?? '',
         textAlign: TextAlign.center,
         padding: const EdgeInsets.all(4),
-        style: textTheme.titleSmall,
+        style: colors.body,
       );
     }
 
@@ -412,11 +393,11 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             text: '${propertyInfos.length} ${property.propertyName}',
             textAlign: TextAlign.center,
             padding: const EdgeInsets.all(4),
-            style: textTheme.bodyMedium,
+            style: colors.body,
             expanded: true,
             overflow: TextOverflow.ellipsis,
           ),
-          InkWell(
+          fluent.GestureDetector(
             child: Tooltip(
               message: 'اضافة ${property.propertyName} جديد',
               child: fluent.Icon(
@@ -461,9 +442,8 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
   ) async {
     final bloc = context.read<SubcategoriesBloc>();
     final sure = await makeSure(
-      title: 'تعريف الاًصناف',
-      content:
-          'هل تريد انشاء الاصناف الخاصة بال${widget.mainCategory.name} ${subcategory.catalogName}',
+      title: 'تعريف الأصناف',
+      content: 'هل تريد انشاء الأصناف الخاصة ب${subcategory.catalogName}?',
       context: context,
     );
     if (sure && context.mounted) {

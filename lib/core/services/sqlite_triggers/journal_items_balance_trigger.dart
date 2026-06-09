@@ -9,18 +9,22 @@ final class JournalItemsBalanceTrigger {
   const JournalItemsBalanceTrigger._();
 
   static void call(Database db) {
+    db.execute('DROP TRIGGER IF EXISTS journal_items_after_insert_balance');
+    db.execute('DROP TRIGGER IF EXISTS journal_items_after_delete_balance');
+    db.execute('DROP TRIGGER IF EXISTS journal_items_after_update_balance');
+
     db.execute('''
       CREATE TRIGGER IF NOT EXISTS journal_items_after_insert_balance
       AFTER INSERT ON ${JournalItemsTable.tableName}
       BEGIN
         UPDATE ${SubAccountsTable.tableName}
-        SET ${SubAccountsTable.debitBalance} = ${SubAccountsTable.debitBalance} + NEW.${JournalItemsTable.debit} * NEW.${JournalItemsTable.exPrice},
-            ${SubAccountsTable.creditBalance} = ${SubAccountsTable.creditBalance} + NEW.${JournalItemsTable.credit} * NEW.${JournalItemsTable.exPrice}
+        SET ${SubAccountsTable.debitBalance} = ${SubAccountsTable.debitBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'debit' THEN NEW.${JournalItemsTable.debit} * NEW.${JournalItemsTable.exPrice} ELSE 0 END,
+            ${SubAccountsTable.creditBalance} = ${SubAccountsTable.creditBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'credit' THEN NEW.${JournalItemsTable.credit} * NEW.${JournalItemsTable.exPrice} ELSE 0 END
         WHERE ${SubAccountsTable.id} = NEW.${JournalItemsTable.accountId};
 
         UPDATE ${MainAccountsTable.tableName}
-        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} + NEW.${JournalItemsTable.debit} * NEW.${JournalItemsTable.expriceMain},
-            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} + NEW.${JournalItemsTable.credit} * NEW.${JournalItemsTable.expriceMain}
+        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'debit' THEN NEW.${JournalItemsTable.debit} * NEW.${JournalItemsTable.expriceMain} ELSE 0 END,
+            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'credit' THEN NEW.${JournalItemsTable.credit} * NEW.${JournalItemsTable.expriceMain} ELSE 0 END
         WHERE ${MainAccountsTable.id} = (
           SELECT ${SubAccountsTable.mainAccountId}
           FROM ${SubAccountsTable.tableName}
@@ -35,13 +39,13 @@ final class JournalItemsBalanceTrigger {
       AFTER DELETE ON ${JournalItemsTable.tableName}
       BEGIN
         UPDATE ${SubAccountsTable.tableName}
-        SET ${SubAccountsTable.debitBalance} = ${SubAccountsTable.debitBalance} - (OLD.${JournalItemsTable.debit} * OLD.${JournalItemsTable.exPrice}),
-            ${SubAccountsTable.creditBalance} = ${SubAccountsTable.creditBalance} - (OLD.${JournalItemsTable.credit} * OLD.${JournalItemsTable.exPrice})
+        SET ${SubAccountsTable.debitBalance} = ${SubAccountsTable.debitBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'debit' THEN OLD.${JournalItemsTable.debit} * OLD.${JournalItemsTable.exPrice} ELSE 0 END,
+            ${SubAccountsTable.creditBalance} = ${SubAccountsTable.creditBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'credit' THEN OLD.${JournalItemsTable.credit} * OLD.${JournalItemsTable.exPrice} ELSE 0 END
         WHERE ${SubAccountsTable.id} = OLD.${JournalItemsTable.accountId};
 
         UPDATE ${MainAccountsTable.tableName}
-        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} - (OLD.${JournalItemsTable.debit} * OLD.${JournalItemsTable.expriceMain}),
-            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} - (OLD.${JournalItemsTable.credit} * OLD.${JournalItemsTable.expriceMain})
+        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'debit' THEN OLD.${JournalItemsTable.debit} * OLD.${JournalItemsTable.expriceMain} ELSE 0 END,
+            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'credit' THEN OLD.${JournalItemsTable.credit} * OLD.${JournalItemsTable.expriceMain} ELSE 0 END
         WHERE ${MainAccountsTable.id} = (
           SELECT ${SubAccountsTable.mainAccountId}
           FROM ${SubAccountsTable.tableName}
@@ -56,13 +60,13 @@ final class JournalItemsBalanceTrigger {
       AFTER UPDATE ON ${JournalItemsTable.tableName}
       BEGIN
         UPDATE ${SubAccountsTable.tableName}
-        SET ${SubAccountsTable.debitBalance} = ${SubAccountsTable.debitBalance} - (OLD.${JournalItemsTable.debit} * OLD.${JournalItemsTable.exPrice}),
-            ${SubAccountsTable.creditBalance} = ${SubAccountsTable.creditBalance} - (OLD.${JournalItemsTable.credit} * OLD.${JournalItemsTable.exPrice})
+        SET ${SubAccountsTable.debitBalance} = ${SubAccountsTable.debitBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'debit' THEN OLD.${JournalItemsTable.debit} * OLD.${JournalItemsTable.exPrice} ELSE 0 END,
+            ${SubAccountsTable.creditBalance} = ${SubAccountsTable.creditBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'credit' THEN OLD.${JournalItemsTable.credit} * OLD.${JournalItemsTable.exPrice} ELSE 0 END
         WHERE ${SubAccountsTable.id} = OLD.${JournalItemsTable.accountId};
 
         UPDATE ${MainAccountsTable.tableName}
-        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} - (OLD.${JournalItemsTable.debit} * OLD.${JournalItemsTable.expriceMain}),
-            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} - (OLD.${JournalItemsTable.credit} * OLD.${JournalItemsTable.expriceMain})
+        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'debit' THEN OLD.${JournalItemsTable.debit} * OLD.${JournalItemsTable.expriceMain} ELSE 0 END,
+            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'credit' THEN OLD.${JournalItemsTable.credit} * OLD.${JournalItemsTable.expriceMain} ELSE 0 END
         WHERE ${MainAccountsTable.id} = (
           SELECT ${SubAccountsTable.mainAccountId}
           FROM ${SubAccountsTable.tableName}
@@ -71,13 +75,13 @@ final class JournalItemsBalanceTrigger {
         );
 
         UPDATE ${SubAccountsTable.tableName}
-        SET ${SubAccountsTable.debitBalance} = ${SubAccountsTable.debitBalance} + (NEW.${JournalItemsTable.debit} * NEW.${JournalItemsTable.exPrice}),
-            ${SubAccountsTable.creditBalance} = ${SubAccountsTable.creditBalance} + (NEW.${JournalItemsTable.credit} * NEW.${JournalItemsTable.exPrice})
+        SET ${SubAccountsTable.debitBalance} = ${SubAccountsTable.debitBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'debit' THEN NEW.${JournalItemsTable.debit} * NEW.${JournalItemsTable.exPrice} ELSE 0 END,
+            ${SubAccountsTable.creditBalance} = ${SubAccountsTable.creditBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'credit' THEN NEW.${JournalItemsTable.credit} * NEW.${JournalItemsTable.exPrice} ELSE 0 END
         WHERE ${SubAccountsTable.id} = NEW.${JournalItemsTable.accountId};
 
         UPDATE ${MainAccountsTable.tableName}
-        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} + (NEW.${JournalItemsTable.debit} * NEW.${JournalItemsTable.expriceMain}),
-            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} + (NEW.${JournalItemsTable.credit} * NEW.${JournalItemsTable.expriceMain})
+        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'debit' THEN NEW.${JournalItemsTable.debit} * NEW.${JournalItemsTable.expriceMain} ELSE 0 END,
+            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'credit' THEN NEW.${JournalItemsTable.credit} * NEW.${JournalItemsTable.expriceMain} ELSE 0 END
         WHERE ${MainAccountsTable.id} = (
           SELECT ${SubAccountsTable.mainAccountId}
           FROM ${SubAccountsTable.tableName}

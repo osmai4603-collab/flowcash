@@ -452,8 +452,7 @@ class _CategoriesDashboardMainCategoriesTabState
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    SubcategoriesPage(mainCategory: category),
+                                builder: (_) => const SubcategoriesPage(),
                               ),
                             );
                           },

@@ -1,4 +1,5 @@
 import 'package:flowcash/core/entities/entity.dart';
+import 'package:flowcash/core/enums/invoice_type_enum.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_order_entity.dart';
 
 class BillEntity extends Entity {
@@ -14,6 +15,7 @@ class BillEntity extends Entity {
   final int? personId;
   final int? inventoryTransactionId;
   final bool isCash;
+  final InvoiceType billType;
   final List<BillOrderEntity> orders;
 
   const BillEntity({
@@ -29,6 +31,7 @@ class BillEntity extends Entity {
     this.personId,
     this.inventoryTransactionId,
     required this.isCash,
+    required this.billType,
     this.orders = const [],
   });
   @override
@@ -45,6 +48,7 @@ class BillEntity extends Entity {
     personId,
     inventoryTransactionId,
     isCash,
+    billType,
     orders,
   ];
 
@@ -62,6 +66,7 @@ class BillEntity extends Entity {
     int? personId,
     int? inventoryTransactionId,
     bool? isCash,
+    InvoiceType? billType,
     List<BillOrderEntity>? orders,
   }) {
     return BillEntity(
@@ -78,6 +83,7 @@ class BillEntity extends Entity {
       inventoryTransactionId:
           inventoryTransactionId ?? this.inventoryTransactionId,
       isCash: isCash ?? this.isCash,
+      billType: billType ?? this.billType,
       orders: orders ?? this.orders,
     );
   }
