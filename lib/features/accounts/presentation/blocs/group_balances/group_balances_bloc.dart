@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flowcash/core/enums/journal_status_enum.dart';
 import 'package:flowcash/features/accounts/domain/usecases/main_account_repository_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/sub_account_repository_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/journal_item_repository_usecases.dart';
@@ -60,8 +61,8 @@ class GroupBalancesBloc extends Bloc<GroupBalancesEvent, GroupBalancesState> {
               final balances = <int, Map<String, double>>{};
               for (final sub in subAccounts) {
                 balances[sub.id] = {
-                  'debit': sub.debitBalance,
-                  'credit': sub.creditBalance,
+                  'debit': sub.incrementBalance,
+                  'credit': sub.decrementBalance,
                 };
               }
               emit(
@@ -117,8 +118,8 @@ class GroupBalancesBloc extends Bloc<GroupBalancesEvent, GroupBalancesState> {
                             balances[item.accountId] ??
                             {'debit': 0.0, 'credit': 0.0};
                         balances[item.accountId] = {
-                          'debit': current['debit']! + item.debit,
-                          'credit': current['credit']! + item.credit,
+                          'debit': current['debit']! + (item.journalStatus == JournalStatus.increment ? item.amount : 0.0),
+                          'credit': current['credit']! + (item.journalStatus == JournalStatus.decrement ? item.amount : 0.0),
                         };
                       }
 

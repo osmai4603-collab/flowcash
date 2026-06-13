@@ -104,11 +104,11 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
         final filtered = _getFilteredAccounts(accounts);
         final incrementsSum = filtered.fold(
           0.0,
-          (double pre, next) => pre + next.debitBalance,
+          (double pre, next) => pre + next.incrementBalance,
         );
         final decrementsSum = filtered.fold(
           0.0,
-          (double pre, next) => pre + next.creditBalance,
+          (double pre, next) => pre + next.decrementBalance,
         );
         final totalBalance = incrementsSum - decrementsSum;
 

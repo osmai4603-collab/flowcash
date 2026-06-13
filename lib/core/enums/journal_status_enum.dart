@@ -20,7 +20,7 @@ final class DebitJournalStatus extends JournalStatus {
   const DebitJournalStatus._();
 
   @override
-  String get name => 'debit';
+  String get name => 'increment';
 
   @override
   int get index => 0;
@@ -33,7 +33,7 @@ final class CreditJournalStatus extends JournalStatus {
   const CreditJournalStatus._();
 
   @override
-  String get name => 'credit';
+  String get name => 'decrement';
 
   @override
   int get index => 1;

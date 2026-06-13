@@ -14,6 +14,8 @@ import 'package:flowcash/features/accounts/presentation/blocs/journal_entry_form
 import 'package:flowcash/features/accounts/presentation/blocs/journal_entry_form/journal_entry_form_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/journal_entry_form/journal_entry_form_state.dart';
 
+import 'package:flowcash/core/enums/account_status_enum.dart';
+
 // Widgets
 import 'package:flowcash/features/accounts/presentation/widgets/journal_item_row_form.dart';
 
@@ -187,7 +189,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                           ),
                           fluent.FilledButton(
                             onPressed: () => bloc.add(
-                              const AddJournalItemField(JournalItemSide.debit),
+                              const AddJournalItemField(AccountStatus.debtor),
                             ),
                             child: const fluent.Text('إضافة بند مدين'),
                           ),
@@ -206,7 +208,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                               builder: (ctx) {
                                 final debitItems = state.items
                                     .where(
-                                      (it) => it.side == JournalItemSide.debit,
+                                      (it) => it.side == AccountStatus.debtor,
                                     )
                                     .toList();
                                 return Column(
@@ -217,24 +219,23 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                                     return JournalItemRowForm(
                                       index: sideIdx,
                                       draft: item,
-                                      side: JournalItemSide.debit,
+                                      side: AccountStatus.debtor,
                                       subAccounts: _subAccounts,
                                       canDelete: debitItems.length > 1,
                                       onChanged:
                                           ({
                                             accountId,
                                             accountName,
-                                            debit,
-                                            credit,
+                                            amount,
                                             lineDescription,
                                           }) {
                                             bloc.add(
                                               JournalItemFieldChanged(
-                                                side: JournalItemSide.debit,
+                                                side: AccountStatus.debtor,
                                                 index: sideIdx,
                                                 accountId: accountId,
                                                 accountName: accountName,
-                                                debit: debit,
+                                                amount: amount,
                                                 lineDescription:
                                                     lineDescription,
                                               ),
@@ -242,7 +243,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                                           },
                                       onDelete: () => bloc.add(
                                         RemoveJournalItemField(
-                                          JournalItemSide.debit,
+                                          AccountStatus.debtor,
                                           sideIdx,
                                         ),
                                       ),
@@ -278,7 +279,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                                   fluent.FilledButton(
                                     onPressed: () => bloc.add(
                                       const AddJournalItemField(
-                                        JournalItemSide.credit,
+                                        AccountStatus.creditor,
                                       ),
                                     ),
                                     // icon: const fluent.Icon(fluent.FluentIcons.add,
@@ -295,7 +296,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                               builder: (ctx) {
                                 final creditItems = state.items
                                     .where(
-                                      (it) => it.side == JournalItemSide.credit,
+                                      (it) => it.side == AccountStatus.creditor,
                                     )
                                     .toList();
                                 return Column(
@@ -306,24 +307,23 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                                     return JournalItemRowForm(
                                       index: sideIdx,
                                       draft: item,
-                                      side: JournalItemSide.credit,
+                                      side: AccountStatus.creditor,
                                       subAccounts: _subAccounts,
                                       canDelete: creditItems.length > 1,
                                       onChanged:
                                           ({
                                             accountId,
                                             accountName,
-                                            debit,
-                                            credit,
+                                            amount,
                                             lineDescription,
                                           }) {
                                             bloc.add(
                                               JournalItemFieldChanged(
-                                                side: JournalItemSide.credit,
+                                                side: AccountStatus.creditor,
                                                 index: sideIdx,
                                                 accountId: accountId,
                                                 accountName: accountName,
-                                                credit: credit,
+                                                amount: amount,
                                                 lineDescription:
                                                     lineDescription,
                                               ),
@@ -331,7 +331,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                                           },
                                       onDelete: () => bloc.add(
                                         RemoveJournalItemField(
-                                          JournalItemSide.credit,
+                                          AccountStatus.creditor,
                                           sideIdx,
                                         ),
                                       ),

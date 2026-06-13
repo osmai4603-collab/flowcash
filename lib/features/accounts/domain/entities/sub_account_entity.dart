@@ -6,8 +6,8 @@ class SubAccountEntity extends Entity {
   final int mainAccountId;
   final String accountName;
   final String accountNumber;
-  final double debitBalance;
-  final double creditBalance;
+  final double incrementBalance;
+  final double decrementBalance;
   final String currencyId;
   final double? balanceMax;
   final SubAccountType subAccountType;
@@ -18,15 +18,15 @@ class SubAccountEntity extends Entity {
     required this.mainAccountId,
     this.accountName = '',
     required this.accountNumber,
-    this.debitBalance = 0.0,
-    this.creditBalance = 0.0,
+    this.incrementBalance = 0.0,
+    this.decrementBalance = 0.0,
     required this.currencyId,
     this.balanceMax,
     required this.subAccountType,
     required this.createdAt,
   });
 
-  double get balance => debitBalance - creditBalance;
+  double get balance => incrementBalance - decrementBalance;
 
   @override
   List<Object?> get props => [
@@ -34,8 +34,8 @@ class SubAccountEntity extends Entity {
     mainAccountId,
     accountName,
     accountNumber,
-    debitBalance,
-    creditBalance,
+    incrementBalance,
+    decrementBalance,
     currencyId,
     balanceMax,
     subAccountType,
@@ -48,8 +48,8 @@ class SubAccountEntity extends Entity {
     int? mainAccountId,
     String? accountName,
     String? accountNumber,
-    double? debitBalance,
-    double? creditBalance,
+    double? incrementBalance,
+    double? decrementBalance,
     String? currencyId,
     double? balanceMax,
     SubAccountType? subAccountType,
@@ -60,8 +60,8 @@ class SubAccountEntity extends Entity {
       mainAccountId: mainAccountId ?? this.mainAccountId,
       accountName: accountName ?? this.accountName,
       accountNumber: accountNumber ?? this.accountNumber,
-      debitBalance: debitBalance ?? this.debitBalance,
-      creditBalance: creditBalance ?? this.creditBalance,
+      incrementBalance: incrementBalance ?? this.incrementBalance,
+      decrementBalance: decrementBalance ?? this.decrementBalance,
       currencyId: currencyId ?? this.currencyId,
       balanceMax: balanceMax ?? this.balanceMax,
       subAccountType: subAccountType ?? this.subAccountType,

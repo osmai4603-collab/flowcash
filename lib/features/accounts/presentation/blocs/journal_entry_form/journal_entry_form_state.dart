@@ -32,19 +32,16 @@ class JournalItemDraft extends Equatable {
   });
 
   JournalItemDraft copyWith({
-    AccountStatus? accountStatus,
-    SubAccountEntity? account,
-    String? accountName,
-    double? debit,
-    double? credit,
-    String? lineDescription,
     AccountStatus? side,
+    SubAccountEntity? account,
+    double? amount,
+    String? lineDescription,
     bool clearAccount = false,
   }) {
     return JournalItemDraft(
-      side: accountStatus ?? this.side,
+      side: side ?? this.side,
       account: clearAccount ? null : (account ?? this.account),
-      amount: debit ?? amount,
+      amount: amount ?? this.amount,
       lineDescription: lineDescription ?? this.lineDescription,
     );
   }
@@ -54,7 +51,6 @@ class JournalItemDraft extends Equatable {
     account,
     side,
     amount,
-    side,
     lineDescription,
   ];
 }
@@ -123,7 +119,7 @@ class JournalEntryFormState extends Equatable {
   }
 
   double get totalDebit => items.where((item) => item.side.isDebtor).fold(0.0, (sum, item) => sum + item.amount);
-  double get totalCredit => items.where((item) => item.side.isDebtor).fold(0.0, (sum, item) => sum + item.amount);
+  double get totalCredit => items.where((item) => item.side.isCreditor).fold(0.0, (sum, item) => sum + item.amount);
   double get difference => totalDebit - totalCredit;
   bool get isBalanced => difference.abs() < 0.001;
 

@@ -1,3 +1,4 @@
+import 'package:flowcash/core/enums/journal_status_enum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/accounts/domain/usecases/main_account_repository_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/sub_account_repository_usecases.dart';
@@ -61,8 +62,8 @@ class TrialBalanceBloc extends Bloc<TrialBalanceEvent, TrialBalanceState> {
               final balances = <int, Map<String, double>>{};
               for (final sub in subAccounts) {
                 balances[sub.id] = {
-                  'debit': sub.debitBalance,
-                  'credit': sub.creditBalance,
+                  'debit': sub.incrementBalance,
+                  'credit': sub.decrementBalance,
                 };
               }
               emit(
@@ -110,18 +111,28 @@ class TrialBalanceBloc extends Bloc<TrialBalanceEvent, TrialBalanceState> {
 
                         final date = entry.createdAt;
                         if (event.startDate != null &&
-                            date.isBefore(event.startDate!))
+                            date.isBefore(event.startDate!)) {
                           continue;
+                        }
                         if (event.endDate != null &&
-                            date.isAfter(event.endDate!))
+                            date.isAfter(event.endDate!)) {
                           continue;
+                        }
 
                         final current =
                             balances[item.accountId] ??
                             {'debit': 0.0, 'credit': 0.0};
+                        final itemDebit =
+                            item.journalStatus == JournalStatus.increment
+                            ? item.amount
+                            : 0.0;
+                        final itemCredit =
+                            item.journalStatus == JournalStatus.decrement
+                            ? item.amount
+                            : 0.0;
                         balances[item.accountId] = {
-                          'debit': current['debit']! + item.debit,
-                          'credit': current['credit']! + item.credit,
+                          'debit': current['debit']! + itemDebit,
+                          'credit': current['credit']! + itemCredit,
                         };
                       }
 

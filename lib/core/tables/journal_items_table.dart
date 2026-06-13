@@ -7,8 +7,7 @@ class JournalItemsTable {
   static const String itemId = 'item_id';
   static const String entryId = 'entry_id';
   static const String accountId = 'account_id';
-  static const String debit = 'debit';
-  static const String credit = 'credit';
+  static const String amount = 'amount';
   static const String lineDescription = 'line_description';
   static const String currencyId = 'currency_id';
   static const String exPrice = 'ex_price';
@@ -19,8 +18,7 @@ class JournalItemsTable {
     itemId,
     entryId,
     accountId,
-    debit,
-    credit,
+    amount,
     lineDescription,
     currencyId,
     exPrice,

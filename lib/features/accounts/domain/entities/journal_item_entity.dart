@@ -6,8 +6,7 @@ class JournalItemEntity extends Entity {
   final int id;
   final int entryId;
   final int accountId;
-  final double debit;
-  final double credit;
+  final double amount;
   final String? lineDescription;
   final String currencyId;
   final double exPrice;
@@ -18,8 +17,7 @@ class JournalItemEntity extends Entity {
     required this.id,
     required this.entryId,
     required this.accountId,
-    required this.debit,
-    required this.credit,
+    required this.amount,
     this.lineDescription,
     required this.currencyId,
     required this.exPrice,
@@ -32,8 +30,7 @@ class JournalItemEntity extends Entity {
     id,
     entryId,
     accountId,
-    debit,
-    credit,
+    amount,
     lineDescription,
     currencyId,
     exPrice,
@@ -46,8 +43,7 @@ class JournalItemEntity extends Entity {
     int? id,
     int? entryId,
     int? accountId,
-    double? debit,
-    double? credit,
+    double? amount,
     String? lineDescription,
     String? currencyId,
     double? exPrice,
@@ -58,13 +54,16 @@ class JournalItemEntity extends Entity {
       id: id ?? this.id,
       entryId: entryId ?? this.entryId,
       accountId: accountId ?? this.accountId,
-      debit: debit ?? this.debit,
-      credit: credit ?? this.credit,
+      amount: amount ?? this.amount,
       lineDescription: lineDescription ?? this.lineDescription,
       currencyId: currencyId ?? this.currencyId,
       exPrice: exPrice ?? this.exPrice,
       expriceMain: expriceMain ?? this.expriceMain,
       journalStatus: journalStatus ?? this.journalStatus,
     );
+  }
+
+  double get historyAmount {
+    return journalStatus == JournalStatus.increment ? amount : amount * -1;
   }
 }

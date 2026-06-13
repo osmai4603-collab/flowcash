@@ -1,3 +1,5 @@
+import 'package:flowcash/core/enums/account_status_enum.dart';
+import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
 import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
@@ -106,19 +108,21 @@ class JournalEntryFormBloc
         ),
         (items) {
           final drafts = items.map((item) {
-            String? accName;
+            SubAccountEntity? subAccount;
             subAccsRes.fold((_) {}, (accs) {
               final match = accs.where((a) => a.id == item.accountId);
-              if (match.isNotEmpty) accName = match.first.accountName;
+              if (match.isNotEmpty) subAccount = match.first;
             });
 
+            final isDebtorAccount = subAccount?.subAccountType.mainAccountType.accountStatus.isDebtor ?? true;
+            final isDebtorSide = isDebtorAccount
+                ? item.journalStatus == JournalStatus.increment
+                : item.journalStatus == JournalStatus.decrement;
+
             return JournalItemDraft(
-              account: state.ac,
-              debit: item.debit,
-              credit: item.credit,
-              side: item.debit > 0
-                  ? JournalItemSide.debit
-                  : JournalItemSide.credit,
+              account: subAccount,
+              amount: item.amount,
+              side: isDebtorSide ? AccountStatus.debtor : AccountStatus.creditor,
               lineDescription: item.lineDescription ?? '',
             );
           }).toList();
@@ -215,10 +219,10 @@ class JournalEntryFormBloc
     emit(state.copyWith(items: newList));
   }
 
-  void _onJournalItemFieldChanged(
+  Future<void> _onJournalItemFieldChanged(
     JournalItemFieldChanged event,
     Emitter<JournalEntryFormState> emit,
-  ) {
+  ) async {
     final newList = List<JournalItemDraft>.from(state.items);
 
     // Map side-specific index to global index
@@ -237,37 +241,42 @@ class JournalEntryFormBloc
 
     final target = newList[globalIndex];
 
-    // Update only the fields provided by the event. Do not change the
-    // opposite amount automatically when the user edits one side.
-    final updatedDebit = event.debit ?? target.debit;
-    final updatedCredit = event.credit ?? target.credit;
+    SubAccountEntity? updatedAccount = target.account;
+    if (event.accountId != null) {
+      final res = await _getSubAccountById(event.accountId!);
+      res.fold((_) {}, (acc) => updatedAccount = acc);
+    } else if (event.accountId == null &&
+        event.accountName == null &&
+        target.account != null &&
+        event.amount == null) {
+      updatedAccount = null;
+    }
+
+    final updatedAmount = event.amount ?? target.amount;
 
     newList[globalIndex] = target.copyWith(
-      account: event.accountId,
-      accountName: event.accountName ?? target.accountName,
-      debit: updatedDebit,
-      credit: updatedCredit,
+      side: event.side,
+      account: updatedAccount,
+      amount: updatedAmount,
       lineDescription: event.lineDescription ?? target.lineDescription,
       clearAccount:
           event.accountId == null &&
-          target.accountId != null &&
-          event.debit == null &&
-          event.credit == null,
+          event.accountName == null &&
+          target.account != null &&
+          event.amount == null,
     );
 
-    // Validation: any item with both debit and credit > 0 is invalid.
-    final anyInvalidItem = newList.any((it) => it.debit > 0 && it.credit > 0);
     // Check if user entered any amounts to avoid showing unbalanced message on empty form.
-    final anyAmountEntered = newList.any(
-      (it) => it.debit != 0.0 || it.credit != 0.0,
-    );
-    final totalDebit = newList.fold<double>(0.0, (s, it) => s + it.debit);
-    final totalCredit = newList.fold<double>(0.0, (s, it) => s + it.credit);
+    final anyAmountEntered = newList.any((it) => it.amount != 0.0);
+    final totalDebit = newList
+        .where((it) => it.side.isDebtor)
+        .fold<double>(0.0, (s, it) => s + it.amount);
+    final totalCredit = newList
+        .where((it) => it.side.isCreditor)
+        .fold<double>(0.0, (s, it) => s + it.amount);
 
     String? errorMessage;
-    if (anyInvalidItem) {
-      errorMessage = 'بند يحتوي على مدين ودائن معًا';
-    } else if (anyAmountEntered && (totalDebit - totalCredit).abs() > 0.001) {
+    if (anyAmountEntered && (totalDebit - totalCredit).abs() > 0.001) {
       errorMessage = 'القيد غير متزن';
     } else {
       errorMessage = null;
@@ -288,10 +297,8 @@ class JournalEntryFormBloc
       return;
     }
     // Ensure at least one item per side
-    final hasDebit = state.items.any((it) => it.side == JournalItemSide.debit);
-    final hasCredit = state.items.any(
-      (it) => it.side == JournalItemSide.credit,
-    );
+    final hasDebit = state.items.any((it) => it.side.isDebtor);
+    final hasCredit = state.items.any((it) => it.side.isCreditor);
     if (!hasDebit || !hasCredit) {
       emit(
         state.copyWith(
@@ -301,16 +308,12 @@ class JournalEntryFormBloc
       );
       return;
     }
-    if (state.items.any((item) => item.accountId == null)) {
+    if (state.items.any((item) => item.account == null)) {
       emit(state.copyWith(errorMessage: 'يرجى تحديد الحسابات لجميع البنود.'));
       return;
     }
-    if (state.items.any((item) => item.debit == 0 && item.credit == 0)) {
-      emit(
-        state.copyWith(
-          errorMessage: 'جميع البنود يجب أن تحتوي على مبالغ (مدين أو دائن).',
-        ),
-      );
+    if (state.items.any((item) => item.amount == 0)) {
+      emit(state.copyWith(errorMessage: 'جميع البنود يجب أن تحتوي على مبالغ.'));
       return;
     }
 
@@ -331,7 +334,7 @@ class JournalEntryFormBloc
 
     final items = <JournalItemEntity>[];
     for (final itemDraft in state.items) {
-      final subAccountResult = await _getSubAccountById(itemDraft.accountId!);
+      final subAccountResult = await _getSubAccountById(itemDraft.account!.id);
       final subAccount = subAccountResult.fold((failure) {
         emit(
           state.copyWith(
@@ -400,16 +403,19 @@ class JournalEntryFormBloc
       final isDebtorAccount =
           subAccount.subAccountType.mainAccountType.accountStatus.isDebtor;
       final journalStatus = isDebtorAccount
-          ? (itemDraft.debit > 0 ? JournalStatus.increment : JournalStatus.decrement)
-          : (itemDraft.credit > 0 ? JournalStatus.increment : JournalStatus.decrement);
+          ? (itemDraft.side.isDebtor
+                ? JournalStatus.increment
+                : JournalStatus.decrement)
+          : (itemDraft.side.isCreditor
+                ? JournalStatus.increment
+                : JournalStatus.decrement);
 
       items.add(
         JournalItemEntity(
           id: 0,
           entryId: state.editingEntry?.id ?? 0,
-          accountId: itemDraft.accountId!,
-          debit: itemDraft.debit,
-          credit: itemDraft.credit,
+          accountId: itemDraft.account!.id,
+          amount: itemDraft.amount,
           lineDescription: itemDraft.lineDescription.isNotEmpty
               ? itemDraft.lineDescription
               : state.description,

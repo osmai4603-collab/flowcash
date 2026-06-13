@@ -294,7 +294,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
     final balances = <double>[];
     double balanceTemp = state.openingBalance;
     for (final item in state.items) {
-      final amount = item.debit > 0 ? item.debit : item.credit;
+      final amount = item.amount;
       final displayedDebit = item.journalStatus == JournalStatus.increment
           ? amount
           : 0.0;
@@ -309,7 +309,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
     double totalDebit = 0.0;
     double totalCredit = 0.0;
     for (final item in state.items) {
-      final amount = item.debit > 0 ? item.debit : item.credit;
+      final amount = item.amount;
       if (item.journalStatus == JournalStatus.increment) {
         totalDebit += amount;
       } else {
@@ -398,7 +398,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
   ) {
     final colors = AppStyle.of(context);
     final style = colors.body;
-    final amount = item.debit > 0 ? item.debit : item.credit;
+    final amount = item.amount;
 
     final dateStr = entry != null
         ? AppDateFormatter.convertDateTimeToString(entry.createdAt)

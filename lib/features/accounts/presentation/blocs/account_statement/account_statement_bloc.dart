@@ -101,7 +101,7 @@ class AccountStatementBloc
               // If startDate is set and entry is before it, add to opening balance
               if (event.startDate != null &&
                   entryDate.isBefore(event.startDate!)) {
-                openingBalance += (item.debit - item.credit);
+                openingBalance += item.historyAmount;
               } else if (event.endDate != null &&
                   entryDate.isAfter(event.endDate!)) {
                 // Ignore transactions after the end date

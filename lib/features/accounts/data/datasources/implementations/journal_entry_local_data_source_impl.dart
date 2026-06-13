@@ -252,21 +252,13 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
   }
 
   JournalItemEntity _journalItemFromMap(Map<String, dynamic> row) {
-    final statusStr = row[JournalItemsTable.journalStatus] as String?;
-    final JournalStatus status;
-    if (statusStr != null) {
-      status = JournalStatus.of(statusStr);
-    } else {
-      final debitVal =
-          ((row[JournalItemsTable.debit]) as num?)?.toDouble() ?? 0.0;
-      status = debitVal > 0 ? JournalStatus.increment : JournalStatus.decrement;
-    }
+    final statusStr = row[JournalItemsTable.journalStatus] as String;
+    final status = JournalStatus.of(statusStr);
     return JournalItemEntity(
       id: row[JournalItemsTable.itemId] as int,
       entryId: row[JournalItemsTable.entryId] as int,
       accountId: row[JournalItemsTable.accountId] as int,
-      debit: ((row[JournalItemsTable.debit]) as num).toDouble(),
-      credit: ((row[JournalItemsTable.credit]) as num).toDouble(),
+      amount: ((row[JournalItemsTable.amount]) as num).toDouble(),
       lineDescription: row[JournalItemsTable.lineDescription] as String?,
       currencyId: row[JournalItemsTable.currencyId] as String,
       exPrice: ((row[JournalItemsTable.exPrice]) as num).toDouble(),

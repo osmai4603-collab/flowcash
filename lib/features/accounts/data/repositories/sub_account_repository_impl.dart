@@ -243,16 +243,16 @@ class SubAccountRepositoryImpl implements SubAccountRepository {
 
   @override
   Future<Either<Failure, bool>> updateBalances({
-    required double debitBalance,
-    required double creditBalance,
+    required double incrementBalance,
+    required double decrementBalance,
     required int incrementsCountHistories,
     required int decrementsCountHistories,
     required int id,
   }) async {
     try {
       final res = await _dataSource.updateBalances(
-        debitBalance: debitBalance,
-        creditBalance: creditBalance,
+        incrementBalance: incrementBalance,
+        decrementBalance: decrementBalance,
         incrementsCountHistories: incrementsCountHistories,
         decrementsCountHistories: decrementsCountHistories,
         id: id,

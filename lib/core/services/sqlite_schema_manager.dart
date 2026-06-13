@@ -36,7 +36,7 @@ import 'package:flowcash/core/tables/warehouse_values_table.dart';
 final class SqliteSchemaManager {
   const SqliteSchemaManager._();
 
-  static const int currentVersion = 11;
+  static const int currentVersion = 12;
 
   /// Create the full schema for a new database in sequential version order.
   /// This builds the tables from version 1 through the last schema-only version,
@@ -89,6 +89,9 @@ final class SqliteSchemaManager {
             break;
           case 11:
             _applyV11Migration(db);
+            break;
+          case 12:
+            _applyV12Migration(db);
             break;
           default:
             throw StateError('No migration defined for version $v');
@@ -153,8 +156,8 @@ final class SqliteSchemaManager {
         ${SubAccountsTable.accountNumber} TEXT NOT NULL UNIQUE,
         ${SubAccountsTable.mainAccountId} INTEGER NOT NULL,
         ${SubAccountsTable.currencyId} TEXT NOT NULL,
-        ${SubAccountsTable.debitBalance} REAL NOT NULL DEFAULT 0.0,
-        ${SubAccountsTable.creditBalance} REAL NOT NULL DEFAULT 0.0,
+        ${SubAccountsTable.incrementBalance} REAL NOT NULL DEFAULT 0.0,
+        ${SubAccountsTable.decrementBalance} REAL NOT NULL DEFAULT 0.0,
         ${SubAccountsTable.balanceMax} REAL DEFAULT NULL,
         ${SubAccountsTable.subAccountType} INTEGER NOT NULL,
         ${SubAccountsTable.createdAt} TEXT NOT NULL,
@@ -661,13 +664,12 @@ final class SqliteSchemaManager {
         ${JournalItemsTable.itemId} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         ${JournalItemsTable.entryId} INTEGER NOT NULL,
         ${JournalItemsTable.accountId} INTEGER NOT NULL,
-        ${JournalItemsTable.debit} REAL NOT NULL DEFAULT 0.0,
-        ${JournalItemsTable.credit} REAL NOT NULL DEFAULT 0.0,
+        ${JournalItemsTable.amount} REAL NOT NULL DEFAULT 0.0,
         ${JournalItemsTable.lineDescription} TEXT,
         ${JournalItemsTable.currencyId} TEXT NOT NULL,
         ${JournalItemsTable.exPrice} REAL NOT NULL DEFAULT 1.0,
         ${JournalItemsTable.expriceMain} REAL NOT NULL DEFAULT 1.0,
-        ${JournalItemsTable.journalStatus} TEXT NOT NULL CHECK (${JournalItemsTable.journalStatus} IN ('debit', 'credit')),
+        ${JournalItemsTable.journalStatus} TEXT NOT NULL CHECK (${JournalItemsTable.journalStatus} IN ('increment', 'decrement')),
         FOREIGN KEY (${JournalItemsTable.entryId}) REFERENCES ${JournalEntriesTable.tableName} (${JournalEntriesTable.entryId}) ON DELETE CASCADE,
         FOREIGN KEY (${JournalItemsTable.accountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${JournalItemsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT
@@ -689,13 +691,12 @@ final class SqliteSchemaManager {
         ${JournalItemsTable.itemId} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         ${JournalItemsTable.entryId} INTEGER NOT NULL,
         ${JournalItemsTable.accountId} INTEGER NOT NULL,
-        ${JournalItemsTable.debit} REAL NOT NULL DEFAULT 0.0,
-        ${JournalItemsTable.credit} REAL NOT NULL DEFAULT 0.0,
+        ${JournalItemsTable.amount} REAL NOT NULL DEFAULT 0.0,
         ${JournalItemsTable.lineDescription} TEXT NOT NULL,
         ${JournalItemsTable.currencyId} TEXT NOT NULL,
         ${JournalItemsTable.exPrice} REAL NOT NULL DEFAULT 1.0,
         ${JournalItemsTable.expriceMain} REAL NOT NULL DEFAULT 1.0,
-        ${JournalItemsTable.journalStatus} TEXT CHECK (${JournalItemsTable.journalStatus} IN ('debit', 'credit')),
+        ${JournalItemsTable.journalStatus} TEXT CHECK (${JournalItemsTable.journalStatus} IN ('increment', 'decrement')),
         FOREIGN KEY (${JournalItemsTable.entryId}) REFERENCES ${JournalEntriesTable.tableName} (${JournalEntriesTable.entryId}) ON DELETE CASCADE,
         FOREIGN KEY (${JournalItemsTable.accountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${JournalItemsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT
@@ -715,23 +716,23 @@ final class SqliteSchemaManager {
           ${JournalItemsTable.itemId},
           ${JournalItemsTable.entryId},
           ${JournalItemsTable.accountId},
-          ${JournalItemsTable.debit},
-          ${JournalItemsTable.credit},
+          ${JournalItemsTable.amount},
           ${JournalItemsTable.lineDescription},
           ${JournalItemsTable.currencyId},
           ${JournalItemsTable.exPrice},
-          ${JournalItemsTable.expriceMain}
+          ${JournalItemsTable.expriceMain},
+          ${JournalItemsTable.journalStatus}
         )
         SELECT
           ${JournalItemsTable.itemId},
           ${JournalItemsTable.entryId},
           ${JournalItemsTable.accountId},
-          ${JournalItemsTable.debit},
-          ${JournalItemsTable.credit},
+          CASE WHEN debit > 0 THEN debit ELSE credit END,
           ${JournalItemsTable.lineDescription},
           ${JournalItemsTable.currencyId},
           1.0,
-          (${JournalItemsTable.debit} + ${JournalItemsTable.credit}) * 1.0
+          (debit + credit) * 1.0,
+          CASE WHEN debit > 0 THEN 'increment' ELSE 'decrement' END
         FROM ${JournalItemsTable.tableName}
       ''');
 
@@ -847,6 +848,67 @@ final class SqliteSchemaManager {
   }
 
   static void _applyV11Migration(Database db) {
+    _createJournalItemTriggers(db);
+  }
+
+  static void _applyV12Migration(Database db) {
+    db.execute("UPDATE ${JournalItemsTable.tableName} SET ${JournalItemsTable.journalStatus} = 'increment' WHERE ${JournalItemsTable.journalStatus} = 'debit'");
+    db.execute("UPDATE ${JournalItemsTable.tableName} SET ${JournalItemsTable.journalStatus} = 'decrement' WHERE ${JournalItemsTable.journalStatus} = 'credit'");
+
+    db.execute('DROP TRIGGER IF EXISTS journal_items_after_insert_balance');
+    db.execute('DROP TRIGGER IF EXISTS journal_items_after_delete_balance');
+    db.execute('DROP TRIGGER IF EXISTS journal_items_after_update_balance');
+
+    const tempTable = '${JournalItemsTable.tableName}_new';
+    db.execute('DROP TABLE IF EXISTS $tempTable');
+
+    db.execute('''
+      CREATE TABLE $tempTable (
+        ${JournalItemsTable.itemId} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${JournalItemsTable.entryId} INTEGER NOT NULL,
+        ${JournalItemsTable.accountId} INTEGER NOT NULL,
+        ${JournalItemsTable.amount} REAL NOT NULL DEFAULT 0.0,
+        ${JournalItemsTable.lineDescription} TEXT,
+        ${JournalItemsTable.currencyId} TEXT NOT NULL,
+        ${JournalItemsTable.exPrice} REAL NOT NULL DEFAULT 1.0,
+        ${JournalItemsTable.expriceMain} REAL NOT NULL DEFAULT 1.0,
+        ${JournalItemsTable.journalStatus} TEXT CHECK (${JournalItemsTable.journalStatus} IN ('increment', 'decrement')),
+        FOREIGN KEY (${JournalItemsTable.entryId}) REFERENCES ${JournalEntriesTable.tableName} (${JournalEntriesTable.entryId}) ON DELETE CASCADE,
+        FOREIGN KEY (${JournalItemsTable.accountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${JournalItemsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT
+      )
+    ''');
+
+    db.execute('''
+      INSERT INTO $tempTable (
+        ${JournalItemsTable.itemId},
+        ${JournalItemsTable.entryId},
+        ${JournalItemsTable.accountId},
+        ${JournalItemsTable.amount},
+        ${JournalItemsTable.lineDescription},
+        ${JournalItemsTable.currencyId},
+        ${JournalItemsTable.exPrice},
+        ${JournalItemsTable.expriceMain},
+        ${JournalItemsTable.journalStatus}
+      )
+      SELECT
+        ${JournalItemsTable.itemId},
+        ${JournalItemsTable.entryId},
+        ${JournalItemsTable.accountId},
+        CASE WHEN debit > 0 THEN debit ELSE credit END,
+        ${JournalItemsTable.lineDescription},
+        ${JournalItemsTable.currencyId},
+        ${JournalItemsTable.exPrice},
+        ${JournalItemsTable.expriceMain},
+        ${JournalItemsTable.journalStatus}
+      FROM ${JournalItemsTable.tableName}
+    ''');
+
+    db.execute('PRAGMA foreign_keys = OFF');
+    db.execute('DROP TABLE ${JournalItemsTable.tableName}');
+    db.execute('ALTER TABLE $tempTable RENAME TO ${JournalItemsTable.tableName}');
+    db.execute('PRAGMA foreign_keys = ON');
+
     _createJournalItemTriggers(db);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
+import 'package:flowcash/core/enums/journal_status_enum.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
@@ -21,8 +22,11 @@ class JournalEntryDetailPanel extends StatelessWidget {
     double totalDebit = 0.0;
     double totalCredit = 0.0;
     for (final item in items) {
-      totalDebit += item.debit;
-      totalCredit += item.credit;
+      if (item.journalStatus == JournalStatus.increment) {
+        totalDebit += item.amount;
+      } else {
+        totalCredit += item.amount;
+      }
     }
 
     return Container(
@@ -147,8 +151,8 @@ class JournalEntryDetailPanel extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: fluent.Text(
-                            item.debit > 0
-                                ? item.debit.toStringAsFixed(2)
+                            item.journalStatus == JournalStatus.increment
+                                ? item.amount.toStringAsFixed(2)
                                 : '-',
                             style: const TextStyle(
                               color: Colors.green,
@@ -162,8 +166,8 @@ class JournalEntryDetailPanel extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: fluent.Text(
-                            item.credit > 0
-                                ? item.credit.toStringAsFixed(2)
+                            item.journalStatus == JournalStatus.decrement
+                                ? item.amount.toStringAsFixed(2)
                                 : '-',
                             style: const TextStyle(
                               color: Colors.red,

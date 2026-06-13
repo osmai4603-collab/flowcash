@@ -76,16 +76,13 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
     if (statusStr != null) {
       status = JournalStatus.of(statusStr);
     } else {
-      final debitVal =
-          ((map[JournalItemsTable.debit]) as num?)?.toDouble() ?? 0.0;
-      status = debitVal > 0 ? JournalStatus.increment : JournalStatus.decrement;
+      status = JournalStatus.increment;
     }
     return JournalItemEntity(
       id: map[JournalItemsTable.itemId] as int,
       entryId: map[JournalItemsTable.entryId] as int,
       accountId: map[JournalItemsTable.accountId] as int,
-      debit: ((map[JournalItemsTable.debit]) as num).toDouble(),
-      credit: ((map[JournalItemsTable.credit]) as num).toDouble(),
+      amount: ((map[JournalItemsTable.amount]) as num).toDouble(),
       lineDescription: map[JournalItemsTable.lineDescription] as String?,
       currencyId: map[JournalItemsTable.currencyId] as String,
       exPrice: ((map[JournalItemsTable.exPrice]) as num).toDouble(),
@@ -100,8 +97,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
       if (entity.id > 0) JournalItemsTable.itemId: entity.id,
       JournalItemsTable.entryId: entity.entryId,
       JournalItemsTable.accountId: entity.accountId,
-      JournalItemsTable.debit: entity.debit,
-      JournalItemsTable.credit: entity.credit,
+      JournalItemsTable.amount: entity.amount,
       JournalItemsTable.lineDescription: entity.lineDescription,
       JournalItemsTable.currencyId: entity.currencyId,
       JournalItemsTable.exPrice: entity.exPrice,

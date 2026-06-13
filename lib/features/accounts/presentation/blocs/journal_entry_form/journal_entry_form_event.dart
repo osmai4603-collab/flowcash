@@ -1,7 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
 import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
-import 'journal_entry_form_state.dart';
+
+import '../../../../../core/enums/account_status_enum.dart';
 
 sealed class JournalEntryFormEvent extends Equatable {
   const JournalEntryFormEvent();
@@ -44,7 +45,7 @@ class JournalEntryCurrencyChanged extends JournalEntryFormEvent {
 }
 
 class AddJournalItemField extends JournalEntryFormEvent {
-  final JournalItemSide side;
+  final AccountStatus side;
   const AddJournalItemField(this.side);
 
   @override
@@ -53,7 +54,7 @@ class AddJournalItemField extends JournalEntryFormEvent {
 
 class RemoveJournalItemField extends JournalEntryFormEvent {
   // index is the position inside the side-specific list (e.g., 0 for first debit item)
-  final JournalItemSide side;
+  final AccountStatus side;
   final int index;
   const RemoveJournalItemField(this.side, this.index);
 
@@ -62,12 +63,11 @@ class RemoveJournalItemField extends JournalEntryFormEvent {
 }
 
 class JournalItemFieldChanged extends JournalEntryFormEvent {
-  final JournalItemSide side;
+  final AccountStatus side;
   final int index; // index within side-specific list
   final int? accountId;
   final String? accountName;
-  final double? debit;
-  final double? credit;
+  final double? amount;
   final String? lineDescription;
 
   const JournalItemFieldChanged({
@@ -75,8 +75,7 @@ class JournalItemFieldChanged extends JournalEntryFormEvent {
     required this.index,
     this.accountId,
     this.accountName,
-    this.debit,
-    this.credit,
+    this.amount,
     this.lineDescription,
   });
 
@@ -86,8 +85,7 @@ class JournalItemFieldChanged extends JournalEntryFormEvent {
     index,
     accountId,
     accountName,
-    debit,
-    credit,
+    amount,
     lineDescription,
   ];
 }
