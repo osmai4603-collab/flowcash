@@ -1,4 +1,5 @@
 import 'package:flowcash/core/formatters/money_formatter.dart';
+import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
@@ -48,11 +49,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
     super.initState();
     _bloc = GetIt.instance<AccountStatementBloc>();
     if (widget.subAccount != null) {
-      _bloc.add(
-        LoadAccountStatement(
-          subAccountId: widget.subAccount!.id,
-        ),
-      );
+      _bloc.add(LoadAccountStatement(subAccountId: widget.subAccount!.id));
     }
   }
 
@@ -128,8 +125,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                             Container(
                               padding: const EdgeInsets.all(16.0),
                               decoration: BoxDecoration(
-                                color: colors.primaryContainer
-                                    .withAlpha(40),
+                                color: colors.primaryContainer.withAlpha(40),
                                 borderRadius: const BorderRadius.vertical(
                                   top: Radius.circular(8),
                                 ),
@@ -153,8 +149,9 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                       fluent.Text(
                                         'رقم الحساب: ${state.subAccount!.accountNumber} | النوع: ${state.subAccount!.subAccountType.name}',
                                         style: TextStyle(
-                                          color: colors.onSurface
-                                              .withAlpha(150),
+                                          color: colors.onSurface.withAlpha(
+                                            150,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -173,8 +170,9 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                       fluent.Text(
                                         'العملة: ${widget.subAccount?.currencyId ?? "عملة غير محددة"}',
                                         style: TextStyle(
-                                          color: colors.onSurface
-                                              .withAlpha(150),
+                                          color: colors.onSurface.withAlpha(
+                                            150,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -228,7 +226,12 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                     Padding(
                                       padding: const EdgeInsets.all(4.0),
                                       child: fluent.Text(
-                                        widget.subAccount?.subAccountType.mainAccountType.incrementName ?? 'مدين',
+                                        widget
+                                                .subAccount
+                                                ?.subAccountType
+                                                .mainAccountType
+                                                .incrementName ??
+                                            'مدين',
                                         style: colors.bodyStrong.copyWith(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.green.shade900,
@@ -239,7 +242,12 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                     Padding(
                                       padding: const EdgeInsets.all(4.0),
                                       child: fluent.Text(
-                                        widget.subAccount?.subAccountType.mainAccountType.decrementName ?? 'دائن',
+                                        widget
+                                                .subAccount
+                                                ?.subAccountType
+                                                .mainAccountType
+                                                .decrementName ??
+                                            'دائن',
                                         style: colors.bodyStrong.copyWith(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.red.shade900,
@@ -349,6 +357,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
                           text: AppMoneyFormatter.formatDouble(totalDebit),
                           textDirection: TextDirection.ltr,
+                          
                           textAlign: TextAlign.center,
                           style: style.copyWith(
                             fontWeight: FontWeight.bold,
@@ -356,7 +365,8 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                           ),
                         ),
                         TextWidget(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        alignment: Alignment.center,
+                        padding: Paddings.xsmallAll,
                           text: AppMoneyFormatter.formatDouble(totalCredit),
                           textDirection: TextDirection.ltr,
                           textAlign: TextAlign.center,
@@ -367,6 +377,8 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                         ),
                         TextWidget(
                           text: AppMoneyFormatter.formatDouble(balances[index]),
+                        alignment: Alignment.center,
+                        padding: Paddings.xsmallAll,
                           textDirection: TextDirection.ltr,
                           textAlign: TextAlign.center,
                           style: style.copyWith(
@@ -397,16 +409,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
     BuildContext context,
   ) {
     final colors = AppStyle.of(context);
-    final style = colors.body;
-    final amount = item.amount;
-
-    final dateStr = entry != null
-        ? AppDateFormatter.convertDateTimeToString(entry.createdAt)
-        : '-';
-    final dayName = entry != null
-        ? AppDateFormatter.weekNameInFullArabic[entry.createdAt.weekday] ?? ''
-        : '';
-
+    final style = colors.bodyStrong;
     return GestureDetector(
       onTap: () {},
       child: ColoredBox(
@@ -428,12 +431,10 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      fluent.Text(dayName, style: style),
-                      fluent.Text(dateStr, style: style),
-                    ],
+                  child: fluent.Text(
+                    AppDateFormatter.toDateString(
+                      entry?.createdAt ?? DateTime.now(),
+                    ),
                   ),
                 ),
                 Padding(
@@ -446,10 +447,11 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                 ),
                 item.journalStatus == JournalStatus.increment
                     ? TextWidget(
-                        text: amount.toStringAsFixed(4),
+                        text: AppMoneyFormatter.formatDouble(item.amount),
+                        alignment: Alignment.centerRight,
+                        padding: Paddings.xsmallAll,
                         style: style.copyWith(
-                          color: Colors.green.shade900,
-                          fontWeight: FontWeight.w500,
+                          color: Colors.green.shade900
                         ),
                         textDirection: TextDirection.ltr,
                         textAlign: TextAlign.center,
@@ -457,17 +459,19 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                     : const SizedBox(height: 1),
                 item.journalStatus == JournalStatus.decrement
                     ? TextWidget(
-                        text: amount.toStringAsFixed(4),
+                        text: AppMoneyFormatter.formatDouble(item.amount),
+                        alignment: Alignment.centerRight,
+                        padding: Paddings.xsmallAll,
                         style: style.copyWith(
-                          color: Colors.red.shade900,
-                          fontWeight: FontWeight.w500,
+                          color: Colors.red.shade900
                         ),
                         textDirection: TextDirection.ltr,
                         textAlign: TextAlign.center,
                       )
                     : const SizedBox(height: 1),
                 TextWidget(
-                  text: balance.toStringAsFixed(4),
+                  text: AppMoneyFormatter.formatDouble(balance),
+                  alignment: Alignment.centerRight,
                   textDirection: TextDirection.ltr,
                   textAlign: TextAlign.end,
                   style: style.copyWith(
@@ -476,7 +480,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                         ? Colors.green.shade900
                         : Colors.red.shade900,
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                  padding: Paddings.xsmallAll,
                 ),
               ],
             ),

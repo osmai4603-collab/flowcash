@@ -9,7 +9,7 @@ sealed class AccountStatus extends AppEnum {
   static const List<AccountStatus> values = [debtor, creditor];
 
   bool get isCreditor => false;
-  bool get isDebtor => true;
+  bool get isDebtor => false;
 
   AccountStatus get not;
 
