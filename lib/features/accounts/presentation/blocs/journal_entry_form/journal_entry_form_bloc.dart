@@ -114,7 +114,13 @@ class JournalEntryFormBloc
               if (match.isNotEmpty) subAccount = match.first;
             });
 
-            final isDebtorAccount = subAccount?.subAccountType.mainAccountType.accountStatus.isDebtor ?? true;
+            final isDebtorAccount =
+                subAccount
+                    ?.subAccountType
+                    .mainAccountType
+                    .accountStatus
+                    .isDebtor ??
+                true;
             final isDebtorSide = isDebtorAccount
                 ? item.journalStatus == JournalStatus.increment
                 : item.journalStatus == JournalStatus.decrement;
@@ -122,7 +128,9 @@ class JournalEntryFormBloc
             return JournalItemDraft(
               account: subAccount,
               amount: item.amount,
-              side: isDebtorSide ? AccountStatus.debtor : AccountStatus.creditor,
+              side: isDebtorSide
+                  ? AccountStatus.debtor
+                  : AccountStatus.creditor,
               lineDescription: item.lineDescription ?? '',
             );
           }).toList();
@@ -400,16 +408,6 @@ class JournalEntryFormBloc
       }, (rate) => rate);
       if (exPriceMain == null) return;
 
-      final isDebtorAccount =
-          subAccount.subAccountType.mainAccountType.accountStatus.isDebtor;
-      final journalStatus = isDebtorAccount
-          ? (itemDraft.side.isDebtor
-                ? JournalStatus.increment
-                : JournalStatus.decrement)
-          : (itemDraft.side.isCreditor
-                ? JournalStatus.increment
-                : JournalStatus.decrement);
-
       items.add(
         JournalItemEntity(
           id: 0,
@@ -422,7 +420,7 @@ class JournalEntryFormBloc
           currencyId: state.currencySelected!.id,
           exPrice: exPrice,
           expriceMain: exPriceMain,
-          journalStatus: journalStatus,
+          journalStatus: itemDraft.journalStatus!,
         ),
       );
     }

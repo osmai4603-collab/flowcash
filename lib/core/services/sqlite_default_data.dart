@@ -7,6 +7,13 @@ import 'package:flowcash/core/tables/units_table.dart';
 import 'package:flowcash/core/tables/warehouses_table.dart';
 import 'package:flowcash/core/tables/values_counter_table.dart';
 import 'package:flowcash/core/tables/values_table.dart';
+import 'package:flowcash/core/tables/main_accounts_table.dart';
+import 'package:flowcash/core/tables/sub_accounts_table.dart';
+import 'package:flowcash/core/tables/categories_table.dart';
+import 'package:flowcash/core/tables/inventories_table.dart';
+import 'package:flowcash/core/tables/opening_quantities_table.dart';
+import 'package:flowcash/core/tables/journal_entries_table.dart';
+import 'package:flowcash/core/tables/journal_items_table.dart';
 import 'package:flowcash/core/enums/value_type_enum.dart';
 import 'package:flowcash/core/enums/value_counter_type_enum.dart';
 import 'package:flutter/foundation.dart';
@@ -24,6 +31,7 @@ final class DefaultDataInserter {
     _insertAccountingPeriod(db);
     _insertValuesCounterDefaults(db);
     _insertDefaultValues(db);
+    // if (kDebugMode) _insertFurnitureTestData(db);
   }
 
   static void _insertDefaultValues(Database db) {
@@ -203,6 +211,185 @@ final class DefaultDataInserter {
       }
     } catch (e) {
       debugPrint('insert default accounting period failed: $e');
+    }
+  }
+
+  static void _insertFurnitureTestData(Database db) {
+    try {
+      // Check if already inserted
+      final rs = db.select(
+        "SELECT COUNT(*) AS cnt FROM ${CategoriesTable.tableName} WHERE ${CategoriesTable.categoryNumber} LIKE 'FUR-%'",
+      );
+      final cnt = rs.isNotEmpty ? (rs.first['cnt'] as int) : 0;
+      if (cnt > 0) return; // Already seeded
+
+      debugPrint('Seeding 100 furniture items and accounts...');
+
+      // 1. Insert Main Account
+      db.execute('''
+        INSERT OR IGNORE INTO ${MainAccountsTable.tableName} (
+          ${MainAccountsTable.id}, ${MainAccountsTable.accountNumber}, ${MainAccountsTable.accountName}, 
+          ${MainAccountsTable.currencyId}, ${MainAccountsTable.debitBalance}, ${MainAccountsTable.creditBalance}, 
+          ${MainAccountsTable.mainAccountType}
+        ) VALUES (80, '8000', 'حسابات المفروشات والتجهيزات', 'YER', 0.0, 0.0, 'inventory')
+      ''');
+
+      final nowStr = DateTime.now().toIso8601String();
+
+      // 2. Insert Sub Accounts
+      db.execute('''
+        INSERT OR IGNORE INTO ${SubAccountsTable.tableName} (
+          ${SubAccountsTable.id}, ${SubAccountsTable.accountName}, ${SubAccountsTable.accountNumber}, 
+          ${SubAccountsTable.mainAccountId}, ${SubAccountsTable.currencyId}, ${SubAccountsTable.incrementBalance}, 
+          ${SubAccountsTable.decrementBalance}, ${SubAccountsTable.subAccountType}, ${SubAccountsTable.createdAt}
+        ) VALUES (801, 'صندوق المعرض الفرعي', '8101', 80, 'YER', 0.0, 0.0, 'cash_treasury', '$nowStr')
+      ''');
+
+      db.execute('''
+        INSERT OR IGNORE INTO ${SubAccountsTable.tableName} (
+          ${SubAccountsTable.id}, ${SubAccountsTable.accountName}, ${SubAccountsTable.accountNumber}, 
+          ${SubAccountsTable.mainAccountId}, ${SubAccountsTable.currencyId}, ${SubAccountsTable.incrementBalance}, 
+          ${SubAccountsTable.decrementBalance}, ${SubAccountsTable.subAccountType}, ${SubAccountsTable.createdAt}
+        ) VALUES (802, 'رأس مال قسم المفروشات', '8102', 80, 'YER', 0.0, 0.0, 'money_head', '$nowStr')
+      ''');
+
+      db.execute('''
+        INSERT OR IGNORE INTO ${SubAccountsTable.tableName} (
+          ${SubAccountsTable.id}, ${SubAccountsTable.accountName}, ${SubAccountsTable.accountNumber}, 
+          ${SubAccountsTable.mainAccountId}, ${SubAccountsTable.currencyId}, ${SubAccountsTable.incrementBalance}, 
+          ${SubAccountsTable.decrementBalance}, ${SubAccountsTable.subAccountType}, ${SubAccountsTable.createdAt}
+        ) VALUES (803, 'مخزون المفروشات الرئيسي', '8103', 80, 'YER', 0.0, 0.0, 'inventory', '$nowStr')
+      ''');
+
+      db.execute('''
+        INSERT OR IGNORE INTO ${SubAccountsTable.tableName} (
+          ${SubAccountsTable.id}, ${SubAccountsTable.accountName}, ${SubAccountsTable.accountNumber}, 
+          ${SubAccountsTable.mainAccountId}, ${SubAccountsTable.currencyId}, ${SubAccountsTable.incrementBalance}, 
+          ${SubAccountsTable.decrementBalance}, ${SubAccountsTable.subAccountType}, ${SubAccountsTable.createdAt}
+        ) VALUES (804, 'تكلفة مبيعات المفروشات', '8104', 80, 'YER', 0.0, 0.0, 'cost_of_goods_sold', '$nowStr')
+      ''');
+
+      db.execute('''
+        INSERT OR IGNORE INTO ${SubAccountsTable.tableName} (
+          ${SubAccountsTable.id}, ${SubAccountsTable.accountName}, ${SubAccountsTable.accountNumber}, 
+          ${SubAccountsTable.mainAccountId}, ${SubAccountsTable.currencyId}, ${SubAccountsTable.incrementBalance}, 
+          ${SubAccountsTable.decrementBalance}, ${SubAccountsTable.subAccountType}, ${SubAccountsTable.createdAt}
+        ) VALUES (805, 'إيرادات مبيعات المفروشات', '8105', 80, 'YER', 0.0, 0.0, 'sales', '$nowStr')
+      ''');
+
+      db.execute('''
+        INSERT OR IGNORE INTO ${SubAccountsTable.tableName} (
+          ${SubAccountsTable.id}, ${SubAccountsTable.accountName}, ${SubAccountsTable.accountNumber}, 
+          ${SubAccountsTable.mainAccountId}, ${SubAccountsTable.currencyId}, ${SubAccountsTable.incrementBalance}, 
+          ${SubAccountsTable.decrementBalance}, ${SubAccountsTable.subAccountType}, ${SubAccountsTable.createdAt}
+        ) VALUES (806, 'مصاريف مبيعات المفروشات', '8106', 80, 'YER', 0.0, 0.0, 'expenses', '$nowStr')
+      ''');
+
+      // 3. Generate 100 unique categories programmatically
+      final types = [
+        "كنبة",
+        "كرسي",
+        "طاولة",
+        "سرير",
+        "دولاب",
+        "مكتب",
+        "مكتبة",
+        "مغسلة",
+        "خزانة",
+        "ستارة",
+      ];
+      final materials = [
+        "خشب زان",
+        "خشب بلوط",
+        "معدني مودرن",
+        "جلد طبيعي",
+        "مخمل ناعم",
+        "ألمنيوم",
+        "زجاجي",
+      ];
+      final styles = [
+        "كلاسيك",
+        "نيو كلاسيك",
+        "مودرن",
+        "تركي راقي",
+        "إيطالي فاخر",
+        "أمريكي مريح",
+      ];
+      final colors = [
+        "بني محروق",
+        "بيج فاتح",
+        "رمادي داكن",
+        "ذهبي ملكي",
+        "أبيض مطفي",
+        "كحلي فاخر",
+      ];
+
+      final List<String> uniqueNames = [];
+      var idx = 0;
+      for (final t in types) {
+        for (final m in materials) {
+          for (final s in styles) {
+            for (final c in colors) {
+              final name = '$t $m $s $c';
+              uniqueNames.add(name);
+              idx++;
+              if (idx >= 100) break;
+            }
+            if (idx >= 100) break;
+          }
+          if (idx >= 100) break;
+        }
+        if (idx >= 100) break;
+      }
+
+      // Get Accounting Period ID
+      final periodRow = db.select(
+        'SELECT ${AccountingPeriodsTable.id} FROM ${AccountingPeriodsTable.tableName} LIMIT 1',
+      );
+      final periodId = periodRow.isNotEmpty
+          ? (periodRow.first[AccountingPeriodsTable.id] as int)
+          : 1;
+
+      // Insert categories, inventories, and opening quantities
+      for (var i = 0; i < 100; i++) {
+        final catId = 1000 + i;
+        final invId = 1000 + i;
+        final catNum = 'FUR-${catId.toString().padLeft(4, "0")}';
+        final catName = uniqueNames[i];
+
+        // Insert Category
+        db.execute('''
+          INSERT INTO ${CategoriesTable.tableName} (
+            ${CategoriesTable.id}, ${CategoriesTable.categoryType}, ${CategoriesTable.categoryName}, 
+            ${CategoriesTable.categoryNumber}, ${CategoriesTable.categoryUnitId}, ${CategoriesTable.pricingUnitId}, 
+            ${CategoriesTable.inventoryUnitId}
+          ) VALUES ($catId, 'material', '$catName', '$catNum', 1, 1, 1)
+        ''');
+
+        // Insert Inventory (triggers automatic journal entry and items)
+        final initialCost = 12000.0;
+        final initialQty = 10.0;
+        db.execute('''
+          INSERT INTO ${InventoriesTable.tableName} (
+            ${InventoriesTable.id}, ${InventoriesTable.categoryId}, ${InventoriesTable.storeId},
+            ${InventoriesTable.propertyAccountId}, ${InventoriesTable.revenueAccountId}, ${InventoriesTable.expenseAccountId},
+            ${InventoriesTable.incomeStockId}, ${InventoriesTable.outcomeStockId}, ${InventoriesTable.costTotal},
+            ${InventoriesTable.countUnits}, ${InventoriesTable.userId}
+          ) VALUES ($invId, $catId, 1, 802, 805, 806, 803, 804, $initialCost, $initialQty, 1)
+        ''');
+
+        // Insert Opening Quantity
+        db.execute('''
+          INSERT INTO ${OpeningQuantitiesTable.tableName} (
+            ${OpeningQuantitiesTable.inventoryId}, ${OpeningQuantitiesTable.countUnits}, ${OpeningQuantitiesTable.createdAt},
+            ${OpeningQuantitiesTable.costTotal}, ${OpeningQuantitiesTable.periodId}, ${OpeningQuantitiesTable.currencyId}
+          ) VALUES ($invId, $initialQty, '$nowStr', $initialCost, $periodId, 'YER')
+        ''');
+      }
+
+      debugPrint('Seeded 100 furniture items and accounts successfully.');
+    } catch (e, stack) {
+      debugPrint('Failed to seed furniture test data: $e\n$stack');
     }
   }
 }

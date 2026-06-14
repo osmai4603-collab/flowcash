@@ -4,6 +4,7 @@ abstract class InventoryEntity extends Entity {
   final int id;
   final int categoryId;
   final int storeId;
+  final int propertyAccountId;
   final int revenueAccountId;
   final int expenseAccountId;
   final int incomeStockId;
@@ -11,11 +12,13 @@ abstract class InventoryEntity extends Entity {
   final String inventoryName;
   final double costTotal;
   final double countUnits;
+  final int userId;
 
   const InventoryEntity({
     required this.id,
     required this.categoryId,
     required this.storeId,
+    required this.propertyAccountId,
     required this.revenueAccountId,
     required this.expenseAccountId,
     required this.incomeStockId,
@@ -23,6 +26,7 @@ abstract class InventoryEntity extends Entity {
     required this.inventoryName,
     required this.costTotal,
     required this.countUnits,
+    required this.userId,
   });
 
   @override
@@ -30,6 +34,7 @@ abstract class InventoryEntity extends Entity {
     id,
     categoryId,
     storeId,
+    propertyAccountId,
     revenueAccountId,
     expenseAccountId,
     incomeStockId,
@@ -37,6 +42,7 @@ abstract class InventoryEntity extends Entity {
     inventoryName,
     costTotal,
     countUnits,
+    userId,
   ];
 
   @override
@@ -44,6 +50,7 @@ abstract class InventoryEntity extends Entity {
     int? id,
     int? categoryId,
     int? storeId,
+    int? propertyAccountId,
     int? revenueAccountId,
     int? expenseAccountId,
     int? incomeStockId,
@@ -51,6 +58,7 @@ abstract class InventoryEntity extends Entity {
     String? inventoryName,
     double? unitCost,
     double? countUnits,
+    int? userId,
   });
 }
 
@@ -59,6 +67,7 @@ class InventoryItemEntity extends InventoryEntity {
     required super.id,
     required super.categoryId,
     required super.storeId,
+    required super.propertyAccountId,
     required super.revenueAccountId,
     required super.expenseAccountId,
     required super.incomeStockId,
@@ -66,6 +75,7 @@ class InventoryItemEntity extends InventoryEntity {
     required super.inventoryName,
     required super.costTotal,
     required super.countUnits,
+    required super.userId,
   });
 
   @override
@@ -73,6 +83,7 @@ class InventoryItemEntity extends InventoryEntity {
     int? id,
     int? categoryId,
     int? storeId,
+    int? propertyAccountId,
     int? revenueAccountId,
     int? expenseAccountId,
     int? incomeStockId,
@@ -80,11 +91,13 @@ class InventoryItemEntity extends InventoryEntity {
     String? inventoryName,
     double? unitCost,
     double? countUnits,
+    int? userId,
   }) {
     return InventoryItemEntity(
       id: id ?? this.id,
       categoryId: categoryId ?? this.categoryId,
       storeId: storeId ?? this.storeId,
+      propertyAccountId: propertyAccountId ?? this.propertyAccountId,
       revenueAccountId: revenueAccountId ?? this.revenueAccountId,
       expenseAccountId: expenseAccountId ?? this.expenseAccountId,
       incomeStockId: incomeStockId ?? this.incomeStockId,
@@ -92,6 +105,7 @@ class InventoryItemEntity extends InventoryEntity {
       inventoryName: inventoryName ?? this.inventoryName,
       costTotal: unitCost ?? this.costTotal,
       countUnits: countUnits ?? this.countUnits,
+      userId: userId ?? this.userId,
     );
   }
 }

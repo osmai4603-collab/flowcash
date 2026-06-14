@@ -1,3 +1,5 @@
+import 'package:flowcash/core/formatters/money_formatter.dart';
+import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -348,7 +350,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
 
                     // 3. Footer totals summary
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: Paddings.mediumAll,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surfaceContainerHighest
                             .withAlpha(50),
@@ -387,7 +389,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                           Row(
                             children: [
                               fluent.Text(
-                                'إجمالي المدين: ${state.totalDebit.toStringAsFixed(2)}',
+                                'إجمالي المدين: ${AppMoneyFormatter.formatDouble(state.totalDebit)}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.green,
@@ -395,7 +397,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                               ),
                               const SizedBox(width: 24),
                               fluent.Text(
-                                'إجمالي الدائن: ${state.totalCredit.toStringAsFixed(2)}',
+                                'إجمالي الدائن: ${AppMoneyFormatter.formatDouble(state.totalCredit)}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.red,
@@ -404,7 +406,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
                               if (!state.isBalanced) ...[
                                 const SizedBox(width: 24),
                                 fluent.Text(
-                                  'الفرق: ${state.difference.toStringAsFixed(2)}',
+                                  'الفرق: ${AppMoneyFormatter.formatDouble(state.difference)}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.orange,

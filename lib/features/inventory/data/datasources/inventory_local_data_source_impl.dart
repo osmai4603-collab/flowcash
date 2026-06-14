@@ -77,6 +77,7 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
       id: map[InventoriesTable.id] as int,
       categoryId: map[InventoriesTable.categoryId] as int,
       storeId: map[InventoriesTable.storeId] as int,
+      propertyAccountId: (map[InventoriesTable.propertyAccountId] ?? 0) as int,
       revenueAccountId: map[InventoriesTable.revenueAccountId] as int,
       expenseAccountId: map[InventoriesTable.expenseAccountId] as int,
       incomeStockId: map[InventoriesTable.incomeStockId] as int,
@@ -84,6 +85,7 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
       inventoryName: '',
       costTotal: ((map[InventoriesTable.costTotal] ?? 0) as num).toDouble(),
       countUnits: ((map[InventoriesTable.countUnits]) as num).toDouble(),
+      userId: (map[InventoriesTable.userId] ?? 1) as int,
     );
   }
 
@@ -93,12 +95,14 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
       if (entity.id > 0) InventoriesTable.id: entity.id,
       InventoriesTable.categoryId: entity.categoryId,
       InventoriesTable.storeId: entity.storeId,
+      InventoriesTable.propertyAccountId: entity.propertyAccountId,
       InventoriesTable.revenueAccountId: entity.revenueAccountId,
       InventoriesTable.expenseAccountId: entity.expenseAccountId,
       InventoriesTable.incomeStockId: entity.incomeStockId,
       InventoriesTable.outcomeStockId: entity.outcomeStockId,
       InventoriesTable.costTotal: entity.costTotal,
       InventoriesTable.countUnits: entity.countUnits,
+      InventoriesTable.userId: entity.userId,
     };
   }
 
@@ -174,7 +178,7 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
     // Build base query with JOIN to categories
     final buffer = StringBuffer();
     buffer.write(
-      'SELECT i.${InventoriesTable.id} AS inventory_id, i.${InventoriesTable.categoryId} AS category_id, i.${InventoriesTable.storeId} AS store_id, i.${InventoriesTable.revenueAccountId} AS revenue_id, i.${InventoriesTable.expenseAccountId} AS expense_id, i.${InventoriesTable.incomeStockId} AS income_stock_id, i.${InventoriesTable.outcomeStockId} AS outcome_stock_id, i.${InventoriesTable.costTotal} AS cost_total, i.${InventoriesTable.countUnits} AS count_units, c.${CategoriesTable.categoryName} AS category_name, c.${CategoriesTable.categoryUnitId} AS category_unit_id, u.${UnitsTable.unitName} AS unit_name, u.${UnitsTable.length} AS unit_length, u.${UnitsTable.width} AS unit_width, u.${UnitsTable.thickness} AS unit_thickness, u.${UnitsTable.unitType} AS unit_type',
+      'SELECT i.${InventoriesTable.id} AS inventory_id, i.${InventoriesTable.categoryId} AS category_id, i.${InventoriesTable.storeId} AS store_id, i.${InventoriesTable.propertyAccountId} AS property_id, i.${InventoriesTable.revenueAccountId} AS revenue_id, i.${InventoriesTable.expenseAccountId} AS expense_id, i.${InventoriesTable.incomeStockId} AS income_stock_id, i.${InventoriesTable.outcomeStockId} AS outcome_stock_id, i.${InventoriesTable.costTotal} AS cost_total, i.${InventoriesTable.countUnits} AS count_units, c.${CategoriesTable.categoryName} AS category_name, c.${CategoriesTable.categoryUnitId} AS category_unit_id, u.${UnitsTable.unitName} AS unit_name, u.${UnitsTable.length} AS unit_length, u.${UnitsTable.width} AS unit_width, u.${UnitsTable.thickness} AS unit_thickness, u.${UnitsTable.unitType} AS unit_type',
     );
     buffer.write(
       ' FROM ${InventoriesTable.tableName} i LEFT JOIN ${CategoriesTable.tableName} c ON i.${InventoriesTable.categoryId} = c.${CategoriesTable.id} LEFT JOIN ${UnitsTable.tableName} u ON c.${CategoriesTable.categoryUnitId} = u.${UnitsTable.id}',
@@ -217,6 +221,7 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
         inventoryName: (r['category_name'] as String?) ?? '',
         costTotal: ((r['cost_total'] ?? 0) as num).toDouble(),
         countUnits: ((r['count_units'] ?? 0) as num).toDouble(),
+        propertyAccountId: (r['property_id'] ?? 0) as int,
         revenueAccountId: r['revenue_id'] as int,
         expenseAccountId: r['expense_id'] as int,
         incomeAccountId: r['income_stock_id'] as int,
@@ -231,7 +236,7 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
     int id,
   ) async {
     final sql =
-        'SELECT i.${InventoriesTable.id} AS inventory_id, i.${InventoriesTable.categoryId} AS category_id, i.${InventoriesTable.storeId} AS store_id, i.${InventoriesTable.revenueAccountId} AS revenue_id, i.${InventoriesTable.expenseAccountId} AS expense_id, i.${InventoriesTable.incomeStockId} AS income_stock_id, i.${InventoriesTable.outcomeStockId} AS outcome_stock_id, i.${InventoriesTable.costTotal} AS cost_total, i.${InventoriesTable.countUnits} AS count_units, c.${CategoriesTable.categoryName} AS category_name, c.${CategoriesTable.categoryUnitId} AS category_unit_id, u.${UnitsTable.unitName} AS unit_name, u.${UnitsTable.length} AS unit_length, u.${UnitsTable.width} AS unit_width, u.${UnitsTable.thickness} AS unit_thickness, u.${UnitsTable.unitType} AS unit_type FROM ${InventoriesTable.tableName} i LEFT JOIN ${CategoriesTable.tableName} c ON i.${InventoriesTable.categoryId} = c.${CategoriesTable.id} LEFT JOIN ${UnitsTable.tableName} u ON c.${CategoriesTable.categoryUnitId} = u.${UnitsTable.id} WHERE i.${InventoriesTable.id} = ? LIMIT 1';
+        'SELECT i.${InventoriesTable.id} AS inventory_id, i.${InventoriesTable.categoryId} AS category_id, i.${InventoriesTable.storeId} AS store_id, i.${InventoriesTable.propertyAccountId} AS property_id, i.${InventoriesTable.revenueAccountId} AS revenue_id, i.${InventoriesTable.expenseAccountId} AS expense_id, i.${InventoriesTable.incomeStockId} AS income_stock_id, i.${InventoriesTable.outcomeStockId} AS outcome_stock_id, i.${InventoriesTable.costTotal} AS cost_total, i.${InventoriesTable.countUnits} AS count_units, c.${CategoriesTable.categoryName} AS category_name, c.${CategoriesTable.categoryUnitId} AS category_unit_id, u.${UnitsTable.unitName} AS unit_name, u.${UnitsTable.length} AS unit_length, u.${UnitsTable.width} AS unit_width, u.${UnitsTable.thickness} AS unit_thickness, u.${UnitsTable.unitType} AS unit_type FROM ${InventoriesTable.tableName} i LEFT JOIN ${CategoriesTable.tableName} c ON i.${InventoriesTable.categoryId} = c.${CategoriesTable.id} LEFT JOIN ${UnitsTable.tableName} u ON c.${CategoriesTable.categoryUnitId} = u.${UnitsTable.id} WHERE i.${InventoriesTable.id} = ? LIMIT 1';
     final db = await _db.database;
     final stmt = db.prepare(sql);
     final results = stmt.select([id]);
@@ -265,6 +270,7 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
       inventoryName: (r['category_name'] as String?) ?? '',
       costTotal: ((r['cost_total'] ?? 0) as num).toDouble(),
       countUnits: ((r['count_units'] ?? 0) as num).toDouble(),
+      propertyAccountId: (r['property_id'] ?? 0) as int,
       revenueAccountId: r['revenue_id'] as int,
       expenseAccountId: r['expense_id'] as int,
       incomeAccountId: r['income_stock_id'] as int,
@@ -298,6 +304,7 @@ final class _InventoryLocalEntity extends InventoryEntity {
     required super.id,
     required super.categoryId,
     required super.storeId,
+    required super.propertyAccountId,
     required super.revenueAccountId,
     required super.expenseAccountId,
     required super.incomeStockId,
@@ -305,6 +312,7 @@ final class _InventoryLocalEntity extends InventoryEntity {
     required super.inventoryName,
     required super.costTotal,
     required super.countUnits,
+    required super.userId,
   });
 
   @override
@@ -312,6 +320,7 @@ final class _InventoryLocalEntity extends InventoryEntity {
     int? id,
     int? categoryId,
     int? storeId,
+    int? propertyAccountId,
     int? revenueAccountId,
     int? expenseAccountId,
     int? incomeStockId,
@@ -319,11 +328,13 @@ final class _InventoryLocalEntity extends InventoryEntity {
     String? inventoryName,
     double? unitCost,
     double? countUnits,
+    int? userId,
   }) {
     return _InventoryLocalEntity(
       id: id ?? this.id,
       categoryId: categoryId ?? this.categoryId,
       storeId: storeId ?? this.storeId,
+      propertyAccountId: propertyAccountId ?? this.propertyAccountId,
       revenueAccountId: revenueAccountId ?? this.revenueAccountId,
       expenseAccountId: expenseAccountId ?? this.expenseAccountId,
       incomeStockId: incomeStockId ?? this.incomeStockId,
@@ -331,6 +342,7 @@ final class _InventoryLocalEntity extends InventoryEntity {
       inventoryName: inventoryName ?? this.inventoryName,
       costTotal: unitCost ?? this.costTotal,
       countUnits: countUnits ?? this.countUnits,
+      userId: userId ?? this.userId,
     );
   }
 }

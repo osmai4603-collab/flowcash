@@ -14,14 +14,13 @@ class JournalItemDraft extends Equatable {
   final double amount;
   final String lineDescription;
   JournalStatus? get journalStatus {
-    if(account == null) {
+    if (account == null) {
       return null;
     }
-    return (account!.subAccountType.mainAccountType.accountStatus.isDebtor && side.isDebtor) ||
-        (account!.subAccountType.mainAccountType.accountStatus.isCreditor && side.isCreditor)
+    return account!.subAccountType.mainAccountType.accountStatus.name ==
+            side.name
         ? JournalStatus.increment
         : JournalStatus.decrement;
-
   }
 
   const JournalItemDraft({
@@ -47,12 +46,7 @@ class JournalItemDraft extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-    account,
-    side,
-    amount,
-    lineDescription,
-  ];
+  List<Object?> get props => [account, side, amount, lineDescription];
 }
 
 class JournalEntryFormState extends Equatable {
@@ -118,10 +112,14 @@ class JournalEntryFormState extends Equatable {
     );
   }
 
-  double get totalDebit => items.where((item) => item.side.isDebtor).fold(0.0, (sum, item) => sum + item.amount);
-  double get totalCredit => items.where((item) => item.side.isCreditor).fold(0.0, (sum, item) => sum + item.amount);
+  double get totalDebit => items
+      .where((item) => item.side.isDebtor)
+      .fold(0.0, (sum, item) => sum + item.amount);
+  double get totalCredit => items
+      .where((item) => item.side.isCreditor)
+      .fold(0.0, (sum, item) => sum + item.amount);
   double get difference => totalDebit - totalCredit;
-  bool get isBalanced => difference.abs() < 0.001;
+  bool get isBalanced => totalCredit == totalDebit; // difference.abs() < 0.001;
 
   @override
   List<Object?> get props => [

@@ -32,8 +32,6 @@ import '../../../../injection_container.dart';
 import '../../../../inventory/domain/entities/warehouse_entity.dart';
 import '../../../../inventory/domain/usecases/warehouse_usecases.dart';
 
-
-
 class BillFormPage extends StatelessWidget {
   final BillEntity? bill;
   final InvoiceType billType;
@@ -117,7 +115,8 @@ class _BillFormViewState extends State<_BillFormView> {
             context: context,
             toast: 'تم حفظ بيانات الفاتورة بنجاح في قاعدة البيانات',
           );
-        } else if (state.status == BillFormStatus.submitFailure || state.status == BillFormStatus.failure) {
+        } else if (state.status == BillFormStatus.submitFailure ||
+            state.status == BillFormStatus.failure) {
           error(context: context, toast: state.errorMessage ?? 'حدث خطأ ما');
         }
       },
@@ -183,7 +182,10 @@ class _BillFormViewState extends State<_BillFormView> {
             ),
           ),
         ),
-        content: Padding(padding: const EdgeInsets.all(5), child: buildBill(context, state)),
+        content: Padding(
+          padding: const EdgeInsets.all(5),
+          child: buildBill(context, state),
+        ),
       ),
     );
   }
@@ -258,7 +260,8 @@ class _BillFormViewState extends State<_BillFormView> {
                     ),
                     const SizedBox(width: 5.0),
                     HoverButton(
-                      onPressed: () => bloc.add(BillFormCashTypeChanged(BillCashType.cash)),
+                      onPressed: () =>
+                          bloc.add(BillFormCashTypeChanged(BillCashType.cash)),
                       builder: (context, states) {
                         return TextWidget(
                           text: 'نقدا',
@@ -284,7 +287,9 @@ class _BillFormViewState extends State<_BillFormView> {
                     ),
                     const SizedBox(width: 2.0),
                     HoverButton(
-                      onPressed: () => bloc.add(BillFormCashTypeChanged(BillCashType.future)),
+                      onPressed: () => bloc.add(
+                        BillFormCashTypeChanged(BillCashType.future),
+                      ),
                       builder: (context, states) {
                         return TextWidget(
                           text: 'آجل',
@@ -336,41 +341,37 @@ class _BillFormViewState extends State<_BillFormView> {
             ],
           ),
           const SizedBox(height: 20),
-          SizedBox(
-            height: 40.0,
-            child: Row(
-              children: [
-                Expanded(
-                  child: InfoLabel(
-                    label: 'المخزن',
-                    child: ComboboxFormField<WarehouseEntity>(
-                      value: state.warehouseSelected,
-                      isExpanded: true,
-                      items: state.warehouses.map((store) {
-                        return ComboBoxItem<WarehouseEntity>(
-                          value: store,
-                          child: Text(
-                            store.warehouseName,
-                            style: Styles.titleSmall.copyWith(
-                              color: colors.onSurface,
-                            ),
+          Row(
+            children: [
+              Expanded(
+                child: InfoLabel(
+                  label: 'المخزن',
+                  child: ComboboxFormField<WarehouseEntity>(
+                    value: state.warehouseSelected,
+                    isExpanded: true,
+                    items: state.warehouses.map((store) {
+                      return ComboBoxItem<WarehouseEntity>(
+                        value: store,
+                        child: Text(
+                          store.warehouseName,
+                          style: Styles.titleSmall.copyWith(
+                            color: colors.onSurface,
                           ),
-                        );
-                      }).toList(),
-                      onChanged: (warehouse) {
-                        if (warehouse != null) {
-                          bloc.add(BillFormWarehouseChanged(warehouse));
-                        }
-                      },
-                      placeholder: const Text('المخزن'),
-                      validator: (value) =>
-                          value == null ? 'المخزن مطلوب' : null,
-                    ),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (warehouse) {
+                      if (warehouse != null) {
+                        bloc.add(BillFormWarehouseChanged(warehouse));
+                      }
+                    },
+                    placeholder: const Text('المخزن'),
+                    validator: (value) => value == null ? 'المخزن مطلوب' : null,
                   ),
                 ),
-                const SizedBox(width: 10),
-              ],
-            ),
+              ),
+              const SizedBox(width: 10),
+            ],
           ),
           const SizedBox(height: 10),
           InfoLabel(
@@ -438,7 +439,9 @@ class _BillFormViewState extends State<_BillFormView> {
                     child: Text(
                       Tafqit().tafqitNumberWithParts(
                             listOfNumberAndParts: [state.totalAmount.toInt()],
-                            tafqitUnitCode: _getUnitCode(state.currencySelected),
+                            tafqitUnitCode: _getUnitCode(
+                              state.currencySelected,
+                            ),
                             justWord: '',
                             noOtherWord: '',
                           ) ??
@@ -601,16 +604,22 @@ class _BillFormViewState extends State<_BillFormView> {
                     left: 2,
                     bottom: isDesktop ? 18.0 : 16.0,
                   ),
-                  onChanged: (value) => bloc.add(BillFormTotalPriceChanged(index, value)),
+                  onChanged: (value) =>
+                      bloc.add(BillFormTotalPriceChanged(index, value)),
                   onEditingComplete: () {
                     index + 1 == state.requests.length
                         ? bloc.add(BillFormRequestAdded())
-                        : state.requests[index + 1].categoryNameFocusNode.requestFocus();
+                        : state.requests[index + 1].categoryNameFocusNode
+                              .requestFocus();
                   },
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) return 'مطلوب';
-                    final doubleVal = double.tryParse(value.replaceAll(',', ''));
-                    if (doubleVal == null || doubleVal <= 0) return 'يجب أن يكون أكبر من 0';
+                    final doubleVal = double.tryParse(
+                      value.replaceAll(',', ''),
+                    );
+                    if (doubleVal == null || doubleVal <= 0) {
+                      return 'يجب أن يكون أكبر من 0';
+                    }
                     return null;
                   },
                 ),
@@ -637,12 +646,17 @@ class _BillFormViewState extends State<_BillFormView> {
                       left: 2,
                       bottom: isDesktop ? 18.0 : 16.0,
                     ),
-                    onChanged: (value) => bloc.add(BillFormUnitPriceChanged(index, value)),
+                    onChanged: (value) =>
+                        bloc.add(BillFormUnitPriceChanged(index, value)),
                     onEditingComplete: request.totalPriceFocusNode.requestFocus,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) return 'مطلوب';
-                      final doubleVal = double.tryParse(value.replaceAll(',', ''));
-                      if (doubleVal == null || doubleVal <= 0) return 'يجب أن يكون أكبر من 0';
+                      final doubleVal = double.tryParse(
+                        value.replaceAll(',', ''),
+                      );
+                      if (doubleVal == null || doubleVal <= 0) {
+                        return 'يجب أن يكون أكبر من 0';
+                      }
                       return null;
                     },
                   ),
@@ -666,7 +680,9 @@ class _BillFormViewState extends State<_BillFormView> {
                           : FilteringTextInputFormatter.allow(
                               RegExp(r'\d+\.?\d*'),
                               replacementString:
-                                  request.countUnitsController.text.contains('.')
+                                  request.countUnitsController.text.contains(
+                                    '.',
+                                  )
                                   ? ''
                                   : '.',
                             ),
@@ -680,12 +696,18 @@ class _BillFormViewState extends State<_BillFormView> {
                       left: 2,
                       bottom: isDesktop ? 18.0 : 16.0,
                     ),
-                    onChanged: (value) => bloc.add(BillFormCountUnitsChanged(index, value)),
-                    onEditingComplete: () => request.unitPriceFocusNode.requestFocus(),
+                    onChanged: (value) =>
+                        bloc.add(BillFormCountUnitsChanged(index, value)),
+                    onEditingComplete: () =>
+                        request.unitPriceFocusNode.requestFocus(),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) return 'مطلوب';
-                      final doubleVal = double.tryParse(value.replaceAll(',', ''));
-                      if (doubleVal == null || doubleVal <= 0) return 'يجب أن يكون أكبر من 0';
+                      final doubleVal = double.tryParse(
+                        value.replaceAll(',', ''),
+                      );
+                      if (doubleVal == null || doubleVal <= 0) {
+                        return 'يجب أن يكون أكبر من 0';
+                      }
                       return null;
                     },
                   ),
@@ -715,7 +737,8 @@ class _BillFormViewState extends State<_BillFormView> {
                               .call(value);
                       return result.fold((l) => [], (r) => r);
                     },
-                    onSelectedItem: (category) => bloc.add(BillFormCategorySelected(index, category)),
+                    onSelectedItem: (category) =>
+                        bloc.add(BillFormCategorySelected(index, category)),
                     style: colors.body,
                     controller: request.categoryNameController,
                     labelMenu: (category) => category.categoryName,
@@ -728,7 +751,8 @@ class _BillFormViewState extends State<_BillFormView> {
                       if (request.category == null) return 'غير محدد';
                       return null;
                     },
-                    onChanged: (value) => bloc.add(BillFormCategorySelected(index, null)),
+                    onChanged: (value) =>
+                        bloc.add(BillFormCategorySelected(index, null)),
                   ),
                 ),
               ),
@@ -746,15 +770,20 @@ class _BillFormViewState extends State<_BillFormView> {
       builder: (_) => const CategoryFormPage(),
     );
     if (category == null) return;
-    
+
     bloc.add(BillFormRequestAdded());
     final index = bloc.state.requests.length - 1;
-    bloc.add(BillFormCategorySelected(index, SimpleCategoryEntity(
-      id: category.id,
-      categoryName: category.categoryName,
-      unitName: category.categoryUnit?.unitName ?? '',
-      unitType: category.categoryUnit?.unitType ?? UnitType.piece,
-    )));
+    bloc.add(
+      BillFormCategorySelected(
+        index,
+        SimpleCategoryEntity(
+          id: category.id,
+          categoryName: category.categoryName,
+          unitName: category.categoryUnit?.unitName ?? '',
+          unitType: category.categoryUnit?.unitType ?? UnitType.piece,
+        ),
+      ),
+    );
   }
 
   void _onAddNewPerson(BuildContext context) async {

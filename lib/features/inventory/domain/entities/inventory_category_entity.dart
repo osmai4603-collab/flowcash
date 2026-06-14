@@ -8,6 +8,7 @@ class InventoryCategoryEntity extends Entity {
   final String inventoryName;
   final double countUnits;
   final double costTotal;
+  final int propertyAccountId;
   final int revenueAccountId;
   final int expenseAccountId;
   final int incomeAccountId;
@@ -21,6 +22,7 @@ class InventoryCategoryEntity extends Entity {
     required this.inventoryName,
     required this.countUnits,
     required this.costTotal,
+    required this.propertyAccountId,
     required this.revenueAccountId,
     required this.expenseAccountId,
     required this.incomeAccountId,
@@ -35,6 +37,7 @@ class InventoryCategoryEntity extends Entity {
     inventoryName,
     countUnits,
     costTotal,
+    propertyAccountId,
     revenueAccountId,
     expenseAccountId,
     incomeAccountId,
@@ -51,6 +54,7 @@ class InventoryCategoryEntity extends Entity {
     String? categoryName,
     double? countUnits,
     double? unitCost,
+    int? propertyAccountId,
     int? revenueAccountId,
     int? expenseAccountId,
     int? incomeAccountId,
@@ -64,6 +68,7 @@ class InventoryCategoryEntity extends Entity {
       inventoryName: categoryName ?? this.inventoryName,
       countUnits: countUnits ?? this.countUnits,
       costTotal: unitCost ?? this.costTotal,
+      propertyAccountId: propertyAccountId ?? this.propertyAccountId,
       revenueAccountId: revenueAccountId ?? this.revenueAccountId,
       expenseAccountId: expenseAccountId ?? this.expenseAccountId,
       incomeAccountId: incomeAccountId ?? this.incomeAccountId,

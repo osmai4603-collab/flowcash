@@ -148,6 +148,13 @@ class InventoryItemDetailPanel extends StatelessWidget {
               const SizedBox(height: 16),
               _buildAccountRow(
                 context,
+                Icons.home_work,
+                'حساب البضاعة (الأصول):',
+                _getAccountName(item.propertyAccountId),
+                Colors.teal,
+              ),
+              _buildAccountRow(
+                context,
                 Icons.arrow_circle_up,
                 'حساب الإيرادات (المبيعات):',
                 _getAccountName(item.revenueAccountId),

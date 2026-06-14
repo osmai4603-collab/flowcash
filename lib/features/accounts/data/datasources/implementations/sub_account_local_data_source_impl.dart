@@ -77,15 +77,16 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
         mainAccountId: map[SubAccountsTable.mainAccountId] as int,
         accountName: (map[SubAccountsTable.accountName] as String?) ?? "",
         accountNumber: (map[SubAccountsTable.accountNumber] as String?) ?? "",
-        incrementBalance: ((map[SubAccountsTable.incrementBalance]) as num).toDouble(),
-        decrementBalance: ((map[SubAccountsTable.decrementBalance]) as num)
-            .toDouble(),
-        currencyId: map[SubAccountsTable.currencyId],
+        incrementBalance:
+            ((map[SubAccountsTable.incrementBalance]) as num?)?.toDouble() ??
+            0.0,
+        decrementBalance:
+            ((map[SubAccountsTable.decrementBalance]) as num?)?.toDouble() ??
+            0.0,
+        currencyId: map[SubAccountsTable.currencyId] as String,
         balanceMax: ((map[SubAccountsTable.balanceMax]) as num?)?.toDouble(),
-        subAccountType: SubAccountType.values.firstWhere(
-          (e) => e.name == map[SubAccountsTable.subAccountType] as String,
-        ),
-        createdAt: DateTime.parse(map[SubAccountsTable.createdAt]),
+        subAccountType: SubAccountType.of(map[SubAccountsTable.subAccountType]),
+        createdAt: DateTime.parse(map[SubAccountsTable.createdAt] as String),
       );
       return result;
     } catch (e) {
@@ -254,8 +255,10 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     await _db.update(
       table: SubAccountsTable.tableName,
       data: {
-        SubAccountsTable.incrementBalance: subAcc.incrementBalance + incrementBalance,
-        SubAccountsTable.decrementBalance: subAcc.decrementBalance + decrementBalance,
+        SubAccountsTable.incrementBalance:
+            subAcc.incrementBalance + incrementBalance,
+        SubAccountsTable.decrementBalance:
+            subAcc.decrementBalance + decrementBalance,
       },
       where: {SubAccountsTable.id: id},
     );
@@ -285,9 +288,11 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     if (subAcc == null) return false;
     final data = <String, dynamic>{};
     if (isIncrement) {
-      data[SubAccountsTable.incrementBalance] = subAcc.incrementBalance + amount;
+      data[SubAccountsTable.incrementBalance] =
+          subAcc.incrementBalance + amount;
     } else {
-      data[SubAccountsTable.decrementBalance] = subAcc.decrementBalance + amount;
+      data[SubAccountsTable.decrementBalance] =
+          subAcc.decrementBalance + amount;
     }
     await _db.update(
       table: SubAccountsTable.tableName,

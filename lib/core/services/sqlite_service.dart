@@ -39,13 +39,8 @@ final class SqliteDatabaseManager {
     final currentVersion = db.userVersion;
 
     if (currentVersion == 0) {
-      // Fresh DB: create the initial schema for version 1,
-      // then apply migrations sequentially to the current version.
+      // Fresh DB: create the full schema and insert defaults.
       SqliteSchemaManager.createAll(db);
-      db.userVersion = 1;
-      if (_version > 1) {
-        SqliteSchemaManager.migrate(db, 1, _version);
-      }
       DefaultDataInserter.insertDefaults(db);
       db.userVersion = _version;
     } else if (currentVersion < _version) {

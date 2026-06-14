@@ -42,6 +42,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
   SubAccountEntity? _selectedExpenseAccount;
   SubAccountEntity? _selectedIncomeStock;
   SubAccountEntity? _selectedOutcomeStock;
+  SubAccountEntity? _selectedPropertyAccount;
   final _categoryController = TextEditingController();
 
   List<SubAccountEntity> get _inventorySubAccounts {
@@ -115,6 +116,13 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
               _selectedWarehouse = selectedWarehouse.first;
             }
 
+            final selectedProperty = _subAccounts.where(
+              (a) => a.id == item.propertyAccountId,
+            );
+            if (selectedProperty.isNotEmpty) {
+              _selectedPropertyAccount = selectedProperty.first;
+            }
+
             final selectedRevenue = _subAccounts.where(
               (a) => a.id == item.revenueAccountId,
             );
@@ -170,12 +178,18 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedCategory == null || _selectedWarehouse == null) {
+    if (_selectedCategory == null ||
+        _selectedWarehouse == null ||
+        _selectedPropertyAccount == null ||
+        _selectedRevenueAccount == null ||
+        _selectedExpenseAccount == null ||
+        _selectedIncomeStock == null ||
+        _selectedOutcomeStock == null) {
       fluent.displayInfoBar(
         context,
         builder: (context, close) => fluent.InfoBar(
           title: const fluent.Text('تنبيه'),
-          content: fluent.Text('الرجاء اختيار الصنف والمستودع'),
+          content: fluent.Text('الرجاء اختيار الصنف والمستودع وتحديد جميع الحسابات المالية'),
         ),
       );
       return;
@@ -185,6 +199,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
       id: _isEdit ? widget.item!.id : 0,
       categoryId: _selectedCategory!.id,
       storeId: _selectedWarehouse!.id,
+      propertyAccountId: _selectedPropertyAccount!.id,
       revenueAccountId: _selectedRevenueAccount!.id,
       expenseAccountId: _selectedExpenseAccount!.id,
       incomeStockId: _selectedIncomeStock!.id,
@@ -193,6 +208,7 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
           _selectedCategory?.categoryName ?? widget.item?.inventoryName ?? '',
       countUnits: widget.item?.countUnits ?? 0.0,
       costTotal: widget.item?.costTotal ?? 0,
+      userId: widget.item?.userId ?? 1,
     );
 
     Navigator.of(context).pop(resultItem);
@@ -366,6 +382,32 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
+                ),
+
+                fluent.InfoLabel(
+                  label: 'حساب البضاعة (الأصول)',
+                  child: fluent.ComboBox<SubAccountEntity>(
+                    isExpanded: true,
+                    value: _selectedPropertyAccount,
+                    placeholder: const fluent.Text('اختر حساب البضاعة/الأصول'),
+                    disabledPlaceholder: const fluent.Text(
+                      'لا يوجد حسابات متاحة',
+                    ),
+                    icon: const fluent.Icon(fluent.FluentIcons.chevron_down),
+                    items: _inventorySubAccounts.map((a) {
+                      return fluent.ComboBoxItem<SubAccountEntity>(
+                        value: a,
+                        child: fluent.Text(
+                          '${a.accountName} (${a.accountNumber})',
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: _inventorySubAccounts.isEmpty
+                        ? null
+                        : (val) => setState(() {
+                              _selectedPropertyAccount = val;
+                            }),
+                  ),
                 ),
 
                 // 3. Accounts Selection Grid

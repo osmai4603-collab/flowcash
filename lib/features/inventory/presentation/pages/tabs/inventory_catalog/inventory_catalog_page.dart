@@ -91,14 +91,15 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
 
   Map<int, TableColumnWidth> _getInventoryTableWidths() {
     return {
-      0: const FixedColumnWidth(45),
-      1: const FlexColumnWidth(0.22), // الصنف
-      2: const FlexColumnWidth(0.16), // المستودع
-      3: const FixedColumnWidth(70), // الوحدات
-      4: const FlexColumnWidth(0.18), // حساب الإيرادات
-      5: const FlexColumnWidth(0.18), // حساب المصروفات
-      6: const FlexColumnWidth(0.18), // حساب مخزون الوارد
-      7: const FlexColumnWidth(0.18), // حساب مخزون الصادر
+      0: const FixedColumnWidth(40),
+      1: const FlexColumnWidth(0.18), // الصنف
+      2: const FlexColumnWidth(0.12), // المستودع
+      3: const FixedColumnWidth(55), // الوحدات
+      4: const FlexColumnWidth(0.15), // حساب البضاعة
+      5: const FlexColumnWidth(0.15), // حساب الإيرادات
+      6: const FlexColumnWidth(0.15), // حساب المصروفات
+      7: const FlexColumnWidth(0.15), // حساب مخزون الوارد
+      8: const FlexColumnWidth(0.15), // حساب مخزون الصادر
     };
   }
 
@@ -291,6 +292,12 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                                 style: textTheme.bodySmall,
                               ),
                               TextWidget(
+                                text: 'حساب البضاعة',
+                                textAlign: TextAlign.center,
+                                padding: const EdgeInsets.all(8),
+                                style: textTheme.bodySmall,
+                              ),
+                              TextWidget(
                                 text: 'حساب الإيرادات',
                                 textAlign: TextAlign.center,
                                 padding: const EdgeInsets.all(8),
@@ -403,6 +410,14 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                       textAlign: TextAlign.center,
                       padding: const EdgeInsets.all(8),
                       style: textTheme.bodySmall,
+                    ),
+                    TextWidget(
+                      text: _getAccountName(item.propertyAccountId),
+                      textAlign: TextAlign.end,
+                      textDirection: TextDirection.rtl,
+                      padding: const EdgeInsets.all(8),
+                      style: textTheme.bodySmall,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     TextWidget(
                       text: _getAccountName(item.revenueAccountId),

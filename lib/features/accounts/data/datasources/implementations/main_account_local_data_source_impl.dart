@@ -74,13 +74,11 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
       id: map[MainAccountsTable.id] as int,
       accountName: (map[MainAccountsTable.accountName] as String?) ?? "",
       accountNumber: (map[MainAccountsTable.accountNumber] as String?) ?? "",
-      currencyId: map[MainAccountsTable.currencyId],
-      debitBalance: ((map[MainAccountsTable.debitBalance]) as num).toDouble(),
-      creditBalance: ((map[MainAccountsTable.creditBalance]) as num).toDouble(),
-      mainAccountType: MainAccountType.values.firstWhere(
-        (e) => e.name == map[MainAccountsTable.mainAccountType] as String,
-      ),
-      numbersCounter: map[MainAccountsTable.numbersCounter] as int,
+      currencyId: map[MainAccountsTable.currencyId] as String?,
+      debitBalance: ((map[MainAccountsTable.debitBalance]) as num?)?.toDouble() ?? 0.0,
+      creditBalance: ((map[MainAccountsTable.creditBalance]) as num?)?.toDouble() ?? 0.0,
+      mainAccountType: MainAccountType.of(map[MainAccountsTable.mainAccountType]),
+      numbersCounter: (map[MainAccountsTable.numbersCounter] as num?)?.toInt() ?? 1,
     );
   }
 

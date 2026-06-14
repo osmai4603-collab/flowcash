@@ -56,11 +56,13 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     required this.updateBill,
     required this.updateValueCounter,
     required this.userSession,
-  }) : super(BillFormState(
-          dateSelected: DateTime.now(),
-          firstDate: DateTime.parse('2024-01-01'),
-          billType: InvoiceType.sales,
-        )) {
+  }) : super(
+         BillFormState(
+           dateSelected: DateTime.now(),
+           firstDate: DateTime.parse('2024-01-01'),
+           billType: InvoiceType.sales,
+         ),
+       ) {
     on<BillFormInitRequested>(_onInitRequested);
     on<BillFormDateChanged>(_onDateChanged);
     on<BillFormCashTypeChanged>(_onCashTypeChanged);
@@ -80,20 +82,35 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     BillFormInitRequested event,
     Emitter<BillFormState> emit,
   ) async {
-    emit(state.copyWith(status: BillFormStatus.loading, billType: event.billType, initialBill: event.bill));
+    emit(
+      state.copyWith(
+        status: BillFormStatus.loading,
+        billType: event.billType,
+        initialBill: event.bill,
+      ),
+    );
 
     try {
       final period = userSession.currentPeriod;
       if (period == null) throw Exception('لا توجد فترة محاسبية مفتوحة.');
 
       final currenciesResult = await getCurrencies();
-      final currencies = currenciesResult.fold((l) => <CurrencyEntity>[], (r) => r);
+      final currencies = currenciesResult.fold(
+        (l) => <CurrencyEntity>[],
+        (r) => r,
+      );
 
       final exPricesResult = await getExchangePrices();
-      final exPrices = exPricesResult.fold((l) => <ExchangePriceEntity>[], (r) => r);
+      final exPrices = exPricesResult.fold(
+        (l) => <ExchangePriceEntity>[],
+        (r) => r,
+      );
 
       final warehousesResult = await getWarehouses();
-      final warehouses = warehousesResult.fold((l) => <WarehouseEntity>[], (r) => r);
+      final warehouses = warehousesResult.fold(
+        (l) => <WarehouseEntity>[],
+        (r) => r,
+      );
 
       final counterType = _getCounterType(event.billType);
       final counterResult = await getValueCounter(counterType);
@@ -103,22 +120,31 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
       final indexOfCurrency = currencies.indexWhere(
         (c) => c.id == currencyId || event.bill?.currencyId == c.id,
       );
-      final currencySelected = indexOfCurrency > -1 ? currencies[indexOfCurrency] : (currencies.isNotEmpty ? currencies.first : null);
+      final currencySelected = indexOfCurrency > -1
+          ? currencies[indexOfCurrency]
+          : (currencies.isNotEmpty ? currencies.first : null);
 
-      emit(state.copyWith(
-        status: BillFormStatus.success,
-        currencies: currencies,
-        exPrices: exPrices,
-        warehouses: warehouses,
-        billCounter: billCounter,
-        billNumber: billCounter?.count ?? 1,
-        currencySelected: currencySelected,
-        warehouseSelected: userSession.currentWarehouse,
-        firstDate: period.dateOfStartPeriod,
-        requests: [RequestModel()],
-      ));
+      emit(
+        state.copyWith(
+          status: BillFormStatus.success,
+          currencies: currencies,
+          exPrices: exPrices,
+          warehouses: warehouses,
+          billCounter: billCounter,
+          billNumber: billCounter?.count ?? 1,
+          currencySelected: currencySelected,
+          warehouseSelected: userSession.currentWarehouse,
+          firstDate: period.dateOfStartPeriod,
+          requests: [RequestModel()],
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(status: BillFormStatus.failure, errorMessage: e.toString()));
+      emit(
+        state.copyWith(
+          status: BillFormStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
@@ -141,15 +167,26 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     emit(state.copyWith(dateSelected: event.date, isDataChanged: true));
   }
 
-  void _onCashTypeChanged(BillFormCashTypeChanged event, Emitter<BillFormState> emit) {
+  void _onCashTypeChanged(
+    BillFormCashTypeChanged event,
+    Emitter<BillFormState> emit,
+  ) {
     emit(state.copyWith(billCashType: event.cashType, isDataChanged: true));
   }
 
-  void _onWarehouseChanged(BillFormWarehouseChanged event, Emitter<BillFormState> emit) {
-    emit(state.copyWith(warehouseSelected: event.warehouse, isDataChanged: true));
+  void _onWarehouseChanged(
+    BillFormWarehouseChanged event,
+    Emitter<BillFormState> emit,
+  ) {
+    emit(
+      state.copyWith(warehouseSelected: event.warehouse, isDataChanged: true),
+    );
   }
 
-  void _onPersonSelected(BillFormPersonSelected event, Emitter<BillFormState> emit) {
+  void _onPersonSelected(
+    BillFormPersonSelected event,
+    Emitter<BillFormState> emit,
+  ) {
     emit(state.copyWith(personSelected: event.person, isDataChanged: true));
   }
 
@@ -157,19 +194,35 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     emit(state.copyWith(note: event.note, isDataChanged: true));
   }
 
-  void _onRequestAdded(BillFormRequestAdded event, Emitter<BillFormState> emit) {
-    final updatedRequests = List<RequestModel>.from(state.requests)..add(RequestModel());
+  void _onRequestAdded(
+    BillFormRequestAdded event,
+    Emitter<BillFormState> emit,
+  ) {
+    final updatedRequests = List<RequestModel>.from(state.requests)
+      ..add(RequestModel());
     emit(state.copyWith(requests: updatedRequests, isDataChanged: true));
   }
 
-  void _onRequestRemoved(BillFormRequestRemoved event, Emitter<BillFormState> emit) {
+  void _onRequestRemoved(
+    BillFormRequestRemoved event,
+    Emitter<BillFormState> emit,
+  ) {
     final updatedRequests = List<RequestModel>.from(state.requests);
     updatedRequests[event.index].dispose();
     updatedRequests.removeAt(event.index);
-    emit(state.copyWith(requests: updatedRequests, isDataChanged: true, totalAmount: _calculateTotal(updatedRequests)));
+    emit(
+      state.copyWith(
+        requests: updatedRequests,
+        isDataChanged: true,
+        totalAmount: _calculateTotal(updatedRequests),
+      ),
+    );
   }
 
-  void _onCategorySelected(BillFormCategorySelected event, Emitter<BillFormState> emit) {
+  void _onCategorySelected(
+    BillFormCategorySelected event,
+    Emitter<BillFormState> emit,
+  ) {
     final updatedRequests = List<RequestModel>.from(state.requests);
     final request = updatedRequests[event.index];
     request.category = event.category;
@@ -177,30 +230,60 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     emit(state.copyWith(requests: updatedRequests, isDataChanged: true));
   }
 
-  void _onCountUnitsChanged(BillFormCountUnitsChanged event, Emitter<BillFormState> emit) {
+  void _onCountUnitsChanged(
+    BillFormCountUnitsChanged event,
+    Emitter<BillFormState> emit,
+  ) {
     final updatedRequests = List<RequestModel>.from(state.requests);
     final request = updatedRequests[event.index];
-    request.countUnitsController.text = event.value;
-    request.totalPriceController.text = AppMoneyFormatter.formatDouble(request.countUnits * request.unitPrice);
-    emit(state.copyWith(requests: updatedRequests, isDataChanged: true, totalAmount: _calculateTotal(updatedRequests)));
+    request.totalPriceController.text = AppMoneyFormatter.formatDouble(
+      request.countUnits * request.unitPrice,
+    );
+    emit(
+      state.copyWith(
+        requests: updatedRequests,
+        isDataChanged: true,
+        totalAmount: _calculateTotal(updatedRequests),
+      ),
+    );
   }
 
-  void _onUnitPriceChanged(BillFormUnitPriceChanged event, Emitter<BillFormState> emit) {
+  void _onUnitPriceChanged(
+    BillFormUnitPriceChanged event,
+    Emitter<BillFormState> emit,
+  ) {
     final updatedRequests = List<RequestModel>.from(state.requests);
     final request = updatedRequests[event.index];
-    request.unitPriceController.text = event.value;
-    request.totalPriceController.text = AppMoneyFormatter.formatDouble(request.countUnits * request.unitPrice);
-    emit(state.copyWith(requests: updatedRequests, isDataChanged: true, totalAmount: _calculateTotal(updatedRequests)));
+    request.totalPriceController.text = AppMoneyFormatter.formatDouble(
+      request.countUnits * request.unitPrice,
+    );
+    emit(
+      state.copyWith(
+        requests: updatedRequests,
+        isDataChanged: true,
+        totalAmount: _calculateTotal(updatedRequests),
+      ),
+    );
   }
 
-  void _onTotalPriceChanged(BillFormTotalPriceChanged event, Emitter<BillFormState> emit) {
+  void _onTotalPriceChanged(
+    BillFormTotalPriceChanged event,
+    Emitter<BillFormState> emit,
+  ) {
     final updatedRequests = List<RequestModel>.from(state.requests);
     final request = updatedRequests[event.index];
-    request.totalPriceController.text = event.value;
     if (request.countUnits > 0) {
-      request.unitPriceController.text = AppMoneyFormatter.formatDouble(request.totalPrice / request.countUnits);
+      request.unitPriceController.text = AppMoneyFormatter.formatDouble(
+        request.totalPrice / request.countUnits,
+      );
     }
-    emit(state.copyWith(requests: updatedRequests, isDataChanged: true, totalAmount: _calculateTotal(updatedRequests)));
+    emit(
+      state.copyWith(
+        requests: updatedRequests,
+        isDataChanged: true,
+        totalAmount: _calculateTotal(updatedRequests),
+      ),
+    );
   }
 
   double _calculateTotal(List<RequestModel> requests) {
@@ -212,7 +295,12 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     Emitter<BillFormState> emit,
   ) async {
     if (state.totalAmount <= 0) {
-      emit(state.copyWith(status: BillFormStatus.submitFailure, errorMessage: 'لا يمكن ان تكون اجمالي الفاتورة هو 0'));
+      emit(
+        state.copyWith(
+          status: BillFormStatus.submitFailure,
+          errorMessage: 'لا يمكن ان تكون اجمالي الفاتورة هو 0',
+        ),
+      );
       return;
     }
 
@@ -231,30 +319,53 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
         personId: state.personSelected!.id,
         isCash: state.billCashType.isCash,
         billType: state.billType,
-        orders: state.requests.map((r) => BillOrderEntity(
-          id: 0,
-          categoryId: r.category!.id,
-          countUnits: r.countUnits,
-          totalPrice: r.totalPrice,
-          billId: 0,
-        )).toList(),
+        orders: state.requests
+            .map(
+              (r) => BillOrderEntity(
+                id: 0,
+                categoryId: r.category!.id,
+                countUnits: r.countUnits,
+                totalPrice: r.totalPrice,
+                billId: 0,
+              ),
+            )
+            .toList(),
       );
 
-      final result = state.initialBill == null ? await insertBill(bill) : await updateBill(bill);
-      
+      final result = state.initialBill == null
+          ? await insertBill(bill)
+          : await updateBill(bill);
+
       await result.fold(
-        (failure) async => emit(state.copyWith(status: BillFormStatus.submitFailure, errorMessage: failure.message)),
+        (failure) async => emit(
+          state.copyWith(
+            status: BillFormStatus.submitFailure,
+            errorMessage: failure.message,
+          ),
+        ),
         (bill) async {
           if (state.initialBill == null && state.billCounter != null) {
-            await updateValueCounter(state.billCounter!.copyWith(
-              count: (state.billNumber % state.billCounter!.counterMax) + 1,
-            ));
+            await updateValueCounter(
+              state.billCounter!.copyWith(
+                count: (state.billNumber % state.billCounter!.counterMax) + 1,
+              ),
+            );
           }
-          emit(state.copyWith(status: BillFormStatus.submitSuccess, initialBill: bill));
+          emit(
+            state.copyWith(
+              status: BillFormStatus.submitSuccess,
+              initialBill: bill,
+            ),
+          );
         },
       );
     } catch (e) {
-      emit(state.copyWith(status: BillFormStatus.submitFailure, errorMessage: e.toString()));
+      emit(
+        state.copyWith(
+          status: BillFormStatus.submitFailure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 }
@@ -270,9 +381,12 @@ class RequestModel {
   final categoryNameFocusNode = FocusNode();
   SimpleCategoryEntity? category;
 
-  double get unitPrice => double.tryParse(unitPriceController.text.replaceAll(',', '')) ?? 0.0;
-  double get totalPrice => double.tryParse(totalPriceController.text.replaceAll(',', '')) ?? 0.0;
-  double get countUnits => double.tryParse(countUnitsController.text.replaceAll(',', '')) ?? 0.0;
+  double get unitPrice =>
+      double.tryParse(unitPriceController.text.replaceAll(',', '')) ?? 0.0;
+  double get totalPrice =>
+      double.tryParse(totalPriceController.text.replaceAll(',', '')) ?? 0.0;
+  double get countUnits =>
+      double.tryParse(countUnitsController.text.replaceAll(',', '')) ?? 0.0;
 
   RequestModel();
 
