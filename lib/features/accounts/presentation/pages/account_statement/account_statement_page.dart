@@ -18,6 +18,8 @@ import 'package:flowcash/core/formatters/date_formatter.dart';
 import 'package:flowcash/core/theme/styles.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:provider/provider.dart';
+import 'package:flowcash/features/accounts/presentation/pages/accounts_dashboard.dart';
 
 class AccountStatementPage extends StatefulWidget {
   final SubAccountEntity? subAccount;
@@ -30,6 +32,7 @@ class AccountStatementPage extends StatefulWidget {
 
 class _AccountStatementPageState extends State<AccountStatementPage> {
   late AccountStatementBloc _bloc;
+  int? _lastLoadedSubAccountId;
 
   bool get isDesktop => Platform.isLinux || Platform.isWindows;
 
@@ -48,6 +51,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
   void initState() {
     super.initState();
     _bloc = GetIt.instance<AccountStatementBloc>();
+    _lastLoadedSubAccountId = widget.subAccount?.id;
     if (widget.subAccount != null) {
       _bloc.add(LoadAccountStatement(subAccountId: widget.subAccount!.id));
     }
@@ -62,6 +66,24 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
   @override
   Widget build(BuildContext context) {
     final colors = AppStyle.of(context);
+
+    // Attempt to read AccountsTabNotifier if it exists in the ancestor context
+    AccountsTabNotifier? tabNotifier;
+    try {
+      tabNotifier = Provider.of<AccountsTabNotifier>(context, listen: true);
+    } catch (_) {
+      // not available
+    }
+
+    if (tabNotifier != null && tabNotifier.selectedSubAccountId != null) {
+      final notifierId = tabNotifier.selectedSubAccountId!;
+      if (notifierId != _lastLoadedSubAccountId) {
+        _lastLoadedSubAccountId = notifierId;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _bloc.add(LoadAccountStatement(subAccountId: notifierId));
+        });
+      }
+    }
 
     return BlocProvider.value(
       value: _bloc,
@@ -78,7 +100,9 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                 Expanded(
                   child: BlocBuilder<AccountStatementBloc, AccountStatementState>(
                     builder: (context, state) {
-                      if (widget.subAccount == null) {
+                      final activeSubAccount =
+                          state.subAccount ?? widget.subAccount;
+                      if (activeSubAccount == null) {
                         return Center(
                           child: fluent.Text(
                             'لم يتم تمرير حساب فرعي لعرض كشف الحساب.',
@@ -110,169 +134,157 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                         );
                       }
 
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: colors.surface,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: colors.surfaceContainerHighest,
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Header Information Card
-                            Container(
-                              padding: const EdgeInsets.all(16.0),
-                              decoration: BoxDecoration(
-                                color: colors.primaryContainer.withAlpha(40),
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(8),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header Information Card
+                          // Container(
+                          //   padding: const EdgeInsets.all(16.0),
+                          //   decoration: BoxDecoration(
+                          //     color: colors.primaryContainer.withAlpha(40),
+                          //     borderRadius: const BorderRadius.vertical(
+                          //       top: Radius.circular(8),
+                          //     ),
+                          //   ),
+                          //   child: Row(
+                          //     mainAxisAlignment:
+                          //         MainAxisAlignment.spaceBetween,
+                          //     children: [
+                          //       Column(
+                          //         crossAxisAlignment:
+                          //             CrossAxisAlignment.start,
+                          //         children: [
+                          //           fluent.Text(
+                          //             'كشف حساب: ${state.subAccount!.accountName}',
+                          //             style: const TextStyle(
+                          //               fontSize: 18,
+                          //               fontWeight: FontWeight.bold,
+                          //             ),
+                          //           ),
+                          //           const SizedBox(height: 4),
+                          //           fluent.Text(
+                          //             'رقم الحساب: ${state.subAccount!.accountNumber} | النوع: ${state.subAccount!.subAccountType.name}',
+                          //             style: TextStyle(
+                          //               color: colors.onSurface.withAlpha(
+                          //                 150,
+                          //               ),
+                          //             ),
+                          //           ),
+                          //         ],
+                          //       ),
+                          //       Column(
+                          //         crossAxisAlignment: CrossAxisAlignment.end,
+                          //         children: [
+                          //           fluent.Text(
+                          //             'الرصيد الافتتاحي: ${state.openingBalance.toStringAsFixed(2)}',
+                          //             style: const TextStyle(
+                          //               fontWeight: FontWeight.bold,
+                          //               fontSize: 16,
+                          //             ),
+                          //           ),
+                          //           const SizedBox(height: 4),
+                          //           fluent.Text(
+                          //             'العملة: ${widget.subAccount?.currencyId ?? "عملة غير محددة"}',
+                          //             style: TextStyle(
+                          //               color: colors.onSurface.withAlpha(
+                          //                 150,
+                          //               ),
+                          //             ),
+                          //           ),
+                          //         ],
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
+
+                          // Ledger Headers
+                          fluent.Table(
+                            border: fluent.TableBorder.all(
+                              width: 0.5,
+                              color: colors.outline,
+                            ),
+                            defaultVerticalAlignment:
+                                TableCellVerticalAlignment.middle,
+                            columnWidths: getWidths(),
+                            children: [
+                              TableRow(
                                 children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      fluent.Text(
-                                        'كشف حساب: ${state.subAccount!.accountName}',
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: fluent.Text(
+                                      'No',
+                                      textAlign: TextAlign.center,
+                                      textDirection: .ltr,
+                                      style: colors.bodyStrong.copyWith(
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      const SizedBox(height: 4),
-                                      fluent.Text(
-                                        'رقم الحساب: ${state.subAccount!.accountNumber} | النوع: ${state.subAccount!.subAccountType.name}',
-                                        style: TextStyle(
-                                          color: colors.onSurface.withAlpha(
-                                            150,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      fluent.Text(
-                                        'الرصيد الافتتاحي: ${state.openingBalance.toStringAsFixed(2)}',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: fluent.Text(
+                                      'التاريخ',
+                                      textAlign: TextAlign.center,
+                                      style: colors.bodyStrong.copyWith(
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      const SizedBox(height: 4),
-                                      fluent.Text(
-                                        'العملة: ${widget.subAccount?.currencyId ?? "عملة غير محددة"}',
-                                        style: TextStyle(
-                                          color: colors.onSurface.withAlpha(
-                                            150,
-                                          ),
-                                        ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: fluent.Text(
+                                      'البيان التفصيلي',
+                                      textAlign: TextAlign.center,
+                                      style: colors.bodyStrong.copyWith(
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: fluent.Text(
+                                      activeSubAccount
+                                          .subAccountType
+                                          .mainAccountType
+                                          .incrementName,
+                                      style: colors.bodyStrong.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green.shade900,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: fluent.Text(
+                                      activeSubAccount
+                                          .subAccountType
+                                          .mainAccountType
+                                          .decrementName,
+                                      style: colors.bodyStrong.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red.shade900,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: fluent.Text(
+                                      'الرصيد',
+                                      textAlign: TextAlign.center,
+                                      style: colors.bodyStrong.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
+                            ],
+                          ),
 
-                            // Ledger Headers
-                            fluent.Table(
-                              border: fluent.TableBorder.all(
-                                width: 0.5,
-                                color: colors.outline,
-                              ),
-                              defaultVerticalAlignment:
-                                  TableCellVerticalAlignment.middle,
-                              columnWidths: getWidths(),
-                              children: [
-                                TableRow(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: fluent.Text(
-                                        'No',
-                                        textAlign: TextAlign.center,
-                                        style: colors.bodyStrong.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: fluent.Text(
-                                        'التاريخ',
-                                        textAlign: TextAlign.center,
-                                        style: colors.bodyStrong.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: fluent.Text(
-                                        'البيان التفصيلي',
-                                        textAlign: TextAlign.center,
-                                        style: colors.bodyStrong.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: fluent.Text(
-                                        widget
-                                                .subAccount
-                                                ?.subAccountType
-                                                .mainAccountType
-                                                .incrementName ??
-                                            'مدين',
-                                        style: colors.bodyStrong.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.green.shade900,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: fluent.Text(
-                                        widget
-                                                .subAccount
-                                                ?.subAccountType
-                                                .mainAccountType
-                                                .decrementName ??
-                                            'دائن',
-                                        style: colors.bodyStrong.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.red.shade900,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: fluent.Text(
-                                        'الرصيد',
-                                        textAlign: TextAlign.center,
-                                        style: colors.bodyStrong.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-
-                            Expanded(child: buildListView(context, state)),
-                          ],
-                        ),
+                          Expanded(child: buildListView(context, state)),
+                        ],
                       );
                     },
                   ),
@@ -296,7 +308,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
       );
     }
     final length = state.items.length;
-    final style = colors.bodyStrong;
+    final style = colors.bodyStrong.copyWith(fontSize: 12.50);
 
     // Pre-compute the list of balances for running balance:
     final balances = <double>[];
@@ -357,7 +369,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
                           text: AppMoneyFormatter.formatDouble(totalDebit),
                           textDirection: TextDirection.ltr,
-                          
+
                           textAlign: TextAlign.center,
                           style: style.copyWith(
                             fontWeight: FontWeight.bold,
@@ -365,8 +377,8 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                           ),
                         ),
                         TextWidget(
-                        alignment: Alignment.center,
-                        padding: Paddings.xsmallAll,
+                          alignment: Alignment.center,
+                          padding: Paddings.xsmallAll,
                           text: AppMoneyFormatter.formatDouble(totalCredit),
                           textDirection: TextDirection.ltr,
                           textAlign: TextAlign.center,
@@ -377,8 +389,8 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                         ),
                         TextWidget(
                           text: AppMoneyFormatter.formatDouble(balances[index]),
-                        alignment: Alignment.center,
-                        padding: Paddings.xsmallAll,
+                          alignment: Alignment.center,
+                          padding: Paddings.xsmallAll,
                           textDirection: TextDirection.ltr,
                           textAlign: TextAlign.center,
                           style: style.copyWith(
@@ -409,7 +421,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
     BuildContext context,
   ) {
     final colors = AppStyle.of(context);
-    final style = colors.bodyStrong;
+    final style = colors.bodyStrong.copyWith(fontSize: 12.50);
     return GestureDetector(
       onTap: () {},
       child: ColoredBox(
@@ -435,6 +447,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                     AppDateFormatter.toDateString(
                       entry?.createdAt ?? DateTime.now(),
                     ),
+                    textDirection: .ltr,
                   ),
                 ),
                 Padding(
@@ -450,9 +463,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                         text: AppMoneyFormatter.formatDouble(item.amount),
                         alignment: Alignment.centerRight,
                         padding: Paddings.xsmallAll,
-                        style: style.copyWith(
-                          color: Colors.green.shade900
-                        ),
+                        style: style.copyWith(color: Colors.green.shade900),
                         textDirection: TextDirection.ltr,
                         textAlign: TextAlign.center,
                       )
@@ -462,9 +473,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                         text: AppMoneyFormatter.formatDouble(item.amount),
                         alignment: Alignment.centerRight,
                         padding: Paddings.xsmallAll,
-                        style: style.copyWith(
-                          color: Colors.red.shade900
-                        ),
+                        style: style.copyWith(color: Colors.red.shade900),
                         textDirection: TextDirection.ltr,
                         textAlign: TextAlign.center,
                       )

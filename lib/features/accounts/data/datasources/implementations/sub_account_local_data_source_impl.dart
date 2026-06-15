@@ -1,10 +1,12 @@
 import 'package:flowcash/features/accounts/data/datasources/interfaces/sub_account_data_source.dart';
 import 'package:flowcash/core/entities/data_record.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
+import 'package:flowcash/features/accounts/data/models/sub_account_model.dart';
+import 'package:flowcash/features/accounts/domain/entities/sub_account_simple_entity.dart';
+import 'package:flowcash/features/accounts/data/models/sub_account_simple_model.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/sub_accounts_table.dart';
 import 'package:flowcash/core/enums/sub_account_type_enum.dart';
-import 'package:flowcash/features/accounts/domain/entities/sub_account_simple_entity.dart';
 
 final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   final SqliteService _db;
@@ -71,43 +73,26 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
 
   @override
   SubAccountEntity fromMap(Map<String, dynamic> map) {
-    try {
-      final result = SubAccountEntity(
-        id: map[SubAccountsTable.id] as int,
-        mainAccountId: map[SubAccountsTable.mainAccountId] as int,
-        accountName: (map[SubAccountsTable.accountName] as String?) ?? "",
-        accountNumber: (map[SubAccountsTable.accountNumber] as String?) ?? "",
-        incrementBalance:
-            ((map[SubAccountsTable.incrementBalance]) as num?)?.toDouble() ??
-            0.0,
-        decrementBalance:
-            ((map[SubAccountsTable.decrementBalance]) as num?)?.toDouble() ??
-            0.0,
-        currencyId: map[SubAccountsTable.currencyId] as String,
-        balanceMax: ((map[SubAccountsTable.balanceMax]) as num?)?.toDouble(),
-        subAccountType: SubAccountType.of(map[SubAccountsTable.subAccountType]),
-        createdAt: DateTime.parse(map[SubAccountsTable.createdAt] as String),
-      );
-      return result;
-    } catch (e) {
-      throw FormatException('Failed to parse SubAccountEntity from map: $e');
-    }
+    return SubAccountModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(SubAccountEntity entity) {
-    return {
-      if (entity.id > 0) SubAccountsTable.id: entity.id,
-      SubAccountsTable.mainAccountId: entity.mainAccountId,
-      SubAccountsTable.accountNumber: entity.accountNumber,
-      SubAccountsTable.accountName: entity.accountName,
-      SubAccountsTable.incrementBalance: entity.incrementBalance,
-      SubAccountsTable.decrementBalance: entity.decrementBalance,
-      SubAccountsTable.currencyId: entity.currencyId,
-      SubAccountsTable.balanceMax: entity.balanceMax,
-      SubAccountsTable.subAccountType: entity.subAccountType.name,
-      SubAccountsTable.createdAt: entity.createdAt.toIso8601String(),
-    };
+    if (entity is SubAccountModel) {
+      return entity.toMap();
+    }
+    return SubAccountModel(
+      id: entity.id,
+      mainAccountId: entity.mainAccountId,
+      accountName: entity.accountName,
+      accountNumber: entity.accountNumber,
+      incrementBalance: entity.incrementBalance,
+      decrementBalance: entity.decrementBalance,
+      currencyId: entity.currencyId,
+      balanceMax: entity.balanceMax,
+      subAccountType: entity.subAccountType,
+      createdAt: entity.createdAt,
+    ).toMap();
   }
 
   @override
@@ -412,23 +397,7 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
       where: '${SubAccountsTable.mainAccountId} = ?',
       whereArgs: [mainAccountId],
     );
-    return rows
-        .map(
-          (row) => SubAccountSimpleEntity(
-            id: row[SubAccountsTable.id] as int,
-            accountName: row[SubAccountsTable.accountName] as String,
-            accountNumber: row[SubAccountsTable.accountNumber] as String,
-            accountType: SubAccountType.of(
-              row[SubAccountsTable.subAccountType],
-            ),
-            mainAccountId: row[SubAccountsTable.mainAccountId],
-            balance:
-                row[SubAccountsTable.incrementBalance] -
-                row[SubAccountsTable.decrementBalance],
-            currencyName: row[SubAccountsTable.currencyId],
-          ),
-        )
-        .toList();
+    return rows.map(SubAccountSimpleModel.fromMap).toList();
   }
 
   @override
@@ -441,23 +410,7 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
           '${SubAccountsTable.accountName} LIKE ? OR ${SubAccountsTable.accountNumber} LIKE ?',
       whereArgs: ['%$query%', '%$query%'],
     );
-    return rows
-        .map(
-          (row) => SubAccountSimpleEntity(
-            id: row[SubAccountsTable.id] as int,
-            accountName: row[SubAccountsTable.accountName] as String,
-            accountNumber: row[SubAccountsTable.accountNumber] as String,
-            accountType: SubAccountType.of(
-              row[SubAccountsTable.subAccountType],
-            ),
-            mainAccountId: row[SubAccountsTable.mainAccountId],
-            balance:
-                row[SubAccountsTable.incrementBalance] -
-                row[SubAccountsTable.decrementBalance],
-            currencyName: row[SubAccountsTable.currencyId],
-          ),
-        )
-        .toList();
+    return rows.map(SubAccountSimpleModel.fromMap).toList();
   }
 
   Map<String, dynamic> _sanitizeInsertData(

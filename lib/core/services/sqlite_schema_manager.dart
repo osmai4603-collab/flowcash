@@ -17,7 +17,6 @@ import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
 import 'package:flowcash/core/services/sqlite_triggers/journal_items_balance_trigger.dart';
 import 'package:flowcash/core/services/sqlite_triggers/inventory_orders_trigger.dart';
-import 'package:flowcash/core/services/sqlite_triggers/inventories_trigger.dart';
 import 'package:flowcash/core/tables/categories_table.dart';
 import 'package:flowcash/core/tables/inventories_table.dart';
 import 'package:flowcash/core/tables/inventory_transactions_table.dart';
@@ -562,6 +561,10 @@ final class SqliteSchemaManager {
   static void _createTriggers(Database db) {
     JournalItemsBalanceTrigger.call(db);
     InventoryOrdersTrigger.call(db);
-    InventoriesTrigger.call(db);
+    
+    // Drop the deprecated inventories triggers
+    db.execute('DROP TRIGGER IF EXISTS inventories_after_insert_journal');
+    db.execute('DROP TRIGGER IF EXISTS inventories_after_update_journal');
+    db.execute('DROP TRIGGER IF EXISTS inventories_after_delete_journal');
   }
 }

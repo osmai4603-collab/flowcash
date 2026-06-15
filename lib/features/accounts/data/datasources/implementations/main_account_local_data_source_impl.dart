@@ -1,5 +1,6 @@
 import 'package:flowcash/features/accounts/data/datasources/interfaces/main_account_data_source.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
+import 'package:flowcash/features/accounts/data/models/main_account_model.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/main_accounts_table.dart';
 import 'package:flowcash/core/enums/main_account_type_enum.dart';
@@ -41,7 +42,7 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
   Future<MainAccountEntity> insert(MainAccountEntity entity) async {
     final entityId = await _db.insert(
       table: MainAccountsTable.tableName,
-      data: _sanitizeInsertData(toMap(entity), MainAccountsTable.id),
+      data: toMap(entity),
     );
     if (entityId < 0) {
       throw Exception('Failed to insert main account');
@@ -70,30 +71,24 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
 
   @override
   MainAccountEntity fromMap(Map<String, dynamic> map) {
-    return MainAccountEntity(
-      id: map[MainAccountsTable.id] as int,
-      accountName: (map[MainAccountsTable.accountName] as String?) ?? "",
-      accountNumber: (map[MainAccountsTable.accountNumber] as String?) ?? "",
-      currencyId: map[MainAccountsTable.currencyId] as String?,
-      debitBalance: ((map[MainAccountsTable.debitBalance]) as num?)?.toDouble() ?? 0.0,
-      creditBalance: ((map[MainAccountsTable.creditBalance]) as num?)?.toDouble() ?? 0.0,
-      mainAccountType: MainAccountType.of(map[MainAccountsTable.mainAccountType]),
-      numbersCounter: (map[MainAccountsTable.numbersCounter] as num?)?.toInt() ?? 1,
-    );
+    return MainAccountModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(MainAccountEntity entity) {
-    return {
-      if (entity.id > 0) MainAccountsTable.id: entity.id,
-      MainAccountsTable.accountName: entity.accountName,
-      MainAccountsTable.accountNumber: entity.accountNumber,
-      MainAccountsTable.currencyId: entity.currencyId,
-      MainAccountsTable.debitBalance: entity.debitBalance,
-      MainAccountsTable.creditBalance: entity.creditBalance,
-      MainAccountsTable.mainAccountType: entity.mainAccountType.name,
-      MainAccountsTable.numbersCounter: entity.numbersCounter,
-    };
+    if (entity is MainAccountModel) {
+      return entity.toMap();
+    }
+    return MainAccountModel(
+      id: entity.id,
+      accountName: entity.accountName,
+      accountNumber: entity.accountNumber,
+      currencyId: entity.currencyId,
+      debitBalance: entity.debitBalance,
+      creditBalance: entity.creditBalance,
+      mainAccountType: entity.mainAccountType,
+      numbersCounter: entity.numbersCounter,
+    ).toMap();
   }
 
   @override

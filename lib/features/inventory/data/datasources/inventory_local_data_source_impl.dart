@@ -1,6 +1,8 @@
 import 'package:flowcash/features/inventory/data/datasources/inventory_data_source.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_category_entity.dart';
+import 'package:flowcash/features/inventory/data/models/inventory_model.dart';
+import 'package:flowcash/features/inventory/data/models/inventory_category_model.dart';
 import 'package:flowcash/core/tables/categories_table.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/core/tables/units_table.dart';
@@ -73,37 +75,28 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
 
   @override
   InventoryEntity fromMap(Map<String, dynamic> map) {
-    return _InventoryLocalEntity(
-      id: map[InventoriesTable.id] as int,
-      categoryId: map[InventoriesTable.categoryId] as int,
-      storeId: map[InventoriesTable.storeId] as int,
-      propertyAccountId: (map[InventoriesTable.propertyAccountId] ?? 0) as int,
-      revenueAccountId: map[InventoriesTable.revenueAccountId] as int,
-      expenseAccountId: map[InventoriesTable.expenseAccountId] as int,
-      incomeStockId: map[InventoriesTable.incomeStockId] as int,
-      outcomeStockId: map[InventoriesTable.outcomeStockId] as int,
-      inventoryName: '',
-      costTotal: ((map[InventoriesTable.costTotal] ?? 0) as num).toDouble(),
-      countUnits: ((map[InventoriesTable.countUnits]) as num).toDouble(),
-      userId: (map[InventoriesTable.userId] ?? 1) as int,
-    );
+    return InventoryModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(InventoryEntity entity) {
-    return {
-      if (entity.id > 0) InventoriesTable.id: entity.id,
-      InventoriesTable.categoryId: entity.categoryId,
-      InventoriesTable.storeId: entity.storeId,
-      InventoriesTable.propertyAccountId: entity.propertyAccountId,
-      InventoriesTable.revenueAccountId: entity.revenueAccountId,
-      InventoriesTable.expenseAccountId: entity.expenseAccountId,
-      InventoriesTable.incomeStockId: entity.incomeStockId,
-      InventoriesTable.outcomeStockId: entity.outcomeStockId,
-      InventoriesTable.costTotal: entity.costTotal,
-      InventoriesTable.countUnits: entity.countUnits,
-      InventoriesTable.userId: entity.userId,
-    };
+    if (entity is InventoryModel) {
+      return entity.toMap();
+    }
+    return InventoryModel(
+      id: entity.id,
+      categoryId: entity.categoryId,
+      storeId: entity.storeId,
+      propertyAccountId: entity.propertyAccountId,
+      revenueAccountId: entity.revenueAccountId,
+      expenseAccountId: entity.expenseAccountId,
+      incomeStockId: entity.incomeStockId,
+      outcomeStockId: entity.outcomeStockId,
+      inventoryName: entity.inventoryName,
+      costTotal: entity.costTotal,
+      countUnits: entity.countUnits,
+      userId: entity.userId,
+    ).toMap();
   }
 
   @override
@@ -194,41 +187,7 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
     final results = stmt.select(args);
     final rows = results.map((r) => Map<String, dynamic>.from(r)).toList();
     stmt.dispose();
-    return rows.map((r) {
-      UnitEntity? unit;
-      try {
-        final unitId = r['category_unit_id'] as int?;
-        if (unitId != null) {
-          final unitTypeName = (r['unit_type'] as String?) ?? '';
-          unit = UnitEntity(
-            id: unitId,
-            unitName: (r['unit_name'] as String?) ?? '',
-            propertyId: null,
-            length: ((r['unit_length'] ?? 0) as num).toDouble(),
-            width: ((r['unit_width'] ?? 0) as num).toDouble(),
-            thickness: ((r['unit_thickness'] ?? 0) as num).toDouble(),
-            unitType: UnitType.of(unitTypeName),
-          );
-        }
-      } catch (_) {
-        unit = null;
-      }
-
-      return InventoryCategoryEntity(
-        inventoryId: r['inventory_id'] as int,
-        categoryId: r['category_id'] as int,
-        warehouseId: r['store_id'] as int,
-        inventoryName: (r['category_name'] as String?) ?? '',
-        costTotal: ((r['cost_total'] ?? 0) as num).toDouble(),
-        countUnits: ((r['count_units'] ?? 0) as num).toDouble(),
-        propertyAccountId: (r['property_id'] ?? 0) as int,
-        revenueAccountId: r['revenue_id'] as int,
-        expenseAccountId: r['expense_id'] as int,
-        incomeAccountId: r['income_stock_id'] as int,
-        outcomAccountId: r['outcome_stock_id'] as int,
-        categoryUnit: unit,
-      );
-    }).toList();
+    return rows.map(InventoryCategoryModel.fromMap).toList();
   }
 
   @override
@@ -242,41 +201,7 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
     final results = stmt.select([id]);
     final rows = results.map((r) => Map<String, dynamic>.from(r)).toList();
     stmt.dispose();
-    if (rows.isEmpty) return null;
-    final r = rows.first;
-    UnitEntity? unit;
-    try {
-      final unitId = rows.first['category_unit_id'] as int?;
-      if (unitId != null) {
-        final unitTypeName = (rows.first['unit_type'] as String?) ?? '';
-        unit = UnitEntity(
-          id: unitId,
-          unitName: (rows.first['unit_name'] as String?) ?? '',
-          propertyId: null,
-          length: ((rows.first['unit_length'] ?? 0) as num).toDouble(),
-          width: ((rows.first['unit_width'] ?? 0) as num).toDouble(),
-          thickness: ((rows.first['unit_thickness'] ?? 0) as num).toDouble(),
-          unitType: UnitType.of(unitTypeName),
-        );
-      }
-    } catch (_) {
-      unit = null;
-    }
-
-    return InventoryCategoryEntity(
-      inventoryId: r['inventory_id'] as int,
-      categoryId: r['category_id'] as int,
-      warehouseId: r['store_id'] as int,
-      inventoryName: (r['category_name'] as String?) ?? '',
-      costTotal: ((r['cost_total'] ?? 0) as num).toDouble(),
-      countUnits: ((r['count_units'] ?? 0) as num).toDouble(),
-      propertyAccountId: (r['property_id'] ?? 0) as int,
-      revenueAccountId: r['revenue_id'] as int,
-      expenseAccountId: r['expense_id'] as int,
-      incomeAccountId: r['income_stock_id'] as int,
-      outcomAccountId: r['outcome_stock_id'] as int,
-      categoryUnit: unit,
-    );
+    return InventoryCategoryModel.fromMap(rows.first);
   }
 
   @override
@@ -296,53 +221,5 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
       throw 'Inventory not found for categoryId: $categoryId and warehouseId: $warehouseId';
     }
     return result;
-  }
-}
-
-final class _InventoryLocalEntity extends InventoryEntity {
-  const _InventoryLocalEntity({
-    required super.id,
-    required super.categoryId,
-    required super.storeId,
-    required super.propertyAccountId,
-    required super.revenueAccountId,
-    required super.expenseAccountId,
-    required super.incomeStockId,
-    required super.outcomeStockId,
-    required super.inventoryName,
-    required super.costTotal,
-    required super.countUnits,
-    required super.userId,
-  });
-
-  @override
-  _InventoryLocalEntity copyWith({
-    int? id,
-    int? categoryId,
-    int? storeId,
-    int? propertyAccountId,
-    int? revenueAccountId,
-    int? expenseAccountId,
-    int? incomeStockId,
-    int? outcomeStockId,
-    String? inventoryName,
-    double? unitCost,
-    double? countUnits,
-    int? userId,
-  }) {
-    return _InventoryLocalEntity(
-      id: id ?? this.id,
-      categoryId: categoryId ?? this.categoryId,
-      storeId: storeId ?? this.storeId,
-      propertyAccountId: propertyAccountId ?? this.propertyAccountId,
-      revenueAccountId: revenueAccountId ?? this.revenueAccountId,
-      expenseAccountId: expenseAccountId ?? this.expenseAccountId,
-      incomeStockId: incomeStockId ?? this.incomeStockId,
-      outcomeStockId: outcomeStockId ?? this.outcomeStockId,
-      inventoryName: inventoryName ?? this.inventoryName,
-      costTotal: unitCost ?? this.costTotal,
-      countUnits: countUnits ?? this.countUnits,
-      userId: userId ?? this.userId,
-    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flowcash/core/entities/entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
+import 'package:flowcash/features/inventory/domain/entities/opening_quantity_entity.dart';
 
 /// كيان يمثل قيد يومية واحد.
 class JournalEntryEntity extends Entity {
@@ -24,6 +25,23 @@ class JournalEntryEntity extends Entity {
     this.warehouseId,
     this.items = const [],
   });
+
+  factory JournalEntryEntity.fromOpeningQuantity({
+    required OpeningQuantityEntity openingQuantity,
+    required int warehouseId,
+    required int userId,
+  }) {
+    return JournalEntryEntity(
+      id: 0,
+      referenceNumber: 'INVCAT-${openingQuantity.inventoryId}',
+      description: 'قيد تلقائي لتهيئة المخزون رقم ${openingQuantity.inventoryId}',
+      createdAt: openingQuantity.createdAt,
+      createdBy: userId,
+      currencyId: openingQuantity.currencyId ?? 'YER',
+      baseAmount: openingQuantity.costTotal,
+      warehouseId: warehouseId,
+    );
+  }
 
   @override
   List<Object?> get props => [

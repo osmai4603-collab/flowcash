@@ -1,5 +1,6 @@
 import 'package:flowcash/features/inventory/data/datasources/warehouse_value_data_source.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_value_entity.dart';
+import 'package:flowcash/features/inventory/data/models/warehouse_value_model.dart';
 import 'package:flowcash/core/enums/warehouse_value_type_enum.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/warehouse_values_table.dart';
@@ -70,24 +71,20 @@ final class WarehouseValueLocalDataSourceImpl
 
   @override
   WarehouseValueEntity fromMap(Map<String, dynamic> map) {
-    return WarehouseValueEntity(
-      id: map[WarehouseValuesTable.id] as int,
-      warehouseId: map[WarehouseValuesTable.warehouseId] as int,
-      valueType: WarehouseValueType.of(
-        map[WarehouseValuesTable.valueType] as String,
-      ),
-      value: map[WarehouseValuesTable.value],
-    );
+    return WarehouseValueModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(WarehouseValueEntity entity) {
-    return {
-      if (entity.id > 0) WarehouseValuesTable.id: entity.id,
-      WarehouseValuesTable.warehouseId: entity.warehouseId,
-      WarehouseValuesTable.valueType: entity.valueType.name,
-      WarehouseValuesTable.value: entity.value,
-    };
+    if (entity is WarehouseValueModel) {
+      return entity.toMap();
+    }
+    return WarehouseValueModel(
+      id: entity.id,
+      warehouseId: entity.warehouseId,
+      valueType: entity.valueType,
+      value: entity.value,
+    ).toMap();
   }
 
   @override

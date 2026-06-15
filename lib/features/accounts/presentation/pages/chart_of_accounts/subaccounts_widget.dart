@@ -8,7 +8,7 @@ import 'package:flowcash/features/accounts/presentation/blocs/chart_of_accounts/
 import 'package:flowcash/features/accounts/presentation/blocs/chart_of_accounts/chart_of_accounts_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/chart_of_accounts/chart_of_accounts_state.dart';
 import 'package:flowcash/features/accounts/presentation/pages/account_statement/account_statement_page.dart';
-import 'package:flowcash/features/accounts/presentation/pages/accounts_page.dart';
+import 'package:flowcash/features/accounts/presentation/pages/accounts_dashboard.dart';
 import 'package:flowcash/features/accounts/presentation/pages/chart_of_accounts/sub_account_form_dialog.dart';
 import 'package:flowcash/widgets/message.dart';
 import 'package:flutter/material.dart';

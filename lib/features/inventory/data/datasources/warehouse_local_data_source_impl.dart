@@ -1,5 +1,6 @@
 import 'package:flowcash/features/inventory/data/datasources/warehouse_data_source.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
+import 'package:flowcash/features/inventory/data/models/warehouse_model.dart';
 import 'package:flowcash/core/enums/warehouse_type_enum.dart';
 import 'package:flowcash/core/enums/warehouse_value_type_enum.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
@@ -60,8 +61,8 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
           .toList();
 
       await _db.insertAll(
-        table: WarehouseValuesTable.tableName,
-        dataList: values,
+         table: WarehouseValuesTable.tableName,
+         dataList: values,
       );
 
       return entity.copyWith(id: entityId);
@@ -122,24 +123,21 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
 
   @override
   WarehouseEntity fromMap(Map<String, dynamic> map) {
-    return WarehouseEntity(
-      id: map[WarehousesTable.id] as int,
-      warehouseName: (map[WarehousesTable.warehouseName] as String?) ?? "",
-      location: (map[WarehousesTable.location] as String?) ?? "",
-      warehouseType: WarehouseType.of(map[WarehousesTable.warehouseType]),
-      parentId: map[WarehousesTable.parentId] as int?,
-    );
+    return WarehouseModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(WarehouseEntity entity) {
-    return {
-      if (entity.id > 0) WarehousesTable.id: entity.id,
-      WarehousesTable.warehouseName: entity.warehouseName,
-      WarehousesTable.location: entity.location,
-      WarehousesTable.warehouseType: entity.warehouseType.name,
-      WarehousesTable.parentId: entity.parentId,
-    };
+    if (entity is WarehouseModel) {
+      return entity.toMap();
+    }
+    return WarehouseModel(
+      id: entity.id,
+      warehouseName: entity.warehouseName,
+      location: entity.location,
+      warehouseType: entity.warehouseType,
+      parentId: entity.parentId,
+    ).toMap();
   }
 
   Map<String, dynamic> _sanitizeInsertData(

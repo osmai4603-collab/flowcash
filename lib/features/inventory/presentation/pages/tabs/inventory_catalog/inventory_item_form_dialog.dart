@@ -47,7 +47,19 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
 
   List<SubAccountEntity> get _inventorySubAccounts {
     return _subAccounts
-        .where((a) => a.subAccountType == SubAccountType.inventory)
+        .where(
+          (a) => a.subAccountType.mainAccountType == MainAccountType.inventory,
+        )
+        .toList();
+  }
+
+  List<SubAccountEntity> get _propertySubAccounts {
+    return _subAccounts
+        .where(
+          (a) =>
+              a.subAccountType.mainAccountType.accountType ==
+              MainAccountGroup.propertyRights,
+        )
         .toList();
   }
 
@@ -55,10 +67,8 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
     return _subAccounts
         .where(
           (a) =>
-              a.subAccountType.mainAccountType == MainAccountType.sales ||
-              a.subAccountType.mainAccountType == MainAccountType.salesReturn ||
-              a.subAccountType.mainAccountType ==
-                  MainAccountType.servicesRevenues,
+              a.subAccountType.mainAccountType.accountType ==
+              MainAccountGroup.revenues,
         )
         .toList();
   }
@@ -67,9 +77,8 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
     return _subAccounts
         .where(
           (a) =>
-              a.subAccountType.mainAccountType == MainAccountType.costOfSales ||
-              a.subAccountType.mainAccountType == MainAccountType.buys ||
-              a.subAccountType.mainAccountType == MainAccountType.buysReturn,
+              a.subAccountType.mainAccountType.accountType ==
+              MainAccountGroup.expenses,
         )
         .toList();
   }
@@ -189,7 +198,9 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
         context,
         builder: (context, close) => fluent.InfoBar(
           title: const fluent.Text('تنبيه'),
-          content: fluent.Text('الرجاء اختيار الصنف والمستودع وتحديد جميع الحسابات المالية'),
+          content: fluent.Text(
+            'الرجاء اختيار الصنف والمستودع وتحديد جميع الحسابات المالية',
+          ),
         ),
       );
       return;
@@ -385,16 +396,16 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                 ),
 
                 fluent.InfoLabel(
-                  label: 'حساب البضاعة (الأصول)',
+                  label: 'حساب البضاعة (رأس المال)',
                   child: fluent.ComboBox<SubAccountEntity>(
                     isExpanded: true,
                     value: _selectedPropertyAccount,
-                    placeholder: const fluent.Text('اختر حساب البضاعة/الأصول'),
+                    placeholder: const fluent.Text('اختر حساب راس المال'),
                     disabledPlaceholder: const fluent.Text(
                       'لا يوجد حسابات متاحة',
                     ),
                     icon: const fluent.Icon(fluent.FluentIcons.chevron_down),
-                    items: _inventorySubAccounts.map((a) {
+                    items: _propertySubAccounts.map((a) {
                       return fluent.ComboBoxItem<SubAccountEntity>(
                         value: a,
                         child: fluent.Text(
@@ -405,8 +416,8 @@ class _InventoryItemFormDialogState extends State<InventoryItemFormDialog> {
                     onChanged: _inventorySubAccounts.isEmpty
                         ? null
                         : (val) => setState(() {
-                              _selectedPropertyAccount = val;
-                            }),
+                            _selectedPropertyAccount = val;
+                          }),
                   ),
                 ),
 

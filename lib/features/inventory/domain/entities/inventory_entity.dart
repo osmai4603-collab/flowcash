@@ -56,7 +56,7 @@ abstract class InventoryEntity extends Entity {
     int? incomeStockId,
     int? outcomeStockId,
     String? inventoryName,
-    double? unitCost,
+    double? costTotal,
     double? countUnits,
     int? userId,
   });
@@ -89,7 +89,7 @@ class InventoryItemEntity extends InventoryEntity {
     int? incomeStockId,
     int? outcomeStockId,
     String? inventoryName,
-    double? unitCost,
+    double? costTotal,
     double? countUnits,
     int? userId,
   }) {
@@ -103,7 +103,7 @@ class InventoryItemEntity extends InventoryEntity {
       incomeStockId: incomeStockId ?? this.incomeStockId,
       outcomeStockId: outcomeStockId ?? this.outcomeStockId,
       inventoryName: inventoryName ?? this.inventoryName,
-      costTotal: unitCost ?? this.costTotal,
+      costTotal: costTotal ?? this.costTotal,
       countUnits: countUnits ?? this.countUnits,
       userId: userId ?? this.userId,
     );

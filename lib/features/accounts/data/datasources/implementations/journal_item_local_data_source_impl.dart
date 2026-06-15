@@ -1,5 +1,6 @@
 import 'package:flowcash/features/accounts/data/datasources/interfaces/journal_item_data_source.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
+import 'package:flowcash/features/accounts/data/models/journal_item_model.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
@@ -42,7 +43,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
   Future<JournalItemEntity> insert(JournalItemEntity entity) async {
     final entityId = await _db.insert(
       table: JournalItemsTable.tableName,
-      data: _sanitizeInsertData(toMap(entity), JournalItemsTable.itemId),
+      data: toMap(entity),
     );
     if (entityId < 0) {
       throw Exception('Failed to insert journal item');
@@ -71,39 +72,25 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
 
   @override
   JournalItemEntity fromMap(Map<String, dynamic> map) {
-    final statusStr = map[JournalItemsTable.journalStatus] as String?;
-    final JournalStatus status;
-    if (statusStr != null) {
-      status = JournalStatus.of(statusStr);
-    } else {
-      status = JournalStatus.increment;
-    }
-    return JournalItemEntity(
-      id: map[JournalItemsTable.itemId] as int,
-      entryId: map[JournalItemsTable.entryId] as int,
-      accountId: map[JournalItemsTable.accountId] as int,
-      amount: ((map[JournalItemsTable.amount]) as num).toDouble(),
-      lineDescription: map[JournalItemsTable.lineDescription] as String?,
-      currencyId: map[JournalItemsTable.currencyId] as String,
-      exPrice: ((map[JournalItemsTable.exPrice]) as num).toDouble(),
-      expriceMain: ((map[JournalItemsTable.expriceMain]) as num).toDouble(),
-      journalStatus: status,
-    );
+    return JournalItemModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(JournalItemEntity entity) {
-    return {
-      if (entity.id > 0) JournalItemsTable.itemId: entity.id,
-      JournalItemsTable.entryId: entity.entryId,
-      JournalItemsTable.accountId: entity.accountId,
-      JournalItemsTable.amount: entity.amount,
-      JournalItemsTable.lineDescription: entity.lineDescription,
-      JournalItemsTable.currencyId: entity.currencyId,
-      JournalItemsTable.exPrice: entity.exPrice,
-      JournalItemsTable.expriceMain: entity.expriceMain,
-      JournalItemsTable.journalStatus: entity.journalStatus.name,
-    };
+    if (entity is JournalItemModel) {
+      return entity.toMap();
+    }
+    return JournalItemModel(
+      id: entity.id,
+      entryId: entity.entryId,
+      accountId: entity.accountId,
+      amount: entity.amount,
+      lineDescription: entity.lineDescription,
+      currencyId: entity.currencyId,
+      exPrice: entity.exPrice,
+      expriceMain: entity.expriceMain,
+      journalStatus: entity.journalStatus,
+    ).toMap();
   }
 
   @override

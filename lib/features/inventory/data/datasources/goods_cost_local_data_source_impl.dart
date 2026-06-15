@@ -1,5 +1,6 @@
 import 'package:flowcash/features/inventory/data/datasources/goods_cost_data_source.dart';
 import 'package:flowcash/features/inventory/domain/entities/goods_cost_entity.dart';
+import 'package:flowcash/features/inventory/data/models/goods_cost_model.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/goods_costs_table.dart';
 import 'package:flowcash/core/enums/histories_group_enum.dart';
@@ -69,42 +70,28 @@ final class GoodsCostLocalDataSourceImpl implements GoodsCostDataSource {
 
   @override
   GoodsCostEntity fromMap(Map<String, dynamic> map) {
-    return GoodsCostEntity(
-      id: map[GoodsCostsTable.id] as int,
-      createdAt: DateTime.parse(
-        map[GoodsCostsTable.createdAt] as String? ?? "",
-      ),
-      createdBy: map[GoodsCostsTable.createdBy],
-      note: map[GoodsCostsTable.note] as String?,
-      offerAmount: ((map[GoodsCostsTable.offerAmount]) as num).toDouble(),
-      currencyId: (map[GoodsCostsTable.currencyId] ?? '').toString(),
-      billNumber: map[GoodsCostsTable.billNumber] as int,
-      warehouseId: map[GoodsCostsTable.warehouseId] as int,
-      journalEntryId: map[GoodsCostsTable.journalEntryId] as int?,
-      hintId: map[GoodsCostsTable.hintId] as int,
-      orderId: map[GoodsCostsTable.orderId] as int?,
-      historyGroup: HistoriesGroup.values.firstWhere(
-        (e) => e.name == map[GoodsCostsTable.historyGroup] as String,
-      ),
-    );
+    return GoodsCostModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(GoodsCostEntity entity) {
-    return {
-      if (entity.id > 0) GoodsCostsTable.id: entity.id,
-      GoodsCostsTable.createdAt: entity.createdAt.toIso8601String(),
-      GoodsCostsTable.createdBy: entity.createdBy,
-      GoodsCostsTable.note: entity.note,
-      GoodsCostsTable.offerAmount: entity.offerAmount,
-      GoodsCostsTable.currencyId: entity.currencyId,
-      GoodsCostsTable.billNumber: entity.billNumber,
-      GoodsCostsTable.warehouseId: entity.warehouseId,
-      GoodsCostsTable.journalEntryId: entity.journalEntryId,
-      GoodsCostsTable.hintId: entity.hintId,
-      GoodsCostsTable.orderId: entity.orderId,
-      GoodsCostsTable.historyGroup: entity.historyGroup.name,
-    };
+    if (entity is GoodsCostModel) {
+      return entity.toMap();
+    }
+    return GoodsCostModel(
+      id: entity.id,
+      createdAt: entity.createdAt,
+      createdBy: entity.createdBy,
+      note: entity.note,
+      offerAmount: entity.offerAmount,
+      currencyId: entity.currencyId,
+      billNumber: entity.billNumber,
+      warehouseId: entity.warehouseId,
+      journalEntryId: entity.journalEntryId,
+      hintId: entity.hintId,
+      orderId: entity.orderId,
+      historyGroup: entity.historyGroup,
+    ).toMap();
   }
 
   Map<String, dynamic> _sanitizeInsertData(

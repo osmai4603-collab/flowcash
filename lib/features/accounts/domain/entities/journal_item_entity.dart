@@ -1,5 +1,7 @@
 import 'package:flowcash/core/entities/entity.dart';
 import 'package:flowcash/core/enums/journal_status_enum.dart';
+import 'package:flowcash/features/inventory/domain/entities/opening_quantity_entity.dart';
+import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 
 /// كيان يمثل سطرًا في بند قيد يومية.
 class JournalItemEntity extends Entity {
@@ -24,6 +26,26 @@ class JournalItemEntity extends Entity {
     required this.expriceMain,
     required this.journalStatus,
   });
+
+  factory JournalItemEntity.fromOpeningQuantity({
+    required OpeningQuantityEntity openingQuantity,
+    required InventoryEntity inventory,
+    required int journalEntryId,
+    required JournalStatus journalStatus,
+  }) {
+    final isIncrement = journalStatus == JournalStatus.increment;
+    return JournalItemEntity(
+      id: 0,
+      entryId: journalEntryId,
+      accountId: isIncrement ? inventory.incomeStockId : inventory.propertyAccountId,
+      amount: openingQuantity.costTotal,
+      lineDescription: isIncrement ? 'بند مدين تلقائي - حساب المخزون' : 'بند دائن تلقائي - حساب رأس المال',
+      currencyId: openingQuantity.currencyId ?? 'YER',
+      exPrice: 1.0,
+      expriceMain: 1.0,
+      journalStatus: journalStatus,
+    );
+  }
 
   @override
   List<Object?> get props => [

@@ -1,5 +1,6 @@
 import 'package:flowcash/features/currencies/data/datasources/exchange_price_data_source.dart';
 import 'package:flowcash/features/currencies/domain/entities/exchange_price_entity.dart';
+import 'package:flowcash/features/currencies/data/models/exchange_price_model.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/exchange_prices_table.dart';
 
@@ -80,23 +81,20 @@ final class ExchangePriceLocalDataSourceImpl
 
   @override
   ExchangePriceEntity fromMap(Map<String, dynamic> map) {
-    return ExchangePriceEntity(
-      id: map[ExchangePricesTable.id] as int,
-      fromCurrencyId:
-          (map[ExchangePricesTable.fromCurrencyId] as String?) ?? '',
-      toCurrencyId: (map[ExchangePricesTable.toCurrencyId] as String?) ?? '',
-      price: ((map[ExchangePricesTable.exchangePrice]) as num).toDouble(),
-    );
+    return ExchangePriceModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(ExchangePriceEntity entity) {
-    return {
-      if (entity.id > 0) ExchangePricesTable.id: entity.id,
-      ExchangePricesTable.fromCurrencyId: entity.fromCurrencyId,
-      ExchangePricesTable.toCurrencyId: entity.toCurrencyId,
-      ExchangePricesTable.exchangePrice: entity.price,
-    };
+    if (entity is ExchangePriceModel) {
+      return entity.toMap();
+    }
+    return ExchangePriceModel(
+      id: entity.id,
+      fromCurrencyId: entity.fromCurrencyId,
+      toCurrencyId: entity.toCurrencyId,
+      price: entity.price,
+    ).toMap();
   }
 
   @override

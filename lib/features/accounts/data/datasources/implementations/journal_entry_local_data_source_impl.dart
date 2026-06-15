@@ -1,6 +1,8 @@
 import 'package:flowcash/features/accounts/data/datasources/interfaces/journal_entry_data_source.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
+import 'package:flowcash/features/accounts/data/models/journal_entry_model.dart';
+import 'package:flowcash/features/accounts/data/models/journal_item_model.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/core/enums/journal_status_enum.dart';
@@ -224,47 +226,29 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
 
   @override
   JournalEntryEntity fromMap(Map<String, dynamic> map) {
-    return JournalEntryEntity(
-      id: map[JournalEntriesTable.entryId] as int,
-      referenceNumber:
-          (map[JournalEntriesTable.referenceNumber] as String?) ?? '',
-      description: map[JournalEntriesTable.description] as String?,
-      createdAt: DateTime.parse(map[JournalEntriesTable.createdAt] as String),
-      createdBy: map[JournalEntriesTable.userId] as int,
-      currencyId: map[JournalEntriesTable.currencyId] as String,
-      baseAmount: ((map[JournalEntriesTable.amount]) as num).toDouble(),
-      warehouseId: map[JournalEntriesTable.warehouseId] as int?,
-    );
+    return JournalEntryModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(JournalEntryEntity entity) {
-    return {
-      if (entity.id > 0) JournalEntriesTable.entryId: entity.id,
-      JournalEntriesTable.referenceNumber: entity.referenceNumber,
-      JournalEntriesTable.description: entity.description,
-      JournalEntriesTable.createdAt: entity.createdAt.toIso8601String(),
-      JournalEntriesTable.userId: entity.createdBy,
-      JournalEntriesTable.currencyId: entity.currencyId,
-      JournalEntriesTable.amount: entity.baseAmount,
-      JournalEntriesTable.warehouseId: entity.warehouseId,
-    };
+    if (entity is JournalEntryModel) {
+      return entity.toMap();
+    }
+    return JournalEntryModel(
+      id: entity.id,
+      referenceNumber: entity.referenceNumber,
+      description: entity.description,
+      createdAt: entity.createdAt,
+      createdBy: entity.createdBy,
+      currencyId: entity.currencyId,
+      baseAmount: entity.baseAmount,
+      warehouseId: entity.warehouseId,
+      items: entity.items,
+    ).toMap();
   }
 
   JournalItemEntity _journalItemFromMap(Map<String, dynamic> row) {
-    final statusStr = row[JournalItemsTable.journalStatus] as String;
-    final status = JournalStatus.of(statusStr);
-    return JournalItemEntity(
-      id: row[JournalItemsTable.itemId] as int,
-      entryId: row[JournalItemsTable.entryId] as int,
-      accountId: row[JournalItemsTable.accountId] as int,
-      amount: ((row[JournalItemsTable.amount]) as num).toDouble(),
-      lineDescription: row[JournalItemsTable.lineDescription] as String?,
-      currencyId: row[JournalItemsTable.currencyId] as String,
-      exPrice: ((row[JournalItemsTable.exPrice]) as num).toDouble(),
-      expriceMain: ((row[JournalItemsTable.expriceMain]) as num).toDouble(),
-      journalStatus: status,
-    );
+    return JournalItemModel.fromMap(row);
   }
 
   @override

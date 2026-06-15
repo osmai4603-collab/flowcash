@@ -1,5 +1,6 @@
 import 'package:flowcash/features/categories/data/datasources/unit_data_source.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
+import 'package:flowcash/features/categories/data/models/unit_model.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/units_table.dart';
 import 'package:flowcash/core/enums/unit_type_enum.dart';
@@ -69,28 +70,23 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
 
   @override
   UnitEntity fromMap(Map<String, dynamic> map) {
-    return UnitEntity(
-      id: map[UnitsTable.id] as int,
-      unitName: (map[UnitsTable.unitName] as String?) ?? "",
-      length: ((map[UnitsTable.length]) as num).toDouble(),
-      width: ((map[UnitsTable.width]) as num).toDouble(),
-      thickness: ((map[UnitsTable.thickness]) as num).toDouble(),
-      unitType: UnitType.values.firstWhere(
-        (e) => e.name == map[UnitsTable.unitType] as String,
-      ),
-    );
+    return UnitModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(UnitEntity entity) {
-    return {
-      if (entity.id > 0) UnitsTable.id: entity.id,
-      UnitsTable.unitName: entity.unitName,
-      UnitsTable.length: entity.length,
-      UnitsTable.width: entity.width,
-      UnitsTable.thickness: entity.thickness,
-      UnitsTable.unitType: entity.unitType.name,
-    };
+    if (entity is UnitModel) {
+      return entity.toMap();
+    }
+    return UnitModel(
+      id: entity.id,
+      unitName: entity.unitName,
+      propertyId: entity.propertyId,
+      length: entity.length,
+      width: entity.width,
+      thickness: entity.thickness,
+      unitType: entity.unitType,
+    ).toMap();
   }
 
   @override
@@ -116,17 +112,5 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
     String? unitName,
   }) async {
     throw UnimplementedError();
-  }
-
-  Map<String, dynamic> _sanitizeInsertData(
-    Map<String, dynamic> data,
-    String idKey,
-  ) {
-    if (data[idKey] is int && (data[idKey] as int) <= 0) {
-      final sanitized = Map<String, dynamic>.from(data);
-      sanitized.remove(idKey);
-      return sanitized;
-    }
-    return data;
   }
 }

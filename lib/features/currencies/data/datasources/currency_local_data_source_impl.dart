@@ -1,4 +1,5 @@
 import 'package:flowcash/features/currencies/data/datasources/currency_data_source.dart';
+import 'package:flowcash/features/currencies/data/models/currency_model.dart';
 import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/currencies_table.dart';
@@ -117,24 +118,20 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
 
   @override
   CurrencyEntity fromMap(Map<String, dynamic> map) {
-    return CurrencyEntity(
-      id: map[CurrenciesTable.id],
-      name: (map[CurrenciesTable.currencyName] as String?) ?? "",
-      symbol: (map[CurrenciesTable.symbol] as String?) ?? "",
-      isDefault:
-          (map[CurrenciesTable.isDefault] == true ||
-          map[CurrenciesTable.isDefault] == 1),
-    );
+    return CurrencyModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(CurrencyEntity entity) {
-    return {
-      CurrenciesTable.id: entity.id,
-      CurrenciesTable.currencyName: entity.name,
-      CurrenciesTable.symbol: entity.symbol,
-      CurrenciesTable.isDefault: entity.isDefault ? 1 : 0,
-    };
+    if (entity is CurrencyModel) {
+      return entity.toMap();
+    }
+    return CurrencyModel(
+      id: entity.id,
+      name: entity.name,
+      symbol: entity.symbol,
+      isDefault: entity.isDefault,
+    ).toMap();
   }
 
   @override

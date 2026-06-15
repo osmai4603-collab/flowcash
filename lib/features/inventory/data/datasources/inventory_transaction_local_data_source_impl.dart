@@ -1,6 +1,7 @@
 import 'package:flowcash/features/inventory/data/datasources/inventory_transaction_data_source.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
+import 'package:flowcash/features/inventory/data/models/inventory_transaction_model.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/inventory_transactions_orders_table.dart';
 import 'package:flowcash/core/tables/inventory_transactions_table.dart';
@@ -135,35 +136,25 @@ final class InventoryTransactionLocalDataSourceImpl
 
   @override
   InventoryTransactionEntity fromMap(Map<String, dynamic> map) {
-    return InventoryTransactionEntity(
-      id: map[InventoryTransactionsTable.id] as int,
-      createdAt: DateTime.parse(
-        map[InventoryTransactionsTable.createdAt] as String? ?? "",
-      ),
-      createdBy: map[InventoryTransactionsTable.createdBy],
-      note: map[InventoryTransactionsTable.note] as String?,
-      warehouseId: map[InventoryTransactionsTable.warehouseId] as int,
-      personId: map[InventoryTransactionsTable.personId] as int,
-      billNumber: map[InventoryTransactionsTable.billNumber] as int,
-      transactionType: InventoryTransactionType.values.firstWhere(
-        (e) =>
-            e.name == map[InventoryTransactionsTable.transactionType] as String,
-      ),
-    );
+    return InventoryTransactionModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(InventoryTransactionEntity entity) {
-    return {
-      if (entity.id > 0) InventoryTransactionsTable.id: entity.id,
-      InventoryTransactionsTable.createdAt: entity.createdAt.toIso8601String(),
-      InventoryTransactionsTable.createdBy: entity.createdBy,
-      InventoryTransactionsTable.note: entity.note,
-      InventoryTransactionsTable.warehouseId: entity.warehouseId,
-      InventoryTransactionsTable.personId: entity.personId,
-      InventoryTransactionsTable.billNumber: entity.billNumber,
-      InventoryTransactionsTable.transactionType: entity.transactionType.name,
-    };
+    if (entity is InventoryTransactionModel) {
+      return entity.toMap();
+    }
+    return InventoryTransactionModel(
+      id: entity.id,
+      createdAt: entity.createdAt,
+      createdBy: entity.createdBy,
+      note: entity.note,
+      warehouseId: entity.warehouseId,
+      personId: entity.personId,
+      billNumber: entity.billNumber,
+      transactionType: entity.transactionType,
+      orders: entity.orders,
+    ).toMap();
   }
 
   @override

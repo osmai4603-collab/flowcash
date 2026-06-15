@@ -8,6 +8,8 @@ import 'package:flowcash/core/tables/inventory_transactions_orders_table.dart';
 import 'package:flowcash/features/inventory/data/datasources/inventory_transaction_local_data_source_impl.dart';
 import 'package:flowcash/features/inventory/data/datasources/inventory_transaction_order_data_source.dart';
 import 'package:flowcash/features/inventory/data/datasources/inventory_transaction_order_local_data_source_impl.dart';
+import 'package:flowcash/core/tables/journal_entries_table.dart';
+import 'package:flowcash/core/tables/journal_items_table.dart';
 import 'package:flowcash/features/inventory/data/datasources/opening_quantity_data_source.dart';
 import 'package:flowcash/features/inventory/data/datasources/opening_quantity_local_data_source_impl.dart';
 import 'package:flowcash/features/inventory/data/datasources/goods_cost_data_source.dart';
@@ -132,14 +134,37 @@ void initInventoryFeature(GetIt sl) {
     () => InventoryTransactionOrderLocalDataSourceImpl(sl()),
   );
   sl.registerLazySingleton<OpeningQuantityDataSource>(
-    () => OpeningQuantityLocalDataSourceImpl(sl()),
+    () => OpeningQuantityLocalDataSourceImpl(
+      sl(),
+      (entry) => {
+        if (entry.id > 0) JournalEntriesTable.entryId: entry.id,
+        JournalEntriesTable.referenceNumber: entry.referenceNumber,
+        JournalEntriesTable.description: entry.description,
+        JournalEntriesTable.createdAt: entry.createdAt.toIso8601String(),
+        JournalEntriesTable.userId: entry.createdBy,
+        JournalEntriesTable.currencyId: entry.currencyId,
+        JournalEntriesTable.amount: entry.baseAmount,
+        JournalEntriesTable.warehouseId: entry.warehouseId,
+      },
+      (item) => {
+        if (item.id > 0) JournalItemsTable.itemId: item.id,
+        JournalItemsTable.entryId: item.entryId,
+        JournalItemsTable.accountId: item.accountId,
+        JournalItemsTable.amount: item.amount,
+        JournalItemsTable.journalStatus: item.journalStatus.name,
+        JournalItemsTable.lineDescription: item.lineDescription,
+        JournalItemsTable.currencyId: item.currencyId,
+        JournalItemsTable.exPrice: item.exPrice,
+        JournalItemsTable.expriceMain: item.expriceMain,
+      },
+    ),
   );
   sl.registerLazySingleton<GoodsCostDataSource>(
     () => GoodsCostLocalDataSourceImpl(sl()),
   );
-  sl.registerLazySingleton<WarehouseValueDataSource>(
-    () => WarehouseValueLocalDataSourceImpl(sl()),
-  );
+  // sl.registerLazySingleton<WarehouseValueDataSource>(
+  //   () => WarehouseValueLocalDataSourceImpl(sl()),
+  // );
   //============================================================
   // Repositories
   //============================================================

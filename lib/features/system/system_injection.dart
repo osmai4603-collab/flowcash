@@ -1,3 +1,8 @@
+import 'package:flowcash/features/inventory/data/datasources/warehouse_value_data_source.dart';
+import 'package:flowcash/features/inventory/data/datasources/warehouse_value_local_data_source_impl.dart';
+import 'package:flowcash/features/inventory/data/repositories/warehouse_value_repository_impl.dart';
+import 'package:flowcash/features/inventory/domain/repositories/warehouse_repository.dart';
+import 'package:flowcash/features/inventory/domain/repositories/warehouse_value_repository.dart';
 import 'package:flowcash/features/settings/domain/usecases/counters/set_counter.dart';
 import 'package:get_it/get_it.dart';
 
@@ -39,6 +44,9 @@ void initSystemFeature(GetIt sl) {
   sl.registerLazySingleton<ExchangePriceDataSource>(
     () => ExchangePriceLocalDataSourceImpl(sl()),
   );
+  sl.registerLazySingleton<WarehouseValueDataSource>(
+    () => WarehouseValueLocalDataSourceImpl(sl()),
+  );
 
   // Repositories
   sl.registerLazySingleton<CurrencyRepository>(
@@ -46,6 +54,9 @@ void initSystemFeature(GetIt sl) {
   );
   sl.registerLazySingleton<ExchangePriceRepository>(
     () => ExchangePriceRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<WarehouseValueRepository>(
+    () => WarehouseValueRepositoryImpl(sl()),
   );
 
   // Use cases - currencies

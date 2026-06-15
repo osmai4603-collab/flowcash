@@ -1,5 +1,6 @@
 import 'package:flowcash/features/inventory/data/datasources/inventory_transaction_order_data_source.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
+import 'package:flowcash/features/inventory/data/models/inventory_transaction_order_model.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/inventory_transactions_orders_table.dart';
 import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
@@ -78,41 +79,20 @@ final class InventoryTransactionOrderLocalDataSourceImpl
 
   @override
   InventoryTransactionOrderEntity fromMap(Map<String, dynamic> map) {
-    return InventoryTransactionOrderEntity(
-      id: map[InventoryTransactionsOrdersTable.id] as int,
-      inventoryId: map[InventoryTransactionsOrdersTable.inventoryId] as int?,
-      countUnits: ((map[InventoryTransactionsOrdersTable.countUnits]) as num)
-          .toDouble(),
-      tranId: map[InventoryTransactionsOrdersTable.tranId] as int,
-      transactionType: InventoryTransactionType.values.firstWhere(
-        (e) =>
-            e.name ==
-            map[InventoryTransactionsOrdersTable.transactionType] as String,
-      ),
-    );
+    return InventoryTransactionOrderModel.fromMap(map);
   }
 
   @override
   Map<String, dynamic> toMap(InventoryTransactionOrderEntity entity) {
-    return {
-      if (entity.id > 0) InventoryTransactionsOrdersTable.id: entity.id,
-      InventoryTransactionsOrdersTable.inventoryId: entity.inventoryId,
-      InventoryTransactionsOrdersTable.countUnits: entity.countUnits,
-      InventoryTransactionsOrdersTable.tranId: entity.tranId,
-      InventoryTransactionsOrdersTable.transactionType:
-          entity.transactionType.name,
-    };
-  }
-
-  Map<String, dynamic> _sanitizeInsertData(
-    Map<String, dynamic> data,
-    String idKey,
-  ) {
-    if (data[idKey] is int && (data[idKey] as int) <= 0) {
-      final sanitized = Map<String, dynamic>.from(data);
-      sanitized.remove(idKey);
-      return sanitized;
+    if (entity is InventoryTransactionOrderModel) {
+      return entity.toMap();
     }
-    return data;
+    return InventoryTransactionOrderModel(
+      id: entity.id,
+      inventoryId: entity.inventoryId,
+      countUnits: entity.countUnits,
+      tranId: entity.tranId,
+      transactionType: entity.transactionType,
+    ).toMap();
   }
 }
