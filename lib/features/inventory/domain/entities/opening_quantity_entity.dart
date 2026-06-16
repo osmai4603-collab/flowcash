@@ -7,7 +7,7 @@ class OpeningQuantityEntity extends Entity {
   final DateTime createdAt;
   final double costTotal;
   final int periodId;
-  final String? currencyId;
+  final String currencyId;
   final int? journalEntryId;
 
   const OpeningQuantityEntity({
@@ -17,7 +17,7 @@ class OpeningQuantityEntity extends Entity {
     required this.createdAt,
     this.costTotal = 0.0,
     this.periodId = 0,
-    this.currencyId,
+    required this.currencyId,
     this.journalEntryId,
   });
 

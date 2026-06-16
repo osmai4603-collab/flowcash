@@ -5,6 +5,7 @@ import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
+import 'package:flowcash/features/categories/presentation/blocs/category_form/category_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategory_form/catalog_form_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategory_form/catalog_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategory_form/catalog_form_state.dart';
@@ -13,6 +14,7 @@ import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/message.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -62,24 +64,14 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
             value: _catalogFormBloc,
             child: BlocConsumer<SubcategoryFormBloc, SubcategoryFormState>(
               listener: (context, state) async {
-                if (state.status == SubcategoryFormStatus.ready &&
-                    !_initialized) {
-                  _initialized = true;
-                  catalogNameController.text = state.catalogName ?? '';
-                }
-      
                 if (state.status == SubcategoryFormStatus.saved) {
-                  await successToast(
-                    context: context,
-                    toast: 'تم حفظ البيانات بنجاح',
-                  );
-                  if (!context.mounted) return;
-                  if (Navigator.of(context).canPop()) {
+                  if (context.mounted) {
                     Navigator.of(context).pop(state.savedSubcategory);
                   }
                 }
-      
+
                 if (state.status == SubcategoryFormStatus.failure) {
+                  if (kDebugMode) throw state.messageError ?? '';
                   await errorToast(
                     context: context,
                     toast: state.messageError ?? 'حدث خطأ',
@@ -100,13 +92,14 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                         fluent.Tooltip(
                           message: 'رجوع',
                           child: fluent.IconButton(
-                            icon: fluent.Icon(fluent.FluentIcons.back_to_window),
+                            icon: fluent.Icon(
+                              fluent.FluentIcons.back_to_window,
+                            ),
                             onPressed: () => Navigator.pop(context),
                           ),
                         ),
                         TextWidget(
-                          text:
-                              'بيانات نوع ${state.mainCategory?.name ?? ''}',
+                          text: 'بيانات نوع ${state.mainCategory?.name ?? ''}',
                           padding: EdgeInsets.only(right: 10),
                           expanded: true,
                           textAlign: TextAlign.center,
@@ -223,7 +216,6 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
           child: fluent.InfoLabel(
             label: property.property.propertyName,
             child: FormField<UnitEntity?>(
-              
               key: ValueKey(
                 '${property.property.id}_${property.selectedUnits.hashCode}',
               ),
@@ -261,9 +253,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                             ),
                                           );
                                         },
-                                        child: Text(
-                                          catalogUnit.unitName(),
-                                        ),
+                                        child: Text(catalogUnit.unitName()),
                                       ),
                                     )
                                     .toList(),
@@ -413,28 +403,31 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                   return MenuBar(
                                     children: [
                                       SubmenuButton(
-                                        child: Text(
-                                          field.value?.unitName ?? 'اختر',
-                                        ),
                                         menuChildren: property.subcatgoriesUnits
                                             .map(
                                               (u) => MenuItemButton(
                                                 onPressed: () {
-                                                  final idx = selectedList.indexOf(
-                                                    subcategoryUnit,
-                                                  );
+                                                  final idx = selectedList
+                                                      .indexOf(subcategoryUnit);
                                                   final updated =
-                                                      List<SubcategoryUnit?>.from(
-                                                    selectedList,
-                                                  );
-                                                  final updatedInfo = SubcategoryUnit(
-                                                    id: subcategoryUnit?.id ?? 0,
-                                                    property: property.property,
-                                                    unit: u.unit,
-                                                  );
+                                                      List<
+                                                        SubcategoryUnit?
+                                                      >.from(selectedList);
+                                                  final updatedInfo =
+                                                      SubcategoryUnit(
+                                                        id:
+                                                            subcategoryUnit
+                                                                ?.id ??
+                                                            0,
+                                                        property:
+                                                            property.property,
+                                                        unit: u.unit,
+                                                      );
                                                   if (idx != -1) {
                                                     updated[idx] = updatedInfo;
-                                                    formState.didChange(updated);
+                                                    formState.didChange(
+                                                      updated,
+                                                    );
                                                   }
                                                   field.didChange(u.unit);
                                                   _catalogFormBloc.add(
@@ -449,6 +442,9 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                               ),
                                             )
                                             .toList(),
+                                        child: Text(
+                                          field.value?.unitName ?? 'اختر',
+                                        ),
                                       ),
                                     ],
                                   );
@@ -567,7 +563,11 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
       return;
     }
     final state = _catalogFormBloc.state;
-    if (state.status != SubcategoryFormStatus.ready) return;
+    if (state.status != SubcategoryFormStatus.ready) {
+      _catalogFormBloc.add(
+        SubcategoryNameChangedEvent(catalogNameController.text),
+      );
+    }
 
     final catalog = SubcategoryEntity(
       id: widget.subcategory?.id ?? 0,

@@ -34,127 +34,131 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     return BlocProvider(
       create: (_) =>
           sl<SubcategoriesBloc>()..add(const LoadSubcategoriesEvent()),
-      child: BlocListener<SubcategoriesBloc, SubcategoriesState>(
-        listener: (context, state) async {
-          if (state is SubcategoriesLoadFailure) {
-            error(context: context, toast: state.message);
-            return;
-          }
+      child: Builder(
+        builder: (context) {
+          return BlocListener<SubcategoriesBloc, SubcategoriesState>(
+            listener: (context, state) async {
+              if (state is SubcategoriesLoadFailure) {
+                error(context: context, toast: state.message);
+                return;
+              }
 
-          if (state is SubcategoriesLoadSuccess &&
-              state.generatedCategoryNames != null) {
-            final names = state.generatedCategoryNames!;
-            await showDialog<void>(
-              context: context,
-              builder: (ctx) => fluent.ContentDialog(
-                title: fluent.Text(
-                  names.isEmpty ? 'نتيجة التوليد' : 'الأصناف المولدة',
-                ),
-                content: SizedBox(
-                  width: 400,
-                  child: names.isEmpty
-                      ? const fluent.Text('لا يوجد اصناف تم توليدها')
-                      : SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: names
-                                .map((n) => fluent.Text('• $n'))
-                                .toList(),
-                          ),
-                        ),
-                ),
-                actions: [
-                  fluent.Button(
-                    onPressed: () => Navigator.of(ctx).pop(),
-                    child: const fluent.Text('حسناً'),
-                  ),
-                ],
-              ),
-            );
-            if (context.mounted) {
-              context.read<SubcategoriesBloc>().add(
-                const ClearGeneratedCategoriesEvent(),
-              );
-            }
-            return;
-          }
-
-          if (state is SubcategoriesLoadSuccess &&
-              state.statusMessage != null) {
-            successToast(context: context, toast: state.statusMessage!);
-          }
-        },
-        child: fluent.ScaffoldPage(
-          header: fluent.PageHeader(
-            title: Row(
-              spacing: Spacings.medium,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Expanded(
-                  child: fluent.Text('الأصناف الفرعية'),
-                ),
-                SizedBox(
-                  width: isDesktop ? 400.0 : 250.0,
-                  child: BlocBuilder<SubcategoriesBloc, SubcategoriesState>(
-                    builder: (context, state) {
-                      return fluent.TextBox(
-                        prefix: Padding(
-                          padding: Paddings.smallAll,
-                          child: fluent.Icon(
-                            fluent.FluentIcons.search,
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                        placeholder: 'ابحث عن نوع صنف هنا',
-                        onChanged: (value) => context
-                            .read<SubcategoriesBloc>()
-                            .add(SearchSubcategoriesEvent(value)),
-                      );
-                    },
-                  ),
-                ),
-                fluent.Tooltip(
-                  message: 'إعادة تحميل البيانات',
-                  child: fluent.IconButton(
-                    icon: const fluent.Icon(fluent.FluentIcons.refresh),
-                    onPressed: () => context
-                        .read<SubcategoriesBloc>()
-                        .add(const RefreshSubcategoriesEvent()),
-                  ),
-                ),
-                fluent.FilledButton(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      fluent.Icon(fluent.FluentIcons.add),
-                      SizedBox(width: 6),
-                      fluent.Text('اضافة صنف فرعي جديد'),
+              if (state is SubcategoriesLoadSuccess &&
+                  state.generatedCategoryNames != null) {
+                final names = state.generatedCategoryNames!;
+                await showDialog<void>(
+                  context: context,
+                  builder: (ctx) => fluent.ContentDialog(
+                    title: fluent.Text(
+                      names.isEmpty ? 'نتيجة التوليد' : 'الأصناف المولدة',
+                    ),
+                    content: SizedBox(
+                      width: 400,
+                      child: names.isEmpty
+                          ? const fluent.Text('لا يوجد اصناف تم توليدها')
+                          : SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: names
+                                    .map((n) => fluent.Text('• $n'))
+                                    .toList(),
+                              ),
+                            ),
+                    ),
+                    actions: [
+                      fluent.Button(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        child: const fluent.Text('حسناً'),
+                      ),
                     ],
                   ),
-                  onPressed: () => _onAddSubcategory(context),
+                );
+                if (context.mounted) {
+                  context.read<SubcategoriesBloc>().add(
+                    const ClearGeneratedCategoriesEvent(),
+                  );
+                }
+                return;
+              }
+
+              if (state is SubcategoriesLoadSuccess &&
+                  state.statusMessage != null) {
+                successToast(context: context, toast: state.statusMessage!);
+              }
+            },
+            child: fluent.ScaffoldPage(
+              header: fluent.PageHeader(
+                title: Row(
+                  spacing: Spacings.medium,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Expanded(
+                      child: fluent.Text('الأصناف الفرعية'),
+                    ),
+                    SizedBox(
+                      width: isDesktop ? 400.0 : 250.0,
+                      child: BlocBuilder<SubcategoriesBloc, SubcategoriesState>(
+                        builder: (context, state) {
+                          return fluent.TextBox(
+                            prefix: Padding(
+                              padding: Paddings.smallAll,
+                              child: fluent.Icon(
+                                fluent.FluentIcons.search,
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                            placeholder: 'ابحث عن نوع صنف هنا',
+                            onChanged: (value) => context
+                                .read<SubcategoriesBloc>()
+                                .add(SearchSubcategoriesEvent(value)),
+                          );
+                        },
+                      ),
+                    ),
+                    fluent.Tooltip(
+                      message: 'إعادة تحميل البيانات',
+                      child: fluent.IconButton(
+                        icon: const fluent.Icon(fluent.FluentIcons.refresh),
+                        onPressed: () => context
+                            .read<SubcategoriesBloc>()
+                            .add(const RefreshSubcategoriesEvent()),
+                      ),
+                    ),
+                    fluent.FilledButton(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          fluent.Icon(fluent.FluentIcons.add),
+                          SizedBox(width: 6),
+                          fluent.Text('اضافة صنف فرعي جديد'),
+                        ],
+                      ),
+                      onPressed: () => _onAddSubcategory(context),
+                    ),
+                  ],
                 ),
-              ],
+              ),
+              content: Padding(
+                padding: const EdgeInsets.all(4),
+                child: BlocBuilder<SubcategoriesBloc, SubcategoriesState>(
+                  builder: (context, state) {
+                    if (state is SubcategoriesLoadInProgress) {
+                      return const Center(child: fluent.ProgressRing());
+                    }
+                    if (state is SubcategoriesLoadFailure) {
+                      return Center(child: fluent.Text(state.message));
+                    }
+                    if (state is SubcategoriesLoadSuccess) {
+                      return buildSubcategories(context, state);
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
             ),
-          ),
-          content: Padding(
-            padding: const EdgeInsets.all(4),
-            child: BlocBuilder<SubcategoriesBloc, SubcategoriesState>(
-              builder: (context, state) {
-                if (state is SubcategoriesLoadInProgress) {
-                  return const Center(child: fluent.ProgressRing());
-                }
-                if (state is SubcategoriesLoadFailure) {
-                  return Center(child: fluent.Text(state.message));
-                }
-                if (state is SubcategoriesLoadSuccess) {
-                  return buildSubcategories(context, state);
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

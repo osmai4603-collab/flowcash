@@ -115,8 +115,8 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                             _selectedMainAccountId = mainAccount.id;
                           });
                         },
-                        onAddMainAccount: (_) {
-                          _showMainAccountDialog(context);
+                        onAddMainAccount: (group) {
+                          _showMainAccountDialog(context, group: group);
                         },
                       ),
                     ),
@@ -135,10 +135,12 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
   Future<void> _showMainAccountDialog(
     BuildContext context, {
     MainAccountEntity? mainAccount,
+    required MainAccountGroup group,
   }) async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => MainAccountFormDialog(mainAccount: mainAccount),
+      builder: (context) =>
+          MainAccountFormDialog(mainAccount: mainAccount, group: group),
     );
     if (result == true && context.mounted) {
       context.read<ChartOfAccountsBloc>().add(const LoadChartOfAccounts());
@@ -233,7 +235,10 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
                   primaryItems: [
                     fluent.CommandBarButton(
                       onPressed: () {
-                        _showMainAccountDialog(context);
+                        _showMainAccountDialog(
+                          context,
+                          group: MainAccountGroup.assets,
+                        );
                       },
                       icon: const fluent.Icon(fluent.FluentIcons.add),
                       label: const fluent.Text('إضافة حساب رئيسي'),

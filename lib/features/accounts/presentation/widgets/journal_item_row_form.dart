@@ -1,3 +1,4 @@
+import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flowcash/widgets/combo_box_form.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_simple_entity.dart';
@@ -41,6 +42,8 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
   late TextEditingController _amountController;
   late TextEditingController _descController;
 
+  SubAccountSimpleEntity? _accoutSelected;
+
   @override
   void initState() {
     super.initState();
@@ -82,6 +85,7 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
             flex: 4,
             child: ComboBoxForm<SubAccountSimpleEntity>(
               controller: _accountController,
+
               prefix: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: fluent.Icon(fluent.FluentIcons.account_browser),
@@ -99,7 +103,14 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
               onChanged: (value) {
                 if (widget.draft.account != null &&
                     value != widget.draft.account?.accountName) {
-                  widget.onChanged(accountId: null, accountName: null);
+                  widget.onChanged(
+                    accountId: null,
+                    accountName: null,
+                    amount: double.tryParse(
+                      _amountController.text.replaceAll(',', ''),
+                    ),
+                    lineDescription: _descController.text,
+                  );
                 }
               },
               labelMenu: (opt) => '${opt.accountName} (${opt.accountNumber})',
@@ -112,9 +123,14 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
                 }).toList();
               },
               onSelectedItem: (selectedAcc) {
+                _accoutSelected = selectedAcc;
                 widget.onChanged(
                   accountId: selectedAcc.id,
                   accountName: selectedAcc.accountName,
+                  amount: double.tryParse(
+                    _amountController.text.replaceAll(',', ''),
+                  ),
+                  lineDescription: _descController.text,
                 );
               },
             ),
@@ -141,8 +157,13 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
               ),
               validator: (_) => _validateAmounts(),
               onChanged: (val) {
-                final amountVal = double.tryParse(val) ?? 0.0;
-                widget.onChanged(amount: amountVal);
+                widget.onChanged(
+                  lineDescription: _descController.text,
+                  accountId: _accoutSelected?.id,
+                  amount: double.tryParse(val.replaceAll(',', '')) ?? 0.0,
+                  accountName:
+                      _accoutSelected?.accountName ?? _accountController.text,
+                );
               },
             ),
           ),
@@ -159,7 +180,17 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
                 child: fluent.Icon(fluent.FluentIcons.note_pinned),
               ),
               onChanged: (val) {
-                widget.onChanged(lineDescription: val);
+                widget.onChanged(
+                  lineDescription: val,
+                  accountId: _accoutSelected?.id,
+                  amount:
+                      double.tryParse(
+                        _amountController.text.replaceAll(',', ''),
+                      ) ??
+                      0.0,
+                  accountName:
+                      _accoutSelected?.accountName ?? _accountController.text,
+                );
               },
             ),
           ),

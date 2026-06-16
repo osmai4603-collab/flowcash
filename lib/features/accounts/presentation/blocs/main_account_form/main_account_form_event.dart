@@ -13,7 +13,8 @@ sealed class MainAccountFormEvent extends Equatable {
 
 class InitMainAccountForm extends MainAccountFormEvent {
   final MainAccountEntity? editingAccount;
-  const InitMainAccountForm({this.editingAccount});
+  final MainAccountGroup group;
+  const InitMainAccountForm({this.editingAccount, required this.group});
 
   @override
   List<Object?> get props => [editingAccount];

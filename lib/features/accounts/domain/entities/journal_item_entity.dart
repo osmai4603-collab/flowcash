@@ -29,21 +29,22 @@ class JournalItemEntity extends Entity {
 
   factory JournalItemEntity.fromOpeningQuantity({
     required OpeningQuantityEntity openingQuantity,
-    required InventoryEntity inventory,
+    required int accountId,
     required int journalEntryId,
-    required JournalStatus journalStatus,
+    required String lineDescription,
+    required double exPrice,
+    required double exPriceMain,
   }) {
-    final isIncrement = journalStatus == JournalStatus.increment;
     return JournalItemEntity(
       id: 0,
       entryId: journalEntryId,
-      accountId: isIncrement ? inventory.incomeStockId : inventory.propertyAccountId,
+      accountId: accountId,
       amount: openingQuantity.costTotal,
-      lineDescription: isIncrement ? 'بند مدين تلقائي - حساب المخزون' : 'بند دائن تلقائي - حساب رأس المال',
-      currencyId: openingQuantity.currencyId ?? 'YER',
-      exPrice: 1.0,
-      expriceMain: 1.0,
-      journalStatus: journalStatus,
+      lineDescription: lineDescription,
+      currencyId: openingQuantity.currencyId,
+      exPrice: exPrice,
+      expriceMain: exPriceMain,
+      journalStatus: JournalStatus.increment,
     );
   }
 

@@ -1,5 +1,13 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:flowcash/features/injection_container.dart';
+import 'package:flowcash/core/enums/main_account_group_enum.dart';
+import 'package:flowcash/core/services/navigation_service.dart';
+import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
+import 'package:flowcash/features/accounts/domain/usecases/main_account_repository_usecases.dart';
+import 'package:flowcash/features/accounts/domain/usecases/sub_account_repository_usecases.dart';
+import 'package:flowcash/features/accounts/domain/usecases/journal_entry_repository_usecases.dart';
 
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
@@ -105,7 +113,7 @@ class _DashboardViewState extends State<DashboardView> {
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: state.quickActions
+                children: state.quickActions(context)
                     .map((action) => _buildQuickAction(action))
                     .toList(),
               ),
@@ -279,6 +287,10 @@ class _DashboardViewState extends State<DashboardView> {
 enum DashboardStatus { initial, loading, loaded, error }
 
 class DashboardViewNotifier extends ChangeNotifier {
+  final _getMainAccounts = sl<GetMainAccountsUseCase>();
+  final _getSubAccounts = sl<GetSubAccountsUseCase>();
+  final _getJournalEntries = sl<GetJournalEntriesUseCase>();
+
   DashboardStatus status = DashboardStatus.initial;
   String? errorMessage;
   DashboardSummary? summary;
@@ -315,32 +327,32 @@ class DashboardViewNotifier extends ChangeNotifier {
         icon: FluentIcons.chart,
         title: 'إجمالي الإيرادات',
         value: summary!.totalRevenue,
-        subtitle: 'هذا الشهر',
+        subtitle: 'المجموع الفعلي للإيرادات',
         color: const Color(0xFFFFC107),
       ),
     ];
   }
 
-  List<DashboardQuickAction> get quickActions => [
+  List<DashboardQuickAction> quickActions(BuildContext context) => [
     DashboardQuickAction(
       title: 'الحسابات',
       icon: FluentIcons.people,
-      onTap: () {},
+      onTap: () => NavigationService.toAccounts(context),
     ),
     DashboardQuickAction(
       title: 'المخزون',
       icon: FluentIcons.shop,
-      onTap: () {},
+      onTap: () => NavigationService.toInventory(context),
     ),
     DashboardQuickAction(
       title: 'الفئات',
       icon: FluentIcons.check_list,
-      onTap: () {},
+      onTap: () => NavigationService.toCategories(context),
     ),
     DashboardQuickAction(
       title: 'المعاملات',
       icon: FluentIcons.money,
-      onTap: () {},
+      onTap: () => NavigationService.toTransactions(context),
     ),
   ];
 
@@ -350,52 +362,89 @@ class DashboardViewNotifier extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
+      final mainResult = await _getMainAccounts();
+      final subResult = await _getSubAccounts();
+      final entriesResult = await _getJournalEntries();
+
+      final mainAccounts = mainResult.getOrElse((_) => []);
+      final subAccounts = subResult.getOrElse((_) => []);
+      final allEntries = entriesResult.getOrElse((_) => []);
+
+      final mainAccountsMap = {for (var acc in mainAccounts) acc.id: acc};
+
+      double totalAssets = 0.0;
+      double totalLiabilities = 0.0;
+      double totalRevenue = 0.0;
+      double totalExpenses = 0.0;
+
+      for (final sub in subAccounts) {
+        final parent = mainAccountsMap[sub.mainAccountId];
+        if (parent != null) {
+          final group = parent.mainAccountType.accountType;
+          final netBalance = sub.incrementBalance - sub.decrementBalance;
+          if (group == MainAccountGroup.assets) {
+            totalAssets += netBalance;
+          } else if (group == MainAccountGroup.liabilities) {
+            totalLiabilities += (sub.decrementBalance - sub.incrementBalance);
+          } else if (group == MainAccountGroup.revenues) {
+            totalRevenue += (sub.decrementBalance - sub.incrementBalance);
+          } else if (group == MainAccountGroup.expenses) {
+            totalExpenses += netBalance;
+          }
+        }
+      }
 
       summary = DashboardSummary(
-        totalAssets: 125000.0,
-        totalLiabilities: 52000.0,
-        netCashFlow: 73000.0,
-        totalRevenue: 98000.0,
+        totalAssets: totalAssets,
+        totalLiabilities: totalLiabilities,
+        netCashFlow: totalRevenue - totalExpenses,
+        totalRevenue: totalRevenue,
       );
 
-      notifications = [
-        DashboardNotification(
-          title: 'فاتورة غير مدفوعة',
-          message: 'فاتورة مبيعات رقم 1234 لم تُسدد بعد.',
-          icon: FluentIcons.warning,
-          color: Colors.orange,
-        ),
-        DashboardNotification(
-          title: 'مخزون منخفض',
-          message: 'المخزون من المنتج "حبر طابعة" وصل إلى الحد الأدنى.',
-          icon: FluentIcons.warning,
-          color: Colors.red,
-        ),
-      ];
+      final listNotifications = <DashboardNotification>[];
+      for (final sub in subAccounts) {
+        if (sub.balanceMax != null &&
+            (sub.incrementBalance - sub.decrementBalance).abs() > sub.balanceMax!) {
+          listNotifications.add(
+            DashboardNotification(
+              title: 'تجاوز الحد الأقصى',
+              message: 'الحساب "${sub.accountName}" تجاوز الحد الأقصى المسموح به.',
+              icon: FluentIcons.warning,
+              color: Colors.orange,
+            ),
+          );
+        }
+      }
 
-      recentTransactions = [
-        DashboardTransaction(
-          title: 'سحب نقدي',
-          subtitle: 'من حساب الصندوق 01',
-          amount: '- 4,200.00',
-        ),
-        DashboardTransaction(
-          title: 'إصدار فاتورة بيع',
-          subtitle: 'فاتورة رقم 7589',
-          amount: '+ 8,500.00',
-        ),
-        DashboardTransaction(
-          title: 'دفع مورد',
-          subtitle: 'رقم سند 112',
-          amount: '- 2,200.00',
-        ),
-      ];
+      if (listNotifications.isEmpty) {
+        listNotifications.add(
+          DashboardNotification(
+            title: 'النظام جاهز',
+            message: 'جميع الحسابات والعمليات تعمل بشكل سليم.',
+            icon: FluentIcons.completed,
+            color: Colors.green,
+          ),
+        );
+      }
+      notifications = listNotifications;
+
+      final sortedEntries = List<JournalEntryEntity>.from(allEntries)
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      final recentEntries = sortedEntries.take(5).toList();
+
+      recentTransactions = recentEntries.map((entry) {
+        final prefix = entry.baseAmount >= 0 ? '+' : '';
+        return DashboardTransaction(
+          title: entry.description ?? entry.referenceNumber,
+          subtitle: 'قيد يومية - ${DateFormat('yyyy-MM-dd HH:mm').format(entry.createdAt)}',
+          amount: '$prefix ${entry.baseAmount.toStringAsFixed(2)} ${entry.currencyId}',
+        );
+      }).toList();
 
       status = DashboardStatus.loaded;
-    } catch (_) {
+    } catch (e) {
       status = DashboardStatus.error;
-      errorMessage = 'تعذر تحميل بيانات لوحة المعلومات.';
+      errorMessage = 'تعذر تحميل بيانات لوحة المعلومات: $e';
     }
 
     notifyListeners();

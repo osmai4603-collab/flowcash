@@ -90,16 +90,18 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
   }
 
   @override
-  Future<List<UnitEntity>> wherePropertyId(
-    Iterable<int> ids, {
-    bool trigger = false,
-  }) async {
-    throw UnimplementedError();
-  }
-
-  @override
   Future<List<UnitEntity>> whereBasic({bool printQuery = true}) async {
-    throw UnimplementedError();
+    final types = UnitType.values
+        .where((type) => type.isBasic)
+        .map((e) => e.name)
+        .toList();
+    final result = await _db.query(
+      table: UnitsTable.tableName,
+      where:
+          '${UnitsTable.unitType} IN (${List.filled(types.length, '?').join(', ')}) AND ${UnitsTable.length} == ? AND ${UnitsTable.width} == ? AND ${UnitsTable.thickness} == ?',
+      whereArgs: [...types, 1.0, 1.0, 1.0],
+    );
+    return result.map(fromMap).toList();
   }
 
   @override

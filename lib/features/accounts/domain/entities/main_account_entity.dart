@@ -5,7 +5,7 @@ class MainAccountEntity extends Entity {
   final int id;
   final String accountName;
   final String accountNumber;
-  final String? currencyId;
+  final String currencyId;
   final double debitBalance;
   final double creditBalance;
   final MainAccountType mainAccountType;
@@ -15,7 +15,7 @@ class MainAccountEntity extends Entity {
     required this.id,
     this.accountName = '',
     this.accountNumber = '',
-    this.currencyId,
+    required this.currencyId,
     this.debitBalance = 0.0,
     this.creditBalance = 0.0,
     required this.mainAccountType,
@@ -38,6 +38,7 @@ class MainAccountEntity extends Entity {
     return debitBalance - creditBalance;
   }
 
+  @override
   MainAccountEntity copyWith({
     int? id,
     String? accountName,

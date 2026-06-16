@@ -20,9 +20,14 @@ import 'package:flowcash/features/accounts/presentation/blocs/main_account_form/
 import 'package:flowcash/features/accounts/presentation/blocs/main_account_form/main_account_form_state.dart';
 
 class MainAccountFormDialog extends StatefulWidget {
+  final MainAccountGroup group;
   final MainAccountEntity? mainAccount;
 
-  const MainAccountFormDialog({super.key, this.mainAccount});
+  const MainAccountFormDialog({
+    super.key,
+    this.mainAccount,
+    required this.group,
+  });
 
   @override
   State<MainAccountFormDialog> createState() => _MainAccountFormDialogState();
@@ -42,9 +47,13 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return BlocProvider(
-      create: (context) =>
-          GetIt.instance<MainAccountFormBloc>()
-            ..add(InitMainAccountForm(editingAccount: widget.mainAccount)),
+      create: (context) => GetIt.instance<MainAccountFormBloc>()
+        ..add(
+          InitMainAccountForm(
+            editingAccount: widget.mainAccount,
+            group: widget.group,
+          ),
+        ),
       child: BlocConsumer<MainAccountFormBloc, MainAccountFormState>(
         listener: (context, state) {
           if (state.status == MainAccountFormStatus.success) {

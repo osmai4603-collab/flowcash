@@ -4,10 +4,6 @@ import 'package:flowcash/core/enums/unit_type_enum.dart';
 
 abstract interface class UnitLocalDataSource
     implements AppDataSource<int, UnitEntity, Map<String, dynamic>> {
-  Future<List<UnitEntity>> wherePropertyId(
-    Iterable<int> ids, {
-    bool trigger = false,
-  });
   Future<List<UnitEntity>> whereBasic({bool printQuery = true});
   Future<UnitEntity?> getFirstWhereArgs({
     double? length,

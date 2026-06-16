@@ -307,11 +307,10 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                               const SizedBox(width: 10),
                                               fluent.Text(
                                                 unit.unitType.symbolUnit,
-                                                style: colors.body
-                                                    ?.copyWith(
-                                                      color: colors
-                                                          .onSurfaceVariant,
-                                                    ),
+                                                style: colors.body?.copyWith(
+                                                  color:
+                                                      colors.onSurfaceVariant,
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -444,7 +443,6 @@ class _CategoryFormPageState extends State<_CategoryForm> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
     ctx.read<CategoryFormBloc>().add(SaveCategoryEvent());
   }
 }

@@ -67,4 +67,16 @@ class UnitRepositoryImpl implements UnitRepository {
       return Left(DatabaseFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, List<UnitEntity>>> whereBasic() async {
+    try {
+      final result = await _dataSource.whereBasic();
+      return Right(result);
+    } on Failure catch (f) {
+      return Left(f);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
 }

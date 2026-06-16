@@ -1,3 +1,4 @@
+import 'package:flowcash/core/enums/main_account_type_enum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
 import 'package:flowcash/features/accounts/domain/usecases/main_account_repository_usecases.dart';
@@ -90,6 +91,8 @@ class MainAccountFormBloc
               accountName: '',
               accountNumber: '',
               selectedCurrency: selectedCurrency,
+              selectedGroup: event.group,
+              selectedType: MainAccountType.whereMainAccount(event.group).first,
               currencies: currencies,
               currencyErrorMessage: null,
             ),

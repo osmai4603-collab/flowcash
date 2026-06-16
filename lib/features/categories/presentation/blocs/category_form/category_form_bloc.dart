@@ -11,14 +11,14 @@ import 'category_form_state.dart';
 class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
   final AddCategoryUseCase _addCategory;
   final UpdateCategoryUseCase _updateCategory;
-  final GetUnitsUseCase _getUnitsUseCase;
+  final GetBasicUnits _getUnitsUseCase;
   final CheckCategoryHasRequestsUseCase _checkHasRequestsUseCase;
   final GetNewCategoryNumberUseCase _getNewCategoryNumberUseCase;
 
   CategoryFormBloc({
     required AddCategoryUseCase addCategory,
     required UpdateCategoryUseCase updateCategory,
-    required GetUnitsUseCase getUnitsUseCase,
+    required GetBasicUnits getUnitsUseCase,
     required CheckCategoryHasRequestsUseCase checkHasRequestsUseCase,
     required GetNewCategoryNumberUseCase getNewCategoryNumberUseCase,
   }) : _addCategory = addCategory,

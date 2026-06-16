@@ -69,6 +69,15 @@ class GetUnitsByUnitTypes {
   }
 }
 
+class GetBasicUnits {
+  final UnitRepository _repository;
+  const GetBasicUnits(this._repository);
+
+  Future<Either<Failure, List<UnitEntity>>> call() {
+    return _repository.whereBasic();
+  }
+}
+
 class GetUnitsForPropertyUseCase {
   final UnitRepository _repository;
   const GetUnitsForPropertyUseCase(this._repository);

@@ -90,7 +90,7 @@ class _OpeningQuantityFormDialogState extends State<OpeningQuantityFormDialog> {
       costTotal: totalCost,
       createdAt: DateTime.now(),
       periodId: 1, // Standard accounting period
-      currencyId: _selectedCurrencyId,
+      currencyId: _selectedCurrencyId!,
     );
 
     Navigator.of(context).pop(entity);

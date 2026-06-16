@@ -30,11 +30,12 @@ class JournalEntryEntity extends Entity {
     required OpeningQuantityEntity openingQuantity,
     required int warehouseId,
     required int userId,
+    required String categoryName,
   }) {
     return JournalEntryEntity(
       id: 0,
       referenceNumber: 'INVCAT-${openingQuantity.inventoryId}',
-      description: 'قيد تلقائي لتهيئة المخزون رقم ${openingQuantity.inventoryId}',
+      description: 'كمية افتتاحية: $categoryName',
       createdAt: openingQuantity.createdAt,
       createdBy: userId,
       currencyId: openingQuantity.currencyId ?? 'YER',

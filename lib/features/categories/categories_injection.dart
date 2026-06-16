@@ -164,6 +164,7 @@ void initCategoriesFeature(GetIt sl) {
   sl.registerLazySingleton(() => GetUnitsByUnitTypes(sl()));
   sl.registerLazySingleton(() => GetUnitsForPropertyUseCase(sl()));
   sl.registerLazySingleton(() => SaveUnitSelectionUseCase(sl()));
+  sl.registerLazySingleton(() => GetBasicUnits(sl()));
 
   // Blocs
   sl.registerFactory(

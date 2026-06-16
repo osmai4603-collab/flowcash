@@ -9,7 +9,7 @@ final class OpeningQuantityModel extends OpeningQuantityEntity {
     required super.createdAt,
     super.costTotal = 0.0,
     super.periodId = 0,
-    super.currencyId,
+    required super.currencyId,
     super.journalEntryId,
   });
 
@@ -23,7 +23,7 @@ final class OpeningQuantityModel extends OpeningQuantityEntity {
       ),
       costTotal: ((map[OpeningQuantitiesTable.costTotal]) as num).toDouble(),
       periodId: map[OpeningQuantitiesTable.periodId] as int,
-      currencyId: map[OpeningQuantitiesTable.currencyId] as String?,
+      currencyId: map[OpeningQuantitiesTable.currencyId] as String,
       journalEntryId: map[OpeningQuantitiesTable.journalEntryId] as int?,
     );
   }

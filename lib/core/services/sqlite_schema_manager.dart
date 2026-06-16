@@ -37,7 +37,7 @@ import 'package:flowcash/core/tables/warehouse_values_table.dart';
 final class SqliteSchemaManager {
   const SqliteSchemaManager._();
 
-  static const int currentVersion = 3;
+  static const int currentVersion = 4;
 
   /// Create the full schema for a new database.
   static void createAll(Database db) {
@@ -48,39 +48,85 @@ final class SqliteSchemaManager {
   /// Apply incremental migrations from [fromVersion] (exclusive) up to [toVersion] (inclusive).
   static void migrate(Database db, int fromVersion, int toVersion) {
     if (fromVersion >= toVersion) return;
-    for (var v = fromVersion + 1; v <= toVersion; v++) {
-      db.execute('BEGIN');
-      try {
-        switch (v) {
-          case 2:
-            _applyV2Migration(db);
-            break;
-          case 3:
-            _applyV3Migration(db);
-            break;
-          default:
-            throw StateError('No migration defined for version $v');
+    db.execute('PRAGMA foreign_keys = OFF');
+    try {
+      for (var v = fromVersion + 1; v <= toVersion; v++) {
+        db.execute('BEGIN');
+        try {
+          switch (v) {
+            case 2:
+              _applyV2Migration(db);
+              break;
+            case 3:
+              _applyV3Migration(db);
+              break;
+            case 4:
+              _applyV4Migration(db);
+              break;
+            default:
+              throw StateError('No migration defined for version $v');
+          }
+          db.execute('COMMIT');
+          debugPrint('Migration to version $v applied');
+        } catch (e) {
+          db.execute('ROLLBACK');
+          debugPrint('Migration to version $v failed: $e');
+          rethrow;
         }
-        db.execute('COMMIT');
-        debugPrint('Migration to version $v applied');
-      } catch (e) {
-        db.execute('ROLLBACK');
-        debugPrint('Migration to version $v failed: $e');
-        rethrow;
       }
+    } finally {
+      db.execute('PRAGMA foreign_keys = ON');
     }
   }
 
   static void _applyV2Migration(Database db) {
     // Add property_id column to inventories table
-    db.execute('ALTER TABLE ${InventoriesTable.tableName} ADD COLUMN ${InventoriesTable.propertyAccountId} INTEGER NOT NULL DEFAULT 0');
+    db.execute(
+      'ALTER TABLE ${InventoriesTable.tableName} ADD COLUMN ${InventoriesTable.propertyAccountId} INTEGER NOT NULL DEFAULT 0',
+    );
   }
 
   static void _applyV3Migration(Database db) {
     // Add user_id column to inventories table
-    db.execute('ALTER TABLE ${InventoriesTable.tableName} ADD COLUMN ${InventoriesTable.userId} INTEGER NOT NULL DEFAULT 1');
+    db.execute(
+      'ALTER TABLE ${InventoriesTable.tableName} ADD COLUMN ${InventoriesTable.userId} INTEGER NOT NULL DEFAULT 1',
+    );
     // Recreate triggers to ensure the new InventoriesTrigger is added
     _createTriggers(db);
+  }
+
+  static void _applyV4Migration(Database db) {
+    // Recreate subcategories table with the correct foreign key constraint to main_categories
+    db.execute('''
+      CREATE TABLE IF NOT EXISTS subcategories_new (
+        ${SubcategoriesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${SubcategoriesTable.mainCategoryId} INTEGER,
+        ${SubcategoriesTable.catalogName} TEXT NOT NULL,
+        ${SubcategoriesTable.catalogNumber} TEXT,
+        UNIQUE (${SubcategoriesTable.catalogName}, ${SubcategoriesTable.mainCategoryId}),
+        FOREIGN KEY (${SubcategoriesTable.mainCategoryId}) REFERENCES ${MainCategoriesTable.tableName} (${MainCategoriesTable.id}) ON DELETE SET NULL
+      )
+    ''');
+
+    db.execute('''
+      INSERT INTO subcategories_new (
+        ${SubcategoriesTable.id},
+        ${SubcategoriesTable.mainCategoryId},
+        ${SubcategoriesTable.catalogName},
+        ${SubcategoriesTable.catalogNumber}
+      )
+      SELECT 
+        ${SubcategoriesTable.id},
+        ${SubcategoriesTable.mainCategoryId},
+        ${SubcategoriesTable.catalogName},
+        ${SubcategoriesTable.catalogNumber}
+      FROM ${SubcategoriesTable.tableName}
+    ''');
+
+    db.execute('DROP TABLE ${SubcategoriesTable.tableName}');
+    db.execute(
+      'ALTER TABLE subcategories_new RENAME TO ${SubcategoriesTable.tableName}',
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -288,7 +334,7 @@ final class SqliteSchemaManager {
         ${SubcategoriesTable.catalogName} TEXT NOT NULL,
         ${SubcategoriesTable.catalogNumber} TEXT,
         UNIQUE (${SubcategoriesTable.catalogName}, ${SubcategoriesTable.mainCategoryId}),
-        FOREIGN KEY (${SubcategoriesTable.mainCategoryId}) REFERENCES ${CategoriesTable.tableName} (${CategoriesTable.id}) ON DELETE SET NULL
+        FOREIGN KEY (${SubcategoriesTable.mainCategoryId}) REFERENCES ${MainCategoriesTable.tableName} (${MainCategoriesTable.id}) ON DELETE RESTRICT
       )
     ''');
 
@@ -561,7 +607,7 @@ final class SqliteSchemaManager {
   static void _createTriggers(Database db) {
     JournalItemsBalanceTrigger.call(db);
     InventoryOrdersTrigger.call(db);
-    
+
     // Drop the deprecated inventories triggers
     db.execute('DROP TRIGGER IF EXISTS inventories_after_insert_journal');
     db.execute('DROP TRIGGER IF EXISTS inventories_after_update_journal');

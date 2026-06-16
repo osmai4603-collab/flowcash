@@ -7,7 +7,7 @@ final class MainAccountModel extends MainAccountEntity {
     required super.id,
     super.accountName = '',
     super.accountNumber = '',
-    super.currencyId,
+    required super.currencyId,
     super.debitBalance = 0.0,
     super.creditBalance = 0.0,
     required super.mainAccountType,
@@ -19,11 +19,16 @@ final class MainAccountModel extends MainAccountEntity {
       id: map[MainAccountsTable.id] as int,
       accountName: (map[MainAccountsTable.accountName] as String?) ?? "",
       accountNumber: (map[MainAccountsTable.accountNumber] as String?) ?? "",
-      currencyId: map[MainAccountsTable.currencyId] as String?,
-      debitBalance: ((map[MainAccountsTable.debitBalance]) as num?)?.toDouble() ?? 0.0,
-      creditBalance: ((map[MainAccountsTable.creditBalance]) as num?)?.toDouble() ?? 0.0,
-      mainAccountType: MainAccountType.of(map[MainAccountsTable.mainAccountType]),
-      numbersCounter: (map[MainAccountsTable.numbersCounter] as num?)?.toInt() ?? 1,
+      currencyId: map[MainAccountsTable.currencyId] as String,
+      debitBalance:
+          ((map[MainAccountsTable.debitBalance]) as num?)?.toDouble() ?? 0.0,
+      creditBalance:
+          ((map[MainAccountsTable.creditBalance]) as num?)?.toDouble() ?? 0.0,
+      mainAccountType: MainAccountType.of(
+        map[MainAccountsTable.mainAccountType],
+      ),
+      numbersCounter:
+          (map[MainAccountsTable.numbersCounter] as num?)?.toInt() ?? 1,
     );
   }
 

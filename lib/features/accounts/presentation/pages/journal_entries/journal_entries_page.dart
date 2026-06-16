@@ -1,3 +1,6 @@
+import 'package:flowcash/core/formatters/money_formatter.dart';
+import 'package:flowcash/core/theme/spacings.dart';
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -6,10 +9,8 @@ import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.
 import 'package:flowcash/features/accounts/presentation/blocs/journal_entries/journal_entries_bloc.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/journal_entries/journal_entries_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/journal_entries/journal_entries_state.dart';
-import 'package:flowcash/features/accounts/presentation/widgets/journal_entry_detail_panel.dart';
 import 'package:flowcash/features/accounts/presentation/pages/journal_entries/journal_entry_form_dialog.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
-
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class JournalEntriesPage extends StatefulWidget {
@@ -45,9 +46,8 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
       1: const FlexColumnWidth(0.20), // الرقم المرجعي
       2: const FlexColumnWidth(0.38), // البيان العام للقيد
       3: const FlexColumnWidth(0.18), // التاريخ
-      4: const FixedColumnWidth(60), // العملة
-      5: const FlexColumnWidth(0.18), // المبلغ الأساسي
-      6: const FlexColumnWidth(0.18), // التحكم
+      4: const FlexColumnWidth(0.18), // المبلغ الأساسي
+      5: const FlexColumnWidth(0.18), // التحكم
     };
   }
 
@@ -219,55 +219,55 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                           flex: 4,
                           child: buildTable(theme, state, filteredEntries),
                         ),
-                        const SizedBox(width: 16),
+                        // const SizedBox(width: 16),
 
-                        // Detail Panel (Right Pane)
-                        Expanded(
-                          flex: 2,
-                          child: Container(
-                            height: double.infinity,
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.surface,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: theme.dividerColor.withAlpha(50),
-                              ),
-                            ),
-                            child: state.selectedEntry == null
-                                ? Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        fluent.Icon(
-                                          fluent.FluentIcons.note_pinned,
-                                          size: 64,
-                                          color: theme.colorScheme.onSurface
-                                              .withAlpha(50),
-                                        ),
-                                        const SizedBox(height: 16),
-                                        fluent.Text(
-                                          'يرجى تحديد قيد يومية لعرض التفاصيل',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: theme.colorScheme.onSurface
-                                                .withAlpha(150),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: SingleChildScrollView(
-                                      child: JournalEntryDetailPanel(
-                                        entry: state.selectedEntry!,
-                                        items: state.selectedEntryItems,
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        ),
+                        // // Detail Panel (Right Pane)
+                        // Expanded(
+                        //   flex: 2,
+                        //   child: Container(
+                        //     height: double.infinity,
+                        //     decoration: BoxDecoration(
+                        //       color: theme.colorScheme.surface,
+                        //       borderRadius: BorderRadius.circular(8),
+                        //       border: Border.all(
+                        //         color: theme.dividerColor.withAlpha(50),
+                        //       ),
+                        //     ),
+                        //     child: state.selectedEntry == null
+                        //         ? Center(
+                        //             child: Column(
+                        //               mainAxisAlignment:
+                        //                   MainAxisAlignment.center,
+                        //               children: [
+                        //                 fluent.Icon(
+                        //                   fluent.FluentIcons.note_pinned,
+                        //                   size: 64,
+                        //                   color: theme.colorScheme.onSurface
+                        //                       .withAlpha(50),
+                        //                 ),
+                        //                 const SizedBox(height: 16),
+                        //                 fluent.Text(
+                        //                   'يرجى تحديد قيد يومية لعرض التفاصيل',
+                        //                   style: TextStyle(
+                        //                     fontSize: 16,
+                        //                     color: theme.colorScheme.onSurface
+                        //                         .withAlpha(150),
+                        //                   ),
+                        //                 ),
+                        //               ],
+                        //             ),
+                        //           )
+                        //         : ClipRRect(
+                        //             borderRadius: BorderRadius.circular(8),
+                        //             child: SingleChildScrollView(
+                        //               child: JournalEntryDetailPanel(
+                        //                 entry: state.selectedEntry!,
+                        //                 items: state.selectedEntryItems,
+                        //               ),
+                        //             ),
+                        //           ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -286,7 +286,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     List<JournalEntryEntity> filteredEntries,
   ) {
     final colors = theme.colorScheme;
-    final textTheme = theme.textTheme;
+    final style = AppStyle.of(context).bodyStrong;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -304,44 +304,39 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                 TextWidget(
                   text: 'No',
                   textAlign: TextAlign.center,
+                  textDirection: .ltr,
                   padding: const EdgeInsets.all(8),
-                  style: textTheme.bodySmall,
+                  style: style,
                 ),
                 TextWidget(
                   text: 'الرقم المرجعي',
                   textAlign: TextAlign.center,
                   padding: const EdgeInsets.all(8),
-                  style: textTheme.bodySmall,
+                  style: style,
                 ),
                 TextWidget(
                   text: 'البيان العام للقيد',
                   textAlign: TextAlign.center,
                   padding: const EdgeInsets.all(8),
-                  style: textTheme.bodySmall,
+                  style: style,
                 ),
                 TextWidget(
                   text: 'التاريخ',
                   textAlign: TextAlign.center,
                   padding: const EdgeInsets.all(8),
-                  style: textTheme.bodySmall,
-                ),
-                TextWidget(
-                  text: 'العملة',
-                  textAlign: TextAlign.center,
-                  padding: const EdgeInsets.all(8),
-                  style: textTheme.bodySmall,
+                  style: style,
                 ),
                 TextWidget(
                   text: 'المبلغ الأساسي',
                   textAlign: TextAlign.center,
                   padding: const EdgeInsets.all(8),
-                  style: textTheme.bodySmall,
+                  style: style,
                 ),
                 TextWidget(
                   text: 'التحكم',
                   textAlign: TextAlign.center,
                   padding: const EdgeInsets.all(8),
-                  style: textTheme.bodySmall,
+                  style: style,
                 ),
               ],
             ),
@@ -357,24 +352,18 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                   ),
                 )
               : filteredEntries.isEmpty
-              ? _buildEmptyEntries(textTheme)
-              : _buildEntriesTable(
-                  filteredEntries,
-                  state,
-                  colors,
-                  textTheme,
-                  theme,
-                ),
+              ? _buildEmptyEntries()
+              : _buildEntriesTable(filteredEntries, state, colors, theme),
         ),
       ],
     );
   }
 
-  Center _buildEmptyEntries(TextTheme textTheme) {
+  Center _buildEmptyEntries() {
     return Center(
       child: fluent.Text(
         'لا توجد قيود يومية مسجلة ⚠️',
-        style: textTheme.bodyLarge?.copyWith(color: Colors.grey),
+        style: AppStyle.of(context).bodyLarge.copyWith(color: Colors.grey),
         textAlign: TextAlign.center,
       ),
     );
@@ -384,22 +373,22 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     List<JournalEntryEntity> filteredEntries,
     JournalEntriesState state,
     ColorScheme colors,
-    TextTheme textTheme,
     ThemeData theme,
   ) {
-    return Material(
-      child: ListView.builder(
-        itemCount: filteredEntries.length,
-        itemBuilder: (context, index) {
-          final entry = filteredEntries[index];
-          final isSelected = state.selectedEntry?.id == entry.id;
-          final dateStr = DateFormat('yyyy-MM-dd').format(entry.createdAt);
+    final style = AppStyle.of(context).bodyStrong;
+    return ListView.builder(
+      itemCount: filteredEntries.length,
+      itemBuilder: (context, index) {
+        final entry = filteredEntries[index];
+        final isSelected = state.selectedEntry?.id == entry.id;
+        final dateStr = DateFormat('yyyy-MM-dd').format(entry.createdAt);
 
-          return InkWell(
-            onTap: () {
-              context.read<JournalEntriesBloc>().add(SelectJournalEntry(entry));
-            },
-            child: fluent.Table(
+        return fluent.HoverButton(
+          onPressed: () {
+            context.read<JournalEntriesBloc>().add(SelectJournalEntry(entry));
+          },
+          builder: (p0, state) {
+            return fluent.Table(
               border: fluent.TableBorder.all(
                 width: 0.50,
                 color: colors.outline,
@@ -419,55 +408,60 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                     TextWidget(
                       text: '${index + 1}',
                       textAlign: TextAlign.center,
+                      textDirection: .ltr,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 4,
                         vertical: 6,
                       ),
-                      style: textTheme.bodySmall,
+                      style: style,
                     ),
                     TextWidget(
                       text: entry.referenceNumber,
                       textAlign: TextAlign.center,
                       padding: const EdgeInsets.all(8),
-                      style: textTheme.bodySmall?.copyWith(
+                      style: style?.copyWith(
                         fontFamily: 'monospace',
                         fontWeight: FontWeight.bold,
                       ),
+                      alignment: Alignment.centerRight,
                       overflow: TextOverflow.ellipsis,
                     ),
                     TextWidget(
                       text: entry.description ?? 'بدون وصف',
                       padding: const EdgeInsets.all(8),
-                      style: textTheme.bodySmall,
+                      style: style,
                       overflow: TextOverflow.ellipsis,
                     ),
                     TextWidget(
                       text: dateStr,
                       textAlign: TextAlign.center,
                       padding: const EdgeInsets.all(8),
-                      style: textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withAlpha(150),
-                      ),
                     ),
-                    TextWidget(
-                      text: entry.currencyId == '1'
-                          ? 'ر.ي'
-                          : (entry.currencyId == '2' ? 'ر.س' : '\$'),
-                      textAlign: TextAlign.center,
-                      padding: const EdgeInsets.all(8),
-                      style: textTheme.bodySmall,
-                    ),
-                    TextWidget(
-                      text: entry.baseAmount.toStringAsFixed(2),
-                      textAlign: TextAlign.end,
-                      padding: const EdgeInsets.all(8),
-                      style: textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      mainAxisAlignment: .spaceBetween,
+                      children: [
+                        TextWidget(
+                          text: AppMoneyFormatter.formatDouble(
+                            entry.baseAmount,
+                          ),
+                          alignment: Alignment.centerRight,
+                          textDirection: .ltr,
+                          textAlign: TextAlign.end,
+                          padding: const EdgeInsets.all(8),
+                          style: style?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        TextWidget(
+                          text: entry.currencyId,
+                          textAlign: TextAlign.center,
+                          padding: const EdgeInsets.all(8),
+                          style: style,
+                        ),
+                      ],
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Row(
+                        spacing: Spacings.small,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           fluent.Tooltip(
@@ -498,10 +492,10 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                   ],
                 ),
               ],
-            ),
-          );
-        },
-      ),
+            );
+          },
+        );
+      },
     );
   }
 }

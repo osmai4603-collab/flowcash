@@ -111,12 +111,22 @@ final class SqliteService {
 
   Future<T> transaction<T>(Future<T> Function() action) async {
     final db = await database;
+    debugPrint(
+      'Start Transaction....................................................',
+    );
     db.execute('BEGIN');
     try {
       final result = await action();
+      debugPrint(
+        'Commit Transaction....................................................',
+      );
       db.execute('COMMIT');
       return result;
     } catch (e) {
+      debugPrint(e.toString());
+      debugPrint(
+        'RollBack Transaction....................................................',
+      );
       db.execute('ROLLBACK');
       rethrow;
     }
