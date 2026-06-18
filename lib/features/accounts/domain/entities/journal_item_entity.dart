@@ -87,6 +87,10 @@ class JournalItemEntity extends Entity {
   }
 
   double get historyAmount {
-    return journalStatus == JournalStatus.increment ? amount * exPrice : amount * exPrice * -1;
+    return journalStatus == JournalStatus.increment ? amountExPriceHistory : amountExPriceHistory * -1;
+  }
+
+  double get amountExPriceHistory {
+    return amount * exPrice;
   }
 }

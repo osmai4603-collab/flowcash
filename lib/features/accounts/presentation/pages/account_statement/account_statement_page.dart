@@ -329,12 +329,9 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
     double totalDebit = 0.0;
     double totalCredit = 0.0;
     for (final item in state.items) {
-      final amount = item.amount;
-      if (item.journalStatus == JournalStatus.increment) {
-        totalDebit += amount;
-      } else {
-        totalCredit += amount;
-      }
+      item.journalStatus == JournalStatus.increment
+          ? totalDebit += item.amountExPriceHistory
+          : totalCredit += item.amountExPriceHistory;
     }
 
     return ListView.builder(
@@ -346,9 +343,9 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
           return Column(
             children: [
               buildInkWell(index, item, entry, balances[index], context),
-              fluent.GestureDetector(
-                onTap: () {},
-                child: fluent.Table(
+              fluent.HoverButton(
+                onPressed: () {},
+                builder: (_, _) => fluent.Table(
                   border: fluent.TableBorder.all(
                     width: 0.5,
                     color: colors.outline,
@@ -422,9 +419,9 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
   ) {
     final colors = AppStyle.of(context);
     final style = colors.bodyStrong.copyWith(fontSize: 12.50);
-    return GestureDetector(
-      onTap: () {},
-      child: ColoredBox(
+    return fluent.HoverButton(
+      onPressed: () {},
+      builder: (_, _) => ColoredBox(
         color: index % 2 == 0
             ? Colors.transparent
             : colors.surfaceContainerHighest,
@@ -447,7 +444,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                     AppDateFormatter.toDateString(
                       entry?.createdAt ?? DateTime.now(),
                     ),
-                    textDirection: .ltr,
+                    textDirection: TextDirection.ltr,
                   ),
                 ),
                 Padding(
