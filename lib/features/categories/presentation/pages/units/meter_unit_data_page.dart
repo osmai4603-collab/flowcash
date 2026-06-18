@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flowcash/core/formatters/money_formatter.dart';
+import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
@@ -46,9 +47,10 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
     super.initState();
     final state = context.read<UnitFormBloc>().state;
     category = state.category;
-    lengthController.text = AppMoneyFormatter.formatDouble(state.initialLength);
-    widthController.text = AppMoneyFormatter.formatDouble(state.initialWidth);
-    thicknessController.text = AppMoneyFormatter.formatDouble(
+    lengthController.text = state.initialLength == 0.0 ? '' : AppMoneyFormatter.formatDouble(state.initialLength);
+
+    widthController.text = state.initialWidth == 0.0 ? '' : AppMoneyFormatter.formatDouble(state.initialWidth);
+    thicknessController.text = state.initialThickness == 0.0 ? '' : AppMoneyFormatter.formatDouble(
       state.initialThickness,
     );
     if (widget.property.unitType.isSquareMeterWidthStatic) {
@@ -158,127 +160,120 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
           child: fluent.ContentDialog(
             content: SizedBox(
               width: 400.0,
-              child: Padding(
-                padding: Paddings.mediumAll,
-                child: ShimmerLoadingWidget(
-                  canShimmer: isLoading,
-                  freezeScreen: isSaving,
-                  period: const Duration(milliseconds: 900),
-                  child: SingleChildScrollView(
-                    child: Form(
-                      key: _formKey,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      child: Column(
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              fluent.Tooltip(
-                                message: 'رجوع',
-                                child: fluent.IconButton(
-                                  icon: const fluent.Icon(
-                                    fluent.FluentIcons.back_to_window,
-                                  ),
-                                  onPressed: () => Navigator.pop(context),
-                                ),
+                          fluent.Tooltip(
+                            message: 'رجوع',
+                            child: fluent.IconButton(
+                              icon: const fluent.Icon(
+                                fluent.FluentIcons.back_to_window,
                               ),
-                              TextWidget(
-                                text:
-                                    'ادخال ${widget.property.propertyName} ${category?.unitName ?? 'حبة'} بالمتر',
-                                alignment: Alignment.center,
-                                expanded: true,
-                              ),
-                              fluent.Tooltip(
-                                message: 'حفظ البيانات',
-                                child: fluent.IconButton(
-                                  icon: const fluent.Icon(
-                                    fluent.FluentIcons.save,
-                                  ),
-                                  onPressed: _onSaveButtonClicked,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: buildLengthWidget(
-                                  'طول',
-                                  lengthController,
-                                  true,
-                                  false,
-                                  (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'يرجى إدخال الطول';
-                                    }
-                                    final parsed =
-                                        double.tryParse(value) ?? 0.0;
-                                    if (parsed <= 0) {
-                                      return 'يجب أن يكون أكبر من صفر';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: buildLengthWidget(
-                                  'عرض',
-                                  widthController,
-                                  widget
-                                      .property
-                                      .unitType
-                                      .isSquareMeterWidthStatic,
-                                  widget.property.unitType.hasSquareMeter,
-                                  (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'يرجى إدخال العرض';
-                                    }
-                                    final parsed =
-                                        double.tryParse(value) ?? 0.0;
-                                    if (parsed <= 0) {
-                                      return 'يجب أن يكون أكبر من صفر';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (widget.property.unitType.isCubitMeter)
-                            const SizedBox(height: 10),
-                          if (widget.property.unitType.isCubitMeter)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: buildLengthWidget(
-                                    'سمك',
-                                    thicknessController,
-                                    false,
-                                    true,
-                                    (value) {
-                                      if (value == null ||
-                                          value.trim().isEmpty) {
-                                        return 'يرجى إدخال السمك';
-                                      }
-                                      final parsed =
-                                          double.tryParse(value) ?? 0.0;
-                                      if (parsed <= 0) {
-                                        return 'يجب أن يكون أكبر من صفر';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                const Expanded(child: SizedBox()),
-                              ],
+                              onPressed: () => Navigator.pop(context),
                             ),
+                          ),
+                          TextWidget(
+                            text:
+                                'ادخال ${widget.property.propertyName} ${category?.unitName ?? 'حبة'} بالمتر',
+                            alignment: Alignment.center,
+                            expanded: true,
+                          ),
+                          fluent.Tooltip(
+                            message: 'حفظ البيانات',
+                            child: fluent.IconButton(
+                              icon: const fluent.Icon(
+                                fluent.FluentIcons.save,
+                              ),
+                              onPressed: _onSaveButtonClicked,
+                            ),
+                          ),
                         ],
                       ),
-                    ),
+                      const SizedBox(height: 10),
+                      Row(
+                        spacing: Spacings.small,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: buildLengthWidget(
+                              'طول',
+                              lengthController,
+                              true,
+                              false,
+                              (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'يرجى إدخال الطول';
+                                }
+                                final parsed =
+                                    double.tryParse(value) ?? 0.0;
+                                if (parsed <= 0) {
+                                  return 'يجب أن يكون أكبر من صفر';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: buildLengthWidget(
+                              'عرض',
+                              widthController,
+                              widget
+                                  .property
+                                  .unitType
+                                  .isSquareMeterWidthStatic,
+                              widget.property.unitType.hasSquareMeter,
+                              (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'يرجى إدخال العرض';
+                                }
+                                final parsed =
+                                    double.tryParse(value) ?? 0.0;
+                                if (parsed <= 0) {
+                                  return 'يجب أن يكون أكبر من صفر';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (widget.property.unitType.isCubitMeter)
+                        const SizedBox(height: 10),
+                      if (widget.property.unitType.isCubitMeter)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: buildLengthWidget(
+                                'سمك',
+                                thicknessController,
+                                false,
+                                true,
+                                (value) {
+                                  if (value == null ||
+                                      value.trim().isEmpty) {
+                                    return 'يرجى إدخال السمك';
+                                  }
+                                  final parsed =
+                                      double.tryParse(value) ?? 0.0;
+                                  if (parsed <= 0) {
+                                    return 'يجب أن يكون أكبر من صفر';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            const Expanded(child: SizedBox()),
+                          ],
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -301,12 +296,17 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
       textInputAction: isDoneAction
           ? TextInputAction.done
           : TextInputAction.next,
-      onFieldSubmitted: (value) {
-        if (isDoneAction) {
-          _onSaveButtonClicked();
-        } else {
-          FocusScope.of(context).nextFocus();
-        }
+      // onFieldSubmitted: (value) {
+      //   if (isDoneAction) {
+      //     _onSaveButtonClicked();
+      //   } else {
+      //     FocusScope.of(context).nextFocus();
+      //   }
+      // },
+      onEditingComplete: () {
+        isDoneAction
+            ? _onSaveButtonClicked()
+            : FocusScope.of(context).nextFocus();
       },
       controller: controller,
       onChanged: (_) => _markChanged(),

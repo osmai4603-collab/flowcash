@@ -117,7 +117,14 @@ class SubcategoryUnit {
 class SubcategoryProperty {
   final CategoryPropertyEntity property;
   final List<SubcategoryUnit> subcatgoriesUnits;
-  final List<SubcategoryUnit?> selectedUnits;
+  final List<SubcategoryUnit> selectedUnits;
+
+  List<SubcategoryUnit> get availableUnits {
+    final ids = selectedUnits.map((e) => e.unit.id).toSet();
+    return List.of(subcatgoriesUnits).where((unit) => !ids.contains(unit.unit.id)).toList();
+  }
+
+
 
   int get propertyId => property.id;
   bool get isSingle => property.isSingle;
@@ -130,14 +137,16 @@ class SubcategoryProperty {
 
   SubcategoryProperty copyWith({
     List<SubcategoryUnit>? catalogUnits,
-    List<SubcategoryUnit?>? selectedUnits,
+    List<SubcategoryUnit>? selectedUnits,
   }) {
     return SubcategoryProperty(
       property: property,
-      subcatgoriesUnits: catalogUnits ?? this.subcatgoriesUnits,
+      subcatgoriesUnits: catalogUnits ?? subcatgoriesUnits,
       selectedUnits: selectedUnits ?? this.selectedUnits,
     );
   }
+
+
 
   SubcategoryUnit createSubcategoryUnit({required UnitEntity unit}) {
     return SubcategoryUnit(property: property, unit: unit);

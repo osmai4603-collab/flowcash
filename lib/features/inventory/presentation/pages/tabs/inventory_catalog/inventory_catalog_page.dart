@@ -1,3 +1,4 @@
+import 'package:flowcash/core/formatters/money_formatter.dart';
 import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -406,7 +407,7 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     TextWidget(
-                      text: item.countUnits.toString(),
+                      text: AppMoneyFormatter.formatDouble(item.countUnits),
                       textAlign: TextAlign.center,
                       padding: const EdgeInsets.all(8),
                       style: textTheme.bodySmall,

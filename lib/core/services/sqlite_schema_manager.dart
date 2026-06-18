@@ -592,7 +592,7 @@ final class SqliteSchemaManager {
         ${JournalItemsTable.lineDescription} TEXT,
         ${JournalItemsTable.currencyId} TEXT NOT NULL,
         ${JournalItemsTable.exPrice} REAL NOT NULL DEFAULT 1.0,
-        ${JournalItemsTable.expriceMain} REAL NOT NULL DEFAULT 1.0,
+        ${JournalItemsTable.exPriceMain} REAL NOT NULL DEFAULT 1.0,
         ${JournalItemsTable.journalStatus} TEXT NOT NULL CHECK (${JournalItemsTable.journalStatus} IN ('increment', 'decrement')),
         FOREIGN KEY (${JournalItemsTable.entryId}) REFERENCES ${JournalEntriesTable.tableName} (${JournalEntriesTable.entryId}) ON DELETE CASCADE,
         FOREIGN KEY (${JournalItemsTable.accountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,

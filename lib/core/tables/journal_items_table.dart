@@ -11,7 +11,7 @@ class JournalItemsTable {
   static const String lineDescription = 'line_description';
   static const String currencyId = 'currency_id';
   static const String exPrice = 'ex_price';
-  static const String expriceMain = 'exprice_main';
+  static const String exPriceMain = 'exprice_main';
   static const String journalStatus = 'journal_status';
 
   static const List<String> fields = [
@@ -22,7 +22,7 @@ class JournalItemsTable {
     lineDescription,
     currencyId,
     exPrice,
-    expriceMain,
+    exPriceMain,
     journalStatus,
   ];
 }

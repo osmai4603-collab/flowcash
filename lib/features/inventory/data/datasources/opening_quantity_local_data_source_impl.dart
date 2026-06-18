@@ -135,7 +135,7 @@ final class OpeningQuantityLocalDataSourceImpl
         lineDescription:
             'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)}${categoryUnit.getCategoryName()} ${category.categoryName}',
         exPrice: await _getExPrice(entity.currencyId, incomeAccount.currencyId),
-        exPriceMain: await _getExPrice(
+        expriceMain: await _getExPrice(
           entity.currencyId,
           incomeMainAccount.currencyId,
         ),
@@ -153,7 +153,7 @@ final class OpeningQuantityLocalDataSourceImpl
           entity.currencyId,
           propertyAccount.currencyId,
         ),
-        exPriceMain: await _getExPrice(
+        expriceMain: await _getExPrice(
           entity.currencyId,
           propertyMainAccount.currencyId,
         ),
@@ -278,7 +278,7 @@ final class OpeningQuantityLocalDataSourceImpl
             entity.currencyId,
             incomeAccount.currencyId,
           ),
-          exPriceMain: await _getExPrice(
+          expriceMain: await _getExPrice(
             entity.currencyId,
             incomeMainAccount.currencyId,
           ),
@@ -296,7 +296,7 @@ final class OpeningQuantityLocalDataSourceImpl
             entity.currencyId,
             propertyAccount.currencyId,
           ),
-          exPriceMain: await _getExPrice(
+          expriceMain: await _getExPrice(
             entity.currencyId,
             propertyMainAccount.currencyId,
           ),
@@ -329,7 +329,7 @@ final class OpeningQuantityLocalDataSourceImpl
             entity.currencyId,
             incomeAccount.currencyId,
           ),
-          exPriceMain: await _getExPrice(
+          expriceMain: await _getExPrice(
             entity.currencyId,
             incomeMainAccount.currencyId,
           ),
@@ -354,7 +354,7 @@ final class OpeningQuantityLocalDataSourceImpl
             entity.currencyId,
             propertyAccount.currencyId,
           ),
-          exPriceMain: await _getExPrice(
+          expriceMain: await _getExPrice(
             entity.currencyId,
             propertyMainAccount.currencyId,
           ),

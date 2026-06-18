@@ -18,6 +18,10 @@ class MainAccountFormState extends Equatable {
   final String? errorMessage;
   final String? currencyErrorMessage;
 
+  bool get canEnabledFields {
+    return status != MainAccountFormStatus.loading;
+  }
+
   const MainAccountFormState({
     required this.status,
     this.editingAccount,

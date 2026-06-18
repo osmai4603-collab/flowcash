@@ -205,7 +205,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
   Widget buildSingleProperty(SubcategoryProperty property) {
     final colors = AppStyle.of(context);
     final initialValue = property.selectedUnits.isNotEmpty
-        ? property.selectedUnits[0]?.unit
+        ? property.selectedUnits[0].unit
         : null;
 
     return Row(
@@ -318,9 +318,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
         return null;
       },
       builder: (formState) {
-        final selectedList = property.selectedUnits.isEmpty
-            ? [null]
-            : property.selectedUnits;
+        final selectedList = List.of(property.selectedUnits);
         return Padding(
           padding: const EdgeInsets.only(top: 10),
           child: Column(
@@ -368,10 +366,6 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                   catalogUnit: newSubcategoryUnit,
                                 ),
                               );
-                              formState.didChange([
-                                ...selectedList,
-                                newSubcategoryUnit,
-                              ]);
                             },
                           ),
                         ),
@@ -384,69 +378,42 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    Wrap(
+                    if(property.selectedUnits.isNotEmpty) Wrap(
                       spacing: 10,
                       runSpacing: 10,
                       textDirection: TextDirection.rtl,
                       alignment: WrapAlignment.center,
-                      children: selectedList.map((subcategoryUnit) {
+                      children: List.generate(property.selectedUnits.length, (indexOfUnit) {
+                        final subcategoryUnit = property.selectedUnits[indexOfUnit];
                         return SizedBox(
                           width: 120,
                           child: Stack(
                             children: [
                               FormField<UnitEntity?>(
                                 key: ValueKey(
-                                  '${property.property.id}_${subcategoryUnit?.id ?? 0}_${selectedList.hashCode}',
+                                  '${property.property.id}_${subcategoryUnit.id ?? 0}_${selectedList.hashCode}',
                                 ),
-                                initialValue: subcategoryUnit?.unit,
+                                initialValue: subcategoryUnit.unit,
                                 builder: (field) {
-                                  return MenuBar(
-                                    children: [
-                                      SubmenuButton(
-                                        menuChildren: property.subcatgoriesUnits
-                                            .map(
-                                              (u) => MenuItemButton(
-                                                onPressed: () {
-                                                  final idx = selectedList
-                                                      .indexOf(subcategoryUnit);
-                                                  final updated =
-                                                      List<
-                                                        SubcategoryUnit?
-                                                      >.from(selectedList);
-                                                  final updatedInfo =
-                                                      SubcategoryUnit(
-                                                        id:
-                                                            subcategoryUnit
-                                                                ?.id ??
-                                                            0,
-                                                        property:
-                                                            property.property,
-                                                        unit: u.unit,
-                                                      );
-                                                  if (idx != -1) {
-                                                    updated[idx] = updatedInfo;
-                                                    formState.didChange(
-                                                      updated,
-                                                    );
-                                                  }
-                                                  field.didChange(u.unit);
-                                                  _catalogFormBloc.add(
-                                                    UpdateSelectedUnitEvent(
-                                                      property: property,
-                                                      index: idx,
-                                                      unit: updatedInfo,
-                                                    ),
-                                                  );
-                                                },
-                                                child: Text(u.unitName()),
-                                              ),
-                                            )
-                                            .toList(),
-                                        child: Text(
-                                          field.value?.unitName ?? 'اختر',
-                                        ),
-                                      ),
-                                    ],
+                                  return SubmenuButton(
+                                    menuChildren: List.generate(property.availableUnits.length, (idx) {
+                                      final unit = property.availableUnits[idx];
+                                      return MenuItemButton(
+                                        onPressed: () {
+                                          _catalogFormBloc.add(
+                                            UpdateSelectedUnitEvent(
+                                              property: property,
+                                              index: indexOfUnit,
+                                              unit: unit,
+                                            ),
+                                          );
+                                        },
+                                        child: Text(unit.unitName()),
+                                      );
+                                    }),
+                                    child: Text(
+                                      field.value?.getCategoryName() ?? 'اختر',
+                                    ),
                                   );
                                 },
                               ),
@@ -461,35 +428,33 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                       color: Colors.red.shade400,
                                       size: 16,
                                     ),
-                                    onPressed: subcategoryUnit == null
-                                        ? null
-                                        : () {
-                                            final idx = selectedList.indexOf(
-                                              subcategoryUnit,
-                                            );
-                                            final updated =
-                                                List<SubcategoryUnit?>.from(
-                                                  selectedList,
-                                                );
-                                            if (idx != -1) {
-                                              updated.removeAt(idx);
-                                              formState.didChange(updated);
-                                            }
-                                            _catalogFormBloc.add(
-                                              UpdateSelectedUnitEvent(
-                                                property: property,
-                                                index: idx,
-                                                unit: null,
-                                              ),
-                                            );
-                                          },
+                                    onPressed: () {
+                                      final idx = selectedList.indexOf(
+                                        subcategoryUnit,
+                                      );
+                                      final updated =
+                                      List<SubcategoryUnit?>.from(
+                                        selectedList,
+                                      );
+                                      if (idx != -1) {
+                                        updated.removeAt(idx);
+                                        formState.didChange(updated);
+                                      }
+                                      _catalogFormBloc.add(
+                                        UpdateSelectedUnitEvent(
+                                          property: property,
+                                          index: indexOfUnit,
+                                          unit: null,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                               ),
                             ],
                           ),
                         );
-                      }).toList(),
+        }),
                     ),
                     const SizedBox(height: 20),
                     fluent.FilledButton(
@@ -497,15 +462,14 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                         'تحديد ${property.property.propertyName} جديد',
                       ),
                       onPressed: () async {
-                        final selectedUnitIds = selectedList
-                            .whereType<SubcategoryUnit>()
-                            .map((u) => u.unit.id)
-                            .toSet();
-                        final availableUnits = property.subcatgoriesUnits
-                            .where((u) => !selectedUnitIds.contains(u.unit.id))
-                            .toList();
-
-                        if (availableUnits.isEmpty) {
+                        // final selectedUnitIds = selectedList
+                        //     .whereType<SubcategoryUnit>()
+                        //     .map((u) => u.unit.id)
+                        //     .toSet();
+                        // final availableUnits = property.subcatgoriesUnits
+                        //     .where((u) => !selectedUnitIds.contains(u.unit.id))
+                        //     .toList();
+                        if (property.availableUnits.isEmpty) {
                           final unitEntity = await showDialog<UnitEntity>(
                             barrierDismissible: false,
                             context: context,
@@ -524,18 +488,14 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                               catalogUnit: newSubcategoryUnit,
                             ),
                           );
-                          formState.didChange([
-                            ...selectedList,
-                            newSubcategoryUnit,
-                          ]);
+                          // formState.didChange([
+                          //   ...selectedList,
+                          //   newSubcategoryUnit,
+                          // ]);
                           return;
                         }
 
                         _catalogFormBloc.add(AddSelectedSlotEvent(property));
-                        formState.didChange([
-                          ...selectedList,
-                          availableUnits.first,
-                        ]);
                       },
                     ),
                   ],

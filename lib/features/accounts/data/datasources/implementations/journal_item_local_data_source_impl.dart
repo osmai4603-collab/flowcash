@@ -88,7 +88,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
       lineDescription: entity.lineDescription,
       currencyId: entity.currencyId,
       exPrice: entity.exPrice,
-      expriceMain: entity.expriceMain,
+      exPriceMain: entity.exPriceMain,
       journalStatus: entity.journalStatus,
     ).toMap();
   }

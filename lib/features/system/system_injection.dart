@@ -1,3 +1,7 @@
+import 'package:flowcash/core/datasources/implementations/value_local_data_source_impl.dart';
+import 'package:flowcash/core/datasources/interfaces/value_data_source.dart';
+import 'package:flowcash/core/repositories/interfaces/value_repository.dart';
+import 'package:flowcash/core/usecases/value_repository_usecases.dart';
 import 'package:flowcash/features/inventory/data/datasources/warehouse_value_data_source.dart';
 import 'package:flowcash/features/inventory/data/datasources/warehouse_value_local_data_source_impl.dart';
 import 'package:flowcash/features/inventory/data/repositories/warehouse_value_repository_impl.dart';
@@ -47,6 +51,11 @@ void initSystemFeature(GetIt sl) {
   sl.registerLazySingleton<WarehouseValueDataSource>(
     () => WarehouseValueLocalDataSourceImpl(sl()),
   );
+  sl.registerLazySingleton<ValueDataSource>(
+        () => ValueLocalDataSourceImpl(sl()),
+  );
+
+
 
   // Repositories
   sl.registerLazySingleton<CurrencyRepository>(
@@ -58,6 +67,9 @@ void initSystemFeature(GetIt sl) {
   sl.registerLazySingleton<WarehouseValueRepository>(
     () => WarehouseValueRepositoryImpl(sl()),
   );
+  // sl.registerLazySingleton<ValueRepository>(
+  //       () => ValueRep(sl()),
+  // );
 
   // Use cases - currencies
   sl.registerLazySingleton(() => GetCurrenciesUseCase(sl()));
@@ -79,6 +91,11 @@ void initSystemFeature(GetIt sl) {
   sl.registerLazySingleton(() => InsertAccountingPeriodUseCase(sl()));
   sl.registerLazySingleton(() => UpdateAccountingPeriodUseCase(sl()));
 
+
+  sl.registerLazySingleton(() => InsertValueUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateValueUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteValueUseCase(sl()));
+  sl.registerLazySingleton(() => GetValuesUseCase(sl()));
   // Blocs
   sl.registerFactory(() => CurrenciesBloc(sl()));
   sl.registerFactory(() => ExchangeRatesBloc(sl()));
@@ -94,4 +111,6 @@ void initSystemFeature(GetIt sl) {
   );
   sl.registerFactory(() => DefaultsBloc());
   sl.registerFactory(() => CompanyBloc());
+
+
 }

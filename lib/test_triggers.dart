@@ -129,7 +129,7 @@ void main() {
     INSERT INTO ${JournalItemsTable.tableName} (
       ${JournalItemsTable.itemId}, ${JournalItemsTable.entryId}, ${JournalItemsTable.accountId},
       ${JournalItemsTable.amount}, ${JournalItemsTable.lineDescription}, ${JournalItemsTable.currencyId},
-      ${JournalItemsTable.exPrice}, ${JournalItemsTable.expriceMain}, ${JournalItemsTable.journalStatus}
+      ${JournalItemsTable.exPrice}, ${JournalItemsTable.exPriceMain}, ${JournalItemsTable.journalStatus}
     ) VALUES (200, 100, 10, 1000.0, 'مدين الصندوق', 'YER', 1.0, 1.0, 'increment')
   ''');
 
@@ -137,7 +137,7 @@ void main() {
     INSERT INTO ${JournalItemsTable.tableName} (
       ${JournalItemsTable.itemId}, ${JournalItemsTable.entryId}, ${JournalItemsTable.accountId},
       ${JournalItemsTable.amount}, ${JournalItemsTable.lineDescription}, ${JournalItemsTable.currencyId},
-      ${JournalItemsTable.exPrice}, ${JournalItemsTable.expriceMain}, ${JournalItemsTable.journalStatus}
+      ${JournalItemsTable.exPrice}, ${JournalItemsTable.exPriceMain}, ${JournalItemsTable.journalStatus}
     ) VALUES (201, 100, 11, 1000.0, 'دائن رأس المال', 'YER', 1.0, 1.0, 'decrement')
   ''');
 

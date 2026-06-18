@@ -155,7 +155,7 @@ void initInventoryFeature(GetIt sl) {
         JournalItemsTable.lineDescription: item.lineDescription,
         JournalItemsTable.currencyId: item.currencyId,
         JournalItemsTable.exPrice: item.exPrice,
-        JournalItemsTable.expriceMain: item.expriceMain,
+        JournalItemsTable.exPriceMain: item.exPriceMain,
       },
     ),
   );

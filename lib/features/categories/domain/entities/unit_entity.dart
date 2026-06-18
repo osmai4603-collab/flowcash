@@ -336,7 +336,7 @@ class UnitEntity extends Entity {
         return '${containerName != null ? '$containerName = ' : ''}${AppMoneyFormatter.formatDouble(length)}$unitName';
       case UnitType.squareMeter:
       case UnitType.squareMeterStatic:
-        return '${containerName != null ? '$containerName = ' : ''}${AppMoneyFormatter.formatDouble(width * 100)}x${AppMoneyFormatter.formatDouble(length * 100)}${printUnitName ? ' ${unitType.displayName()}' : ''}';
+        return '${containerName != null ? '$containerName = ' : ''}${AppMoneyFormatter.formatDouble(width * 100)}x${AppMoneyFormatter.formatDouble(length * 100)}${printUnitName ? ' ${unitType.unitName}' : ''}';
       case UnitType.squareMeterWidthStatic:
         return '${containerName != null ? '$containerName = ' : ''}${AppMoneyFormatter.formatDouble(width)}${unitType.typeName}';
       case UnitType.cubitMeter:

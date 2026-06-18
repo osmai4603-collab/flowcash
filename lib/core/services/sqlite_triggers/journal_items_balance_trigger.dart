@@ -23,8 +23,8 @@ final class JournalItemsBalanceTrigger {
         WHERE ${SubAccountsTable.id} = NEW.${JournalItemsTable.accountId};
 
         UPDATE ${MainAccountsTable.tableName}
-        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'increment' THEN NEW.${JournalItemsTable.amount} * NEW.${JournalItemsTable.expriceMain} ELSE 0 END,
-            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'decrement' THEN NEW.${JournalItemsTable.amount} * NEW.${JournalItemsTable.expriceMain} ELSE 0 END
+        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'increment' THEN NEW.${JournalItemsTable.amount} * NEW.${JournalItemsTable.exPriceMain} ELSE 0 END,
+            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'decrement' THEN NEW.${JournalItemsTable.amount} * NEW.${JournalItemsTable.exPriceMain} ELSE 0 END
         WHERE ${MainAccountsTable.id} = (
           SELECT ${SubAccountsTable.mainAccountId}
           FROM ${SubAccountsTable.tableName}
@@ -44,8 +44,8 @@ final class JournalItemsBalanceTrigger {
         WHERE ${SubAccountsTable.id} = OLD.${JournalItemsTable.accountId};
 
         UPDATE ${MainAccountsTable.tableName}
-        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'increment' THEN OLD.${JournalItemsTable.amount} * OLD.${JournalItemsTable.expriceMain} ELSE 0 END,
-            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'decrement' THEN OLD.${JournalItemsTable.amount} * OLD.${JournalItemsTable.expriceMain} ELSE 0 END
+        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'increment' THEN OLD.${JournalItemsTable.amount} * OLD.${JournalItemsTable.exPriceMain} ELSE 0 END,
+            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'decrement' THEN OLD.${JournalItemsTable.amount} * OLD.${JournalItemsTable.exPriceMain} ELSE 0 END
         WHERE ${MainAccountsTable.id} = (
           SELECT ${SubAccountsTable.mainAccountId}
           FROM ${SubAccountsTable.tableName}
@@ -65,8 +65,8 @@ final class JournalItemsBalanceTrigger {
         WHERE ${SubAccountsTable.id} = OLD.${JournalItemsTable.accountId};
 
         UPDATE ${MainAccountsTable.tableName}
-        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'increment' THEN OLD.${JournalItemsTable.amount} * OLD.${JournalItemsTable.expriceMain} ELSE 0 END,
-            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'decrement' THEN OLD.${JournalItemsTable.amount} * OLD.${JournalItemsTable.expriceMain} ELSE 0 END
+        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'increment' THEN OLD.${JournalItemsTable.amount} * OLD.${JournalItemsTable.exPriceMain} ELSE 0 END,
+            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} - CASE WHEN OLD.${JournalItemsTable.journalStatus} = 'decrement' THEN OLD.${JournalItemsTable.amount} * OLD.${JournalItemsTable.exPriceMain} ELSE 0 END
         WHERE ${MainAccountsTable.id} = (
           SELECT ${SubAccountsTable.mainAccountId}
           FROM ${SubAccountsTable.tableName}
@@ -80,8 +80,8 @@ final class JournalItemsBalanceTrigger {
         WHERE ${SubAccountsTable.id} = NEW.${JournalItemsTable.accountId};
 
         UPDATE ${MainAccountsTable.tableName}
-        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'increment' THEN NEW.${JournalItemsTable.amount} * NEW.${JournalItemsTable.expriceMain} ELSE 0 END,
-            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'decrement' THEN NEW.${JournalItemsTable.amount} * NEW.${JournalItemsTable.expriceMain} ELSE 0 END
+        SET ${MainAccountsTable.debitBalance} = ${MainAccountsTable.debitBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'increment' THEN NEW.${JournalItemsTable.amount} * NEW.${JournalItemsTable.exPriceMain} ELSE 0 END,
+            ${MainAccountsTable.creditBalance} = ${MainAccountsTable.creditBalance} + CASE WHEN NEW.${JournalItemsTable.journalStatus} = 'decrement' THEN NEW.${JournalItemsTable.amount} * NEW.${JournalItemsTable.exPriceMain} ELSE 0 END
         WHERE ${MainAccountsTable.id} = (
           SELECT ${SubAccountsTable.mainAccountId}
           FROM ${SubAccountsTable.tableName}

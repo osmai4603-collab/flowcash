@@ -397,7 +397,7 @@ class JournalEntryFormBloc
         state.currencySelected!.id,
         mainAccount.currencyId!,
       );
-      final exPriceMain = exPriceMainResult.fold((failure) {
+      final expriceMain = exPriceMainResult.fold((failure) {
         emit(
           state.copyWith(
             status: JournalEntryFormStatus.failure,
@@ -406,7 +406,7 @@ class JournalEntryFormBloc
         );
         return null;
       }, (rate) => rate);
-      if (exPriceMain == null) return;
+      if (expriceMain == null) return;
 
       items.add(
         JournalItemEntity(
@@ -419,7 +419,7 @@ class JournalEntryFormBloc
               : state.description,
           currencyId: state.currencySelected!.id,
           exPrice: exPrice,
-          expriceMain: exPriceMain,
+          exPriceMain: expriceMain,
           journalStatus: itemDraft.journalStatus!,
         ),
       );

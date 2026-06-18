@@ -86,64 +86,9 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
           final bloc = context.read<MainAccountFormBloc>();
           final isEditing = state.editingAccount != null;
 
-          if (state.status == MainAccountFormStatus.loading) {
-            return fluent.ContentDialog(
-              title: Row(
-                children: [
-                  fluent.Icon(
-                    isEditing
-                        ? fluent.FluentIcons.edit_note
-                        : fluent.FluentIcons.add_work,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 10),
-                  fluent.Text(
-                    isEditing
-                        ? 'جاري تحميل نموذج الحساب'
-                        : 'جاري إنشاء نموذج الحساب',
-                  ),
-                ],
-              ),
-              content: AppShimmer(
-                child: SizedBox(
-                  width: 450,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ShimmerPlaceholder(height: 48),
-                      SizedBox(height: 16),
-                      ShimmerPlaceholder(height: 48),
-                      SizedBox(height: 16),
-                      ShimmerPlaceholder(height: 48),
-                      SizedBox(height: 16),
-                      ShimmerPlaceholder(height: 48),
-                      SizedBox(height: 16),
-                    ],
-                  ),
-                ),
-              ),
-              actions: [
-                fluent.Button(
-                  onPressed: null,
-                  child: const fluent.Text('إلغاء'),
-                ),
-                fluent.FilledButton(
-                  onPressed: null,
-                  child: const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: fluent.ProgressRing(
-                      strokeWidth: 2,
-                      activeColor: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          }
-
           return ShimmerLoadingWidget(
-            canShimmer: state.status == MainAccountFormStatus.loading,
+            canShimmer: state.status == MainAccountFormStatus.loading &&
+                state.currencies.isEmpty,
             freezeScreen: state.status == MainAccountFormStatus.loading,
             period: const Duration(milliseconds: 900),
             child: fluent.ContentDialog(
@@ -175,6 +120,8 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                           label: 'اسم الحساب الرئيسي',
                           child: fluent.TextFormBox(
                             placeholder: 'ادخل اسم الحساب الرئيسي',
+                            autofocus: widget.mainAccount == null,
+                            enabled: state.canEnabledFields,
                             controller: _nameController,
                             prefix: const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -417,9 +364,10 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                           },
                         ),
 
-                        // Auto-generated Account Number Info
-                        if (state.accountNumber.isNotEmpty)
+                        // Account Number Info
+
                           Container(
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: theme.colorScheme.primary.withAlpha(20),
                               borderRadius: BorderRadius.circular(6),
@@ -427,13 +375,13 @@ class _MainAccountFormDialogState extends State<MainAccountFormDialog> {
                                 color: theme.colorScheme.primary.withAlpha(50),
                               ),
                             ),
-
-                            padding: Paddings.xsmallAll,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 fluent.Text(
-                                  'رقم الحساب المتولد تلقائياً:',
+                                  isEditing
+                                      ? 'رقم الحساب الحالي:'
+                                      : 'رقم الحساب المتولد تلقائياً:',
                                   style: TextStyle(
                                     color: theme.colorScheme.primary,
                                     fontWeight: FontWeight.bold,

@@ -181,7 +181,7 @@ class SubcategoryFormBloc
       return SubcategoryProperty(
         property: property,
         subcatgoriesUnits: catalogUnits,
-        selectedUnits: selectedUnits.isEmpty ? [null] : selectedUnits,
+        selectedUnits: selectedUnits.isEmpty ? [] : selectedUnits,
       );
     }).toList();
 
@@ -234,6 +234,7 @@ class SubcategoryFormBloc
     UpdateSelectedUnitEvent event,
     Emitter<SubcategoryFormState> emit,
   ) {
+    print('table');
     final s = state;
     if (s.status != SubcategoryFormStatus.ready) return;
     final selectedUnits = List.of(event.property.selectedUnits);
@@ -262,32 +263,20 @@ class SubcategoryFormBloc
     AddUnitToPropertyEvent event,
     Emitter<SubcategoryFormState> emit,
   ) {
-    var catalogProperty = state.catalogProperties.firstWhere(
+    final indexOfProperty = state.catalogProperties.indexWhere(
       (property) => property.propertyId == event.catalogProperty.propertyId,
     );
+
+    var catalogProperty = state.catalogProperties[indexOfProperty];
     catalogProperty = catalogProperty.copyWith(
-      catalogUnits: List.of(catalogProperty.subcatgoriesUnits)
-        ..add(event.catalogUnit),
-      selectedUnits:
-          catalogProperty.isSingle
-                ? [event.catalogUnit]
-                : List.of(catalogProperty.selectedUnits)
-            ..add(event.catalogUnit),
+      catalogUnits: [...List.of(catalogProperty.subcatgoriesUnits), event.catalogUnit],
+      selectedUnits:[...List.of(catalogProperty.selectedUnits), event.catalogUnit],
     );
-
-    final catalogProperties = List.of(state.catalogProperties);
-    final idx = catalogProperties.indexWhere(
-      (catalogProperty2) =>
-          catalogProperty2.propertyId == catalogProperty.propertyId,
+    emit(
+      state.copyWith(
+        catalogProperties: state.catalogProperties..[indexOfProperty] = catalogProperty,
+      ),
     );
-
-    if (idx > -1) {
-      emit(
-        state.copyWith(
-          catalogProperties: catalogProperties..[idx] = catalogProperty,
-        ),
-      );
-    }
   }
 
   void _onAddSelectedSlot(

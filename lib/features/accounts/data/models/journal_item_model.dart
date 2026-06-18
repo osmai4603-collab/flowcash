@@ -11,7 +11,7 @@ final class JournalItemModel extends JournalItemEntity {
     super.lineDescription,
     required super.currencyId,
     required super.exPrice,
-    required super.expriceMain,
+    required super.exPriceMain,
     required super.journalStatus,
   });
 
@@ -24,7 +24,7 @@ final class JournalItemModel extends JournalItemEntity {
       lineDescription: map[JournalItemsTable.lineDescription] as String?,
       currencyId: map[JournalItemsTable.currencyId] as String,
       exPrice: ((map[JournalItemsTable.exPrice]) as num).toDouble(),
-      expriceMain: ((map[JournalItemsTable.expriceMain]) as num).toDouble(),
+      exPriceMain: ((map[JournalItemsTable.exPriceMain]) as num).toDouble(),
       journalStatus: JournalStatus.of(map[JournalItemsTable.journalStatus] as String),
     );
   }
@@ -38,7 +38,7 @@ final class JournalItemModel extends JournalItemEntity {
       JournalItemsTable.lineDescription: lineDescription,
       JournalItemsTable.currencyId: currencyId,
       JournalItemsTable.exPrice: exPrice,
-      JournalItemsTable.expriceMain: expriceMain,
+      JournalItemsTable.exPriceMain: exPriceMain,
       JournalItemsTable.journalStatus: journalStatus.name,
     };
   }
@@ -52,7 +52,7 @@ final class JournalItemModel extends JournalItemEntity {
     String? lineDescription,
     String? currencyId,
     double? exPrice,
-    double? expriceMain,
+    double? exPriceMain,
     JournalStatus? journalStatus,
   }) {
     return JournalItemModel(
@@ -63,7 +63,7 @@ final class JournalItemModel extends JournalItemEntity {
       lineDescription: lineDescription ?? this.lineDescription,
       currencyId: currencyId ?? this.currencyId,
       exPrice: exPrice ?? this.exPrice,
-      expriceMain: expriceMain ?? this.expriceMain,
+      exPriceMain: exPriceMain ?? this.exPriceMain,
       journalStatus: journalStatus ?? this.journalStatus,
     );
   }

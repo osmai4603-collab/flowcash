@@ -112,6 +112,12 @@ final class InventoryTransactionLocalDataSourceImpl
             );
           }
           updatedOrders.add(order.copyWith(id: orderId));
+          if (orderId <= 0) {
+            throw Exception(
+              'Failed to insert inventory transaction order at index $index',
+            );
+          }
+          updatedOrders.add(order.copyWith(id: orderId));
         }
       }
 

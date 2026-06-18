@@ -20,11 +20,11 @@ abstract class AppMoneyFormatter {
   }
 
   /// تنسيق قيمة double المبلغ المالي
-  static String formatDouble(double money) {
+  static String formatDouble(double money, {String replaceLast = '.00'}) {
     if (money == double.infinity || money.isNaN) return '';
     return MoneyFormatter(
       amount: money,
       settings: _settings,
-    ).output.nonSymbol.replaceFirst('.00', '');
+    ).output.nonSymbol.replaceFirst(replaceLast, '');
   }
 }

@@ -17,6 +17,13 @@ sealed class MainAccountGroup extends AppEnum
     return int.parse('$accountNumber$number');
   }
 
+  String generateNextAccountNumber(int? maxAccountNumber) {
+    if (maxAccountNumber == null || maxAccountNumber == 0) {
+      return '${accountNumber}01';
+    }
+    return (maxAccountNumber + 1).toString();
+  }
+
   static const assets = AssetsMainAccountGroup._();
   static const liabilities = LiabilitiesMainAccountGroup._();
   static const expenses = ExpensesMainAccountGroup._();

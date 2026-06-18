@@ -59,346 +59,328 @@ class _FinancialPeriodFormPageState extends State<FinancialPeriodFormPage> {
         updateAccountingPeriodUseCase:
             GetIt.instance<UpdateAccountingPeriodUseCase>(),
       ),
-      child: BlocListener<FinancialPeriodFormBloc, FinancialPeriodFormState>(
+      child: BlocConsumer<FinancialPeriodFormBloc, FinancialPeriodFormState>(
         listener: (context, state) {
           if (state.isSuccess && state.savedEntity != null) {
             Navigator.of(context).pop(state.savedEntity);
           }
         },
-        child: fluent.ContentDialog(
-          constraints: BoxConstraints(maxWidth: 400, minWidth: 400),
-          title: fluent.Text(
-            widget.initialValue == null
-                ? 'إضافة فترة مالية'
-                : 'تعديل فترة مالية',
-          ),
+        builder: (context, state) {
+          CurrencyEntity? selectedCurrency;
+          try {
+            selectedCurrency = state.currencies.firstWhere(
+              (currency) => currency.id == state.currencyId,
+            );
+          } catch (_) {
+            selectedCurrency = null;
+          }
 
-          content: BlocBuilder<FinancialPeriodFormBloc, FinancialPeriodFormState>(
-            builder: (context, state) {
-              CurrencyEntity? selectedCurrency;
-              try {
-                selectedCurrency = state.currencies.firstWhere(
-                  (currency) => currency.id == state.currencyId,
-                );
-              } catch (_) {
-                selectedCurrency = null;
-              }
-
-              return Form(
-                key: _formKey,
-                child: Column(
-                  spacing: Spacings.small,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    fluent.InfoLabel(
-                      label: 'اسم الفترة',
-                      child: fluent.TextFormBox(
-                        controller: _nameController,
-                        placeholder: 'ادخل اسم الفترة المالية',
-                        // prefix: const Padding(
-                        //   padding: EdgeInsets.all(8.0),
-                        //   child: fluent.Icon(fluent.FluentIcons.title),
-                        // ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'الرجاء إدخال اسم الفترة';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) => context
-                            .read<FinancialPeriodFormBloc>()
-                            .add(FinancialPeriodFormNameChanged(value)),
+          return fluent.ContentDialog(
+            constraints: const BoxConstraints(maxWidth: 400, minWidth: 400),
+            title: fluent.Text(
+              widget.initialValue == null
+                  ? 'إضافة فترة مالية'
+                  : 'تعديل فترة مالية',
+            ),
+            content: Form(
+              key: _formKey,
+              child: Column(
+                spacing: Spacings.small,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  fluent.InfoLabel(
+                    label: 'اسم الفترة',
+                    child: fluent.TextFormBox(
+                      controller: _nameController,
+                      placeholder: 'ادخل اسم الفترة المالية',
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'الرجاء إدخال اسم الفترة';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) => context
+                          .read<FinancialPeriodFormBloc>()
+                          .add(FinancialPeriodFormNameChanged(value)),
+                    ),
+                  ),
+                  Row(
+                    crossAxisAlignment: .start,
+                    children: [
+                      Expanded(
+                        child: fluent.DatePicker(
+                          header: 'من تاريخ',
+                          selected: state.dateOfStartPeriod,
+                          onChanged: (value) {
+                            context.read<FinancialPeriodFormBloc>().add(
+                              FinancialPeriodFormStartDateChanged(value),
+                            );
+                          },
+                          startDate: DateTime(2000),
+                          endDate: DateTime(2100),
+                        ),
                       ),
-                    ),
-                    Row(
-                      crossAxisAlignment: .start,
-                      children: [
-                        Expanded(
-                          child: fluent.DatePicker(
-                            header: 'من تاريخ',
-                            selected: state.dateOfStartPeriod,
-                            onChanged: (value) {
-                              context.read<FinancialPeriodFormBloc>().add(
-                                FinancialPeriodFormStartDateChanged(value),
-                              );
-                            },
-                            startDate: DateTime(2000),
-                            endDate: DateTime(2100),
-                          ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: fluent.DatePicker(
+                          header: 'إلى تاريخ',
+                          selected: state.dateOfEndPeriod,
+                          onChanged: (value) {
+                            context.read<FinancialPeriodFormBloc>().add(
+                              FinancialPeriodFormEndDateChanged(value),
+                            );
+                          },
+                          startDate: DateTime(2000),
+                          endDate: DateTime(2100),
+                          fieldOrder: [
+                            fluent.DatePickerField.day,
+                            fluent.DatePickerField.month,
+                            fluent.DatePickerField.year,
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: fluent.DatePicker(
-                            header: 'إلى تاريخ',
-                            selected: state.dateOfEndPeriod,
-                            onChanged: (value) {
-                              context.read<FinancialPeriodFormBloc>().add(
-                                FinancialPeriodFormEndDateChanged(value),
-                              );
-                            },
-                            startDate: DateTime(2000),
-                            endDate: DateTime(2100),
-                            fieldOrder: [
-                              fluent.DatePickerField.day,
-                              fluent.DatePickerField.month,
-                              fluent.DatePickerField.year,
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: .start,
-                      children: [
-                        Expanded(
-                          child: fluent.InfoLabel(
-                            label: 'العملة',
-                            child: state.isLoadingCurrencies
-                                ? fluent.Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14.0,
-                                      horizontal: 12.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                        color: Colors.grey.shade400,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: const [
-                                        fluent.ProgressRing(strokeWidth: 2),
-                                        SizedBox(width: 8),
-                                        fluent.Text('جارٍ تحميل العملات...'),
-                                      ],
-                                    ),
-                                  )
-                                : state.currencies.isEmpty
-                                ? const fluent.Text('لا توجد عملات متاحة')
-                                : fluent.ComboboxFormField<CurrencyEntity>(
-                                    items: state.currencies
-                                        .map(
-                                          (
-                                            currency,
-                                          ) => fluent.ComboBoxItem<CurrencyEntity>(
-                                            value: currency,
-                                            child: fluent.Text(
-                                              '${currency.name} (${currency.symbol})',
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
-                                    value: selectedCurrency,
-                                    placeholder: const fluent.Text(
-                                      'اختر العملة',
-                                    ),
-                                    isExpanded: true,
-                                    validator: (value) {
-                                      if (value == null) {
-                                        return 'الرجاء اختيار العملة';
-                                      }
-                                      return null;
-                                    },
-                                    onChanged: (currency) {
-                                      context
-                                          .read<FinancialPeriodFormBloc>()
-                                          .add(
-                                            FinancialPeriodFormCurrencyChanged(
-                                              currency?.id ?? '',
-                                            ),
-                                          );
-                                    },
+                      ),
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: .start,
+                    children: [
+                      Expanded(
+                        child: fluent.InfoLabel(
+                          label: 'العملة',
+                          child: state.isLoadingCurrencies
+                              ? fluent.Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14.0,
+                                    horizontal: 12.0,
                                   ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: fluent.InfoLabel(
-                            label: 'نوع الجرد',
-                            child:
-                                fluent.ComboboxFormField<
-                                  AccountingInventoryType
-                                >(
-                                  items: AccountingInventoryType.values
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                      color: Colors.grey.shade400,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: const [
+                                      fluent.ProgressRing(strokeWidth: 2),
+                                      SizedBox(width: 8),
+                                      fluent.Text('جارٍ تحميل العملات...'),
+                                    ],
+                                  ),
+                                )
+                              : state.currencies.isEmpty
+                              ? const fluent.Text('لا توجد عملات متاحة')
+                              : fluent.ComboboxFormField<CurrencyEntity>(
+                                  items: state.currencies
                                       .map(
-                                        (inventoryType) =>
-                                            fluent.ComboBoxItem<
-                                              AccountingInventoryType
-                                            >(
-                                              value: inventoryType,
-                                              child: fluent.Text(
-                                                inventoryType.displayName(),
-                                              ),
-                                            ),
+                                        (
+                                          currency,
+                                        ) => fluent.ComboBoxItem<CurrencyEntity>(
+                                          value: currency,
+                                          child: fluent.Text(
+                                            '${currency.name} (${currency.symbol})',
+                                          ),
+                                        ),
                                       )
                                       .toList(),
-                                  value: state.inventoryType,
+                                  value: selectedCurrency,
                                   placeholder: const fluent.Text(
-                                    'حدد نوع الجرد',
+                                    'اختر العملة',
                                   ),
                                   isExpanded: true,
                                   validator: (value) {
                                     if (value == null) {
-                                      return 'الرجاء اختيار نوع الجرد';
+                                      return 'الرجاء اختيار العملة';
                                     }
                                     return null;
                                   },
-                                  onChanged: (inventoryType) {
-                                    if (inventoryType != null) {
-                                      context.read<FinancialPeriodFormBloc>().add(
-                                        FinancialPeriodFormInventoryTypeChanged(
-                                          inventoryType,
-                                        ),
-                                      );
-                                    }
+                                  onChanged: (currency) {
+                                    context
+                                        .read<FinancialPeriodFormBloc>()
+                                        .add(
+                                          FinancialPeriodFormCurrencyChanged(
+                                            currency?.id ?? '',
+                                          ),
+                                        );
                                   },
+                                ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: fluent.InfoLabel(
+                          label: 'نوع الجرد',
+                          child:
+                              fluent.ComboboxFormField<
+                                AccountingInventoryType
+                              >(
+                                items: AccountingInventoryType.values
+                                    .map(
+                                      (inventoryType) =>
+                                          fluent.ComboBoxItem<
+                                            AccountingInventoryType
+                                          >(
+                                            value: inventoryType,
+                                            child: fluent.Text(
+                                              inventoryType.displayName(),
+                                            ),
+                                          ),
+                                    )
+                                    .toList(),
+                                value: state.inventoryType,
+                                placeholder: const fluent.Text(
+                                  'حدد نوع الجرد',
+                                ),
+                                isExpanded: true,
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'الرجاء اختيار نوع الجرد';
+                                  }
+                                  return null;
+                                },
+                                onChanged: (inventoryType) {
+                                  if (inventoryType != null) {
+                                    context.read<FinancialPeriodFormBloc>().add(
+                                      FinancialPeriodFormInventoryTypeChanged(
+                                        inventoryType,
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: .start,
+                    children: [
+                      Expanded(
+                        child: fluent.InfoLabel(
+                          label: 'الرصيد',
+                          child: fluent.TextFormBox(
+                            controller: _balanceController,
+                            textDirection: TextDirection.ltr,
+                            keyboardType:
+                                const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return null;
+                              }
+                              if (double.tryParse(
+                                    value.replaceAll(',', '.'),
+                                  ) ==
+                                  null) {
+                                return 'الرجاء إدخال قيمة رقمية صحيحة';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) =>
+                                context.read<FinancialPeriodFormBloc>().add(
+                                  FinancialPeriodFormBalanceChanged(value),
                                 ),
                           ),
                         ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: .start,
-                      children: [
-                        Expanded(
-                          child: fluent.InfoLabel(
-                            label: 'الرصيد',
-                            child: fluent.TextFormBox(
-                              controller: _balanceController,
-                              // prefix: const Padding(
-                              //   padding: EdgeInsets.all(8.0),
-                              //   child: fluent.Icon(fluent.FluentIcons.money),
-                              // ),
-                              textDirection: TextDirection.ltr,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                    decimal: true,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: fluent.InfoLabel(
+                          label: 'الفترة السابقة',
+                          child: state.isLoadingPeriods
+                              ? fluent.Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14.0,
+                                    horizontal: 12.0,
                                   ),
-                              validator: (value) {
-                                // Balance is optional. Empty means 0 on save.
-                                if (value == null || value.trim().isEmpty) {
-                                  return null;
-                                }
-                                if (double.tryParse(
-                                      value.replaceAll(',', '.'),
-                                    ) ==
-                                    null) {
-                                  return 'الرجاء إدخال قيمة رقمية صحيحة';
-                                }
-                                return null;
-                              },
-                              onChanged: (value) =>
-                                  context.read<FinancialPeriodFormBloc>().add(
-                                    FinancialPeriodFormBalanceChanged(value),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                      color: Colors.grey.shade400,
+                                    ),
                                   ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: fluent.InfoLabel(
-                            label: 'الفترة السابقة',
-                            child: state.isLoadingPeriods
-                                ? fluent.Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14.0,
-                                      horizontal: 12.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                        color: Colors.grey.shade400,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: const [
-                                        fluent.ProgressRing(strokeWidth: 2),
-                                        SizedBox(width: 8),
-                                        fluent.Text('جارٍ تحميل الفترات...'),
-                                      ],
-                                    ),
-                                  )
-                                : fluent.ComboboxFormField<String>(
-                                    items: [
-                                      fluent.ComboBoxItem<String>(
-                                        value: '',
-                                        child: const fluent.Text(
-                                          'بدون فترة سابقة',
-                                        ),
-                                      ),
-                                      ...state.periods.map(
-                                        (period) => fluent.ComboBoxItem<String>(
-                                          value: period.id.toString(),
-                                          child: fluent.Text(
-                                            '${period.periodName} (${period.id})',
-                                          ),
-                                        ),
-                                      ),
+                                  child: Row(
+                                    children: const [
+                                      fluent.ProgressRing(strokeWidth: 2),
+                                      SizedBox(width: 8),
+                                      fluent.Text('جارٍ تحميل الفترات...'),
                                     ],
-                                    value: state.lastPeriodId.isEmpty
-                                        ? ''
-                                        : state.lastPeriodId,
-                                    placeholder: const fluent.Text(
-                                      'اختر الفترة السابقة (اختياري)',
-                                    ),
-                                    isExpanded: true,
-                                    onChanged: (value) {
-                                      context.read<FinancialPeriodFormBloc>().add(
-                                        FinancialPeriodFormLastPeriodIdChanged(
-                                          value ?? '',
-                                        ),
-                                      );
-                                    },
                                   ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (state.errorMessage != null)
-                      fluent.Text(
-                        state.errorMessage!,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
+                                )
+                              : fluent.ComboboxFormField<String>(
+                                  items: [
+                                    fluent.ComboBoxItem<String>(
+                                      value: '',
+                                      child: const fluent.Text(
+                                        'بدون فترة سابقة',
+                                      ),
+                                    ),
+                                    ...state.periods.map(
+                                      (period) => fluent.ComboBoxItem<String>(
+                                        value: period.id.toString(),
+                                        child: fluent.Text(
+                                          '${period.periodName} (${period.id})',
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  value: state.lastPeriodId.isEmpty
+                                      ? ''
+                                      : state.lastPeriodId,
+                                  placeholder: const fluent.Text(
+                                    'اختر الفترة السابقة (اختياري)',
+                                  ),
+                                  isExpanded: true,
+                                  onChanged: (value) {
+                                    context.read<FinancialPeriodFormBloc>().add(
+                                      FinancialPeriodFormLastPeriodIdChanged(
+                                        value ?? '',
+                                      ),
+                                    );
+                                  },
+                                ),
                         ),
                       ),
-                  ],
-                ),
-              );
-            },
-          ),
-          actions: [
-            fluent.Button(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const fluent.Text('إلغاء'),
-            ),
-            fluent.FilledButton(
-              onPressed: () {
-                if (!_formKey.currentState!.validate()) {
-                  return;
-                }
-                context.read<FinancialPeriodFormBloc>().add(
-                  const FinancialPeriodFormSubmitted(),
-                );
-              },
-              child:
-                  BlocBuilder<
-                    FinancialPeriodFormBloc,
-                    FinancialPeriodFormState
-                  >(
-                    builder: (context, state) {
-                      return state.isSubmitting
-                          ? const SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: fluent.ProgressRing(strokeWidth: 2),
-                            )
-                          : const fluent.Text('حفظ');
-                    },
+                    ],
                   ),
+                  if (state.errorMessage != null)
+                    fluent.Text(
+                      state.errorMessage!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ],
-        ),
+            actions: [
+              fluent.Button(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const fluent.Text('إلغاء'),
+              ),
+              fluent.FilledButton(
+                onPressed: state.isSubmitting
+                    ? null
+                    : () {
+                        if (!_formKey.currentState!.validate()) {
+                          return;
+                        }
+                        context.read<FinancialPeriodFormBloc>().add(
+                          const FinancialPeriodFormSubmitted(),
+                        );
+                      },
+                child: state.isSubmitting
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: fluent.ProgressRing(strokeWidth: 2),
+                      )
+                    : const fluent.Text('حفظ'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

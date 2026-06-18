@@ -1,3 +1,4 @@
+import 'package:flowcash/core/enums/main_account_group_enum.dart';
 import 'package:flowcash/core/enums/main_account_type_enum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
@@ -41,65 +42,71 @@ class MainAccountFormBloc
 
     await Future.delayed(const Duration(seconds: 1));
 
-    currenciesResult.fold(
-      (failure) {
-        emit(
+    if (currenciesResult.isLeft()) {
+      currenciesResult.fold(
+        (failure) => emit(
           state.copyWith(
             status: MainAccountFormStatus.failure,
             currencyErrorMessage: failure.message,
           ),
-        );
-      },
-      (currencies) {
-        CurrencyEntity? selectedCurrency;
-        if (event.editingAccount != null &&
-            event.editingAccount!.currencyId != null) {
-          final matches = currencies.where(
-            (currency) => currency.id == event.editingAccount!.currencyId,
-          );
-          if (matches.isNotEmpty) {
-            selectedCurrency = matches.first;
-          }
-        }
+        ),
+        (_) {},
+      );
+      return;
+    }
 
-        if (selectedCurrency == null && currencies.isNotEmpty) {
-          selectedCurrency = currencies.firstWhere(
-            (currency) => currency.isDefault,
-            orElse: () => currencies.first,
-          );
-        }
+    final currencies = currenciesResult.getOrElse((_) => []);
 
-        if (event.editingAccount != null) {
-          final acc = event.editingAccount!;
-          emit(
-            MainAccountFormState(
-              status: MainAccountFormStatus.initial,
-              editingAccount: acc,
-              accountName: acc.accountName,
-              accountNumber: acc.accountNumber,
-              selectedGroup: acc.mainAccountType.accountType,
-              selectedType: acc.mainAccountType,
-              selectedCurrency: selectedCurrency,
-              currencies: currencies,
-              currencyErrorMessage: null,
-            ),
-          );
-        } else {
-          emit(
-            MainAccountFormState(
-              status: MainAccountFormStatus.initial,
-              accountName: '',
-              accountNumber: '',
-              selectedCurrency: selectedCurrency,
-              selectedGroup: event.group,
-              selectedType: MainAccountType.whereMainAccount(event.group).first,
-              currencies: currencies,
-              currencyErrorMessage: null,
-            ),
-          );
-        }
-      },
-    );
+    CurrencyEntity? selectedCurrency;
+    if (event.editingAccount != null) {
+      final matches = currencies.where(
+        (currency) => currency.id == event.editingAccount!.currencyId,
+      );
+      if (matches.isNotEmpty) {
+        selectedCurrency = matches.first;
+      }
+    }
+
+    if (selectedCurrency == null && currencies.isNotEmpty) {
+      selectedCurrency = currencies.firstWhere(
+        (currency) => currency.isDefault,
+        orElse: () => currencies.first,
+      );
+    }
+
+    if (event.editingAccount != null) {
+      final acc = event.editingAccount!;
+      emit(
+        MainAccountFormState(
+          status: MainAccountFormStatus.initial,
+          editingAccount: acc,
+          accountName: acc.accountName,
+          accountNumber: acc.accountNumber,
+          selectedGroup: acc.mainAccountType.accountType,
+          selectedType: acc.mainAccountType,
+          selectedCurrency: selectedCurrency,
+          currencies: currencies,
+          currencyErrorMessage: null,
+        ),
+      );
+    } else {
+      final res = await _getMaxAccountNumber(event.group);
+      final nextNum = event.group.generateNextAccountNumber(
+        res.fold((f) => null, (r) => r),
+      );
+      emit(
+        MainAccountFormState(
+          status: MainAccountFormStatus.initial,
+          accountName: '',
+          accountNumber: nextNum,
+          selectedCurrency: selectedCurrency,
+          selectedGroup: event.group,
+          selectedType: MainAccountType.whereMainAccount(event.group).first,
+          currencies: currencies,
+          currencyErrorMessage: null,
+        ),
+      );
+    }
   }
 
   void _onMainAccountNameChanged(
@@ -124,15 +131,13 @@ class MainAccountFormBloc
         ),
       ),
       (maxNum) {
-        final nextNum = maxNum != null
-            ? maxNum + 1
-            : int.parse('${event.group.accountNumber}01');
+        final nextNum = event.group.generateNextAccountNumber(maxNum);
         emit(
           state.copyWith(
             status: MainAccountFormStatus.initial,
             selectedGroup: event.group,
             selectedType: null, // Clear type to enforce re-selection
-            accountNumber: nextNum.toString(),
+            accountNumber: nextNum,
           ),
         );
       },
@@ -194,10 +199,14 @@ class MainAccountFormBloc
         (_) => emit(state.copyWith(status: MainAccountFormStatus.success)),
       );
     } else {
+      final maxNumResult = await _getMaxAccountNumber(state.selectedGroup!);
+      final accountNumber = state.selectedGroup!.generateNextAccountNumber(
+        maxNumResult.fold((f) => null, (r) => r),
+      );
       final newAccount = MainAccountEntity(
         id: 0,
         accountName: state.accountName,
-        accountNumber: state.accountNumber,
+        accountNumber: accountNumber,
         currencyId: state.selectedCurrency!.id,
         mainAccountType: state.selectedType!,
       );

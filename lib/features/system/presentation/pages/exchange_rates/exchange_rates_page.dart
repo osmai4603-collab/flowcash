@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flowcash/core/formatters/money_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/currencies/domain/entities/exchange_price_entity.dart';
@@ -172,7 +173,7 @@ class ExchangeRatesDataGridSource extends DataGridSource {
           DataGridCell<String>(columnName: 'to', value: item.toCurrencyId),
           DataGridCell<String>(
             columnName: 'price',
-            value: item.price.toStringAsFixed(4),
+            value: AppMoneyFormatter.formatDouble(item.price, replaceLast: '.0000'),
           ),
         ],
       );
@@ -191,7 +192,7 @@ class ExchangeRatesDataGridSource extends DataGridSource {
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>((dataGridCell) {
         return Container(
-          alignment: Alignment.center,
+          alignment: Alignment.centerRight,
           padding: const EdgeInsets.all(4.0),
           child: fluent.Text(
             dataGridCell.value.toString(),

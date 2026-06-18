@@ -269,6 +269,9 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
                         fluent.InfoLabel(
                           label: 'سعر الصرف',
                           child: fluent.TextFormBox(
+                            autofocus: true,
+                            textInputAction: fluent.TextInputAction.send,
+                            onEditingComplete: () => _onSaveButtonClicked(blocContext),
                             controller: _priceController,
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
@@ -310,12 +313,7 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
                   child: const fluent.Text('إلغاء'),
                 ),
                 fluent.FilledButton(
-                  onPressed: () {
-                    if (!_formKey.currentState!.validate()) return;
-                    blocContext.read<ExchangePriceFormBloc>().add(
-                      const ExchangePriceFormSubmitted(),
-                    );
-                  },
+                  onPressed: () => _onSaveButtonClicked(blocContext),
                   child:
                       BlocBuilder<
                         ExchangePriceFormBloc,
@@ -338,6 +336,13 @@ class _ExchangePriceFormPageState extends State<ExchangePriceFormPage> {
           );
         },
       ),
+    );
+  }
+
+  void _onSaveButtonClicked(BuildContext blocContext) {
+    if (!_formKey.currentState!.validate()) return;
+    blocContext.read<ExchangePriceFormBloc>().add(
+      const ExchangePriceFormSubmitted(),
     );
   }
 }

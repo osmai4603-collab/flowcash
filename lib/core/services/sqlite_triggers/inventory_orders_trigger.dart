@@ -53,7 +53,7 @@ final class InventoryOrdersTrigger {
           ${JournalItemsTable.lineDescription},
           ${JournalItemsTable.currencyId},
           ${JournalItemsTable.exPrice},
-          ${JournalItemsTable.expriceMain},
+          ${JournalItemsTable.exPriceMain},
           ${JournalItemsTable.journalStatus}
         )
         SELECT 

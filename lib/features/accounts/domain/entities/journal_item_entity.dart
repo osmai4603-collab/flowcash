@@ -12,7 +12,7 @@ class JournalItemEntity extends Entity {
   final String? lineDescription;
   final String currencyId;
   final double exPrice;
-  final double expriceMain;
+  final double exPriceMain;
   final JournalStatus journalStatus;
 
   const JournalItemEntity({
@@ -23,7 +23,7 @@ class JournalItemEntity extends Entity {
     this.lineDescription,
     required this.currencyId,
     required this.exPrice,
-    required this.expriceMain,
+    required this.exPriceMain,
     required this.journalStatus,
   });
 
@@ -33,7 +33,7 @@ class JournalItemEntity extends Entity {
     required int journalEntryId,
     required String lineDescription,
     required double exPrice,
-    required double exPriceMain,
+    required double expriceMain,
   }) {
     return JournalItemEntity(
       id: 0,
@@ -43,7 +43,7 @@ class JournalItemEntity extends Entity {
       lineDescription: lineDescription,
       currencyId: openingQuantity.currencyId,
       exPrice: exPrice,
-      expriceMain: exPriceMain,
+      exPriceMain: expriceMain,
       journalStatus: JournalStatus.increment,
     );
   }
@@ -57,7 +57,7 @@ class JournalItemEntity extends Entity {
     lineDescription,
     currencyId,
     exPrice,
-    expriceMain,
+    exPriceMain,
     journalStatus,
   ];
 
@@ -70,7 +70,7 @@ class JournalItemEntity extends Entity {
     String? lineDescription,
     String? currencyId,
     double? exPrice,
-    double? expriceMain,
+    double? exPriceMain,
     JournalStatus? journalStatus,
   }) {
     return JournalItemEntity(
@@ -81,12 +81,12 @@ class JournalItemEntity extends Entity {
       lineDescription: lineDescription ?? this.lineDescription,
       currencyId: currencyId ?? this.currencyId,
       exPrice: exPrice ?? this.exPrice,
-      expriceMain: expriceMain ?? this.expriceMain,
+      exPriceMain: exPriceMain ?? this.exPriceMain,
       journalStatus: journalStatus ?? this.journalStatus,
     );
   }
 
   double get historyAmount {
-    return journalStatus == JournalStatus.increment ? amount : amount * -1;
+    return journalStatus == JournalStatus.increment ? amount * exPrice : amount * exPrice * -1;
   }
 }
