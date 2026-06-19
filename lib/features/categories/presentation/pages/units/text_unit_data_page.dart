@@ -88,7 +88,6 @@ class _TextUnitDataPageState extends State<TextUnitDataPage> {
         UnitEntity.text(
           id: widget.unit?.id ?? 0,
           textName: name,
-          propertyId: propertyId,
         ),
       ),
     );

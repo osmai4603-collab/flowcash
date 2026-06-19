@@ -558,27 +558,44 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
       }
     }
 
+    final categoryProperties = properties.map(_toCategoryPropertyEntity).toList();
+
+    // Add default category unit property if it doesn't exist
+    if (!categoryProperties.any((p) => p.isCategoryUnit)) {
+      categoryProperties.add(CategoryPropertyEntity(
+        id: 0,
+        mainCategoryId: _bloc.state.id ?? 0,
+        propertyName: unitNameController.text.trim(),
+        unitType: unitSelected,
+        isSingle: true,
+        isCategoryUnit: true,
+        isInventoryUnit: true,
+        isPricingUnit: true,
+      ));
+    }
+
     final category = MainCategoryEntity(
       id: _bloc.state.id,
       name: categoryNameController.text.trim(),
       type: categoryTypeSelected,
       unitName: unitNameController.text.trim(),
       unitType: unitSelected,
-      properties: properties.map(_toCategoryPropertyEntity).toList(),
+      properties: categoryProperties,
     );
     _bloc.add(SaveMainCategoryEvent(category));
   }
 
   CategoryPropertyEntity _toCategoryPropertyEntity(_PropertyModel property) {
+    final isCatUnit = property.isCategoryUnit(unitSelected);
     return CategoryPropertyEntity(
       id: property.id,
-      mainCategoryId: _bloc.state.id,
+      mainCategoryId: _bloc.state.id ?? 0,
       propertyName: property.propertyName.text.isEmpty
           ? property.unitTypeSelected?.propertyName ?? ''
           : property.propertyName.text,
       unitType: property.unitTypeSelected ?? UnitType.piece,
-      isSingle: property.isSingle,
-      isCategoryUnit: property.isCategoryUnit(unitSelected),
+      isSingle: isCatUnit ? true : property.isSingle,
+      isCategoryUnit: isCatUnit,
       isInventoryUnit: property.isInventoryUnit,
       isPricingUnit: property.isPricingUnit,
     );

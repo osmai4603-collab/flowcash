@@ -16,6 +16,29 @@ class GetUnitsUseCase {
   }
 }
 
+class GetUnitFirstWhereArgsUseCase {
+  final UnitRepository _repository;
+  const GetUnitFirstWhereArgsUseCase(this._repository);
+
+  Future<Either<Failure, UnitEntity?>> call({
+    double? length,
+    double? width,
+    double? thickness,
+    int? propertyId,
+    required UnitType unitType,
+    String? unitName,
+  }) async {
+    return await _repository.getFirstWhereArgs(
+      length: length,
+      width: width,
+      thickness: thickness,
+      propertyId: propertyId,
+      unitType: unitType,
+      unitName: unitName,
+    );
+  }
+}
+
 class GetUnitByIdUseCase {
   final UnitRepository _repository;
 
@@ -32,7 +55,23 @@ class InsertUnitUseCase {
   const InsertUnitUseCase(this._repository);
 
   Future<Either<Failure, UnitEntity>> call(UnitEntity entity) async {
-    return await _repository.insert(entity);
+    final existing = await _repository.getFirstWhereArgs(
+      length: entity.length,
+      width: entity.width,
+      thickness: entity.thickness,
+      unitType: entity.unitType,
+      unitName: entity.unitName,
+    );
+
+    return await existing.fold(
+      (failure) async => Left(failure),
+      (existingEntity) async {
+        if (existingEntity != null) {
+          return Right(existingEntity);
+        }
+        return await _repository.insert(entity);
+      },
+    );
   }
 }
 
@@ -42,7 +81,23 @@ class UpdateUnitUseCase {
   const UpdateUnitUseCase(this._repository);
 
   Future<Either<Failure, UnitEntity>> call(UnitEntity entity) async {
-    return await _repository.update(entity);
+    final existing = await _repository.getFirstWhereArgs(
+      length: entity.length,
+      width: entity.width,
+      thickness: entity.thickness,
+      unitType: entity.unitType,
+      unitName: entity.unitName,
+    );
+
+    return await existing.fold(
+      (failure) async => Left(failure),
+      (existingEntity) async {
+        if (existingEntity != null && existingEntity.id != entity.id) {
+          return Right(existingEntity);
+        }
+        return await _repository.update(entity);
+      },
+    );
   }
 }
 
@@ -66,6 +121,14 @@ class GetUnitsByUnitTypes {
     return result.map(
       (list) => list.where((unit) => types.contains(unit.unitType)).toList(),
     );
+  }
+}
+
+class GetUnitsByMainCategoryUseCase {
+  final UnitRepository _repository;
+  const GetUnitsByMainCategoryUseCase(this._repository);
+  Future<Either<Failure, List<UnitEntity>>> call(int mainCategoryId) async {
+    return await _repository.getByMainCategory(mainCategoryId);
   }
 }
 
@@ -94,11 +157,30 @@ class GetUnitsForPropertyUseCase {
 class SaveUnitSelectionUseCase {
   final UnitRepository _repository;
   const SaveUnitSelectionUseCase(this._repository);
-  Future<Either<Failure, UnitEntity>> call(UnitEntity unit) {
-    if (unit.id == 0) {
-      return _repository.insert(unit);
-    }
-    return _repository.update(unit);
+  Future<Either<Failure, UnitEntity>> call(UnitEntity unit) async {
+    final existing = await _repository.getFirstWhereArgs(
+      length: unit.length,
+      width: unit.width,
+      thickness: unit.thickness,
+      unitType: unit.unitType,
+      unitName: unit.unitName,
+    );
+
+    return await existing.fold(
+      (failure) async => Left(failure),
+      (existingEntity) async {
+        if (existingEntity != null) {
+          if (unit.id == 0 || existingEntity.id != unit.id) {
+            return Right(existingEntity);
+          }
+        }
+
+        if (unit.id == 0) {
+          return _repository.insert(unit);
+        }
+        return _repository.update(unit);
+      },
+    );
   }
 }
 

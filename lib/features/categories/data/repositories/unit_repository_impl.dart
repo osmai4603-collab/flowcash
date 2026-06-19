@@ -4,6 +4,8 @@ import 'package:flowcash/features/categories/domain/repositories/unit_repository
 import 'package:flowcash/features/categories/data/datasources/unit_data_source.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 
+import '../../../../core/enums/unit_type_enum.dart';
+
 class UnitRepositoryImpl implements UnitRepository {
   final UnitLocalDataSource _dataSource;
   const UnitRepositoryImpl(this._dataSource);
@@ -73,6 +75,46 @@ class UnitRepositoryImpl implements UnitRepository {
     try {
       final result = await _dataSource.whereBasic();
       return Right(result);
+    } on Failure catch (f) {
+      return Left(f);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UnitEntity?>> getFirstWhereArgs({
+    double? length,
+    double? width,
+    double? thickness,
+    int? propertyId,
+    required UnitType unitType,
+    String? unitName,
+  }) async {
+    try {
+      final result = await _dataSource.getFirstWhereArgs(
+        length: length,
+        width: width,
+        thickness: thickness,
+        propertyId: propertyId ?? 0,
+        unitType: unitType,
+        unitName: unitName,
+      );
+      return Right(result);
+    } on Failure catch (f) {
+      return Left(f);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<UnitEntity>>> getByMainCategory(
+    int mainCategoryId,
+  ) async {
+    try {
+      final res = await _dataSource.getByMainCategory(mainCategoryId);
+      return Right(res);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {

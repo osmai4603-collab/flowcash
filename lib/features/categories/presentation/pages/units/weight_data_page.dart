@@ -95,8 +95,7 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
       SaveUnitFormEvent(
         UnitEntity.weight(
           id: widget.unit?.id ?? 0,
-          propertyId: widget.unit?.propertyId ?? widget.property.id,
-          length: currentWeight,
+          weight: currentWeight,
           unitName: measureUnitSelected,
         ),
       ),

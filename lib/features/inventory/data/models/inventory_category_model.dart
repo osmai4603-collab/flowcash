@@ -28,15 +28,7 @@ final class InventoryCategoryModel extends InventoryCategoryEntity {
       final unitId = r['category_unit_id'] as int?;
       if (unitId != null) {
         final unitTypeName = (r['unit_type'] as String?) ?? '';
-        unit = UnitModel(
-          id: unitId,
-          unitName: (r['unit_name'] as String?) ?? '',
-          propertyId: null,
-          length: ((r['unit_length'] ?? 0) as num).toDouble(),
-          width: ((r['unit_width'] ?? 0) as num).toDouble(),
-          thickness: ((r['unit_thickness'] ?? 0) as num).toDouble(),
-          unitType: UnitType.of(unitTypeName),
-        );
+        unit = UnitModel.fromMap(r);
       }
     } catch (_) {
       unit = null;

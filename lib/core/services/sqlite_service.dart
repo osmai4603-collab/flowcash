@@ -214,6 +214,21 @@ final class SqliteService {
     return list;
   }
 
+  /// Executes a raw SQL query and returns the results as a list of maps.
+  Future<List<Map<String, dynamic>>> rawQuery(
+    String query, [
+    List<Object?>? args,
+  ]) async {
+    final db = await database;
+    debugPrint('$query with args: $args');
+    final stmt = db.prepare(query);
+    final ResultSet results = stmt.select(args ?? const []);
+    final List<Map<String, dynamic>> list =
+        results.map((row) => Map<String, dynamic>.from(row)).toList();
+    stmt.dispose();
+    return list;
+  }
+
   Future<String> get databasePath async {
     if (SqliteDatabaseManager._databasePath != null) {
       return SqliteDatabaseManager._databasePath!;

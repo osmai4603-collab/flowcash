@@ -47,15 +47,12 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
     super.initState();
     final state = context.read<UnitFormBloc>().state;
     category = state.category;
-    lengthController.text = state.initialLength == 0.0 ? '' : AppMoneyFormatter.formatDouble(state.initialLength);
+    lengthController.text = state.initialLength == 0.0 ? (widget.property.unitType.isSquareMeterWidthStatic ? '1' : '') : AppMoneyFormatter.formatDouble(state.initialLength);
 
     widthController.text = state.initialWidth == 0.0 ? '' : AppMoneyFormatter.formatDouble(state.initialWidth);
     thicknessController.text = state.initialThickness == 0.0 ? '' : AppMoneyFormatter.formatDouble(
       state.initialThickness,
     );
-    if (widget.property.unitType.isSquareMeterWidthStatic) {
-      lengthController.text = '1';
-    }
   }
 
   @override

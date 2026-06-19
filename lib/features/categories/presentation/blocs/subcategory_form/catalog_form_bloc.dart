@@ -13,6 +13,7 @@ class SubcategoryFormBloc
   final GetAllMainCategoriesUseCase _getAllMainCategoriesUseCase;
   final GetCategoryPropertiesByMainCategoryUseCase _getPropertiesUseCase;
   final GetUnitsByUnitTypes _getUnitsByUnitType;
+  final GetUnitsByMainCategoryUseCase _getUnitsByMainCategoryUseCase;
   final GetSubcategoryUnitsByMainCategoryUseCase _getSubcategoryUnitsUseCase;
   final InsertSubcategoryUseCase _insertSubcategoryWithUnitsUseCase;
   final UpdateSubcategoryUseCase _updateSubcategoryUseCase;
@@ -21,6 +22,7 @@ class SubcategoryFormBloc
     required GetAllMainCategoriesUseCase getAllMainCategoriesUseCase,
     required GetCategoryPropertiesByMainCategoryUseCase getPropertiesUseCase,
     required GetUnitsByUnitTypes getUnitsUseCase,
+    required GetUnitsByMainCategoryUseCase getUnitsByMainCategoryUseCase,
     required GetSubcategoryUnitsByMainCategoryUseCase
     getSubcategoryUnitsUseCase,
     required GetSubcategoriesByMainCategoryUseCase getSubcategoriesUseCase,
@@ -29,6 +31,7 @@ class SubcategoryFormBloc
   }) : _getAllMainCategoriesUseCase = getAllMainCategoriesUseCase,
        _getPropertiesUseCase = getPropertiesUseCase,
        _getUnitsByUnitType = getUnitsUseCase,
+       _getUnitsByMainCategoryUseCase = getUnitsByMainCategoryUseCase,
        _getSubcategoryUnitsUseCase = getSubcategoryUnitsUseCase,
        _insertSubcategoryWithUnitsUseCase = insertSubcategoryUseCase,
        _updateSubcategoryUseCase = updateSubcategoryUseCase,
@@ -139,9 +142,7 @@ class SubcategoryFormBloc
     }, (props) => props);
     if (properties == null) return;
 
-    final unitsResult = await _getUnitsByUnitType(
-      properties.map((property) => property.unitType),
-    );
+    final unitsResult = await _getUnitsByMainCategoryUseCase(mainCategory.id);
     final units = unitsResult.fold((failure) {
       emit(
         state.copyWith(
@@ -237,7 +238,8 @@ class SubcategoryFormBloc
     print('table');
     final s = state;
     if (s.status != SubcategoryFormStatus.ready) return;
-    final selectedUnits = List.of(event.property.selectedUnits);
+    
+    final selectedUnits = List<SubcategoryUnit>.from(event.property.selectedUnits);
     if (event.unit == null) {
       if (event.index >= 0 && event.index < selectedUnits.length) {
         selectedUnits.removeAt(event.index);
@@ -247,15 +249,19 @@ class SubcategoryFormBloc
     } else {
       selectedUnits.add(event.unit!);
     }
+    
     final property = event.property.copyWith(
       selectedUnits: selectedUnits,
     );
-    final properties = List.of(state.catalogProperties);
+    
+    final properties = List<SubcategoryProperty>.from(state.catalogProperties);
     final idx = properties.indexWhere(
       (catalogProperty) => catalogProperty.propertyId == property.propertyId,
     );
+    
     if (idx > -1) {
-      emit(state.copyWith(catalogProperties: properties..[idx] = property));
+      properties[idx] = property;
+      emit(state.copyWith(catalogProperties: properties));
     }
   }
 
@@ -267,14 +273,26 @@ class SubcategoryFormBloc
       (property) => property.propertyId == event.catalogProperty.propertyId,
     );
 
+    if (indexOfProperty == -1) return;
+
     var catalogProperty = state.catalogProperties[indexOfProperty];
     catalogProperty = catalogProperty.copyWith(
-      catalogUnits: [...List.of(catalogProperty.subcatgoriesUnits), event.catalogUnit],
-      selectedUnits:[...List.of(catalogProperty.selectedUnits), event.catalogUnit],
+      catalogUnits: [
+        ...catalogProperty.subcatgoriesUnits,
+        event.catalogUnit,
+      ],
+      selectedUnits: [
+        ...catalogProperty.selectedUnits,
+        event.catalogUnit,
+      ],
     );
+
+    final newProperties = List<SubcategoryProperty>.from(state.catalogProperties);
+    newProperties[indexOfProperty] = catalogProperty;
+
     emit(
       state.copyWith(
-        catalogProperties: state.catalogProperties..[indexOfProperty] = catalogProperty,
+        catalogProperties: newProperties,
       ),
     );
   }

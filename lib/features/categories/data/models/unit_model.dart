@@ -1,26 +1,29 @@
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/core/enums/unit_type_enum.dart';
 import 'package:flowcash/core/tables/units_table.dart';
+import 'package:flowcash/features/categories/domain/entities/measurable_unit.dart';
 
 final class UnitModel extends UnitEntity {
   const UnitModel({
     required super.id,
     required super.unitName,
     super.propertyId,
-    super.length = 0.0,
-    super.width = 0.0,
-    super.thickness = 0.0,
     required super.unitType,
+    required super.measurement,
   });
 
   factory UnitModel.fromMap(Map<String, dynamic> map) {
+    final unitType = UnitType.of(map[UnitsTable.unitType] as String);
     return UnitModel(
       id: map[UnitsTable.id] as int,
       unitName: (map[UnitsTable.unitName] as String?) ?? "",
-      length: ((map[UnitsTable.length]) as num).toDouble(),
-      width: ((map[UnitsTable.width]) as num).toDouble(),
-      thickness: ((map[UnitsTable.thickness]) as num).toDouble(),
-      unitType: UnitType.of(map[UnitsTable.unitType] as String),
+      unitType: unitType,
+      measurement: MeasurableUnit.fromValues(
+        unitType: unitType,
+        length: ((map[UnitsTable.length]) as num).toDouble(),
+        width: ((map[UnitsTable.width]) as num).toDouble(),
+        thickness: ((map[UnitsTable.thickness]) as num).toDouble(),
+      ),
     );
   }
 
@@ -43,14 +46,18 @@ final class UnitModel extends UnitEntity {
     double? width,
     double? thickness,
     UnitType? unitType,
+    MeasurableUnit? measurement,
   }) {
     return UnitModel(
       id: id ?? this.id,
       unitName: unitName ?? this.unitName,
-      length: length ?? this.length,
-      width: width ?? this.width,
-      thickness: thickness ?? this.thickness,
       unitType: unitType ?? this.unitType,
+      measurement: measurement ??
+          this.measurement.copyWith(
+            length: length,
+            width: width,
+            thickness: thickness,
+          ),
     );
   }
 }

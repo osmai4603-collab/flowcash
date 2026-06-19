@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/presentation/pages/main_categories/main_category_form_page.dart';
+import 'package:flowcash/features/categories/presentation/pages/units/main_category_unit_data_page.dart';
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/message.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
@@ -13,7 +14,6 @@ import 'package:flowcash/features/categories/presentation/blocs/main_categories/
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flowcash/core/theme_fluent/app_colors.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class MainCategoriesPage extends StatelessWidget {
   const MainCategoriesPage({super.key});
@@ -23,75 +23,6 @@ class MainCategoriesPage extends StatelessWidget {
     return BlocProvider<MainCategoriesBloc>(
       create: (_) => sl<MainCategoriesBloc>()..add(LoadMainCategoriesEvent()),
       child: const _MainCategoriesView(),
-    );
-  }
-}
-
-class MainCategoryDataGridSource extends DataGridSource {
-  MainCategoryDataGridSource({
-    required List<MainCategoryEntity> items,
-    required this.colors,
-    required this.onItemTap,
-    required this.onItemDoubleTap,
-    required this.onItemLongPress,
-  }) {
-    _dataGridRows = items.asMap().entries.map<DataGridRow>((entry) {
-      final index = entry.key;
-      final item = entry.value;
-      return DataGridRow(
-        cells: [
-          DataGridCell<String>(columnName: 'no', value: '${index + 1}'),
-          DataGridCell<String>(columnName: 'name', value: item.name),
-          DataGridCell<String>(columnName: 'unitName', value: item.unitName),
-          DataGridCell<String>(
-            columnName: 'priceUnit',
-            value: item.unitType.fullUnitName,
-          ),
-          DataGridCell<String>(
-            columnName: 'stockUnit',
-            value: item.unitType.fullUnitName,
-          ),
-          DataGridCell<String>(
-            columnName: 'type',
-            value: item.type.displayName(),
-          ),
-          DataGridCell<String>(
-            columnName: 'containerName',
-            value: item.unitName,
-          ),
-        ],
-      );
-    }).toList();
-  }
-
-  final AppStyle colors;
-  final void Function(MainCategoryEntity) onItemTap;
-  final void Function(MainCategoryEntity) onItemDoubleTap;
-  final void Function(MainCategoryEntity) onItemLongPress;
-
-  List<DataGridRow> _dataGridRows = [];
-
-  @override
-  List<DataGridRow> get rows => _dataGridRows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    final index = _dataGridRows.indexOf(row);
-    return DataGridRowAdapter(
-      color: index.isEven
-          ? null
-          : colors.surfaceContainerHighest.withValues(alpha: 0.12),
-      cells: row.getCells().map<Widget>((dataGridCell) {
-        return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(4.0),
-          child: fluent.Text(
-            dataGridCell.value.toString(),
-            overflow: TextOverflow.ellipsis,
-            style: colors.body,
-          ),
-        );
-      }).toList(),
     );
   }
 }
@@ -152,103 +83,91 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
         child: TextWidget(text: 'لا يوجد اصاناف رئيسية معرفة'),
       );
     }
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: colors.outlineVariant, width: 0.5),
-      ),
-      child: SfDataGrid(
-        source: MainCategoryDataGridSource(
-          items: mainCategories,
-          colors: colors,
-          onItemTap: (category) async {
-            final result = await showDialog<MainCategoryEntity?>(
-              context: context,
-              builder: (_) => MainCategoryFormPage(id: category.id),
-            );
-            if (result != null && context.mounted) {
-              context.read<MainCategoriesBloc>().add(
-                RefreshMainCategoriesEvent(),
-              );
-            }
-          },
-          onItemDoubleTap: (category) async {
-            final result = await showDialog<MainCategoryEntity?>(
-              context: context,
-              builder: (_) => MainCategoryFormPage(id: category.id),
-            );
-            if (result != null && context.mounted) {
-              context.read<MainCategoriesBloc>().add(
-                RefreshMainCategoriesEvent(),
-              );
-            }
-          },
-          onItemLongPress: (category) =>
-              _onCategoryLongPressed(context, category),
+    return SingleChildScrollView(
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: colors.outlineVariant, width: 0.5),
         ),
-        headerRowHeight: 40,
-        rowHeight: 30,
-        gridLinesVisibility: GridLinesVisibility.both,
-        headerGridLinesVisibility: GridLinesVisibility.both,
-        columnWidthMode: ColumnWidthMode.fill,
-        onCellTap: (details) async {
-          if (details.rowColumnIndex.rowIndex > 0) {
-            final item = mainCategories[details.rowColumnIndex.rowIndex - 1];
-            final result = await showDialog<MainCategoryEntity?>(
-              context: context,
-              builder: (_) => MainCategoryFormPage(id: item.id),
-            );
-            if (result != null && context.mounted) {
-              context.read<MainCategoriesBloc>().add(
-                RefreshMainCategoriesEvent(),
+        child: Table(
+          columnWidths: getWidths(),
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          border: TableBorder.all(color: colors.outlineVariant, width: 0.5),
+          children: [
+            TableRow(
+              children: [
+                _buildHeaderCell('No', colors),
+                _buildHeaderCell('اسم الصنف', colors),
+                _buildHeaderCell('وحدة الصنف', colors),
+                _buildHeaderCell('وحدة السعر', colors),
+                _buildHeaderCell('وحدة الجرد', colors),
+                _buildHeaderCell('نوع الصنف', colors),
+                _buildHeaderCell('اسم الحاوية', colors),
+              ],
+            ),
+            ...mainCategories.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              return TableRow(
+                decoration: BoxDecoration(
+                  color: index.isEven
+                      ? null
+                      : colors.surfaceContainerHighest.withValues(alpha: 0.12),
+                ),
+                children: [
+                  _buildCell('${index + 1}', colors, item),
+                  _buildCell(item.name, colors, item),
+                  _buildCell(item.unitName, colors, item),
+                  _buildCell(item.unitType.fullUnitName, colors, item),
+                  _buildCell(item.unitType.fullUnitName, colors, item),
+                  _buildCell(item.type.displayName(), colors, item),
+                  _buildCell(item.unitName, colors, item),
+                ],
               );
-            }
-          }
-        },
-        onCellDoubleTap: (details) async {
-          if (details.rowColumnIndex.rowIndex > 0) {
-            final item = mainCategories[details.rowColumnIndex.rowIndex - 1];
-            final result = await showDialog<MainCategoryEntity?>(
-              context: context,
-              builder: (_) => MainCategoryFormPage(id: item.id),
-            );
-            if (result != null && context.mounted) {
-              context.read<MainCategoriesBloc>().add(
-                RefreshMainCategoriesEvent(),
-              );
-            }
-          }
-        },
-        columns: [
-          GridColumn(
-            columnName: 'no',
-            width: isDesktop ? 60.0 : 50.0,
-            label: _buildHeaderCell('No', colors),
-          ),
-          GridColumn(
-            columnName: 'name',
-            label: _buildHeaderCell('اسم الصنف', colors),
-          ),
-          GridColumn(
-            columnName: 'unitName',
-            label: _buildHeaderCell('وحدة الصنف', colors),
-          ),
-          GridColumn(
-            columnName: 'priceUnit',
-            label: _buildHeaderCell('وحدة السعر', colors),
-          ),
-          GridColumn(
-            columnName: 'stockUnit',
-            label: _buildHeaderCell('وحدة الجرد', colors),
-          ),
-          GridColumn(
-            columnName: 'type',
-            label: _buildHeaderCell('نوع الصنف', colors),
-          ),
-          GridColumn(
-            columnName: 'containerName',
-            label: _buildHeaderCell('اسم الحاوية', colors),
-          ),
-        ],
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCell(
+    String text,
+    AppStyle colors,
+    MainCategoryEntity category,
+  ) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () async {
+        final result = await showDialog<MainCategoryEntity?>(
+          context: context,
+          builder: (_) => MainCategoryFormPage(id: category.id),
+        );
+        if (result != null && context.mounted) {
+          context.read<MainCategoriesBloc>().add(
+            RefreshMainCategoriesEvent(),
+          );
+        }
+      },
+      onDoubleTap: () async {
+        final result = await showDialog<MainCategoryEntity?>(
+          context: context,
+          builder: (_) => MainCategoryUnitDataPage(mainCategory: category),
+        );
+        if (result != null && context.mounted) {
+          context.read<MainCategoriesBloc>().add(
+            RefreshMainCategoriesEvent(),
+          );
+        }
+      },
+      onLongPress: () => _onCategoryLongPressed(context, category),
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(4.0),
+        child: fluent.Text(
+          text,
+          overflow: TextOverflow.ellipsis,
+          style: colors.body,
+        ),
       ),
     );
   }

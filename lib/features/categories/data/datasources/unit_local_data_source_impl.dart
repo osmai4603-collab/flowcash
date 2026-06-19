@@ -3,6 +3,8 @@ import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/features/categories/data/models/unit_model.dart';
 import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/units_table.dart';
+import 'package:flowcash/core/tables/catalogs_table.dart';
+import 'package:flowcash/core/tables/catalog_infos_table.dart';
 import 'package:flowcash/core/enums/unit_type_enum.dart';
 
 final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
@@ -82,9 +84,7 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
       id: entity.id,
       unitName: entity.unitName,
       propertyId: entity.propertyId,
-      length: entity.length,
-      width: entity.width,
-      thickness: entity.thickness,
+      measurement: entity.measurement,
       unitType: entity.unitType,
     ).toMap();
   }
@@ -113,6 +113,53 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
     required UnitType unitType,
     String? unitName,
   }) async {
-    throw UnimplementedError();
+    final List<String> where = ['${UnitsTable.unitType} = ?'];
+    final List<dynamic> args = [unitType.name];
+
+    if (length != null) {
+      where.add('${UnitsTable.length} = ?');
+      args.add(length);
+    }
+    if (width != null) {
+      where.add('${UnitsTable.width} = ?');
+      args.add(width);
+    }
+    if (thickness != null) {
+      where.add('${UnitsTable.thickness} = ?');
+      args.add(thickness);
+    }
+    if (unitName != null && unitName.isNotEmpty) {
+      where.add('${UnitsTable.unitName} = ?');
+      args.add(unitName);
+    }
+
+    final rows = await _db.query(
+      table: UnitsTable.tableName,
+      where: where.join(' AND '),
+      whereArgs: args,
+      limit: 1,
+    );
+
+    if (rows.isEmpty) return null;
+    return fromMap(rows.first);
+  }
+
+  @override
+  Future<List<UnitEntity>> getByMainCategory(int mainCategoryId) async {
+    final String query = '''
+      SELECT * FROM ${UnitsTable.tableName}
+      WHERE ${UnitsTable.id} IN (
+        SELECT ${SubcategoriesUnitsTable.unitId}
+        FROM ${SubcategoriesUnitsTable.tableName}
+        WHERE ${SubcategoriesUnitsTable.subcategoryId} IN (
+          SELECT ${SubcategoriesTable.id}
+          FROM ${SubcategoriesTable.tableName}
+          WHERE ${SubcategoriesTable.mainCategoryId} = ?
+        )
+      )
+    ''';
+
+    final rows = await _db.rawQuery(query, [mainCategoryId]);
+    return rows.map(fromMap).toList();
   }
 }

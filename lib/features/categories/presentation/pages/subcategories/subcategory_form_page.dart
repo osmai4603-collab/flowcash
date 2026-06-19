@@ -31,7 +31,6 @@ class SubcategoryFormPage extends StatefulWidget {
 class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
   final _formKey = GlobalKey<FormState>();
   final catalogNameController = TextEditingController();
-  bool _initialized = false;
 
   late final SubcategoryFormBloc _catalogFormBloc;
 
@@ -233,37 +232,53 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                     Row(
                       children: [
                         Expanded(
-                          child: MenuBar(
-                            children: [
-                              SubmenuButton(
-                                menuChildren: property.subcatgoriesUnits
-                                    .map(
-                                      (catalogUnit) => MenuItemButton(
-                                        onPressed: () {
-                                          final selected = catalogUnit.unit;
-                                          field.didChange(selected);
-                                          _catalogFormBloc.add(
-                                            UpdateSelectedUnitEvent(
-                                              property: property,
-                                              index: 0,
-                                              unit: SubcategoryUnit(
-                                                property: property.property,
-                                                unit: selected,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        child: Text(catalogUnit.unitName()),
+                          child: MenuAnchor(
+                            builder: (context, controller, child) {
+                              return fluent.Button(
+                                onPressed: () {
+                                  if (controller.isOpen) {
+                                    controller.close();
+                                  } else {
+                                    controller.open();
+                                  }
+                                },
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        field.value?.getCategoryName() ??
+                                            'حدد نوع ${property.property.propertyName}',
+                                        style: colors.bodyStrong,
                                       ),
-                                    )
-                                    .toList(),
-                                child: Text(
-                                  field.value?.getCategoryName() ??
-                                      'حدد نوع ${property.property.propertyName}',
-                                  style: colors.bodyStrong,
+                                    ),
+                                    const Icon(Icons.arrow_drop_down, size: 20),
+                                  ],
                                 ),
-                              ),
-                            ],
+                              );
+                            },
+                            menuChildren: property.subcatgoriesUnits
+                                .map(
+                                  (catalogUnit) => MenuItemButton(
+                                    onPressed: () {
+                                      final selected = catalogUnit.unit;
+                                      field.didChange(selected);
+                                      _catalogFormBloc.add(
+                                        UpdateSelectedUnitEvent(
+                                          property: property,
+                                          index: 0,
+                                          unit: SubcategoryUnit(
+                                            property: property.property,
+                                            unit: selected,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(catalogUnit.unitName()),
+                                  ),
+                                )
+                                .toList(),
                           ),
                         ),
                       ],
@@ -395,9 +410,39 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                 ),
                                 initialValue: subcategoryUnit.unit,
                                 builder: (field) {
-                                  return SubmenuButton(
-                                    menuChildren: List.generate(property.availableUnits.length, (idx) {
-                                      final unit = property.availableUnits[idx];
+                                  return MenuAnchor(
+                                    builder: (context, controller, child) {
+                                      return fluent.Button(
+                                        onPressed: () {
+                                          if (controller.isOpen) {
+                                            controller.close();
+                                          } else {
+                                            controller.open();
+                                          }
+                                        },
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                field.value?.getCategoryName() ??
+                                                    'اختر',
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            const Icon(
+                                              Icons.arrow_drop_down,
+                                              size: 16,
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                    menuChildren: List.generate(
+                                        property.availableUnits.length, (idx) {
+                                      final unit =
+                                          property.availableUnits[idx];
                                       return MenuItemButton(
                                         onPressed: () {
                                           _catalogFormBloc.add(
@@ -411,9 +456,6 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                         child: Text(unit.unitName()),
                                       );
                                     }),
-                                    child: Text(
-                                      field.value?.getCategoryName() ?? 'اختر',
-                                    ),
                                   );
                                 },
                               ),

@@ -1,139 +1,127 @@
 import 'package:flowcash/core/entities/entity.dart';
-
 import 'package:flowcash/core/enums/unit_type_enum.dart';
 import 'package:flowcash/core/formatters/money_formatter.dart';
+import 'package:flowcash/features/categories/domain/entities/measurable_unit.dart';
 
 class UnitEntity extends Entity {
   final int id;
   final String unitName;
   final int? propertyId;
-  final double length;
-  final double width;
-  final double thickness;
   final UnitType unitType;
+  final MeasurableUnit measurement;
 
   const UnitEntity({
     required this.id,
     required this.unitName,
     this.propertyId,
-    this.length = 0.0,
-    this.width = 0.0,
-    this.thickness = 0.0,
     required this.unitType,
+    required this.measurement,
   });
 
-  const UnitEntity.piece({
+  double get length => measurement.length;
+  double get width => measurement.width;
+  double get thickness => measurement.thickness;
+
+  UnitEntity.piece({
     required int id,
-    int? propertyId,
+    int count = 0,
     String unitName = 'حبة',
   }) : this(
-         id: id,
-         unitName: unitName,
-         length: 1,
-         width: 1,
-         thickness: 1,
-         unitType: UnitType.piece,
-       );
+          id: id,
+          unitName: count <= 0 ? unitName : '$count$unitName',
+          unitType: UnitType.piece,
+          measurement: PieceMeasurableUnit(count: count.toDouble()),
+        );
 
-  const UnitEntity.squareMeter({
+  UnitEntity.squareMeter({
     required int id,
     int? propertyId,
     required double length,
     required double width,
   }) : this(
-         id: id,
-         unitName: 'متر مربع',
-         length: length,
-         width: width,
-         thickness: 1,
-         unitType: UnitType.squareMeter,
-       );
+          id: id,
+          unitName: '${AppMoneyFormatter.formatDouble(width * length)}متر مربع',
+          unitType: UnitType.squareMeter,
+          measurement: AreaMeasurableUnit(length: length, width: width),
+        );
 
-  const UnitEntity.squareMeterWidthStatic({
+  UnitEntity.squareMeterWidthStatic({
     required int id,
     int? propertyId,
     required double width,
   }) : this(
-         id: id,
-         unitName: 'متر',
-         length: 1,
-         width: width,
-         thickness: 1,
-         unitType: UnitType.squareMeterWidthStatic,
-       );
+          id: id,
+          unitName: '${AppMoneyFormatter.formatDouble(width)}متر',
+          unitType: UnitType.squareMeterWidthStatic,
+          measurement: AreaMeasurableUnit(length: 1, width: width),
+        );
 
-  const UnitEntity.squareMeterStatic({
+  UnitEntity.squareMeterStatic({
     required int id,
     int? propertyId,
     required double length,
     required double width,
   }) : this(
-         id: id,
-         unitName: 'متر مربع',
-         length: length,
-         width: width,
-         thickness: 1,
-         unitType: UnitType.squareMeterStatic,
-       );
+          id: id,
+          unitName:
+              '${AppMoneyFormatter.formatDouble(width * 100)}x${AppMoneyFormatter.formatDouble(length * 100)}',
+          unitType: UnitType.squareMeterStatic,
+          measurement: AreaMeasurableUnit(length: length, width: width),
+        );
 
-  const UnitEntity.cubitMeter({
+  UnitEntity.cubitMeter({
     required int id,
     int? propertyId,
     required double length,
     required double width,
     required double thickness,
   }) : this(
-         id: id,
-         unitName: 'متر مكعب',
-         length: length,
-         width: width,
-         thickness: thickness,
-         unitType: UnitType.cubitMeter,
-       );
+          id: id,
+          unitName:
+              '${AppMoneyFormatter.formatDouble(thickness * 100)}x${AppMoneyFormatter.formatDouble(width * 100)}x${AppMoneyFormatter.formatDouble(length * 100)}',
+          unitType: UnitType.cubitMeter,
+          measurement: VolumeMeasurableUnit(
+            length: length,
+            width: width,
+            thickness: thickness,
+          ),
+        );
 
-  const UnitEntity.linearMeter({
+  UnitEntity.linearMeter({
     required int id,
     int? propertyId,
     required double length,
     required String unitName,
   }) : this(
-         id: id,
-         unitName: unitName,
-         length: length,
-         width: 1,
-         thickness: 1,
-         unitType: UnitType.linearMeter,
-       );
+          id: id,
+          unitName: unitName,
+          unitType: UnitType.linearMeter,
+          measurement: LinearMeasurableUnit(length),
+        );
 
-  const UnitEntity.weight({
+  UnitEntity.weight({
     required int id,
-    int? propertyId,
-    required double length,
+    required double weight,
     required String unitName,
   }) : this(
-         id: id,
-         unitName: unitName,
-         length: length,
-         width: 1,
-         thickness: 1,
-         unitType: UnitType.weight,
-       );
+          id: id,
+          unitName: '${AppMoneyFormatter.formatDouble(weight)}$unitName',
+          unitType: UnitType.weight,
+          measurement: WeightMeasurableUnit(weight),
+        );
 
-  const UnitEntity.text({
+  UnitEntity.text({
     required int id,
-    required int propertyId,
     required String textName,
   }) : this(
-         id: id,
-         unitName: textName,
-         length: 1,
-         width: 1,
-         thickness: 1,
-         unitType: UnitType.model,
-       );
+          id: id,
+          unitName: textName,
+          unitType: UnitType.model,
+          measurement: const ModelMeasurableUnit(),
+        );
 
   @override
-  List<Object?> get props => [id, unitName, length, width, thickness, unitType];
+  List<Object?> get props => [id, unitName, measurement, unitType];
 
   @override
   UnitEntity copyWith({
@@ -143,20 +131,24 @@ class UnitEntity extends Entity {
     double? width,
     double? thickness,
     UnitType? unitType,
+    MeasurableUnit? measurement,
   }) {
     return UnitEntity(
       id: id ?? this.id,
       unitName: unitName ?? this.unitName,
-      length: length ?? this.length,
-      width: width ?? this.width,
-      thickness: thickness ?? this.thickness,
       unitType: unitType ?? this.unitType,
+      measurement: measurement ??
+          this.measurement.copyWith(
+                length: length,
+                width: width,
+                thickness: thickness,
+              ),
     );
   }
 
   bool get isMeasurable => unitType.isMeasurable;
 
-  double get countUnits => length * width * thickness;
+  double get countUnits => measurement.countUnits;
 
   double toSquareMeter(double countUnits, UnitEntity unit) {
     switch (unitType) {

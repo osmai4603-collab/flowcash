@@ -13,4 +13,5 @@ abstract interface class UnitLocalDataSource
     required UnitType unitType,
     String? unitName,
   });
+  Future<List<UnitEntity>> getByMainCategory(int mainCategoryId);
 }

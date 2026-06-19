@@ -45,13 +45,23 @@ class _CategoryForm extends StatefulWidget {
 
 class _CategoryFormPageState extends State<_CategoryForm> {
   final _formKey = GlobalKey<FormState>();
-  final bool _initialized = false;
+  bool _initialized = false;
   bool _isDataChanged = false;
-  final categoryNameController = TextEditingController();
+  late final TextEditingController categoryNameController;
+  late final TextEditingController categoryNumberController;
+  late final TextEditingController barcodeController;
 
   final barcodeFocusNode = FocusNode();
 
   bool get isDesktop => Platform.isLinux || Platform.isWindows;
+
+  @override
+  void initState() {
+    super.initState();
+    categoryNameController = TextEditingController();
+    categoryNumberController = TextEditingController();
+    barcodeController = TextEditingController();
+  }
 
   void _markChanged() {
     if (_initialized && !_isDataChanged) {
@@ -81,6 +91,8 @@ class _CategoryFormPageState extends State<_CategoryForm> {
   void dispose() {
     barcodeFocusNode.dispose();
     categoryNameController.dispose();
+    categoryNumberController.dispose();
+    barcodeController.dispose();
 
     super.dispose();
   }
@@ -90,6 +102,22 @@ class _CategoryFormPageState extends State<_CategoryForm> {
     final colors = AppStyle.of(context);
     return BlocListener<CategoryFormBloc, CategoryFormState>(
       listener: (context, state) async {
+        if (state.status == CategoryFormStatus.ready) {
+          if (!_initialized) {
+            categoryNameController.text = state.categoryName;
+            categoryNumberController.text = state.categoryNumber;
+            barcodeController.text = state.barcode ?? '';
+
+            _initialized = true;
+          } else {
+            if (categoryNumberController.text != state.categoryNumber) {
+              categoryNumberController.text = state.categoryNumber;
+            }
+            if (barcodeController.text != (state.barcode ?? '')) {
+              barcodeController.text = state.barcode ?? '';
+            }
+          }
+        }
         if (state.status == CategoryFormStatus.saved) {
           final savedCategory = state.toEntity();
           debugPrint(state.status.name);
@@ -189,7 +217,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                           label: 'اسم الصنف',
                           child: fluent.TextFormBox(
                             textInputAction: TextInputAction.next,
-                            initialValue: state.categoryName,
+                            controller: categoryNameController,
                             style: colors.bodyLarge,
                             autofocus: state.id == 0,
                             cursorHeight: 20.0,
@@ -215,7 +243,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   placeholder: 'رقم الصنف',
                                   readOnly: true,
                                   textInputAction: TextInputAction.next,
-                                  initialValue: state.categoryNumber,
+                                  controller: categoryNumberController,
                                   style: colors.bodyLarge,
                                   cursorHeight: 20.0,
                                   textDirection: TextDirection.ltr,
@@ -251,7 +279,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.number,
                                   textDirection: TextDirection.ltr,
-                                  initialValue: state.barcode,
+                                  controller: barcodeController,
                                   focusNode: barcodeFocusNode,
                                   cursorHeight: 20.0,
                                   style: colors.bodyLarge,

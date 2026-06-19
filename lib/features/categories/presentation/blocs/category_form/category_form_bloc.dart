@@ -11,7 +11,7 @@ import 'category_form_state.dart';
 class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
   final AddCategoryUseCase _addCategory;
   final UpdateCategoryUseCase _updateCategory;
-  final GetBasicUnits _getUnitsUseCase;
+  final GetBasicUnits _getBasicUnits;
   final CheckCategoryHasRequestsUseCase _checkHasRequestsUseCase;
   final GetNewCategoryNumberUseCase _getNewCategoryNumberUseCase;
 
@@ -23,7 +23,7 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
     required GetNewCategoryNumberUseCase getNewCategoryNumberUseCase,
   }) : _addCategory = addCategory,
        _updateCategory = updateCategory,
-       _getUnitsUseCase = getUnitsUseCase,
+       _getBasicUnits = getUnitsUseCase,
        _checkHasRequestsUseCase = checkHasRequestsUseCase,
        _getNewCategoryNumberUseCase = getNewCategoryNumberUseCase,
        super(const CategoryFormState()) {
@@ -73,7 +73,7 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
     emit(state.copyWith(status: CategoryFormStatus.initial));
     await Future.delayed(const Duration(seconds: 1));
 
-    final unitsResult = await _getUnitsUseCase();
+    final unitsResult = await _getBasicUnits();
     await unitsResult.fold(
       (failure) async {
         emit(
@@ -87,7 +87,7 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
         UnitEntity? selectedUnit;
         if (units.isNotEmpty) {
           selectedUnit = units.firstWhere(
-            (unit) => unit.unitType.isPiece,
+            (unit) => event.category == null ? unit.unitType.isPiece : unit.id == event.category!.categoryUnitId,
             orElse: () => units.first,
           );
         }

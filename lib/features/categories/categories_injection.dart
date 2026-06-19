@@ -162,6 +162,7 @@ void initCategoriesFeature(GetIt sl) {
 
   // Unit use cases
   sl.registerLazySingleton(() => GetUnitsByUnitTypes(sl()));
+  sl.registerLazySingleton(() => GetUnitsByMainCategoryUseCase(sl()));
   sl.registerLazySingleton(() => GetUnitsForPropertyUseCase(sl()));
   sl.registerLazySingleton(() => SaveUnitSelectionUseCase(sl()));
   sl.registerLazySingleton(() => GetBasicUnits(sl()));
@@ -201,6 +202,7 @@ void initCategoriesFeature(GetIt sl) {
       getAllMainCategoriesUseCase: sl(),
       getPropertiesUseCase: sl(),
       getUnitsUseCase: sl(),
+      getUnitsByMainCategoryUseCase: sl(),
       getSubcategoryUnitsUseCase: sl(),
       getSubcategoriesUseCase: sl(),
       insertSubcategoryUseCase: sl(),
