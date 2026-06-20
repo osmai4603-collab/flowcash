@@ -6,7 +6,10 @@ import 'package:flowcash/features/injection_container.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_property_usecases.dart';
 import 'package:flowcash/features/categories/domain/usecases/subcategory_usecases.dart';
-import 'package:flowcash/features/categories/generate_categories.dart';
+import 'package:flowcash/features/categories/domain/services/category_generation_service.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flowcash/features/categories/presentation/blocs/categories/categories_bloc.dart';
+import 'package:flowcash/features/categories/presentation/blocs/categories/categories_event.dart';
 import 'subcategories_event.dart';
 import 'subcategories_state.dart';
 
@@ -62,7 +65,9 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
         await infosResult.fold(
           (failure) async => emit(SubcategoriesLoadFailure(failure.message)),
           (infos) async {
-            final propertiesResult = await _loadPropertiesForSubcategories(catalogs);
+            final propertiesResult = await _loadPropertiesForSubcategories(
+              catalogs,
+            );
 
             propertiesResult.fold(
               (failure) => emit(SubcategoriesLoadFailure(failure.message)),
@@ -81,9 +86,8 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
     );
   }
 
-  Future<Either<Failure, List<CategoryPropertyEntity>>> _loadPropertiesForSubcategories(
-    List<SubcategoryEntity> catalogs,
-  ) async {
+  Future<Either<Failure, List<CategoryPropertyEntity>>>
+  _loadPropertiesForSubcategories(List<SubcategoryEntity> catalogs) async {
     final mainCategoryIds = catalogs
         .map((catalog) => catalog.mainCategoryId)
         .toSet()
@@ -99,7 +103,11 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
       final addResult = propertiesResult.fold(
         (failure) {
           // ignore: invalid_use_of_visible_for_testing_member
-          emit(SubcategoriesLoadFailure('Failed to load properties for main category $mainCategoryId: \n  ${failure.message}'));
+          emit(
+            SubcategoriesLoadFailure(
+              'Failed to load properties for main category $mainCategoryId: \n  ${failure.message}',
+            ),
+          );
           return [];
         },
         (foundProperties) {
@@ -107,7 +115,6 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
           return Right<void, List<CategoryPropertyEntity>>(foundProperties);
         },
       );
-
     }
 
     final uniqueProperties = <int, CategoryPropertyEntity>{};
@@ -180,10 +187,11 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
     emit(const SubcategoriesLoadInProgress());
 
     try {
-      final categories = await GenerateCategories(
+      final service = CategoryGenerationService(
         usecases: CategoriesUsecases(
           getMainCategoryById: sl(),
           getUnits: sl(),
+          getBasicUnits: sl(),
           addCategory: sl(),
           addCategoryAttribute: sl(),
           hasCategoryName: sl(),
@@ -192,14 +200,32 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
           getCategoryPropertiesByMainCategory: sl(),
           getSubcategoryUnitsBySubcategoryIds: sl(),
         ),
-      ).startGeneratingCategories(event.catalogId);
+      );
 
-      final names = categories.map((c) => c.categoryName).toList();
-      emit(
-        currentState.copyWith(
-          generatedCategoryNames: names,
-          statusMessage: null,
-        ),
+      final result = await service.generate(event.catalogId);
+
+      result.fold(
+        (failure) {
+          emit(SubcategoriesLoadFailure(failure.message));
+        },
+        (categories) {
+          try {
+            final categoriesBloc = sl<CategoriesBloc>();
+            for (var category in categories) {
+              categoriesBloc.add(InjectCategoryEvent(category));
+            }
+          } catch (e) {
+            debugPrint('Failed to inject categories to CategoriesBloc: $e');
+          }
+
+          final names = categories.map((c) => c.categoryName).toList();
+          emit(
+            currentState.copyWith(
+              generatedCategoryNames: names,
+              statusMessage: null,
+            ),
+          );
+        },
       );
     } catch (e) {
       emit(SubcategoriesLoadFailure(e.toString()));

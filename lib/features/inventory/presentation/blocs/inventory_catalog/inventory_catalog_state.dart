@@ -17,7 +17,7 @@ class InventoryCatalogState extends Equatable {
   });
 
   InventoryCatalogState copyWith({
-    List<InventoryEntity>? items,ubcategories,
+    List<InventoryEntity>? items,
     CatalogStatus? status,
     String? errorMessage,
     InventoryEntity? selectedItem,

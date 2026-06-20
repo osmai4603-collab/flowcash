@@ -117,6 +117,32 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                       children: [
                         Expanded(
                           child: fluent.InfoLabel(
+                            label: 'اسم النوع',
+                            child: fluent.TextFormBox(
+                              controller: catalogNameController,
+                              placeholder: 'ادخل اسم النوع',
+                              prefix: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: const fluent.Icon(
+                                  fluent.FluentIcons.category_classification,
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'يرجى إدخال اسم النوع';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) => _catalogFormBloc.add(
+                                SubcategoryNameChangedEvent(value),
+                              ),
+                              style: textTheme.labelMedium,
+                              autofocus: true,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: fluent.InfoLabel(
                             label: 'الصنف الرئيسي',
                             child: fluent.ComboboxFormField<MainCategoryEntity>(
                               value: state.mainCategory,
@@ -150,32 +176,6 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                             ),
                           ),
                         ),
-                        Expanded(
-                          child: fluent.InfoLabel(
-                            label: 'اسم النوع',
-                            child: fluent.TextFormBox(
-                              controller: catalogNameController,
-                              placeholder: 'ادخل اسم النوع',
-                              prefix: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: const fluent.Icon(
-                                  fluent.FluentIcons.category_classification,
-                                ),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'يرجى إدخال اسم النوع';
-                                }
-                                return null;
-                              },
-                              onChanged: (value) => _catalogFormBloc.add(
-                                SubcategoryNameChangedEvent(value),
-                              ),
-                              style: textTheme.labelMedium,
-                              autofocus: true,
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                     if (state.catalogProperties.isNotEmpty)
@@ -183,12 +183,14 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         children: [
-                          ...state.catalogProperties.map((catalogProperty) {
-                            if (catalogProperty.property.isSingle) {
-                              return buildSingleProperty(catalogProperty);
-                            }
-                            return buildPropertyStruct(catalogProperty);
-                          }),
+                          ...state.catalogProperties
+                              .where((p) => !p.property.isCategoryUnit)
+                              .map((catalogProperty) {
+                                if (catalogProperty.property.isSingle) {
+                                  return buildSingleProperty(catalogProperty);
+                                }
+                                return buildPropertyStruct(catalogProperty);
+                              }),
                         ],
                       ),
                   ],
@@ -393,111 +395,119 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    if(property.selectedUnits.isNotEmpty) Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      textDirection: TextDirection.rtl,
-                      alignment: WrapAlignment.center,
-                      children: List.generate(property.selectedUnits.length, (indexOfUnit) {
-                        final subcategoryUnit = property.selectedUnits[indexOfUnit];
-                        return SizedBox(
-                          width: 120,
-                          child: Stack(
-                            children: [
-                              FormField<UnitEntity?>(
-                                key: ValueKey(
-                                  '${property.property.id}_${subcategoryUnit.id ?? 0}_${selectedList.hashCode}',
-                                ),
-                                initialValue: subcategoryUnit.unit,
-                                builder: (field) {
-                                  return MenuAnchor(
-                                    builder: (context, controller, child) {
-                                      return fluent.Button(
-                                        onPressed: () {
-                                          if (controller.isOpen) {
-                                            controller.close();
-                                          } else {
-                                            controller.open();
-                                          }
-                                        },
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                field.value?.getCategoryName() ??
-                                                    'اختر',
-                                                overflow: TextOverflow.ellipsis,
+                    if (property.selectedUnits.isNotEmpty)
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        textDirection: TextDirection.rtl,
+                        alignment: WrapAlignment.center,
+                        children: List.generate(property.selectedUnits.length, (
+                          indexOfUnit,
+                        ) {
+                          final subcategoryUnit =
+                              property.selectedUnits[indexOfUnit];
+                          return SizedBox(
+                            width: 120,
+                            child: Stack(
+                              children: [
+                                FormField<UnitEntity?>(
+                                  key: ValueKey(
+                                    '${property.property.id}_${subcategoryUnit.id ?? 0}_${selectedList.hashCode}',
+                                  ),
+                                  initialValue: subcategoryUnit.unit,
+                                  builder: (field) {
+                                    return MenuAnchor(
+                                      builder: (context, controller, child) {
+                                        return fluent.Button(
+                                          onPressed: () {
+                                            if (controller.isOpen) {
+                                              controller.close();
+                                            } else {
+                                              controller.open();
+                                            }
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  field.value
+                                                          ?.getCategoryName() ??
+                                                      'اختر',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
                                               ),
-                                            ),
-                                            const Icon(
-                                              Icons.arrow_drop_down,
-                                              size: 16,
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                    menuChildren: List.generate(
-                                        property.availableUnits.length, (idx) {
-                                      final unit =
-                                          property.availableUnits[idx];
-                                      return MenuItemButton(
-                                        onPressed: () {
-                                          _catalogFormBloc.add(
-                                            UpdateSelectedUnitEvent(
-                                              property: property,
-                                              index: indexOfUnit,
-                                              unit: unit,
-                                            ),
+                                              const Icon(
+                                                Icons.arrow_drop_down,
+                                                size: 16,
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                      menuChildren: List.generate(
+                                        property.availableUnits.length,
+                                        (idx) {
+                                          final unit =
+                                              property.availableUnits[idx];
+                                          return MenuItemButton(
+                                            onPressed: () {
+                                              _catalogFormBloc.add(
+                                                UpdateSelectedUnitEvent(
+                                                  property: property,
+                                                  index: indexOfUnit,
+                                                  unit: unit,
+                                                ),
+                                              );
+                                            },
+                                            child: Text(unit.unitName()),
                                           );
                                         },
-                                        child: Text(unit.unitName()),
-                                      );
-                                    }),
-                                  );
-                                },
-                              ),
-                              PositionedDirectional(
-                                top: 0,
-                                end: 0,
-                                child: fluent.Tooltip(
-                                  message: 'ازالة',
-                                  child: fluent.IconButton(
-                                    icon: fluent.Icon(
-                                      fluent.FluentIcons.remove_link,
-                                      color: Colors.red.shade400,
-                                      size: 16,
+                                      ),
+                                    );
+                                  },
+                                ),
+                                PositionedDirectional(
+                                  top: 0,
+                                  end: 0,
+                                  child: fluent.Tooltip(
+                                    message: 'ازالة',
+                                    child: fluent.IconButton(
+                                      icon: fluent.Icon(
+                                        fluent.FluentIcons.remove_link,
+                                        color: Colors.red.shade400,
+                                        size: 16,
+                                      ),
+                                      onPressed: () {
+                                        final idx = selectedList.indexOf(
+                                          subcategoryUnit,
+                                        );
+                                        final updated =
+                                            List<SubcategoryUnit?>.from(
+                                              selectedList,
+                                            );
+                                        if (idx != -1) {
+                                          updated.removeAt(idx);
+                                          formState.didChange(updated);
+                                        }
+                                        _catalogFormBloc.add(
+                                          UpdateSelectedUnitEvent(
+                                            property: property,
+                                            index: indexOfUnit,
+                                            unit: null,
+                                          ),
+                                        );
+                                      },
                                     ),
-                                    onPressed: () {
-                                      final idx = selectedList.indexOf(
-                                        subcategoryUnit,
-                                      );
-                                      final updated =
-                                      List<SubcategoryUnit?>.from(
-                                        selectedList,
-                                      );
-                                      if (idx != -1) {
-                                        updated.removeAt(idx);
-                                        formState.didChange(updated);
-                                      }
-                                      _catalogFormBloc.add(
-                                        UpdateSelectedUnitEvent(
-                                          property: property,
-                                          index: indexOfUnit,
-                                          unit: null,
-                                        ),
-                                      );
-                                    },
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-        }),
-                    ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
                     const SizedBox(height: 20),
                     fluent.FilledButton(
                       child: fluent.Text(

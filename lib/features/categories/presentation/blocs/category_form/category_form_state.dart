@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/core/enums/category_type_enum.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -12,6 +13,8 @@ class CategoryFormState extends Equatable {
   final CategoryFormStatus status;
   final List<UnitEntity> units;
   final UnitEntity? selectedUnit;
+  final List<SubcategoryEntity> subcategories;
+  final SubcategoryEntity? selectedSubcategory;
   final CategoryDefineType selectedCategoryType;
   final bool hasRequests;
   final String? messageError;
@@ -24,6 +27,8 @@ class CategoryFormState extends Equatable {
     this.status = CategoryFormStatus.initial,
     this.units = const [],
     this.selectedUnit,
+    this.subcategories = const [],
+    this.selectedSubcategory,
     this.selectedCategoryType = CategoryDefineType.commodities,
     this.hasRequests = false,
     this.messageError,
@@ -38,6 +43,8 @@ class CategoryFormState extends Equatable {
     CategoryEntity? initialCategory,
     List<UnitEntity>? units,
     UnitEntity? selectedUnit,
+    List<SubcategoryEntity>? subcategories,
+    SubcategoryEntity? selectedSubcategory,
     CategoryDefineType? selectedCategoryType,
     bool? hasRequests,
     String? messageError,
@@ -56,6 +63,8 @@ class CategoryFormState extends Equatable {
       categoryNumber: categoryNumber ?? this.categoryNumber,
       barcode: barcode ?? this.barcode,
       selectedUnit: selectedUnit ?? this.selectedUnit,
+      subcategories: subcategories ?? this.subcategories,
+      selectedSubcategory: selectedSubcategory ?? this.selectedSubcategory,
       selectedCategoryType: selectedCategoryType ?? this.selectedCategoryType,
       hasRequests: hasRequests ?? this.hasRequests,
       messageError: messageError ?? this.messageError,
@@ -71,6 +80,8 @@ class CategoryFormState extends Equatable {
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
+      subcategories: subcategories,
+      selectedSubcategory: selectedSubcategory,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
       messageError: messageError,
@@ -86,6 +97,8 @@ class CategoryFormState extends Equatable {
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
+      subcategories: subcategories,
+      selectedSubcategory: selectedSubcategory,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
       messageError: messageError,
@@ -101,6 +114,8 @@ class CategoryFormState extends Equatable {
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
+      subcategories: subcategories,
+      selectedSubcategory: selectedSubcategory,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
       messageError: messageError,
@@ -116,6 +131,8 @@ class CategoryFormState extends Equatable {
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
+      subcategories: subcategories,
+      selectedSubcategory: selectedSubcategory,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
       messageError: messageError,
@@ -131,6 +148,25 @@ class CategoryFormState extends Equatable {
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: unit,
+      subcategories: subcategories,
+      selectedSubcategory: selectedSubcategory,
+      selectedCategoryType: selectedCategoryType,
+      hasRequests: hasRequests,
+      messageError: messageError,
+    );
+  }
+
+  CategoryFormState copyWithSubcategory({required SubcategoryEntity? subcategory}) {
+    return CategoryFormState(
+      id: id,
+      status: status,
+      units: units,
+      categoryName: categoryName,
+      categoryNumber: categoryNumber,
+      barcode: barcode ?? barcode,
+      selectedUnit: selectedUnit,
+      subcategories: subcategories,
+      selectedSubcategory: subcategory,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
       messageError: messageError,
@@ -148,6 +184,8 @@ class CategoryFormState extends Equatable {
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
+      subcategories: subcategories,
+      selectedSubcategory: selectedSubcategory,
       selectedCategoryType: categoryType,
       hasRequests: hasRequests,
       messageError: messageError,
@@ -177,6 +215,8 @@ class CategoryFormState extends Equatable {
     barcode,
     status,
     selectedUnit,
+    subcategories,
+    selectedSubcategory,
     selectedCategoryType,
     hasRequests,
     messageError,
@@ -192,6 +232,7 @@ class CategoryFormState extends Equatable {
       categoryUnitId: selectedUnit?.id ?? 0,
       pricingUnitId: selectedUnit?.id ?? 0,
       inventoryUnitId: selectedUnit?.id ?? 0,
+      subcategoryId: selectedSubcategory?.id,
       categoryUnit: selectedUnit,
       pricingUnit: selectedUnit,
       inventoryUnit: selectedUnit,

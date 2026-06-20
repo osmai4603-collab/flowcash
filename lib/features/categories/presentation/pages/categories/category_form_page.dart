@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flowcash/core/enums/category_type_enum.dart';
-import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +28,7 @@ class CategoryFormPage extends StatelessWidget {
         addCategory: sl(),
         updateCategory: sl(),
         getUnitsUseCase: sl(),
+        getSubcategories: sl(),
         checkHasRequestsUseCase: sl(),
         getNewCategoryNumberUseCase: sl(),
       )..add(InitCategoryForm(category)),
@@ -218,7 +219,6 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                           child: fluent.TextFormBox(
                             textInputAction: TextInputAction.next,
                             controller: categoryNameController,
-                            style: colors.bodyLarge,
                             autofocus: state.id == 0,
                             cursorHeight: 20.0,
                             onChanged: _onCategoryNameChanged,
@@ -244,7 +244,6 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   readOnly: true,
                                   textInputAction: TextInputAction.next,
                                   controller: categoryNumberController,
-                                  style: colors.bodyLarge,
                                   cursorHeight: 20.0,
                                   textDirection: TextDirection.ltr,
                                   validator: categoryNumberValidator,
@@ -282,7 +281,6 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   controller: barcodeController,
                                   focusNode: barcodeFocusNode,
                                   cursorHeight: 20.0,
-                                  style: colors.bodyLarge,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
                                   ],
@@ -319,8 +317,6 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                         fluent.FluentIcons.chevron_down,
                                         color: colors.onSurfaceVariant,
                                       ),
-
-                                      style: colors.bodyLarge,
                                       items: state.units.map((unit) {
                                         return fluent.ComboBoxItem<UnitEntity>(
                                           value: unit,
@@ -330,15 +326,14 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                             children: [
                                               fluent.Text(
                                                 unit.unitType.fullUnitName,
-                                                style: colors.bodyLarge,
                                               ),
                                               const SizedBox(width: 10),
                                               fluent.Text(
                                                 unit.unitType.symbolUnit,
-                                                style: colors.body?.copyWith(
-                                                  color:
-                                                      colors.onSurfaceVariant,
-                                                ),
+                                                // style: colors.body.copyWith(
+                                                //   color:
+                                                //       colors.onSurfaceVariant,
+                                                // ),
                                               ),
                                             ],
                                           ),
@@ -397,6 +392,55 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                               ),
                             ],
                           ),
+                        Row(
+                          spacing: Spacings.medium,
+                          children: [
+                            Expanded(
+                              child: fluent.InfoLabel(
+                                label: 'الصنف الفرعي',
+                                child: fluent.ComboBox<SubcategoryEntity?>(
+                                  value: state.selectedSubcategory,
+                                  placeholder: fluent.Text(
+                                    'حدد الصنف الفرعي',
+                                    style: colors.caption,
+                                  ),
+                                  isExpanded: true,
+                                  icon: fluent.Icon(
+                                    fluent.FluentIcons.chevron_down,
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                                  style: colors.bodyLarge,
+                                  items: [
+                                    fluent.ComboBoxItem<SubcategoryEntity?>(
+                                      value: null,
+                                      child: fluent.Text(
+                                        'بدون صنف فرعي',
+                                        style: colors.bodyLarge,
+                                      ),
+                                    ),
+                                    ...state.subcategories.map((subcategory) {
+                                      return fluent.ComboBoxItem<
+                                        SubcategoryEntity?
+                                      >(
+                                        value: subcategory,
+                                        child: fluent.Text(
+                                          subcategory.catalogName,
+                                          style: colors.bodyLarge,
+                                        ),
+                                      );
+                                    }),
+                                  ],
+                                  onChanged: (selected) {
+                                    context.read<CategoryFormBloc>().add(
+                                      ChangeCategorySubcategoryEvent(selected),
+                                    );
+                                    _markChanged();
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),

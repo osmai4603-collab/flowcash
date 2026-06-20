@@ -1,5 +1,6 @@
 import 'package:flowcash/core/enums/category_type_enum.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:equatable/equatable.dart';
 
@@ -31,6 +32,14 @@ class ChangeCategoryUnitEvent extends CategoryFormEvent {
 
   @override
   List<Object?> get props => [unit];
+}
+
+class ChangeCategorySubcategoryEvent extends CategoryFormEvent {
+  final SubcategoryEntity? subcategory;
+  const ChangeCategorySubcategoryEvent(this.subcategory);
+
+  @override
+  List<Object?> get props => [subcategory];
 }
 
 class ChangeCategoryTypeEvent extends CategoryFormEvent {

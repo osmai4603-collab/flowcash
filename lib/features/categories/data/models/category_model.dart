@@ -2,6 +2,7 @@ import 'package:flowcash/core/enums/category_type_enum.dart';
 import 'package:flowcash/core/tables/categories_table.dart';
 import 'package:flowcash/features/categories/domain/entities/category_attribute_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 
 final class CategoryModel extends CategoryEntity {
@@ -14,6 +15,7 @@ final class CategoryModel extends CategoryEntity {
     required super.categoryUnitId,
     required super.pricingUnitId,
     required super.inventoryUnitId,
+    super.subcategoryId,
     super.attributes,
     super.categoryUnit,
     super.inventoryUnit,
@@ -30,6 +32,7 @@ final class CategoryModel extends CategoryEntity {
       categoryUnitId: data[CategoriesTable.categoryUnitId],
       pricingUnitId: data[CategoriesTable.pricingUnitId],
       inventoryUnitId: data[CategoriesTable.inventoryUnitId],
+      subcategoryId: data[CategoriesTable.subcategoryId],
     );
   }
 
@@ -43,9 +46,11 @@ final class CategoryModel extends CategoryEntity {
     int? categoryUnitId,
     int? pricingUnitId,
     int? inventoryUnitId,
+    int? subcategoryId,
     UnitEntity? categoryUnit,
     UnitEntity? pricingUnit,
     UnitEntity? inventoryUnit,
+    SubcategoryEntity? subcategory,
     List<CategoryAttributeEntity>? attributes,
   }) {
     return super.copyWith(
@@ -57,9 +62,11 @@ final class CategoryModel extends CategoryEntity {
       categoryUnitId: categoryUnitId ?? this.categoryUnitId,
       pricingUnitId: pricingUnitId ?? this.pricingUnitId,
       inventoryUnitId: inventoryUnitId ?? this.inventoryUnitId,
+      subcategoryId: subcategoryId ?? this.subcategoryId,
       categoryUnit: categoryUnit ?? this.categoryUnit,
       pricingUnit: pricingUnit ?? this.pricingUnit,
       inventoryUnit: inventoryUnit ?? this.inventoryUnit,
+      subcategory: subcategory ?? this.subcategory,
       attributes: attributes ?? this.attributes,
     );
   }
@@ -74,6 +81,7 @@ final class CategoryModel extends CategoryEntity {
       CategoriesTable.categoryUnitId: categoryUnitId,
       CategoriesTable.pricingUnitId: pricingUnitId,
       CategoriesTable.inventoryUnitId: inventoryUnitId,
+      CategoriesTable.subcategoryId: subcategoryId,
     };
   }
 }

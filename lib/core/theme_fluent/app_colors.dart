@@ -78,16 +78,16 @@ class AppStyle extends ThemeExtension<AppStyle> {
   });
 
   static final AppStyle light = AppStyle._(
-    surface: const Color(0xFFF5F5F5),
-    onSurface: const Color(0xFF1E1E1E),
-    onSurfaceVariant: const Color(0xFF5F6368),
+    surface: const Color(0xFFF4F6F9),
+    onSurface: const Color(0xFF1A1D21),
+    onSurfaceVariant: const Color(0xFF5C636A),
     surfaceContainerLowest: const Color(0xFFFFFFFF),
-    surfaceContainerLow: const Color(0xFFF7F7F7),
-    surfaceContainer: const Color(0xFFF0F0F0),
-    surfaceContainerHigh: const Color(0xFFE8E8E8),
-    surfaceContainerHighest: const Color(0xFFDADADA),
-    outline: const Color(0xFFB0B0B0),
-    outlineVariant: const Color(0xFFCFD0D1),
+    surfaceContainerLow: const Color(0xFFF7F9FC),
+    surfaceContainer: const Color(0xFFF0F3F8),
+    surfaceContainerHigh: const Color(0xFFE8ECF2),
+    surfaceContainerHighest: const Color(0xFFDDE3EA),
+    outline: const Color(0xFFAFB6C0),
+    outlineVariant: const Color(0xFFC8CED5),
     surfaceScrim: const Color(0x66000000),
     surfaceShadow: const Color(0x33000000),
     primary: const Color(0xFF1565C0),
@@ -115,16 +115,16 @@ class AppStyle extends ThemeExtension<AppStyle> {
   );
 
   static final AppStyle dark = AppStyle._(
-    surface: const Color(0xFF1C1C1C),
-    onSurface: const Color(0xFFECECEC),
-    onSurfaceVariant: const Color(0xFFB0B0B0),
-    surfaceContainerLowest: const Color(0xFF0F0F0F),
-    surfaceContainerLow: const Color(0xFF181818),
-    surfaceContainer: const Color(0xFF242424),
-    surfaceContainerHigh: const Color(0xFF2E2E2E),
-    surfaceContainerHighest: const Color(0xFF393939),
-    outline: const Color(0xFF6E6E6E),
-    outlineVariant: const Color(0xFF4A4A4A),
+    surface: const Color(0xFF1A1D24),
+    onSurface: const Color(0xFFE6E9EE),
+    onSurfaceVariant: const Color(0xFFA8ADB5),
+    surfaceContainerLowest: const Color(0xFF0C0E12),
+    surfaceContainerLow: const Color(0xFF14171D),
+    surfaceContainer: const Color(0xFF20242B),
+    surfaceContainerHigh: const Color(0xFF292E36),
+    surfaceContainerHighest: const Color(0xFF333842),
+    outline: const Color(0xFF6A707A),
+    outlineVariant: const Color(0xFF464B53),
     surfaceScrim: const Color(0xCC000000),
     surfaceShadow: const Color(0x8A000000),
     primary: const Color(0xFF1565C0),
@@ -200,8 +200,7 @@ class AppStyle extends ThemeExtension<AppStyle> {
       surfaceContainerHighest:
           surfaceContainerHighest ?? this.surfaceContainerHighest,
       outline: surfaceOutline ?? this.outline,
-      outlineVariant:
-          surfaceOutlineVariant ?? this.outlineVariant,
+      outlineVariant: surfaceOutlineVariant ?? this.outlineVariant,
       surfaceScrim: surfaceScrim ?? this.surfaceScrim,
       surfaceShadow: surfaceShadow ?? this.surfaceShadow,
       primary: primary ?? this.primary,
@@ -261,11 +260,9 @@ class AppStyle extends ThemeExtension<AppStyle> {
             t,
           ) ??
           surfaceContainerHighest,
-      outline:
-          Color.lerp(outline, other.outline, t) ?? outline,
+      outline: Color.lerp(outline, other.outline, t) ?? outline,
       outlineVariant:
-          Color.lerp(outlineVariant, other.outlineVariant, t) ??
-          outlineVariant,
+          Color.lerp(outlineVariant, other.outlineVariant, t) ?? outlineVariant,
       surfaceScrim:
           Color.lerp(surfaceScrim, other.surfaceScrim, t) ?? surfaceScrim,
       surfaceShadow:

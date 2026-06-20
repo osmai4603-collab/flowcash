@@ -20,11 +20,21 @@ import 'subaccounts_widget.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-class ChartOfAccountsPage extends StatelessWidget {
+class ChartOfAccountsPage extends StatefulWidget {
   const ChartOfAccountsPage({super.key});
 
   @override
+  State<ChartOfAccountsPage> createState() => _ChartOfAccountsPageState();
+}
+
+class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return BlocProvider(
       create: (context) =>
           GetIt.instance<ChartOfAccountsBloc>()
@@ -51,7 +61,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
 
     return Column(
       children: [
-        // _buildHeader(theme, context),
+        _buildHeader(theme, context),
         Expanded(
           child: BlocBuilder<ChartOfAccountsBloc, ChartOfAccountsState>(
             builder: (context, state) {

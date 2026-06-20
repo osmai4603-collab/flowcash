@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/core/enums/category_type_enum.dart';
-import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
+import 'package:flowcash/features/categories/domain/usecases/subcategory_usecases.dart';
 import 'package:flowcash/features/categories/domain/usecases/unit_usecases.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
 import 'category_form_event.dart';
@@ -12,6 +14,7 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
   final AddCategoryUseCase _addCategory;
   final UpdateCategoryUseCase _updateCategory;
   final GetBasicUnits _getBasicUnits;
+  final GetAllSubcategoriesUseCase _getSubcategories;
   final CheckCategoryHasRequestsUseCase _checkHasRequestsUseCase;
   final GetNewCategoryNumberUseCase _getNewCategoryNumberUseCase;
 
@@ -19,17 +22,20 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
     required AddCategoryUseCase addCategory,
     required UpdateCategoryUseCase updateCategory,
     required GetBasicUnits getUnitsUseCase,
+    required GetAllSubcategoriesUseCase getSubcategories,
     required CheckCategoryHasRequestsUseCase checkHasRequestsUseCase,
     required GetNewCategoryNumberUseCase getNewCategoryNumberUseCase,
   }) : _addCategory = addCategory,
        _updateCategory = updateCategory,
        _getBasicUnits = getUnitsUseCase,
+       _getSubcategories = getSubcategories,
        _checkHasRequestsUseCase = checkHasRequestsUseCase,
        _getNewCategoryNumberUseCase = getNewCategoryNumberUseCase,
        super(const CategoryFormState()) {
     on<InitCategoryForm>(_onInit);
     on<SaveCategoryEvent>(_onSave);
     on<ChangeCategoryUnitEvent>(_onChangeCategoryUnit);
+    on<ChangeCategorySubcategoryEvent>(_onChangeCategorySubcategory);
     on<ChangeCategoryTypeEvent>(_onChangeCategoryType);
     on<ChangeBarcodeEvent>(
       (event, emit) => emit(state.copyWithBarcode(barcode: event.barcode)),
@@ -57,6 +63,13 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
     Emitter<CategoryFormState> emit,
   ) async {
     return emit(state.copyWithCategoryUnit(unit: event.unit));
+  }
+
+  FutureOr<void> _onChangeCategorySubcategory(
+    ChangeCategorySubcategoryEvent event,
+    Emitter<CategoryFormState> emit,
+  ) async {
+    return emit(state.copyWithSubcategory(subcategory: event.subcategory));
   }
 
   Future<void> _onChangeCategoryType(
@@ -87,10 +100,25 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
         UnitEntity? selectedUnit;
         if (units.isNotEmpty) {
           selectedUnit = units.firstWhere(
-            (unit) => event.category == null ? unit.unitType.isPiece : unit.id == event.category!.categoryUnitId,
+            (unit) => event.category == null
+                ? unit.unitType.isPiece
+                : unit.id == event.category!.categoryUnitId,
             orElse: () => units.first,
           );
         }
+
+        final subcategoriesResult = await _getSubcategories();
+        List<SubcategoryEntity> subcategories = [];
+        SubcategoryEntity? selectedSubcategory;
+
+        subcategoriesResult.fold((failure) => null, (list) {
+          subcategories = list;
+          if (event.category?.subcategoryId != null) {
+            selectedSubcategory = list
+                .where((s) => s.id == event.category!.subcategoryId)
+                .firstOrNull;
+          }
+        });
 
         bool hasRequests = false;
         if (event.category != null) {
@@ -139,6 +167,8 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
             initialCategory: event.category,
             units: units,
             selectedUnit: selectedUnit,
+            subcategories: subcategories,
+            selectedSubcategory: selectedSubcategory,
             selectedCategoryType:
                 event.category?.categoryType ?? CategoryDefineType.commodities,
             hasRequests: hasRequests,

@@ -1,3 +1,4 @@
+import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/inventory/domain/usecases/inventory_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/main_account_repository_usecases.dart';
@@ -26,6 +27,7 @@ class InventoryCatalogBloc
        super(const InventoryCatalogState()) {
     on<LoadInventoryCatalogEvent>(_onLoadCatalog);
     on<AddInventoryItemEvent>(_onAddItem);
+    on<AddMultipleInventoryItemsEvent>(_onAddMultipleItems);
     on<UpdateInventoryItemEvent>(_onUpdateItem);
     on<DeleteInventoryItemEvent>(_onDeleteItem);
   }
@@ -39,12 +41,7 @@ class InventoryCatalogBloc
     final inventoriesResult = await _getInventorys();
 
     inventoriesResult.fold((f) => emit(state.toError(f.message)), (items) {
-      emit(
-        state.copyWith(
-          status: CatalogStatus.success,
-          items: items,
-        ),
-      );
+      emit(state.copyWith(status: CatalogStatus.success, items: items));
     });
   }
 
@@ -57,6 +54,31 @@ class InventoryCatalogBloc
       (f) => emit(state.toError(f.message)),
       (newItem) => emit(state.addItem(newItem)),
     );
+  }
+
+  Future<void> _onAddMultipleItems(
+    AddMultipleInventoryItemsEvent event,
+    Emitter<InventoryCatalogState> emit,
+  ) async {
+    emit(state.toLoading());
+    List<InventoryEntity> newItems = List.from(state.items);
+    String? error;
+    for (final item in event.items) {
+      final exists = newItems.any((i) => i.categoryId == item.categoryId && i.storeId == item.storeId);
+      if (exists) continue;
+
+      final result = await _insertInventory(item);
+      result.fold(
+        (f) => error = f.message,
+        (newItem) => newItems.add(newItem),
+      );
+      if (error != null) break;
+    }
+    if (error != null) {
+      emit(state.toError(error!));
+    } else {
+      emit(state.copyWith(status: CatalogStatus.success, items: newItems));
+    }
   }
 
   Future<void> _onUpdateItem(

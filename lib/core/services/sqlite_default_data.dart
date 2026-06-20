@@ -25,14 +25,32 @@ import 'package:flowcash/features/inventory/data/models/warehouse_model.dart';
 import 'package:flowcash/features/settings/data/models/value_counter_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqlite3/sqlite3.dart';
+import 'package:flowcash/core/enums/category_type_enum.dart';
+import 'package:flowcash/core/enums/sub_account_type_enum.dart';
+import 'package:flowcash/core/enums/main_account_type_enum.dart';
+import 'package:flowcash/features/inventory/data/models/opening_quantity_model.dart';
+import 'package:flowcash/features/inventory/data/models/inventory_model.dart';
+import 'package:flowcash/features/categories/data/models/category_model.dart';
+import 'package:flowcash/features/accounts/data/models/sub_account_model.dart';
+import 'package:flowcash/features/accounts/data/models/main_account_model.dart';
 
 final class DefaultDataInserter {
   const DefaultDataInserter._();
 
   static const _currencies = [
     CurrencyModel(id: 'YER', name: 'ريال يمني', symbol: 'ر.ي', isDefault: true),
-    CurrencyModel(id: 'SAR', name: 'ريال سعودي', symbol: 'ر.س', isDefault: false),
-    CurrencyModel(id: 'USD', name: 'دولار امريكي', symbol: '\$', isDefault: false),
+    CurrencyModel(
+      id: 'SAR',
+      name: 'ريال سعودي',
+      symbol: 'ر.س',
+      isDefault: false,
+    ),
+    CurrencyModel(
+      id: 'USD',
+      name: 'دولار امريكي',
+      symbol: '\$',
+      isDefault: false,
+    ),
   ];
 
   static const _warehouses = [
@@ -100,7 +118,7 @@ final class DefaultDataInserter {
     _insertAccountingPeriod(db);
     _insertValuesCounterDefaults(db);
     _insertDefaultValues(db);
-    // if (kDebugMode) _insertFurnitureTestData(db);
+    if (kDebugMode) _insertFurnitureTestData(db);
   }
 
   static void _insertModel(
@@ -263,8 +281,8 @@ final class DefaultDataInserter {
           AccountingPeriodsTable.currencyId: 'YER',
           AccountingPeriodsTable.lastPeriodId: null,
           AccountingPeriodsTable.periodName: '2026',
-          AccountingPeriodsTable.dateOfStartPeriod:
-              DateTime.now().toIso8601String(),
+          AccountingPeriodsTable.dateOfStartPeriod: DateTime.now()
+              .toIso8601String(),
           AccountingPeriodsTable.dateOfEndPeriod: null,
           AccountingPeriodsTable.inventoryType: null,
         };
@@ -287,64 +305,92 @@ final class DefaultDataInserter {
       debugPrint('Seeding 100 furniture items and accounts...');
 
       // 1. Insert Main Account
-      db.execute('''
-        INSERT OR IGNORE INTO ${MainAccountsTable.tableName} (
-          ${MainAccountsTable.id}, ${MainAccountsTable.accountNumber}, ${MainAccountsTable.accountName}, 
-          ${MainAccountsTable.currencyId}, ${MainAccountsTable.debitBalance}, ${MainAccountsTable.creditBalance}, 
-          ${MainAccountsTable.mainAccountType}
-        ) VALUES (80, '8000', 'حسابات المفروشات والتجهيزات', 'YER', 0.0, 0.0, 'inventory')
-      ''');
+      final mainAccount = MainAccountModel(
+        id: 80,
+        accountNumber: '8000',
+        accountName: 'حسابات المفروشات والتجهيزات',
+        currencyId: 'YER',
+        debitBalance: 0.0,
+        creditBalance: 0.0,
+        mainAccountType: MainAccountType.of('inventory'),
+      );
+      _insertModel(db, MainAccountsTable.tableName, mainAccount.toMap());
 
-      final nowStr = DateTime.now().toIso8601String();
+      final now = DateTime.now();
 
       // 2. Insert Sub Accounts
-      db.execute('''
-        INSERT OR IGNORE INTO ${SubAccountsTable.tableName} (
-          ${SubAccountsTable.id}, ${SubAccountsTable.accountName}, ${SubAccountsTable.accountNumber}, 
-          ${SubAccountsTable.mainAccountId}, ${SubAccountsTable.currencyId}, ${SubAccountsTable.incrementBalance}, 
-          ${SubAccountsTable.decrementBalance}, ${SubAccountsTable.subAccountType}, ${SubAccountsTable.createdAt}
-        ) VALUES (801, 'صندوق المعرض الفرعي', '8101', 80, 'YER', 0.0, 0.0, 'cash_treasury', '$nowStr')
-      ''');
+      final subAccounts = [
+        SubAccountModel(
+          id: 801,
+          accountName: 'صندوق المعرض الفرعي',
+          accountNumber: '8101',
+          mainAccountId: 80,
+          currencyId: 'YER',
+          incrementBalance: 0.0,
+          decrementBalance: 0.0,
+          subAccountType: SubAccountType.of('cash_treasury'),
+          createdAt: now,
+        ),
+        SubAccountModel(
+          id: 802,
+          accountName: 'رأس مال قسم المفروشات',
+          accountNumber: '8102',
+          mainAccountId: 80,
+          currencyId: 'YER',
+          incrementBalance: 0.0,
+          decrementBalance: 0.0,
+          subAccountType: SubAccountType.of('money_head'),
+          createdAt: now,
+        ),
+        SubAccountModel(
+          id: 803,
+          accountName: 'مخزون المفروشات الرئيسي',
+          accountNumber: '8103',
+          mainAccountId: 80,
+          currencyId: 'YER',
+          incrementBalance: 0.0,
+          decrementBalance: 0.0,
+          subAccountType: SubAccountType.of('inventory'),
+          createdAt: now,
+        ),
+        SubAccountModel(
+          id: 804,
+          accountName: 'تكلفة مبيعات المفروشات',
+          accountNumber: '8104',
+          mainAccountId: 80,
+          currencyId: 'YER',
+          incrementBalance: 0.0,
+          decrementBalance: 0.0,
+          subAccountType: SubAccountType.of('cost_of_goods_sold'),
+          createdAt: now,
+        ),
+        SubAccountModel(
+          id: 805,
+          accountName: 'إيرادات مبيعات المفروشات',
+          accountNumber: '8105',
+          mainAccountId: 80,
+          currencyId: 'YER',
+          incrementBalance: 0.0,
+          decrementBalance: 0.0,
+          subAccountType: SubAccountType.of('sales'),
+          createdAt: now,
+        ),
+        SubAccountModel(
+          id: 806,
+          accountName: 'مصاريف مبيعات المفروشات',
+          accountNumber: '8106',
+          mainAccountId: 80,
+          currencyId: 'YER',
+          incrementBalance: 0.0,
+          decrementBalance: 0.0,
+          subAccountType: SubAccountType.of('expenses'),
+          createdAt: now,
+        ),
+      ];
 
-      db.execute('''
-        INSERT OR IGNORE INTO ${SubAccountsTable.tableName} (
-          ${SubAccountsTable.id}, ${SubAccountsTable.accountName}, ${SubAccountsTable.accountNumber}, 
-          ${SubAccountsTable.mainAccountId}, ${SubAccountsTable.currencyId}, ${SubAccountsTable.incrementBalance}, 
-          ${SubAccountsTable.decrementBalance}, ${SubAccountsTable.subAccountType}, ${SubAccountsTable.createdAt}
-        ) VALUES (802, 'رأس مال قسم المفروشات', '8102', 80, 'YER', 0.0, 0.0, 'money_head', '$nowStr')
-      ''');
-
-      db.execute('''
-        INSERT OR IGNORE INTO ${SubAccountsTable.tableName} (
-          ${SubAccountsTable.id}, ${SubAccountsTable.accountName}, ${SubAccountsTable.accountNumber}, 
-          ${SubAccountsTable.mainAccountId}, ${SubAccountsTable.currencyId}, ${SubAccountsTable.incrementBalance}, 
-          ${SubAccountsTable.decrementBalance}, ${SubAccountsTable.subAccountType}, ${SubAccountsTable.createdAt}
-        ) VALUES (803, 'مخزون المفروشات الرئيسي', '8103', 80, 'YER', 0.0, 0.0, 'inventory', '$nowStr')
-      ''');
-
-      db.execute('''
-        INSERT OR IGNORE INTO ${SubAccountsTable.tableName} (
-          ${SubAccountsTable.id}, ${SubAccountsTable.accountName}, ${SubAccountsTable.accountNumber}, 
-          ${SubAccountsTable.mainAccountId}, ${SubAccountsTable.currencyId}, ${SubAccountsTable.incrementBalance}, 
-          ${SubAccountsTable.decrementBalance}, ${SubAccountsTable.subAccountType}, ${SubAccountsTable.createdAt}
-        ) VALUES (804, 'تكلفة مبيعات المفروشات', '8104', 80, 'YER', 0.0, 0.0, 'cost_of_goods_sold', '$nowStr')
-      ''');
-
-      db.execute('''
-        INSERT OR IGNORE INTO ${SubAccountsTable.tableName} (
-          ${SubAccountsTable.id}, ${SubAccountsTable.accountName}, ${SubAccountsTable.accountNumber}, 
-          ${SubAccountsTable.mainAccountId}, ${SubAccountsTable.currencyId}, ${SubAccountsTable.incrementBalance}, 
-          ${SubAccountsTable.decrementBalance}, ${SubAccountsTable.subAccountType}, ${SubAccountsTable.createdAt}
-        ) VALUES (805, 'إيرادات مبيعات المفروشات', '8105', 80, 'YER', 0.0, 0.0, 'sales', '$nowStr')
-      ''');
-
-      db.execute('''
-        INSERT OR IGNORE INTO ${SubAccountsTable.tableName} (
-          ${SubAccountsTable.id}, ${SubAccountsTable.accountName}, ${SubAccountsTable.accountNumber}, 
-          ${SubAccountsTable.mainAccountId}, ${SubAccountsTable.currencyId}, ${SubAccountsTable.incrementBalance}, 
-          ${SubAccountsTable.decrementBalance}, ${SubAccountsTable.subAccountType}, ${SubAccountsTable.createdAt}
-        ) VALUES (806, 'مصاريف مبيعات المفروشات', '8106', 80, 'YER', 0.0, 0.0, 'expenses', '$nowStr')
-      ''');
+      for (final sub in subAccounts) {
+        _insertModel(db, SubAccountsTable.tableName, sub.toMap());
+      }
 
       // 3. Generate 100 unique categories programmatically
       final types = [
@@ -417,35 +463,50 @@ final class DefaultDataInserter {
         final invId = 1000 + i;
         final catNum = 'FUR-${catId.toString().padLeft(4, "0")}';
         final catName = uniqueNames[i];
-
-        // Insert Category
-        db.execute('''
-          INSERT INTO ${CategoriesTable.tableName} (
-            ${CategoriesTable.id}, ${CategoriesTable.categoryType}, ${CategoriesTable.categoryName}, 
-            ${CategoriesTable.categoryNumber}, ${CategoriesTable.categoryUnitId}, ${CategoriesTable.pricingUnitId}, 
-            ${CategoriesTable.inventoryUnitId}
-          ) VALUES ($catId, 'material', '$catName', '$catNum', 1, 1, 1)
-        ''');
-
-        // Insert Inventory (triggers automatic journal entry and items)
         final initialCost = 12000.0;
         final initialQty = 10.0;
-        db.execute('''
-          INSERT INTO ${InventoriesTable.tableName} (
-            ${InventoriesTable.id}, ${InventoriesTable.categoryId}, ${InventoriesTable.storeId},
-            ${InventoriesTable.propertyAccountId}, ${InventoriesTable.revenueAccountId}, ${InventoriesTable.expenseAccountId},
-            ${InventoriesTable.incomeStockId}, ${InventoriesTable.outcomeStockId}, ${InventoriesTable.costTotal},
-            ${InventoriesTable.countUnits}, ${InventoriesTable.userId}
-          ) VALUES ($invId, $catId, 1, 802, 805, 806, 803, 804, $initialCost, $initialQty, 1)
-        ''');
 
-        // Insert Opening Quantity
-        db.execute('''
-          INSERT INTO ${OpeningQuantitiesTable.tableName} (
-            ${OpeningQuantitiesTable.inventoryId}, ${OpeningQuantitiesTable.countUnits}, ${OpeningQuantitiesTable.createdAt},
-            ${OpeningQuantitiesTable.costTotal}, ${OpeningQuantitiesTable.periodId}, ${OpeningQuantitiesTable.currencyId}
-          ) VALUES ($invId, $initialQty, '$nowStr', $initialCost, $periodId, 'YER')
-        ''');
+        final category = CategoryModel(
+          id: catId,
+          categoryName: catName,
+          categoryNumber: catNum,
+          barcode: '',
+          categoryType: CategoryDefineType.commodities,
+          categoryUnitId: 1,
+          pricingUnitId: 1,
+          inventoryUnitId: 1,
+        );
+        _insertModel(db, CategoriesTable.tableName, category.toMap());
+
+        final inventory = InventoryModel(
+          id: invId,
+          categoryId: catId,
+          storeId: 1,
+          propertyAccountId: 802,
+          revenueAccountId: 805,
+          expenseAccountId: 806,
+          incomeStockId: 803,
+          outcomeStockId: 804,
+          inventoryName: catName,
+          costTotal: initialCost,
+          countUnits: initialQty,
+          userId: 1,
+        );
+        _insertModel(db, InventoriesTable.tableName, inventory.toMap());
+
+        final openingQuantity = OpeningQuantityModel(
+          id: 0,
+          inventoryId: invId,
+          countUnits: initialQty,
+          createdAt: now,
+          costTotal: initialCost,
+          periodId: periodId,
+          currencyId: 'YER',
+        );
+
+        final oqMap = openingQuantity.toMap();
+        oqMap.remove('id'); // ID is likely AUTOINCREMENT, so remove it if 0
+        _insertModel(db, OpeningQuantitiesTable.tableName, oqMap);
       }
 
       debugPrint('Seeded 100 furniture items and accounts successfully.');

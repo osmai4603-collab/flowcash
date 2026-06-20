@@ -11,6 +11,9 @@ class SettingsState extends Equatable {
   final ValueCounterEntity? counter;
   final int? currentCounter;
   final String? errorMessage;
+  final SettingsStatus backupStatus;
+  final SettingsStatus restoreStatus;
+  final String? databaseErrorMessage;
 
   const SettingsState({
     required this.status,
@@ -19,6 +22,9 @@ class SettingsState extends Equatable {
     this.counter,
     this.currentCounter,
     this.errorMessage,
+    required this.backupStatus,
+    required this.restoreStatus,
+    this.databaseErrorMessage,
   });
 
   factory SettingsState.initial() {
@@ -29,6 +35,9 @@ class SettingsState extends Equatable {
       counter: null,
       currentCounter: null,
       errorMessage: null,
+      backupStatus: SettingsStatus.initial,
+      restoreStatus: SettingsStatus.initial,
+      databaseErrorMessage: null,
     );
   }
 
@@ -39,6 +48,9 @@ class SettingsState extends Equatable {
     ValueCounterEntity? counter,
     int? currentCounter,
     String? errorMessage,
+    SettingsStatus? backupStatus,
+    SettingsStatus? restoreStatus,
+    String? databaseErrorMessage,
   }) {
     return SettingsState(
       status: status ?? this.status,
@@ -47,16 +59,22 @@ class SettingsState extends Equatable {
       counter: counter ?? this.counter,
       currentCounter: currentCounter ?? this.currentCounter,
       errorMessage: errorMessage,
+      backupStatus: backupStatus ?? this.backupStatus,
+      restoreStatus: restoreStatus ?? this.restoreStatus,
+      databaseErrorMessage: databaseErrorMessage ?? this.databaseErrorMessage,
     );
   }
 
   @override
   List<Object?> get props => [
-    status,
-    values,
-    companyInfo,
-    counter,
-    currentCounter,
-    errorMessage,
-  ];
+        status,
+        values,
+        companyInfo,
+        counter,
+        currentCounter,
+        errorMessage,
+        backupStatus,
+        restoreStatus,
+        databaseErrorMessage,
+      ];
 }

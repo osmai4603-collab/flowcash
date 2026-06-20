@@ -1,10 +1,8 @@
 import 'dart:io';
 import 'package:flowcash/core/theme/paddings.dart';
-import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
-import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_state.dart';
@@ -12,15 +10,8 @@ import 'package:flowcash/features/categories/presentation/pages/categories/categ
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:flowcash/widgets/message.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
@@ -42,6 +33,30 @@ class _CategoriesPageState extends State<CategoriesPage> {
     });
   }
 
+  Map<int, TableColumnWidth> getWidths() {
+    return {
+      0: const FlexColumnWidth(0.06), // No
+      1: const FlexColumnWidth(0.12), // الرقم
+      2: const FlexColumnWidth(0.24), // الصنف
+      3: const FlexColumnWidth(0.22), // الصنف الفرعي
+      4: const FlexColumnWidth(0.10), // الوحدة
+      5: const FlexColumnWidth(0.14), // نوع تعريف الصنف
+      6: const FlexColumnWidth(0.12), // الباركود
+    };
+  }
+
+  Widget _buildCell(String text, AppStyle style, Alignment alignment) {
+    return Container(
+      alignment: alignment,
+      padding: const EdgeInsets.all(6.0),
+      child: fluent.Text(
+        text,
+        overflow: TextOverflow.ellipsis,
+        style: style.body,
+      ),
+    );
+  }
+
   Widget listView(List<CategoryEntity> categories) {
     final style = AppStyle.of(context);
     return ValueListenableBuilder<TextEditingValue>(
@@ -51,9 +66,13 @@ class _CategoriesPageState extends State<CategoriesPage> {
             ? categories
             : categories
                   .where(
-                    (category) => category.categoryName.contains(
-                      searchBarController.text,
-                    ),
+                    (category) =>
+                        category.categoryName.contains(
+                          searchBarController.text,
+                        ) ||
+                        category.categoryNumber.contains(
+                          searchBarController.text,
+                        ),
                   )
                   .toList();
 
@@ -63,54 +82,128 @@ class _CategoriesPageState extends State<CategoriesPage> {
           );
         }
 
-        final dataSource = CategoryDataGridSource(
-          items: filtered,
-          style: style,
-          onItemTap: _onUpdateCategoryPressed,
-          onItemLongPress: _onDeleteCategoryPressed,
-        );
-
-        return SfDataGrid(
-          source: dataSource,
-          headerRowHeight: 40,
-          rowHeight: 35,
-          gridLinesVisibility: GridLinesVisibility.both,
-          headerGridLinesVisibility: GridLinesVisibility.both,
-          columnWidthMode: ColumnWidthMode.fill,
-          onCellTap: (DataGridCellTapDetails details) {
-            if (details.rowColumnIndex.rowIndex > 0) {
-              final item = filtered[details.rowColumnIndex.rowIndex - 1];
-              _onUpdateCategoryPressed(item);
-            }
-          },
-          columns: [
-            GridColumn(
-              columnName: 'no',
-              width: isDesktop ? 60.0 : 50.0,
-              label: _buildHeaderCell('No', style),
+        return Column(
+          children: [
+            Table(
+              columnWidths: getWidths(),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              border: TableBorder(
+                top: BorderSide(color: style.outlineVariant, width: 0.5),
+                left: BorderSide(color: style.outlineVariant, width: 0.5),
+                right: BorderSide(color: style.outlineVariant, width: 0.5),
+                bottom: BorderSide(color: style.outlineVariant, width: 0.5),
+                verticalInside: BorderSide(
+                  color: style.outlineVariant,
+                  width: 0.5,
+                ),
+              ),
+              children: [
+                TableRow(
+                  children: [
+                    _buildHeaderCell('No', style),
+                    _buildHeaderCell('الرقم', style),
+                    _buildHeaderCell('الصنف', style),
+                    _buildHeaderCell('الصنف الفرعي', style),
+                    _buildHeaderCell('الوحدة', style),
+                    _buildHeaderCell('نوع تعريف الصنف', style),
+                    _buildHeaderCell('الباركود', style),
+                  ],
+                ),
+              ],
             ),
-            GridColumn(
-              columnName: 'categoryNumber',
-              width: isDesktop ? 80.0 : 60.0,
-              label: _buildHeaderCell('الرقم', style),
-            ),
-            GridColumn(
-              columnName: 'categoryName',
-              label: _buildHeaderCell('الصنف', style),
-            ),
-            GridColumn(
-              columnName: 'unitName',
-              width: isDesktop ? 90.0 : 70.0,
-              label: _buildHeaderCell('الوحدة', style),
-            ),
-            GridColumn(
-              columnName: 'type',
-              width: isDesktop ? 140.0 : 100.0,
-              label: _buildHeaderCell('نوع تعريف الصنف', style),
-            ),
-            GridColumn(
-              columnName: 'barcode',
-              label: _buildHeaderCell('الباركود', style),
+            Expanded(
+              child: ListView.builder(
+                itemCount: filtered.length,
+                itemBuilder: (context, index) {
+                  final category = filtered[index];
+                  return fluent.HoverButton(
+                    onPressed: () => _onUpdateCategoryPressed(category),
+                    builder: (context, states) {
+                      final isHovered = states.contains(
+                        fluent.WidgetState.hovered,
+                      );
+                      return GestureDetector(
+                        onLongPress: () => _onDeleteCategoryPressed(category),
+                        child: Table(
+                          columnWidths: getWidths(),
+                          defaultVerticalAlignment:
+                              TableCellVerticalAlignment.middle,
+                          border: TableBorder(
+                            left: BorderSide(
+                              color: style.outlineVariant,
+                              width: 0.5,
+                            ),
+                            right: BorderSide(
+                              color: style.outlineVariant,
+                              width: 0.5,
+                            ),
+                            bottom: BorderSide(
+                              color: style.outlineVariant,
+                              width: 0.5,
+                            ),
+                            verticalInside: BorderSide(
+                              color: style.outlineVariant,
+                              width: 0.5,
+                            ),
+                          ),
+                          children: [
+                            TableRow(
+                              decoration: BoxDecoration(
+                                color: isHovered
+                                    ? style.surfaceContainerHighest.withValues(
+                                        alpha: 0.24,
+                                      )
+                                    : (index.isEven
+                                          ? null
+                                          : style.surfaceContainerHighest
+                                                .withValues(alpha: 0.12)),
+                              ),
+                              children: [
+                                _buildCell(
+                                  '${index + 1}',
+                                  style,
+                                  Alignment.center,
+                                ),
+                                _buildCell(
+                                  category.categoryNumber,
+                                  style,
+                                  Alignment.centerRight,
+                                ),
+                                _buildCell(
+                                  category.categoryName,
+                                  style,
+                                  Alignment.centerRight,
+                                ),
+                                _buildCell(
+                                  category.subcategory?.catalogName ??
+                                      'بدون صنف فرعي',
+                                  style,
+                                  Alignment.centerRight,
+                                ),
+                                _buildCell(
+                                  category.categoryUnit?.unitName ?? 'غير معرف',
+                                  style,
+                                  Alignment.center,
+                                ),
+                                _buildCell(
+                                  category.categoryType.displayName(),
+                                  style,
+                                  Alignment.center,
+                                ),
+                                _buildCell(
+                                  category.barcode ?? 'غير معرف',
+                                  style,
+                                  Alignment.center,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         );
@@ -185,8 +278,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                   ),
                             )
                             .toList();
-                  return Text(filtered.length.toString(),
-                  style: AppStyle.of(context).subTitle,
+                  return Text(
+                    filtered.length.toString(),
+                    style: AppStyle.of(context).subTitle,
                   );
                 },
               ),
@@ -265,7 +359,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
       print('Category Inserted: $category');
     }
     if (category != null && context().mounted) {
-      context().read<CategoriesBloc>().add(InjectCategoryEvent(category));
+      context().read<CategoriesBloc>().add(LoadCategoriesEvent());
       showSnackBar(context(), 'تمت إضافة الصنف بنجاح');
     }
   }
@@ -287,134 +381,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
       builder: (_) => CategoryFormPage(category: category),
     );
     if (updatedCategory != null && context().mounted) {
-      context().read<CategoriesBloc>().add(
-        InjectCategoryEvent(updatedCategory),
-      );
+      context().read<CategoriesBloc>().add(LoadCategoriesEvent());
     }
-  }
-}
-
-class CategoryDataGridSource extends DataGridSource {
-  CategoryDataGridSource({
-    required List<CategoryEntity> items,
-    required this.style,
-    required this.onItemTap,
-    required this.onItemLongPress,
-  }) {
-    _dataGridRows = items.asMap().entries.map<DataGridRow>((entry) {
-      final index = entry.key;
-      final category = entry.value;
-      return DataGridRow(
-        cells: [
-          DataGridCell<String>(columnName: 'no', value: '${index + 1}'),
-          DataGridCell<String>(
-            columnName: 'categoryNumber',
-            value: category.categoryNumber,
-          ),
-          DataGridCell<String>(
-            columnName: 'categoryName',
-            value: category.categoryName,
-          ),
-          DataGridCell<String>(
-            columnName: 'unitName',
-            value: category.categoryUnit?.unitName ?? 'غير معرف',
-          ),
-          DataGridCell<String>(
-            columnName: 'type',
-            value: category.categoryType.displayName(),
-          ),
-          DataGridCell<String>(
-            columnName: 'barcode',
-            value: category.barcode ?? 'غير معرف',
-          ),
-        ],
-      );
-    }).toList();
-  }
-
-  final AppStyle style;
-  final void Function(CategoryEntity) onItemTap;
-  final void Function(CategoryEntity) onItemLongPress;
-
-  List<DataGridRow> _dataGridRows = [];
-
-  @override
-  List<DataGridRow> get rows => _dataGridRows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    final index = _dataGridRows.indexOf(row);
-    return DataGridRowAdapter(
-      color: index.isEven ? null : style.surfaceContainer,
-      cells: row.getCells().map<Widget>((dataGridCell) {
-        return Container(
-          alignment: AlignmentDirectional.centerStart,
-          padding: const EdgeInsets.all(8.0),
-          child: fluent.Text(
-            dataGridCell.value.toString(),
-            overflow: TextOverflow.ellipsis,
-            style: style.body,
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
-
-class MainCategoriesDataGridSource extends DataGridSource {
-  MainCategoriesDataGridSource({
-    required List<MainCategoryEntity> items,
-    required this.textTheme,
-    required this.colors,
-  }) {
-    _dataGridRows = items.map<DataGridRow>((item) {
-      return DataGridRow(
-        cells: [
-          DataGridCell<String>(columnName: 'no', value: item.id.toString()),
-          DataGridCell<String>(columnName: 'name', value: item.name),
-          DataGridCell<String>(columnName: 'unitName', value: item.unitName),
-          DataGridCell<String>(
-            columnName: 'priceUnit',
-            value: item.unitType.fullUnitName,
-          ),
-          DataGridCell<String>(
-            columnName: 'stockUnit',
-            value: item.unitType.fullUnitName,
-          ),
-          DataGridCell<String>(
-            columnName: 'type',
-            value: item.type.displayName(),
-          ),
-          DataGridCell<String>(
-            columnName: 'containerName',
-            value: item.unitName,
-          ),
-        ],
-      );
-    }).toList();
-  }
-
-  final TextTheme textTheme;
-  final ColorScheme colors;
-  List<DataGridRow> _dataGridRows = [];
-
-  @override
-  List<DataGridRow> get rows => _dataGridRows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    return DataGridRowAdapter(
-      cells: row.getCells().map<Widget>((dataGridCell) {
-        return Container(
-          alignment: AlignmentDirectional.centerStart,
-          padding: const EdgeInsets.all(8.0),
-          child: fluent.Text(
-            dataGridCell.value.toString(),
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.bodyMedium,
-          ),
-        );
-      }).toList(),
-    );
   }
 }

@@ -52,7 +52,8 @@ final class UnitModel extends UnitEntity {
       id: id ?? this.id,
       unitName: unitName ?? this.unitName,
       unitType: unitType ?? this.unitType,
-      measurement: measurement ??
+      measurement:
+          measurement ??
           this.measurement.copyWith(
             length: length,
             width: width,

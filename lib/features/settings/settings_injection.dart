@@ -1,6 +1,12 @@
 import 'package:flowcash/features/settings/domain/usecases/counters/set_counter.dart';
 import 'package:get_it/get_it.dart';
 
+// Database Repositories & Use Cases
+import 'package:flowcash/features/settings/domain/repositories/database_repository.dart';
+import 'package:flowcash/features/settings/data/repositories/database_repository_impl.dart';
+import 'package:flowcash/features/settings/domain/usecases/database/backup_database.dart';
+import 'package:flowcash/features/settings/domain/usecases/database/restore_database.dart';
+
 // Data sources
 import 'package:flowcash/features/settings/data/datasources/interfaces/app_value_data_source.dart';
 import 'package:flowcash/features/settings/data/datasources/interfaces/value_counter_data_source.dart';
@@ -48,6 +54,9 @@ void initSettingsFeature(GetIt sl) {
   sl.registerLazySingleton<settings_repo.ValueCounterRepository>(
     () => sl<core_repo.ValueCounterRepository>() as settings_repo.ValueCounterRepository,
   );
+  sl.registerLazySingleton<DatabaseRepository>(
+    () => DatabaseRepositoryImpl(sl()),
+  );
 
   // Use cases
   sl.registerLazySingleton(() => GetAllValues(sl()));
@@ -58,6 +67,8 @@ void initSettingsFeature(GetIt sl) {
   sl.registerLazySingleton(() => GetCounter(sl()));
   sl.registerLazySingleton(() => IncrementCounter(sl()));
   sl.registerLazySingleton(() => SetCounter(sl()));
+  sl.registerLazySingleton(() => BackupDatabaseUseCase(sl()));
+  sl.registerLazySingleton(() => RestoreDatabaseUseCase(sl()));
 
   // Core ValueCounter UseCases
   sl.registerLazySingleton(() => GetValueCountersUseCase(sl()));
@@ -77,6 +88,8 @@ void initSettingsFeature(GetIt sl) {
       getCompanyInfo: sl(),
       getCounter: sl(),
       incrementCounter: sl(),
+      backupDatabaseUseCase: sl(),
+      restoreDatabaseUseCase: sl(),
     ),
   );
 }

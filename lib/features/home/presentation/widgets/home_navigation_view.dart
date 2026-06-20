@@ -1,6 +1,8 @@
 import 'package:flowcash/core/theme/radiuses.dart';
+import 'package:flowcash/user_session.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class HomeNavigationView extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -66,6 +68,32 @@ class HomeNavigationView extends StatelessWidget {
             icon: const Icon(FluentIcons.settings),
             title: const Text('الإعدادات'),
             body: navigationShell,
+          ),
+          PaneItemAction(
+            icon: const Icon(FluentIcons.sign_out),
+            title: const Text('تسجيل الخروج'),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => ContentDialog(
+                  title: const Text('تسجيل الخروج'),
+                  content: const Text('هل أنت متأكد من رغبتك في تسجيل الخروج؟'),
+                  actions: [
+                    Button(
+                      child: const Text('إلغاء'),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    FilledButton(
+                      child: const Text('تسجيل خروج'),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        context.read<UserSession>().logout();
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),

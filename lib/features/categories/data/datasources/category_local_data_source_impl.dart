@@ -154,6 +154,7 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
       categoryUnitId: map[CategoriesTable.categoryUnitId] as int,
       pricingUnitId: map[CategoriesTable.pricingUnitId] as int,
       inventoryUnitId: map[CategoriesTable.inventoryUnitId] as int,
+      subcategoryId: map[CategoriesTable.subcategoryId] as int?,
     );
   }
 
@@ -168,6 +169,7 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
       CategoriesTable.categoryUnitId: entity.categoryUnitId,
       CategoriesTable.pricingUnitId: entity.pricingUnitId,
       CategoriesTable.inventoryUnitId: entity.inventoryUnitId,
+      CategoriesTable.subcategoryId: entity.subcategoryId,
     };
 
     return data;

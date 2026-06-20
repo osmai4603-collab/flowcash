@@ -16,6 +16,8 @@ import 'package:flowcash/features/accounts/domain/usecases/sub_account_repositor
 import 'package:flowcash/widgets/my_text_widget.dart';
 
 import 'inventory_item_form_dialog.dart';
+import 'inventory_subcategory_form_dialog.dart';
+import 'inventory_main_category_form_dialog.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
@@ -217,6 +219,74 @@ class _InventoryCatalogPageState extends State<InventoryCatalogPage> {
                               ),
                             ],
                           ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      fluent.FilledButton(
+                        onPressed: () async {
+                          final result =
+                              await showDialog<List<InventoryEntity>>(
+                                context: context,
+                                builder: (context) =>
+                                    const InventorySubcategoryFormDialog(),
+                              );
+                          if (result != null &&
+                              result.isNotEmpty &&
+                              context.mounted) {
+                            context.read<InventoryCatalogBloc>().add(
+                              AddMultipleInventoryItemsEvent(result),
+                            );
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            fluent.Icon(
+                              fluent.FluentIcons.add,
+                              color: colors.onSecondary,
+                            ),
+                            const SizedBox(width: 10),
+                            fluent.Text(
+                              'إضافة كتالوج مخزون',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: colors.onSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      fluent.FilledButton(
+                        onPressed: () async {
+                          final result =
+                              await showDialog<List<InventoryEntity>>(
+                                context: context,
+                                builder: (context) =>
+                                    const InventoryMainCategoryFormDialog(),
+                              );
+                          if (result != null &&
+                              result.isNotEmpty &&
+                              context.mounted) {
+                            context.read<InventoryCatalogBloc>().add(
+                              AddMultipleInventoryItemsEvent(result),
+                            );
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            fluent.Icon(
+                              fluent.FluentIcons.add,
+                              color: colors.onSecondary,
+                            ),
+                            const SizedBox(width: 10),
+                            fluent.Text(
+                              'إضافة مخزون رئيسي',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: colors.onSecondary,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 12),

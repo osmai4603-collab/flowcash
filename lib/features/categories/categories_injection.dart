@@ -175,6 +175,7 @@ void initCategoriesFeature(GetIt sl) {
       updateCategory: sl(),
       deleteCategory: sl(),
       getUnitsUseCase: sl(),
+      getAllSubcategoriesUseCase: sl(),
     ),
   );
   sl.registerFactory(

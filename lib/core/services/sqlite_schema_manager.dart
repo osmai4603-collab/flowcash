@@ -37,7 +37,7 @@ import 'package:flowcash/core/tables/warehouse_values_table.dart';
 final class SqliteSchemaManager {
   const SqliteSchemaManager._();
 
-  static const int currentVersion = 4;
+  static const int currentVersion = 5;
 
   /// Create the full schema for a new database.
   static void createAll(Database db) {
@@ -62,6 +62,9 @@ final class SqliteSchemaManager {
               break;
             case 4:
               _applyV4Migration(db);
+              break;
+            case 5:
+              _applyV5Migration(db);
               break;
             default:
               throw StateError('No migration defined for version $v');
@@ -126,6 +129,55 @@ final class SqliteSchemaManager {
     db.execute('DROP TABLE ${SubcategoriesTable.tableName}');
     db.execute(
       'ALTER TABLE subcategories_new RENAME TO ${SubcategoriesTable.tableName}',
+    );
+  }
+
+  static void _applyV5Migration(Database db) {
+    // Recreate categories table to add subcategory_id and its foreign key constraint
+    db.execute('''
+      CREATE TABLE IF NOT EXISTS categories_new (
+        ${CategoriesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${CategoriesTable.categoryType} TEXT NOT NULL,
+        ${CategoriesTable.categoryName} TEXT NOT NULL,
+        ${CategoriesTable.categoryNumber} TEXT NOT NULL,
+        ${CategoriesTable.barcode} TEXT,
+        ${CategoriesTable.categoryUnitId} INTEGER,
+        ${CategoriesTable.pricingUnitId} INTEGER,
+        ${CategoriesTable.inventoryUnitId} INTEGER,
+        ${CategoriesTable.subcategoryId} INTEGER,
+        FOREIGN KEY (${CategoriesTable.categoryUnitId}) REFERENCES ${UnitsTable.tableName} (${UnitsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${CategoriesTable.pricingUnitId}) REFERENCES ${UnitsTable.tableName} (${UnitsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${CategoriesTable.inventoryUnitId}) REFERENCES ${UnitsTable.tableName} (${UnitsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${CategoriesTable.subcategoryId}) REFERENCES ${SubcategoriesTable.tableName} (${SubcategoriesTable.id}) ON DELETE SET NULL
+      )
+    ''');
+
+    db.execute('''
+      INSERT INTO categories_new (
+        ${CategoriesTable.id},
+        ${CategoriesTable.categoryType},
+        ${CategoriesTable.categoryName},
+        ${CategoriesTable.categoryNumber},
+        ${CategoriesTable.barcode},
+        ${CategoriesTable.categoryUnitId},
+        ${CategoriesTable.pricingUnitId},
+        ${CategoriesTable.inventoryUnitId}
+      )
+      SELECT 
+        ${CategoriesTable.id},
+        ${CategoriesTable.categoryType},
+        ${CategoriesTable.categoryName},
+        ${CategoriesTable.categoryNumber},
+        ${CategoriesTable.barcode},
+        ${CategoriesTable.categoryUnitId},
+        ${CategoriesTable.pricingUnitId},
+        ${CategoriesTable.inventoryUnitId}
+      FROM ${CategoriesTable.tableName}
+    ''');
+
+    db.execute('DROP TABLE ${CategoriesTable.tableName}');
+    db.execute(
+      'ALTER TABLE categories_new RENAME TO ${CategoriesTable.tableName}',
     );
   }
 
@@ -320,9 +372,11 @@ final class SqliteSchemaManager {
         ${CategoriesTable.categoryUnitId} INTEGER,
         ${CategoriesTable.pricingUnitId} INTEGER,
         ${CategoriesTable.inventoryUnitId} INTEGER,
+        ${CategoriesTable.subcategoryId} INTEGER,
         FOREIGN KEY (${CategoriesTable.categoryUnitId}) REFERENCES ${UnitsTable.tableName} (${UnitsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${CategoriesTable.pricingUnitId}) REFERENCES ${UnitsTable.tableName} (${UnitsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
-        FOREIGN KEY (${CategoriesTable.inventoryUnitId}) REFERENCES ${UnitsTable.tableName} (${UnitsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT
+        FOREIGN KEY (${CategoriesTable.inventoryUnitId}) REFERENCES ${UnitsTable.tableName} (${UnitsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${CategoriesTable.subcategoryId}) REFERENCES ${SubcategoriesTable.tableName} (${SubcategoriesTable.id}) ON DELETE SET NULL
       )
     ''');
 

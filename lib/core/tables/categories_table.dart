@@ -12,6 +12,7 @@ class CategoriesTable {
   static const String categoryUnitId = 'category_unit_id';
   static const String pricingUnitId = 'pricing_unit_id';
   static const String inventoryUnitId = 'inventory_unit_id';
+  static const String subcategoryId = 'subcategory_id';
 
   static const List<String> fields = [
     id,
@@ -22,5 +23,6 @@ class CategoriesTable {
     categoryUnitId,
     pricingUnitId,
     inventoryUnitId,
+    subcategoryId,
   ];
 }

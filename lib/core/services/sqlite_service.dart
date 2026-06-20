@@ -25,7 +25,7 @@ final class SqliteDatabaseManager {
   }
 
   Future<Database> _initDb() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
+    final dbFolder = await getApplicationSupportDirectory();
     final path = join(dbFolder.path, _dbName);
     _databasePath = path;
 
@@ -54,6 +54,13 @@ final class SqliteDatabaseManager {
     }
 
     return db;
+  }
+
+  Future<void> closeDatabase() async {
+    if (_database != null) {
+      _database!.dispose();
+      _database = null;
+    }
   }
 
   // Schema and default data are handled by SqliteSchemaManager and DefaultDataInserter.
@@ -223,8 +230,9 @@ final class SqliteService {
     debugPrint('$query with args: $args');
     final stmt = db.prepare(query);
     final ResultSet results = stmt.select(args ?? const []);
-    final List<Map<String, dynamic>> list =
-        results.map((row) => Map<String, dynamic>.from(row)).toList();
+    final List<Map<String, dynamic>> list = results
+        .map((row) => Map<String, dynamic>.from(row))
+        .toList();
     stmt.dispose();
     return list;
   }
@@ -260,5 +268,17 @@ final class SqliteService {
     }
     stmt.dispose();
     return names;
+  }
+
+  Future<void> closeDatabase() async {
+    await SqliteDatabaseManager.instance.closeDatabase();
+  }
+
+  Future<void> restoreDatabase(String sourcePath) async {
+    await closeDatabase();
+    final destPath = await databasePath;
+    final backupFile = File(sourcePath);
+    await backupFile.copy(destPath);
+    await database; // re-open database connection
   }
 }

@@ -1,4 +1,6 @@
+import 'package:flowcash/core/enums/unit_type_enum.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'catalog_form_event.dart';
 import 'catalog_form_state.dart';
@@ -77,8 +79,9 @@ class SubcategoryFormBloc
     MainCategoryEntity? selectedMainCategory;
     if (selectedId != null && selectedId > 0) {
       try {
-        selectedMainCategory = mainCategories
-            .firstWhere((category) => category.id == selectedId);
+        selectedMainCategory = mainCategories.firstWhere(
+          (category) => category.id == selectedId,
+        );
       } catch (_) {
         selectedMainCategory = null;
       }
@@ -205,15 +208,61 @@ class SubcategoryFormBloc
     }
   }
 
+  Future<UnitEntity?> _getBasicUnit(UnitType type) async {
+    final result = await _getUnitsByUnitType([type]);
+    return result.fold((_) => null, (units) {
+      if (units.isEmpty) return null;
+      try {
+        return units.firstWhere(
+          (u) => u.length == 1.0 && u.width == 1.0 && u.thickness == 1.0,
+        );
+      } catch (_) {
+        return units.first;
+      }
+    });
+  }
+
   Future<void> _onSave(
     SaveSubcategoryEvent event,
     Emitter<SubcategoryFormState> emit,
   ) async {
     emit(state.copyWith(status: SubcategoryFormStatus.saving));
+
+    final updatedProperties = List<SubcategoryProperty>.from(
+      state.catalogProperties,
+    );
+    bool propertiesUpdated = false;
+
+    for (int i = 0; i < updatedProperties.length; i++) {
+      final prop = updatedProperties[i];
+      if (!prop.property.isCategoryUnit && prop.selectedUnits.isEmpty) {
+        final basicUnit = await _getBasicUnit(state.mainCategory!.unitType);
+        if (basicUnit != null) {
+          final catalogUnit = prop.createSubcategoryUnit(unit: basicUnit);
+          updatedProperties[i] = prop.copyWith(selectedUnits: [catalogUnit]);
+          propertiesUpdated = true;
+        }
+      } else if (prop.property.isCategoryUnit) {
+        // Sync from event if provided
+        final selectedIds = event.unitsPerProperty[prop.propertyId];
+        if (selectedIds != null) {
+          final newSelected = prop.subcatgoriesUnits
+              .where((u) => selectedIds.contains(u.unitId))
+              .toList();
+          updatedProperties[i] = prop.copyWith(selectedUnits: newSelected);
+          propertiesUpdated = true;
+        }
+      }
+    }
+
+    final finalState = propertiesUpdated
+        ? state.copyWith(catalogProperties: updatedProperties)
+        : state;
+
     await Future.delayed(const Duration(seconds: 1));
-    final result = state.catalogId == 0
-        ? await _insertSubcategoryWithUnitsUseCase(state.toEntity())
-        : await _updateSubcategoryUseCase(state.toEntity());
+    final result = finalState.catalogId == 0
+        ? await _insertSubcategoryWithUnitsUseCase(finalState.toEntity())
+        : await _updateSubcategoryUseCase(finalState.toEntity());
 
     result.fold(
       (failure) => emit(
@@ -235,11 +284,12 @@ class SubcategoryFormBloc
     UpdateSelectedUnitEvent event,
     Emitter<SubcategoryFormState> emit,
   ) {
-    print('table');
     final s = state;
     if (s.status != SubcategoryFormStatus.ready) return;
-    
-    final selectedUnits = List<SubcategoryUnit>.from(event.property.selectedUnits);
+
+    final selectedUnits = List<SubcategoryUnit>.from(
+      event.property.selectedUnits,
+    );
     if (event.unit == null) {
       if (event.index >= 0 && event.index < selectedUnits.length) {
         selectedUnits.removeAt(event.index);
@@ -249,16 +299,14 @@ class SubcategoryFormBloc
     } else {
       selectedUnits.add(event.unit!);
     }
-    
-    final property = event.property.copyWith(
-      selectedUnits: selectedUnits,
-    );
-    
+
+    final property = event.property.copyWith(selectedUnits: selectedUnits);
+
     final properties = List<SubcategoryProperty>.from(state.catalogProperties);
     final idx = properties.indexWhere(
       (catalogProperty) => catalogProperty.propertyId == property.propertyId,
     );
-    
+
     if (idx > -1) {
       properties[idx] = property;
       emit(state.copyWith(catalogProperties: properties));
@@ -277,24 +325,16 @@ class SubcategoryFormBloc
 
     var catalogProperty = state.catalogProperties[indexOfProperty];
     catalogProperty = catalogProperty.copyWith(
-      catalogUnits: [
-        ...catalogProperty.subcatgoriesUnits,
-        event.catalogUnit,
-      ],
-      selectedUnits: [
-        ...catalogProperty.selectedUnits,
-        event.catalogUnit,
-      ],
+      catalogUnits: [...catalogProperty.subcatgoriesUnits, event.catalogUnit],
+      selectedUnits: [...catalogProperty.selectedUnits, event.catalogUnit],
     );
 
-    final newProperties = List<SubcategoryProperty>.from(state.catalogProperties);
+    final newProperties = List<SubcategoryProperty>.from(
+      state.catalogProperties,
+    );
     newProperties[indexOfProperty] = catalogProperty;
 
-    emit(
-      state.copyWith(
-        catalogProperties: newProperties,
-      ),
-    );
+    emit(state.copyWith(catalogProperties: newProperties));
   }
 
   void _onAddSelectedSlot(

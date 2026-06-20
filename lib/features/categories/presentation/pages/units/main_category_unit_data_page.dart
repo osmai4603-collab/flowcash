@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flowcash/core/theme/spacings.dart';
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
@@ -102,7 +103,7 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
     BuildContext context,
     MainCategoryUnitDataLoadSuccess state,
   ) {
-    final colors = ColorScheme.of(context);
+    final colors = AppStyle.of(context);
     return PopScope(
       canPop: !_isDataChanged,
       onPopInvokedWithResult: (didPop, result) {
@@ -110,48 +111,49 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
         _onBackPressed();
       },
       child: fluent.ContentDialog(
-        constraints: const BoxConstraints(maxWidth: 500.0),
-        content: Padding(
-          padding: Paddings.mediumAll,
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              child: Column(
-                spacing: Spacings.medium,
-                children: [
-                  Row(
-                    children: [
-                      fluent.Tooltip(
-                        message: 'رجوع',
-                        child: fluent.IconButton(
-                          icon: const fluent.Icon(fluent.FluentIcons.back),
-                          onPressed: _onBackPressed,
+        constraints: const BoxConstraints(maxWidth: 400.0),
+        content: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              spacing: Spacings.small,
+              children: [
+                Row(
+                  children: [
+                    fluent.Tooltip(
+                      message: 'رجوع',
+                      child: fluent.IconButton(
+                        icon: const fluent.Icon(
+                          fluent.FluentIcons.back_to_window,
                         ),
+                        onPressed: _onBackPressed,
                       ),
-                      const TextWidget(
-                        text: 'بيانات الصنف الرئيسي',
-                        expanded: true,
-                        alignment: Alignment.center,
+                    ),
+                    const TextWidget(
+                      text: 'بيانات الصنف الرئيسي',
+                      expanded: true,
+                      alignment: Alignment.center,
+                    ),
+                    fluent.Tooltip(
+                      message: 'حفظ البيانات',
+                      child: fluent.IconButton(
+                        icon: const fluent.Icon(fluent.FluentIcons.save),
+                        onPressed: () => _onSaveButtonClicked(context),
                       ),
-                      fluent.Tooltip(
-                        message: 'حفظ البيانات',
-                        child: fluent.IconButton(
-                          icon: const fluent.Icon(fluent.FluentIcons.save),
-                          onPressed: () => _onSaveButtonClicked(context),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: Spacings.small),
-                  fluent.TextFormBox(
+                    ),
+                  ],
+                ),
+                const SizedBox(height: Spacings.small),
+                fluent.InfoLabel(
+                  label: 'اسم الصنف',
+                  child: fluent.TextFormBox(
                     textInputAction: TextInputAction.next,
                     controller: categoryNameController,
                     onChanged: (_) => _markChanged(),
                     textAlignVertical: isDesktop
                         ? TextAlignVertical.top
                         : TextAlignVertical.center,
-                    style: Styles.titleMedium,
                     cursorHeight: 20.0,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -160,21 +162,22 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                       return null;
                     },
                     placeholder: 'ادخل اسم الصنف',
-                    placeholderStyle: Styles.titleSmall.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
                     prefix: fluent.Icon(
                       fluent.FluentIcons.category_classification,
                       color: colors.primary,
                     ),
                   ),
-                  Row(
-                    spacing: Spacings.medium,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
+                ),
+                Row(
+                  spacing: Spacings.medium,
+                  crossAxisAlignment: .start,
+                  children: [
+                    Expanded(
+                      child: fluent.InfoLabel(
+                        label: 'وحدة السعر',
                         child: fluent.ComboboxFormField<CategoryPropertyEntity>(
                           value: state.pricingPropertySelected,
+                          isExpanded: true,
                           placeholder: const fluent.Text('حدد وحدة السعر'),
                           items: state.properties.map((property) {
                             return fluent.ComboBoxItem<CategoryPropertyEntity>(
@@ -200,16 +203,19 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                           },
                         ),
                       ),
-                      Expanded(
+                    ),
+                    Expanded(
+                      child: fluent.InfoLabel(
+                        label: 'وحدة الجرد',
                         child: fluent.ComboboxFormField<CategoryPropertyEntity>(
                           value: state.inventoryPropertySelected,
+                          isExpanded: true,
                           placeholder: const fluent.Text('حدد وحدة الجرد'),
                           items: state.properties.map((property) {
                             return fluent.ComboBoxItem<CategoryPropertyEntity>(
                               value: property,
                               child: fluent.Text(
                                 property.unitType.fullUnitName,
-                                style: Styles.titleMedium,
                               ),
                             );
                           }).toList(),
@@ -229,10 +235,10 @@ class _MainCategoryUnitDataPageState extends State<MainCategoryUnitDataPage> {
                           },
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),

@@ -12,6 +12,7 @@ import '../bloc/settings/settings_event.dart';
 import '../bloc/settings/settings_state.dart';
 import '../widgets/setting_tile.dart';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class SettingsPage extends StatefulWidget {
@@ -130,191 +131,351 @@ class _SettingsPageState extends State<SettingsPage> {
     context.read<AppBloc>().add(LocaleChanged(locale: locale));
   }
 
+  Future<void> _backupDatabase(BuildContext context) async {
+    try {
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'اختر مكان حفظ النسخة الاحتياطية',
+        fileName: 'flowcash_backup_${DateTime.now().millisecondsSinceEpoch}.db',
+        type: FileType.any,
+      );
+
+      if (result != null) {
+        if (context.mounted) {
+          context.read<SettingsBloc>().add(BackupDatabaseEvent(result));
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        String message = 'حدث خطأ أثناء النسخ الاحتياطي: $e';
+        if (e.toString().contains('zenity')) {
+          message =
+              'يرجى تثبيت حزمة zenity لاستخدام منتقي الملفات:\nsudo apt install zenity';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            duration: const Duration(seconds: 7),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _restoreDatabase(BuildContext context) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        dialogTitle: 'اختر ملف قاعدة البيانات للاستعادة',
+        type: FileType.any,
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        if (context.mounted) {
+          context.read<SettingsBloc>().add(
+            RestoreDatabaseEvent(result.files.single.path!),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        String message = 'حدث خطأ أثناء الاستعادة: $e';
+        if (e.toString().contains('zenity')) {
+          message =
+              'يرجى تثبيت حزمة zenity لاستخدام منتقي الملفات:\nsudo apt install zenity';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            duration: const Duration(seconds: 7),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => GetIt.instance<SettingsBloc>()..add(LoadSettingsEvent()),
-      child: Scaffold(
-        appBar: AppBar(title: const fluent.Text('الإعدادات')),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: BlocBuilder<SettingsBloc, SettingsState>(
-            builder: (context, state) {
-              if (state.status == SettingsStatus.loading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state.status == SettingsStatus.failure) {
-                return Center(
-                  child: fluent.Text(
-                    state.errorMessage ?? 'فشل تحميل الإعدادات',
+      child: ScaffoldMessenger(
+        child: Scaffold(
+          appBar: AppBar(title: const fluent.Text('الإعدادات')),
+          body: BlocListener<SettingsBloc, SettingsState>(
+            listenWhen: (previous, current) =>
+                previous.backupStatus != current.backupStatus ||
+                previous.restoreStatus != current.restoreStatus,
+            listener: (context, state) {
+              if (state.backupStatus == SettingsStatus.loading) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('جاري النسخ الاحتياطي...')),
+                );
+              } else if (state.backupStatus == SettingsStatus.success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('تم النسخ الاحتياطي لقاعدة البيانات بنجاح'),
+                  ),
+                );
+              } else if (state.backupStatus == SettingsStatus.failure) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state.databaseErrorMessage ??
+                          'فشل النسخ الاحتياطي لقاعدة البيانات',
+                    ),
                   ),
                 );
               }
 
-              return BlocBuilder<AppBloc, AppState>(
-                builder: (context, appState) {
-                  return ListView(
-                    children: [
-                      const fluent.Text(
-                        'المظهر',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+              if (state.restoreStatus == SettingsStatus.loading) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('جاري استعادة قاعدة البيانات...'),
+                  ),
+                );
+              } else if (state.restoreStatus == SettingsStatus.success) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => fluent.ContentDialog(
+                    title: const Text('نجاح الاستعادة'),
+                    content: const Text(
+                      'تم استعادة قاعدة البيانات بنجاح. يرجى إعادة تشغيل التطبيق لتطبيق التغييرات.',
+                    ),
+                    actions: [
+                      fluent.FilledButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('موافق'),
                       ),
-                      RadioListTile<ThemeMode>(
-                        title: const fluent.Text('وضع النظام'),
-                        value: ThemeMode.system,
-                        groupValue: appState.appData.themeMode,
-                        onChanged: _onThemeModeChanged,
-                      ),
-                      RadioListTile<ThemeMode>(
-                        title: const fluent.Text('الوضع الفاتح'),
-                        value: ThemeMode.light,
-                        groupValue: appState.appData.themeMode,
-                        onChanged: _onThemeModeChanged,
-                      ),
-                      RadioListTile<ThemeMode>(
-                        title: const fluent.Text('الوضع الداكن'),
-                        value: ThemeMode.dark,
-                        groupValue: appState.appData.themeMode,
-                        onChanged: _onThemeModeChanged,
-                      ),
-                      const SizedBox(height: 24),
-                      const fluent.Text(
-                        'اللغة',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      DropdownButtonFormField<Locale>(
-                        decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                        ),
-                        value: appState.appData.locale,
-                        items: const [
-                          DropdownMenuItem(
-                            value: Locale('ar', 'YE'),
-                            child: fluent.Text('العربية'),
-                          ),
-                          DropdownMenuItem(
-                            value: Locale('en', 'US'),
-                            child: fluent.Text('English'),
-                          ),
-                        ],
-                        onChanged: (locale) {
-                          if (locale != null) {
-                            _onLocaleChanged(locale);
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      const fluent.Text(
-                        'ألوان المظهر',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      const fluent.Text(
-                        'الوضع الفاتح',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildColorTile(
-                        title: 'اللون الأساسي الفاتح',
-                        color: _lightPrimaryColor,
-                        onTap: () => _pickColor(
-                          'اختر اللون الأساسي للوضع الفاتح',
-                          _lightPrimaryColor,
-                          _updateLightPrimaryColor,
-                        ),
-                      ),
-                      _buildColorTile(
-                        title: 'اللون الثانوي الفاتح',
-                        color: _lightSecondaryColor,
-                        onTap: () => _pickColor(
-                          'اختر اللون الثانوي للوضع الفاتح',
-                          _lightSecondaryColor,
-                          _updateLightSecondaryColor,
-                        ),
-                      ),
-                      _buildColorTile(
-                        title: 'اللون الثالثي الفاتح',
-                        color: _lightTertiaryColor,
-                        onTap: () => _pickColor(
-                          'اختر اللون الثالثي للوضع الفاتح',
-                          _lightTertiaryColor,
-                          _updateLightTertiaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const fluent.Text(
-                        'الوضع الداكن',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildColorTile(
-                        title: 'اللون الأساسي الداكن',
-                        color: _darkPrimaryColor,
-                        onTap: () => _pickColor(
-                          'اختر اللون الأساسي للوضع الداكن',
-                          _darkPrimaryColor,
-                          _updateDarkPrimaryColor,
-                        ),
-                      ),
-                      _buildColorTile(
-                        title: 'اللون الثانوي الداكن',
-                        color: _darkSecondaryColor,
-                        onTap: () => _pickColor(
-                          'اختر اللون الثانوي للوضع الداكن',
-                          _darkSecondaryColor,
-                          _updateDarkSecondaryColor,
-                        ),
-                      ),
-                      _buildColorTile(
-                        title: 'اللون الثالثي الداكن',
-                        color: _darkTertiaryColor,
-                        onTap: () => _pickColor(
-                          'اختر اللون الثالثي للوضع الداكن',
-                          _darkTertiaryColor,
-                          _updateDarkTertiaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Divider(),
-                      const SizedBox(height: 12),
-                      if (state.values.isEmpty)
-                        const Center(
-                          child: fluent.Text('لا توجد إعدادات إضافية.'),
-                        )
-                      else
-                        ...state.values.map((value) {
-                          return SettingTile(
-                            value: value,
-                            onSave: (updatedValue) {
-                              context.read<SettingsBloc>().add(
-                                UpdateSettingEvent(updatedValue),
-                              );
-                            },
-                          );
-                        }).toList(),
                     ],
+                  ),
+                );
+              } else if (state.restoreStatus == SettingsStatus.failure) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state.databaseErrorMessage ??
+                          'فشل استعادة قاعدة البيانات',
+                    ),
+                  ),
+                );
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: BlocBuilder<SettingsBloc, SettingsState>(
+                builder: (context, state) {
+                  if (state.status == SettingsStatus.loading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (state.status == SettingsStatus.failure) {
+                    return Center(
+                      child: fluent.Text(
+                        state.errorMessage ?? 'فشل تحميل الإعدادات',
+                      ),
+                    );
+                  }
+
+                  return BlocBuilder<AppBloc, AppState>(
+                    builder: (context, appState) {
+                      return ListView(
+                        children: [
+                          const fluent.Text(
+                            'المظهر',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          RadioListTile<ThemeMode>(
+                            title: const fluent.Text('وضع النظام'),
+                            value: ThemeMode.system,
+                            groupValue: appState.appData.themeMode,
+                            onChanged: _onThemeModeChanged,
+                          ),
+                          RadioListTile<ThemeMode>(
+                            title: const fluent.Text('الوضع الفاتح'),
+                            value: ThemeMode.light,
+                            groupValue: appState.appData.themeMode,
+                            onChanged: _onThemeModeChanged,
+                          ),
+                          RadioListTile<ThemeMode>(
+                            title: const fluent.Text('الوضع الداكن'),
+                            value: ThemeMode.dark,
+                            groupValue: appState.appData.themeMode,
+                            onChanged: _onThemeModeChanged,
+                          ),
+                          const SizedBox(height: 24),
+                          const fluent.Text(
+                            'اللغة',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          DropdownButtonFormField<Locale>(
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
+                            ),
+                            value: appState.appData.locale,
+                            items: const [
+                              DropdownMenuItem(
+                                value: Locale('ar', 'YE'),
+                                child: fluent.Text('العربية'),
+                              ),
+                              DropdownMenuItem(
+                                value: Locale('en', 'US'),
+                                child: fluent.Text('English'),
+                              ),
+                            ],
+                            onChanged: (locale) {
+                              if (locale != null) {
+                                _onLocaleChanged(locale);
+                              }
+                            },
+                          ),
+                          // const SizedBox(height: 24),
+                          // const fluent.Text(
+                          //   'ألوان المظهر',
+                          //   style: TextStyle(
+                          //     fontSize: 18,
+                          //     fontWeight: FontWeight.bold,
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 12),
+                          // const fluent.Text(
+                          //   'الوضع الفاتح',
+                          //   style: TextStyle(
+                          //     fontSize: 16,
+                          //     fontWeight: FontWeight.w600,
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 8),
+                          // _buildColorTile(
+                          //   title: 'اللون الأساسي الفاتح',
+                          //   color: _lightPrimaryColor,
+                          //   onTap: () => _pickColor(
+                          //     'اختر اللون الأساسي للوضع الفاتح',
+                          //     _lightPrimaryColor,
+                          //     _updateLightPrimaryColor,
+                          //   ),
+                          // ),
+                          // _buildColorTile(
+                          //   title: 'اللون الثانوي الفاتح',
+                          //   color: _lightSecondaryColor,
+                          //   onTap: () => _pickColor(
+                          //     'اختر اللون الثانوي للوضع الفاتح',
+                          //     _lightSecondaryColor,
+                          //     _updateLightSecondaryColor,
+                          //   ),
+                          // ),
+                          // _buildColorTile(
+                          //   title: 'اللون الثالثي الفاتح',
+                          //   color: _lightTertiaryColor,
+                          //   onTap: () => _pickColor(
+                          //     'اختر اللون الثالثي للوضع الفاتح',
+                          //     _lightTertiaryColor,
+                          //     _updateLightTertiaryColor,
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 16),
+                          // const fluent.Text(
+                          //   'الوضع الداكن',
+                          //   style: TextStyle(
+                          //     fontSize: 16,
+                          //     fontWeight: FontWeight.w600,
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 8),
+                          // _buildColorTile(
+                          //   title: 'اللون الأساسي الداكن',
+                          //   color: _darkPrimaryColor,
+                          //   onTap: () => _pickColor(
+                          //     'اختر اللون الأساسي للوضع الداكن',
+                          //     _darkPrimaryColor,
+                          //     _updateDarkPrimaryColor,
+                          //   ),
+                          // ),
+                          // _buildColorTile(
+                          //   title: 'اللون الثانوي الداكن',
+                          //   color: _darkSecondaryColor,
+                          //   onTap: () => _pickColor(
+                          //     'اختر اللون الثانوي للوضع الداكن',
+                          //     _darkSecondaryColor,
+                          //     _updateDarkSecondaryColor,
+                          //   ),
+                          // ),
+                          // _buildColorTile(
+                          //   title: 'اللون الثالثي الداكن',
+                          //   color: _darkTertiaryColor,
+                          //   onTap: () => _pickColor(
+                          //     'اختر اللون الثالثي للوضع الداكن',
+                          //     _darkTertiaryColor,
+                          //     _updateDarkTertiaryColor,
+                          //   ),
+                          // ),
+                          const SizedBox(height: 24),
+                          const Divider(),
+                          const SizedBox(height: 12),
+                          const fluent.Text(
+                            'قاعدة البيانات',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ListTile(
+                            leading: const Icon(
+                              Icons.backup,
+                              color: Colors.blue,
+                            ),
+                            title: const Text(
+                              'النسخ الاحتياطي لقاعدة البيانات',
+                            ),
+                            subtitle: const Text(
+                              'حفظ نسخة احتياطية من بياناتك الحالية',
+                            ),
+                            onTap: () => _backupDatabase(context),
+                          ),
+                          ListTile(
+                            leading: const Icon(
+                              Icons.restore,
+                              color: Colors.green,
+                            ),
+                            title: const Text('استعادة قاعدة البيانات'),
+                            subtitle: const Text(
+                              'استعادة البيانات من نسخة احتياطية سابقة',
+                            ),
+                            onTap: () => _restoreDatabase(context),
+                          ),
+                          const SizedBox(height: 24),
+                          const Divider(),
+                          const SizedBox(height: 12),
+                          if (state.values.isEmpty)
+                            const Center(
+                              child: fluent.Text('لا توجد إعدادات إضافية.'),
+                            )
+                          else
+                            ...state.values.map((value) {
+                              return SettingTile(
+                                value: value,
+                                onSave: (updatedValue) {
+                                  context.read<SettingsBloc>().add(
+                                    UpdateSettingEvent(updatedValue),
+                                  );
+                                },
+                              );
+                            }),
+                        ],
+                      );
+                    },
                   );
                 },
-              );
-            },
+              ),
+            ),
           ),
         ),
       ),

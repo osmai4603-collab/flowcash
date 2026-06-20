@@ -39,3 +39,21 @@ class IncrementCounterEvent extends SettingsEvent {
   @override
   List<Object?> get props => [counterType];
 }
+
+class BackupDatabaseEvent extends SettingsEvent {
+  final String destinationPath;
+
+  const BackupDatabaseEvent(this.destinationPath);
+
+  @override
+  List<Object?> get props => [destinationPath];
+}
+
+class RestoreDatabaseEvent extends SettingsEvent {
+  final String sourcePath;
+
+  const RestoreDatabaseEvent(this.sourcePath);
+
+  @override
+  List<Object?> get props => [sourcePath];
+}

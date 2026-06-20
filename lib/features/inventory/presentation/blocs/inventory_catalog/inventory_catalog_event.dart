@@ -35,3 +35,12 @@ class DeleteInventoryItemEvent extends InventoryCatalogEvent {
   @override
   List<Object?> get props => [id];
 }
+
+class AddMultipleInventoryItemsEvent extends InventoryCatalogEvent {
+  final List<InventoryEntity> items;
+  const AddMultipleInventoryItemsEvent(this.items);
+
+  @override
+  List<Object?> get props => [items];
+}
+
