@@ -85,8 +85,8 @@ class LinearMeasurableUnit extends MeasurableUnit {
 }
 
 class AreaMeasurableUnit extends MeasurableUnit {
-  const AreaMeasurableUnit({required double length, required double width})
-    : super(length: length, width: width, thickness: 1.0);
+  const AreaMeasurableUnit({required super.length, required super.width})
+    : super(thickness: 1.0);
 
   @override
   AreaMeasurableUnit copyWith({
@@ -103,10 +103,10 @@ class AreaMeasurableUnit extends MeasurableUnit {
 
 class VolumeMeasurableUnit extends MeasurableUnit {
   const VolumeMeasurableUnit({
-    required double length,
-    required double width,
-    required double thickness,
-  }) : super(length: length, width: width, thickness: thickness);
+    required super.length,
+    required super.width,
+    required super.thickness,
+  });
 
   @override
   VolumeMeasurableUnit copyWith({

@@ -79,13 +79,9 @@ class StubAddCategoryAttributeUseCase implements AddCategoryAttributeUseCase {
 
 
 class StubGetBasicUnitsUseCase implements GetBasicUnits {
-  late Future<Either<Failure, CategoryAttributeEntity>> Function(
-    CategoryAttributeEntity,
-  )
-  callStub;
+  late Future<Either<Failure, List<UnitEntity>>> Function() callStub;
   @override
-  Future<Either<Failure, List<UnitEntity>> call(
-  ) => callStub(attribute);
+  Future<Either<Failure, List<UnitEntity>>> call() => callStub();
 }
 
 class StubHasCategoryNameUseCase implements HasCategoryNameUseCase {

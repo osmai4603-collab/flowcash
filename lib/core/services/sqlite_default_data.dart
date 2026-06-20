@@ -77,19 +77,31 @@ final class DefaultDataInserter {
       id: 1,
       unitName: 'حبة',
       unitType: UnitType.piece,
-      measurement: PieceMeasurableUnit(count: 0.0),
+      measurement: VolumeMeasurableUnit(
+        length: 0.0,
+        width: 0.0,
+        thickness: 0.0,
+      ),
     ),
     UnitModel(
       id: 2,
       unitName: 'متر طولي',
       unitType: UnitType.linearMeter,
-      measurement: LinearMeasurableUnit(0.0),
+      measurement: VolumeMeasurableUnit(
+        length: 0.0,
+        width: 0.0,
+        thickness: 0.0,
+      ),
     ),
     UnitModel(
       id: 3,
       unitName: 'متر مربع',
       unitType: UnitType.squareMeter,
-      measurement: AreaMeasurableUnit(length: 0.0, width: 0.0),
+      measurement: VolumeMeasurableUnit(
+        length: 0.0,
+        width: 0.0,
+        thickness: 0.0,
+      ),
     ),
     UnitModel(
       id: 4,
@@ -105,7 +117,11 @@ final class DefaultDataInserter {
       id: 5,
       unitName: 'كيلو جرام',
       unitType: UnitType.weight,
-      measurement: WeightMeasurableUnit(0.0),
+      measurement: VolumeMeasurableUnit(
+        length: 0.0,
+        width: 0.0,
+        thickness: 0.0,
+      ),
     ),
   ];
 

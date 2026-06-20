@@ -31,11 +31,8 @@ class _SystemPageState extends State<SystemPage> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage(
-      header: const PageHeader(
-        title: Text('إعدادات النظام'),
-      ),
+      header: const PageHeader(title: Text('إعدادات النظام')),
       content: NavigationView(
-        
         pane: NavigationPane(
           selected: _selectedIndex,
           onChanged: (index) => setState(() => _selectedIndex = index),
@@ -53,7 +50,8 @@ class _SystemPageState extends State<SystemPage> {
               icon: const Icon(FluentIcons.chart),
               title: const Text('أسعار الصرف'),
               body: BlocProvider(
-                create: (_) => sl<ExchangeRatesBloc>()..add(LoadExchangeRatesEvent()),
+                create: (_) =>
+                    sl<ExchangeRatesBloc>()..add(LoadExchangeRatesEvent()),
                 child: const ExchangeRatesPage(),
               ),
             ),
@@ -61,7 +59,9 @@ class _SystemPageState extends State<SystemPage> {
               icon: const Icon(FluentIcons.calendar),
               title: const Text('الفترات المالية'),
               body: BlocProvider(
-                create: (_) => sl<FinancialPeriodsBloc>()..add(LoadFinancialPeriodsEvent()),
+                create: (_) =>
+                    sl<FinancialPeriodsBloc>()
+                      ..add(LoadFinancialPeriodsEvent()),
                 child: const FinancialPeriodsPage(),
               ),
             ),
@@ -77,7 +77,8 @@ class _SystemPageState extends State<SystemPage> {
               icon: const Icon(FluentIcons.payment_card),
               title: const Text('قيم المستودعات'),
               body: BlocProvider(
-                create: (_) => sl<WarehouseValuesBloc>()..add(LoadWarehouseValuesEvent()),
+                create: (_) =>
+                    sl<WarehouseValuesBloc>()..add(LoadWarehouseValuesEvent()),
                 child: const WarehouseValuesPage(),
               ),
             ),
@@ -85,7 +86,8 @@ class _SystemPageState extends State<SystemPage> {
               icon: const Icon(FluentIcons.calculator),
               title: const Text('عدادات القيم'),
               body: BlocProvider(
-                create: (_) => sl<ValueCountersBloc>()..add(LoadValueCountersEvent()),
+                create: (_) =>
+                    sl<ValueCountersBloc>()..add(LoadValueCountersEvent()),
                 child: const ValueCountersPage(),
               ),
             ),
@@ -95,14 +97,6 @@ class _SystemPageState extends State<SystemPage> {
               body: BlocProvider(
                 create: (_) => sl<DefaultsBloc>()..add(LoadDefaultsEvent()),
                 child: const DefaultsPage(),
-              ),
-            ),
-            PaneItem(
-              icon: const Icon(FluentIcons.people),
-              title: const Text('بيانات الشركة'),
-              body: BlocProvider(
-                create: (_) => sl<CompanyBloc>()..add(LoadCompanyEvent()),
-                child: const CompanyPage(),
               ),
             ),
           ],

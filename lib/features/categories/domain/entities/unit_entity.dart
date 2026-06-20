@@ -22,16 +22,13 @@ class UnitEntity extends Entity {
   double get width => measurement.width;
   double get thickness => measurement.thickness;
 
-  UnitEntity.piece({
-    required int id,
-    int count = 0,
-    String unitName = 'حبة',
-  }) : this(
-          id: id,
-          unitName: count <= 0 ? unitName : '$count$unitName',
-          unitType: UnitType.piece,
-          measurement: PieceMeasurableUnit(count: count.toDouble()),
-        );
+  UnitEntity.piece({required int id, int count = 0, String unitName = 'حبة'})
+    : this(
+        id: id,
+        unitName: count <= 0 ? unitName : '$count$unitName',
+        unitType: UnitType.piece,
+        measurement: PieceMeasurableUnit(count: count.toDouble()),
+      );
 
   UnitEntity.squareMeter({
     required int id,
@@ -39,22 +36,22 @@ class UnitEntity extends Entity {
     required double length,
     required double width,
   }) : this(
-          id: id,
-          unitName: '${AppMoneyFormatter.formatDouble(width * length)}متر مربع',
-          unitType: UnitType.squareMeter,
-          measurement: AreaMeasurableUnit(length: length, width: width),
-        );
+         id: id,
+         unitName: '${AppMoneyFormatter.formatDouble(width * length)}متر مربع',
+         unitType: UnitType.squareMeter,
+         measurement: AreaMeasurableUnit(length: length, width: width),
+       );
 
   UnitEntity.squareMeterWidthStatic({
     required int id,
     int? propertyId,
     required double width,
   }) : this(
-          id: id,
-          unitName: '${AppMoneyFormatter.formatDouble(width)}متر',
-          unitType: UnitType.squareMeterWidthStatic,
-          measurement: AreaMeasurableUnit(length: 1, width: width),
-        );
+         id: id,
+         unitName: '${AppMoneyFormatter.formatDouble(width)}متر',
+         unitType: UnitType.squareMeterWidthStatic,
+         measurement: AreaMeasurableUnit(length: 1, width: width),
+       );
 
   UnitEntity.squareMeterStatic({
     required int id,
@@ -62,12 +59,12 @@ class UnitEntity extends Entity {
     required double length,
     required double width,
   }) : this(
-          id: id,
-          unitName:
-              '${AppMoneyFormatter.formatDouble(width * 100)}x${AppMoneyFormatter.formatDouble(length * 100)}',
-          unitType: UnitType.squareMeterStatic,
-          measurement: AreaMeasurableUnit(length: length, width: width),
-        );
+         id: id,
+         unitName:
+             '${AppMoneyFormatter.formatDouble(width * 100)}x${AppMoneyFormatter.formatDouble(length * 100)}',
+         unitType: UnitType.squareMeterStatic,
+         measurement: AreaMeasurableUnit(length: length, width: width),
+       );
 
   UnitEntity.cubitMeter({
     required int id,
@@ -76,16 +73,16 @@ class UnitEntity extends Entity {
     required double width,
     required double thickness,
   }) : this(
-          id: id,
-          unitName:
-              '${AppMoneyFormatter.formatDouble(thickness * 100)}x${AppMoneyFormatter.formatDouble(width * 100)}x${AppMoneyFormatter.formatDouble(length * 100)}',
-          unitType: UnitType.cubitMeter,
-          measurement: VolumeMeasurableUnit(
-            length: length,
-            width: width,
-            thickness: thickness,
-          ),
-        );
+         id: id,
+         unitName:
+             '${AppMoneyFormatter.formatDouble(thickness * 100)}x${AppMoneyFormatter.formatDouble(width * 100)}x${AppMoneyFormatter.formatDouble(length * 100)}',
+         unitType: UnitType.cubitMeter,
+         measurement: VolumeMeasurableUnit(
+           length: length,
+           width: width,
+           thickness: thickness,
+         ),
+       );
 
   UnitEntity.linearMeter({
     required int id,
@@ -93,32 +90,30 @@ class UnitEntity extends Entity {
     required double length,
     required String unitName,
   }) : this(
-          id: id,
-          unitName: unitName,
-          unitType: UnitType.linearMeter,
-          measurement: LinearMeasurableUnit(length),
-        );
+         id: id,
+         unitName: unitName,
+         unitType: UnitType.linearMeter,
+         measurement: LinearMeasurableUnit(length),
+       );
 
   UnitEntity.weight({
     required int id,
     required double weight,
     required String unitName,
   }) : this(
-          id: id,
-          unitName: '${AppMoneyFormatter.formatDouble(weight)}$unitName',
-          unitType: UnitType.weight,
-          measurement: WeightMeasurableUnit(weight),
-        );
+         id: id,
+         unitName: '${AppMoneyFormatter.formatDouble(weight)}$unitName',
+         unitType: UnitType.weight,
+         measurement: WeightMeasurableUnit(weight),
+       );
 
-  UnitEntity.text({
-    required int id,
-    required String textName,
-  }) : this(
-          id: id,
-          unitName: textName,
-          unitType: UnitType.model,
-          measurement: const ModelMeasurableUnit(),
-        );
+  UnitEntity.text({required int id, required String textName})
+    : this(
+        id: id,
+        unitName: textName,
+        unitType: UnitType.model,
+        measurement: const ModelMeasurableUnit(),
+      );
 
   @override
   List<Object?> get props => [id, unitName, measurement, unitType];
@@ -137,16 +132,20 @@ class UnitEntity extends Entity {
       id: id ?? this.id,
       unitName: unitName ?? this.unitName,
       unitType: unitType ?? this.unitType,
-      measurement: measurement ??
+      measurement:
+          measurement ??
           this.measurement.copyWith(
-                length: length,
-                width: width,
-                thickness: thickness,
-              ),
+            length: length,
+            width: width,
+            thickness: thickness,
+          ),
     );
   }
 
   bool get isMeasurable => unitType.isMeasurable;
+  bool get isBasicUnit {
+    return unitType.isBasic && id < 6;
+  }
 
   double get countUnits => measurement.countUnits;
 

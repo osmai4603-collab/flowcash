@@ -99,7 +99,7 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
       table: UnitsTable.tableName,
       where:
           '${UnitsTable.unitType} IN (${List.filled(types.length, '?').join(', ')}) AND ${UnitsTable.length} == ? AND ${UnitsTable.width} == ? AND ${UnitsTable.thickness} == ?',
-      whereArgs: [...types, 1.0, 1.0, 1.0],
+      whereArgs: [...types, 0.0, 0.0, 0.0],
     );
     return result.map(fromMap).toList();
   }
@@ -146,7 +146,8 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
 
   @override
   Future<List<UnitEntity>> getByMainCategory(int mainCategoryId) async {
-    final String query = '''
+    final String query =
+        '''
       SELECT * FROM ${UnitsTable.tableName}
       WHERE ${UnitsTable.id} IN (
         SELECT ${SubcategoriesUnitsTable.unitId}

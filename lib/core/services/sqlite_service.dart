@@ -118,6 +118,11 @@ final class SqliteService {
 
   Future<T> transaction<T>(Future<T> Function() action) async {
     final db = await database;
+    final inTransaction = !db.autocommit;
+    if (inTransaction) {
+      debugPrint('Nested transaction detected, running action directly...');
+      return await action();
+    }
     debugPrint(
       'Start Transaction....................................................',
     );
