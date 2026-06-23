@@ -29,3 +29,21 @@ class AddSalesDocumentEvent extends SalesPageEvent {
   @override
   List<Object?> get props => [bill];
 }
+
+class UpdateSalesDocumentEvent extends SalesPageEvent {
+  final BillEntity bill;
+
+  const UpdateSalesDocumentEvent(this.bill);
+
+  @override
+  List<Object?> get props => [bill];
+}
+
+class DeleteSalesDocumentEvent extends SalesPageEvent {
+  final int billId;
+
+  const DeleteSalesDocumentEvent(this.billId);
+
+  @override
+  List<Object?> get props => [billId];
+}

@@ -9,7 +9,6 @@ import 'package:flowcash/features/accounts/data/repositories/sub_account_reposit
 // Use Cases
 import 'package:flowcash/features/accounts/domain/usecases/main_account_repository_usecases.dart';
 import 'package:flowcash/features/accounts/domain/usecases/sub_account_repository_usecases.dart';
-import 'package:flowcash/features/currencies/domain/usecases/currency_repository_usecases.dart';
 // Blocs
 import 'package:flowcash/features/accounts/presentation/blocs/chart_of_accounts/chart_of_accounts_bloc.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/main_account_form/main_account_form_bloc.dart';
@@ -144,4 +143,5 @@ void initAccountsFeature(GetIt sl) {
   sl.registerLazySingleton(() => FirstWhereMainAccountAndPersonUseCase(sl()));
   sl.registerLazySingleton(() => GetSubaccountsByMainAccountUsecase(sl()));
   sl.registerLazySingleton(() => ResetSubAccountBalancesUseCase(sl()));
+  sl.registerLazySingleton(() => SearchSubAccountsUseCase(sl()));
 }

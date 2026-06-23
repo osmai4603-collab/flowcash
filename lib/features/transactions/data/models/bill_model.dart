@@ -18,6 +18,7 @@ final class BillModel extends BillEntity {
     super.inventoryTransactionId,
     required super.isCash,
     required super.billType,
+    super.costGoodId,
     super.orders = const [],
   });
 
@@ -36,6 +37,7 @@ final class BillModel extends BillEntity {
       inventoryTransactionId: map[BillsTable.inventoryTransactionId] as int?,
       isCash: map[BillsTable.isCash] == 1 || map[BillsTable.isCash] == true,
       billType: InvoiceType.of(map[BillsTable.billType] as String? ?? 'sales'),
+      costGoodId: map[BillsTable.costGoodId] as int?,
     );
   }
 
@@ -54,6 +56,7 @@ final class BillModel extends BillEntity {
       BillsTable.inventoryTransactionId: inventoryTransactionId,
       BillsTable.isCash: isCash ? 1 : 0,
       BillsTable.billType: billType.name,
+      BillsTable.costGoodId: costGoodId,
     };
   }
 
@@ -72,6 +75,7 @@ final class BillModel extends BillEntity {
     int? inventoryTransactionId,
     bool? isCash,
     InvoiceType? billType,
+    int? costGoodId,
     List<BillOrderEntity>? orders,
   }) {
     return BillModel(
@@ -89,6 +93,7 @@ final class BillModel extends BillEntity {
           inventoryTransactionId ?? this.inventoryTransactionId,
       isCash: isCash ?? this.isCash,
       billType: billType ?? this.billType,
+      costGoodId: costGoodId ?? this.costGoodId,
       orders: orders ?? this.orders,
     );
   }

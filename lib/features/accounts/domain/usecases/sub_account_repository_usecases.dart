@@ -251,3 +251,13 @@ class ResetSubAccountBalancesUseCase {
     return Right(0.0);
   }
 }
+
+class SearchSubAccountsUseCase {
+  final SubAccountRepository _repository;
+
+  const SearchSubAccountsUseCase(this._repository);
+
+  Future<Either<Failure, List<SubAccountEntity>>> call(String query) async {
+    return await _repository.search(query);
+  }
+}

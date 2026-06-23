@@ -22,6 +22,8 @@ import 'package:flowcash/features/transactions/domain/usecases/bill_repository_u
 import 'package:flowcash/user_session.dart';
 import 'package:flutter/material.dart';
 
+import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
+
 part 'bill_form_event.dart';
 part 'bill_form_state.dart';
 
@@ -44,6 +46,7 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
   final InsertBillUseCase insertBill;
   final UpdateBillUseCase updateBill;
   final UpdateValueCounterUseCase updateValueCounter;
+  final GetCategoriesWhereContainsNameUseCase getCategoriesWhereContainsName;
   final UserSession userSession;
 
   BillFormBloc({
@@ -55,6 +58,7 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     required this.insertBill,
     required this.updateBill,
     required this.updateValueCounter,
+    required this.getCategoriesWhereContainsName,
     required this.userSession,
   }) : super(
          BillFormState(
@@ -75,7 +79,21 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     on<BillFormCountUnitsChanged>(_onCountUnitsChanged);
     on<BillFormUnitPriceChanged>(_onUnitPriceChanged);
     on<BillFormTotalPriceChanged>(_onTotalPriceChanged);
+    on<BillFormCurrencyChanged>(_onCurrencyChanged);
     on<BillFormSubmitRequested>(_onSubmitRequested);
+  }
+
+  Future<List<PersonEntity>> searchPersons(String value) async {
+    final result = await getPersons.call();
+    return result.fold(
+      (l) => [],
+      (r) => r.where((p) => p.personName.contains(value)).toList(),
+    );
+  }
+
+  Future<List<SimpleCategoryEntity>> searchCategories(String value) async {
+    final result = await getCategoriesWhereContainsName.call(value);
+    return result.fold((l) => [], (r) => r);
   }
 
   Future<void> _onInitRequested(
@@ -219,14 +237,21 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     );
   }
 
+  void _onCurrencyChanged(
+    BillFormCurrencyChanged event,
+    Emitter<BillFormState> emit,
+  ) {
+    emit(state.copyWith(currencySelected: event.currency, isDataChanged: true));
+  }
+
   void _onCategorySelected(
     BillFormCategorySelected event,
     Emitter<BillFormState> emit,
   ) {
     final updatedRequests = List<RequestModel>.from(state.requests);
-    final request = updatedRequests[event.index];
-    request.category = event.category;
-    request.categoryNameController.text = event.category?.categoryName ?? '';
+    updatedRequests[event.index] = updatedRequests[event.index].copyWith(
+      category: event.category,
+    );
     emit(state.copyWith(requests: updatedRequests, isDataChanged: true));
   }
 
@@ -371,15 +396,15 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
 }
 
 class RequestModel {
-  final unitPriceController = TextEditingController();
-  final totalPriceController = TextEditingController();
-  final countUnitsController = TextEditingController();
-  final categoryNameController = TextEditingController();
-  final unitPriceFocusNode = FocusNode();
-  final totalPriceFocusNode = FocusNode();
-  final countUnitsFocusNode = FocusNode();
-  final categoryNameFocusNode = FocusNode();
-  SimpleCategoryEntity? category;
+  final TextEditingController unitPriceController;
+  final TextEditingController totalPriceController;
+  final TextEditingController countUnitsController;
+  final TextEditingController categoryNameController;
+  final FocusNode unitPriceFocusNode;
+  final FocusNode totalPriceFocusNode;
+  final FocusNode countUnitsFocusNode;
+  final FocusNode categoryNameFocusNode;
+  final SimpleCategoryEntity? category;
 
   double get unitPrice =>
       double.tryParse(unitPriceController.text.replaceAll(',', '')) ?? 0.0;
@@ -388,13 +413,47 @@ class RequestModel {
   double get countUnits =>
       double.tryParse(countUnitsController.text.replaceAll(',', '')) ?? 0.0;
 
-  RequestModel();
+  RequestModel({
+    TextEditingController? unitPriceController,
+    TextEditingController? totalPriceController,
+    TextEditingController? countUnitsController,
+    TextEditingController? categoryNameController,
+    FocusNode? unitPriceFocusNode,
+    FocusNode? totalPriceFocusNode,
+    FocusNode? countUnitsFocusNode,
+    FocusNode? categoryNameFocusNode,
+    this.category,
+  }) : unitPriceController = unitPriceController ?? TextEditingController(),
+       totalPriceController = totalPriceController ?? TextEditingController(),
+       countUnitsController = countUnitsController ?? TextEditingController(),
+       categoryNameController =
+           categoryNameController ?? TextEditingController(),
+       unitPriceFocusNode = unitPriceFocusNode ?? FocusNode(),
+       totalPriceFocusNode = totalPriceFocusNode ?? FocusNode(),
+       countUnitsFocusNode = countUnitsFocusNode ?? FocusNode(),
+       categoryNameFocusNode = categoryNameFocusNode ?? FocusNode();
+
+  RequestModel copyWith({SimpleCategoryEntity? category}) {
+    return RequestModel(
+      category: category ?? this.category,
+      unitPriceController: unitPriceController,
+      totalPriceController: totalPriceController,
+      countUnitsController: countUnitsController,
+      categoryNameController: categoryNameController,
+      unitPriceFocusNode: unitPriceFocusNode,
+      totalPriceFocusNode: totalPriceFocusNode,
+      countUnitsFocusNode: countUnitsFocusNode,
+      categoryNameFocusNode: categoryNameFocusNode,
+    );
+  }
 
   void dispose() {
     categoryNameController.dispose();
     countUnitsController.dispose();
     unitPriceController.dispose();
     totalPriceController.dispose();
+    unitPriceFocusNode.dispose();
+    totalPriceFocusNode.dispose();
     countUnitsFocusNode.dispose();
     categoryNameFocusNode.dispose();
   }

@@ -29,6 +29,8 @@ import 'package:flowcash/core/tables/catalog_infos_table.dart';
 import 'package:flowcash/core/tables/program_users_table.dart';
 import 'package:flowcash/core/tables/bills_table.dart';
 import 'package:flowcash/core/tables/bill_orders_table.dart';
+import 'package:flowcash/core/tables/cost_good_bills_table.dart';
+import 'package:flowcash/core/tables/cost_good_bill_orders_table.dart';
 import 'package:flowcash/core/tables/goods_costs_table.dart';
 import 'package:flowcash/core/tables/assets_transactions_table.dart';
 import 'package:flowcash/core/tables/values_table.dart';
@@ -37,7 +39,7 @@ import 'package:flowcash/core/tables/warehouse_values_table.dart';
 final class SqliteSchemaManager {
   const SqliteSchemaManager._();
 
-  static const int currentVersion = 5;
+  static const int currentVersion = 6;
 
   /// Create the full schema for a new database.
   static void createAll(Database db) {
@@ -65,6 +67,9 @@ final class SqliteSchemaManager {
               break;
             case 5:
               _applyV5Migration(db);
+              break;
+            case 6:
+              _applyV6Migration(db);
               break;
             default:
               throw StateError('No migration defined for version $v');
@@ -178,6 +183,45 @@ final class SqliteSchemaManager {
     db.execute('DROP TABLE ${CategoriesTable.tableName}');
     db.execute(
       'ALTER TABLE categories_new RENAME TO ${CategoriesTable.tableName}',
+    );
+  }
+
+  static void _applyV6Migration(Database db) {
+    db.execute('''
+      CREATE TABLE IF NOT EXISTS ${CostGoodBillsTable.tableName} (
+        ${CostGoodBillsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${CostGoodBillsTable.createdAt} TEXT NOT NULL,
+        ${CostGoodBillsTable.createdBy} INTEGER NOT NULL,
+        ${CostGoodBillsTable.note} TEXT,
+        ${CostGoodBillsTable.offerAmount} REAL NOT NULL,
+        ${CostGoodBillsTable.currencyId} TEXT NOT NULL,
+        ${CostGoodBillsTable.billNumber} INTEGER NOT NULL,
+        ${CostGoodBillsTable.warehouseId} INTEGER NOT NULL,
+        ${CostGoodBillsTable.journalEntryId} INTEGER,
+        ${CostGoodBillsTable.personId} INTEGER NOT NULL,
+        ${CostGoodBillsTable.billId} INTEGER NOT NULL,
+        FOREIGN KEY (${CostGoodBillsTable.createdBy}) REFERENCES ${ProgramUsersTable.tableName} (${ProgramUsersTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${CostGoodBillsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${CostGoodBillsTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${CostGoodBillsTable.personId}) REFERENCES ${PersonsTable.tableName} (${PersonsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${CostGoodBillsTable.billId}) REFERENCES ${BillsTable.tableName} (${BillsTable.id}) ON DELETE CASCADE
+      )
+    ''');
+
+    db.execute('''
+      CREATE TABLE IF NOT EXISTS ${CostGoodBillOrdersTable.tableName} (
+        ${CostGoodBillOrdersTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${CostGoodBillOrdersTable.billId} INTEGER NOT NULL,
+        ${CostGoodBillOrdersTable.categoryId} INTEGER NOT NULL,
+        ${CostGoodBillOrdersTable.countUnits} REAL NOT NULL DEFAULT 0.0,
+        ${CostGoodBillOrdersTable.totalPrice} REAL NOT NULL DEFAULT 0.0,
+        FOREIGN KEY (${CostGoodBillOrdersTable.billId}) REFERENCES ${CostGoodBillsTable.tableName} (${CostGoodBillsTable.id}) ON DELETE CASCADE,
+        FOREIGN KEY (${CostGoodBillOrdersTable.categoryId}) REFERENCES ${CategoriesTable.tableName} (${CategoriesTable.id}) ON DELETE RESTRICT
+      )
+    ''');
+
+    db.execute(
+      'ALTER TABLE ${BillsTable.tableName} ADD COLUMN ${BillsTable.costGoodId} INTEGER REFERENCES ${CostGoodBillsTable.tableName} (${CostGoodBillsTable.id}) ON DELETE SET NULL',
     );
   }
 
@@ -534,11 +578,13 @@ final class SqliteSchemaManager {
         ${BillsTable.inventoryTransactionId} INTEGER,
         ${BillsTable.isCash} INTEGER NOT NULL DEFAULT 0,
         ${BillsTable.billType} TEXT NOT NULL,
+        ${BillsTable.costGoodId} INTEGER,
         FOREIGN KEY (${BillsTable.createdBy}) REFERENCES ${ProgramUsersTable.tableName} (${ProgramUsersTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${BillsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${BillsTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${BillsTable.personId}) REFERENCES ${PersonsTable.tableName} (${PersonsTable.id}) ON DELETE SET NULL,
-        FOREIGN KEY (${BillsTable.inventoryTransactionId}) REFERENCES ${InventoryTransactionsTable.tableName} (${InventoryTransactionsTable.id}) ON DELETE SET NULL
+        FOREIGN KEY (${BillsTable.inventoryTransactionId}) REFERENCES ${InventoryTransactionsTable.tableName} (${InventoryTransactionsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${BillsTable.costGoodId}) REFERENCES ${CostGoodBillsTable.tableName} (${CostGoodBillsTable.id}) ON DELETE SET NULL
       )
     ''');
 
@@ -651,6 +697,41 @@ final class SqliteSchemaManager {
         FOREIGN KEY (${JournalItemsTable.entryId}) REFERENCES ${JournalEntriesTable.tableName} (${JournalEntriesTable.entryId}) ON DELETE CASCADE,
         FOREIGN KEY (${JournalItemsTable.accountId}) REFERENCES ${SubAccountsTable.tableName} (${SubAccountsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${JournalItemsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT
+      )
+    ''');
+
+    // 31. Cost Good Bills
+    db.execute('''
+      CREATE TABLE IF NOT EXISTS ${CostGoodBillsTable.tableName} (
+        ${CostGoodBillsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${CostGoodBillsTable.createdAt} TEXT NOT NULL,
+        ${CostGoodBillsTable.createdBy} INTEGER NOT NULL,
+        ${CostGoodBillsTable.note} TEXT,
+        ${CostGoodBillsTable.offerAmount} REAL NOT NULL,
+        ${CostGoodBillsTable.currencyId} TEXT NOT NULL,
+        ${CostGoodBillsTable.billNumber} INTEGER NOT NULL,
+        ${CostGoodBillsTable.warehouseId} INTEGER NOT NULL,
+        ${CostGoodBillsTable.journalEntryId} INTEGER,
+        ${CostGoodBillsTable.personId} INTEGER NOT NULL,
+        ${CostGoodBillsTable.billId} INTEGER NOT NULL,
+        FOREIGN KEY (${CostGoodBillsTable.createdBy}) REFERENCES ${ProgramUsersTable.tableName} (${ProgramUsersTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${CostGoodBillsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${CostGoodBillsTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${CostGoodBillsTable.personId}) REFERENCES ${PersonsTable.tableName} (${PersonsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${CostGoodBillsTable.billId}) REFERENCES ${BillsTable.tableName} (${BillsTable.id}) ON DELETE CASCADE
+      )
+    ''');
+
+    // 32. Cost Good Bill Orders
+    db.execute('''
+      CREATE TABLE IF NOT EXISTS ${CostGoodBillOrdersTable.tableName} (
+        ${CostGoodBillOrdersTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${CostGoodBillOrdersTable.billId} INTEGER NOT NULL,
+        ${CostGoodBillOrdersTable.categoryId} INTEGER NOT NULL,
+        ${CostGoodBillOrdersTable.countUnits} REAL NOT NULL DEFAULT 0.0,
+        ${CostGoodBillOrdersTable.totalPrice} REAL NOT NULL DEFAULT 0.0,
+        FOREIGN KEY (${CostGoodBillOrdersTable.billId}) REFERENCES ${CostGoodBillsTable.tableName} (${CostGoodBillsTable.id}) ON DELETE CASCADE,
+        FOREIGN KEY (${CostGoodBillOrdersTable.categoryId}) REFERENCES ${CategoriesTable.tableName} (${CategoriesTable.id}) ON DELETE RESTRICT
       )
     ''');
   }

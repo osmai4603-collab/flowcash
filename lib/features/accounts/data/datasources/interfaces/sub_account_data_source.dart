@@ -58,4 +58,5 @@ abstract interface class SubAccountDataSource
   Future<List<SubAccountSimpleEntity>> getSubAccountsSimple({
     required String query,
   });
+  Future<List<SubAccountEntity>> search(String query);
 }

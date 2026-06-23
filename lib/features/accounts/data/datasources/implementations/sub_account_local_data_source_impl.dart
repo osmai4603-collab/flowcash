@@ -413,6 +413,17 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     return rows.map(SubAccountSimpleModel.fromMap).toList();
   }
 
+  @override
+  Future<List<SubAccountEntity>> search(String query) async {
+    final rows = await _db.query(
+      table: SubAccountsTable.tableName,
+      where:
+          '${SubAccountsTable.accountName} LIKE ? OR ${SubAccountsTable.accountNumber} LIKE ?',
+      whereArgs: ['%$query%', '%$query%'],
+    );
+    return rows.map(fromMap).toList();
+  }
+
   Map<String, dynamic> _sanitizeInsertData(
     Map<String, dynamic> data,
     String idKey,

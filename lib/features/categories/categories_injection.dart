@@ -128,6 +128,7 @@ void initCategoriesFeature(GetIt sl) {
   sl.registerLazySingleton(() => DeleteCategoryUseCase(sl()));
   sl.registerLazySingleton(() => AddCategoryAttributeUseCase(sl()));
   sl.registerLazySingleton(() => HasCategoryNameUseCase(sl()));
+  sl.registerLazySingleton(() => GetCategoriesWhereContainsNameUseCase(sl()));
   sl.registerLazySingleton(() => GetNewCategoryNumberUseCase(sl()));
   sl.registerLazySingleton(() => GetUnitsUseCase(sl()));
   sl.registerLazySingleton(() => CheckCategoryHasRequestsUseCase());

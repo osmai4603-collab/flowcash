@@ -73,4 +73,5 @@ abstract interface class SubAccountRepository
   Future<Either<Failure, List<SubAccountSimpleEntity>>> getSubAccountsSimple({
     required String query,
   });
+  Future<Either<Failure, List<SubAccountEntity>>> search(String query);
 }

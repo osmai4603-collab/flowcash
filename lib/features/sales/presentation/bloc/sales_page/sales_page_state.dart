@@ -1,24 +1,44 @@
 import 'package:equatable/equatable.dart';
+import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 
 class SalesDocument extends Equatable {
   final int id;
-  final String invoiceNumber;
+  final String billHistory;
   final String customerName;
   final double amount;
-  final String status;
+  final String currencySymbol;
   final DateTime date;
+  final bool isJournalPosted;
+  final bool isInventoryPosted;
+  final bool isCostGoodPosted;
+  final BillEntity rawBill;
 
   const SalesDocument({
     required this.id,
-    required this.invoiceNumber,
+    required this.billHistory,
     required this.customerName,
     required this.amount,
-    required this.status,
+    required this.currencySymbol,
     required this.date,
+    required this.isJournalPosted,
+    required this.isInventoryPosted,
+    required this.isCostGoodPosted,
+    required this.rawBill,
   });
 
   @override
-  List<Object?> get props => [id, invoiceNumber, customerName, amount, status, date];
+  List<Object?> get props => [
+    id,
+    billHistory,
+    customerName,
+    amount,
+    currencySymbol,
+    date,
+    isJournalPosted,
+    isInventoryPosted,
+    isCostGoodPosted,
+    rawBill,
+  ];
 }
 
 abstract class SalesPageState extends Equatable {

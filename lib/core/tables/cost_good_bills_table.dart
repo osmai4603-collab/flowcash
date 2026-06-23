@@ -1,10 +1,10 @@
-/// ثوابت جدول الفواتير.
-class BillsTable {
-  const BillsTable._();
+/// ثوابت جدول تكلفة الفواتير المباعة.
+class CostGoodBillsTable {
+  const CostGoodBillsTable._();
 
-  static const String tableName = 'bills';
+  static const String tableName = 'cost_good_bills';
 
-  static const String id = 'bill_id';
+  static const String id = 'cost_good_bill_id';
   static const String createdAt = 'create_at';
   static const String createdBy = 'create_by';
   static const String note = 'note';
@@ -14,10 +14,7 @@ class BillsTable {
   static const String warehouseId = 'warehouse_id';
   static const String journalEntryId = 'journal_entry_id';
   static const String personId = 'person_id';
-  static const String inventoryTransactionId = 'inventory_transaction_id';
-  static const String isCash = 'is_cash';
-  static const String billType = 'bill_type';
-  static const String costGoodId = 'cost_good_id';
+  static const String billId = 'bill_id';
 
   static const List<String> fields = [
     id,
@@ -30,9 +27,6 @@ class BillsTable {
     warehouseId,
     journalEntryId,
     personId,
-    inventoryTransactionId,
-    isCash,
-    billType,
-    costGoodId,
+    billId,
   ];
 }

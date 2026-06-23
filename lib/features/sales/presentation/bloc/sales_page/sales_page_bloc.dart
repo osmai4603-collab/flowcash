@@ -8,15 +8,22 @@ import 'sales_page_state.dart';
 
 class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
   final GetBillsUseCase _getBillsUseCase;
+  final DeleteBillUseCase _deleteBillUseCase;
   final List<SalesDocument> _sales = [];
 
-  SalesPageBloc({GetBillsUseCase? getBillsUseCase})
-      : _getBillsUseCase = getBillsUseCase ?? GetIt.instance<GetBillsUseCase>(),
-        super(SalesPageInitial()) {
+  SalesPageBloc({
+    GetBillsUseCase? getBillsUseCase,
+    DeleteBillUseCase? deleteBillUseCase,
+  }) : _getBillsUseCase = getBillsUseCase ?? GetIt.instance<GetBillsUseCase>(),
+       _deleteBillUseCase =
+           deleteBillUseCase ?? GetIt.instance<DeleteBillUseCase>(),
+       super(SalesPageInitial()) {
     on<LoadSalesPageEvent>(_onLoad);
     on<RefreshSalesPageEvent>(_onLoad);
     on<SearchSalesPageEvent>(_onSearch);
     on<AddSalesDocumentEvent>(_onAdd);
+    on<UpdateSalesDocumentEvent>(_onUpdate);
+    on<DeleteSalesDocumentEvent>(_onDelete);
   }
 
   Future<void> _onLoad(
@@ -43,9 +50,8 @@ class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
     if (state is SalesPageLoadSuccess) {
       final query = event.query.trim().toLowerCase();
       final filtered = _sales.where((sale) {
-        return sale.invoiceNumber.toLowerCase().contains(query) ||
-            sale.customerName.toLowerCase().contains(query) ||
-            sale.status.toLowerCase().contains(query);
+        return sale.billHistory.toLowerCase().contains(query) ||
+            sale.customerName.toLowerCase().contains(query);
       }).toList();
       emit(SalesPageLoadSuccess(filtered, query: event.query));
     }
@@ -55,25 +61,48 @@ class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
     AddSalesDocumentEvent event,
     Emitter<SalesPageState> emit,
   ) async {
-    final newSale = SalesDocument(
-      id: _sales.isEmpty ? 1 : _sales.first.id + 1,
-      invoiceNumber: 'S-${DateTime.now().millisecondsSinceEpoch}',
-      customerName: 'عميل جديد',
-      amount: 0.0,
-      status: 'جديد',
-      date: DateTime.now(),
-    );
+    final newSale = _billToSalesDocument(event.bill);
     _sales.insert(0, newSale);
-    final filteredSales = state is SalesPageLoadSuccess
-        ? (state as SalesPageLoadSuccess)
-            .sales
-            .where((sale) => sale.invoiceNumber
-                .toLowerCase()
-                .contains((state as SalesPageLoadSuccess).query.toLowerCase()))
-            .toList()
+    _emitUpdatedList(emit);
+  }
+
+  Future<void> _onUpdate(
+    UpdateSalesDocumentEvent event,
+    Emitter<SalesPageState> emit,
+  ) async {
+    final index = _sales.indexWhere((sale) => sale.id == event.bill.id);
+    if (index != -1) {
+      _sales[index] = _billToSalesDocument(event.bill);
+    }
+    _emitUpdatedList(emit);
+  }
+
+  Future<void> _onDelete(
+    DeleteSalesDocumentEvent event,
+    Emitter<SalesPageState> emit,
+  ) async {
+    final result = await _deleteBillUseCase(event.billId);
+    result.fold((failure) => emit(SalesPageOperationFailure(failure.message)), (
+      _,
+    ) {
+      _sales.removeWhere((sale) => sale.id == event.billId);
+      _emitUpdatedList(emit);
+    });
+  }
+
+  void _emitUpdatedList(Emitter<SalesPageState> emit) {
+    final query = state is SalesPageLoadSuccess
+        ? (state as SalesPageLoadSuccess).query
+        : '';
+    final filteredSales = query.trim().isNotEmpty
+        ? _sales.where((sale) {
+            return sale.billHistory.toLowerCase().contains(
+                  query.toLowerCase(),
+                ) ||
+                sale.customerName.toLowerCase().contains(query.toLowerCase());
+          }).toList()
         : List.of(_sales);
-    emit(SalesPageLoadSuccess(filteredSales,
-        query: state is SalesPageLoadSuccess ? (state as SalesPageLoadSuccess).query : ''));
+    emit(SalesPageLoadSuccess(filteredSales, query: query));
   }
 
   static bool _isSalesBill(BillEntity bill) {
@@ -83,13 +112,15 @@ class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
   static SalesDocument _billToSalesDocument(BillEntity bill) {
     return SalesDocument(
       id: bill.id,
-      invoiceNumber: bill.billNumber.toString(),
+      billHistory: bill.billHistory,
       customerName: _customerNameFromBill(bill),
       amount: bill.offerAmount,
-      status: bill.note?.contains('مرتجع') == true
-          ? 'مرتجع'
-          : (bill.isCash ? 'نقدي' : 'آجل'),
+      currencySymbol: bill.currencyId, // _getCurrencySymbol(bill.currencyId),
       date: bill.createdAt,
+      isJournalPosted: bill.journalEntryId != null,
+      isInventoryPosted: bill.inventoryTransactionId != null,
+      isCostGoodPosted: bill.costGoodId != null,
+      rawBill: bill,
     );
   }
 
@@ -97,7 +128,9 @@ class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
     if (bill.personId != null) {
       return 'عميل ${bill.personId}';
     }
-    final cleanNote = (bill.note ?? '').replaceAll(RegExp(r'\[.*?\]'), '').trim();
+    final cleanNote = (bill.note ?? '')
+        .replaceAll(RegExp(r'\[.*?\]'), '')
+        .trim();
     if (cleanNote.isNotEmpty) {
       return cleanNote;
     }

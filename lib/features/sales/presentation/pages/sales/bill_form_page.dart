@@ -50,6 +50,8 @@ class BillFormPage extends StatelessWidget {
         insertBill: sl<InsertBillUseCase>(),
         updateBill: sl<UpdateBillUseCase>(),
         updateValueCounter: sl<UpdateValueCounterUseCase>(),
+        getCategoriesWhereContainsName:
+            sl<GetCategoriesWhereContainsNameUseCase>(),
         userSession: context.read<UserSession>(),
       )..add(BillFormInitRequested(bill: bill, billType: billType)),
       child: _BillFormView(bill: bill, billType: billType),
@@ -103,6 +105,131 @@ class _BillFormViewState extends State<_BillFormView> {
       return TafqitUnitCode.unitedStatesDollar;
     }
     return TafqitUnitCode.yemeniRial;
+  }
+
+  // --- Handlers & Validators Extracted from Widget Tree ---
+
+  void _onDateChanged(DateTime date) {
+    context.read<BillFormBloc>().add(BillFormDateChanged(date));
+  }
+
+  void _onCashTypeChanged(BillCashType cashType) {
+    context.read<BillFormBloc>().add(BillFormCashTypeChanged(cashType));
+  }
+
+  void _onWarehouseChanged(WarehouseEntity? warehouse) {
+    if (warehouse != null) {
+      context.read<BillFormBloc>().add(BillFormWarehouseChanged(warehouse));
+    }
+  }
+
+  void _onCurrencyChanged(CurrencyEntity? currency) {
+    if (currency != null) {
+      context.read<BillFormBloc>().add(BillFormCurrencyChanged(currency));
+    }
+  }
+
+  void _onPersonEditingComplete(BillFormState state) {
+    if (state.requests.isNotEmpty) {
+      state.requests[0].categoryNameFocusNode.requestFocus();
+    }
+  }
+
+  String? _validatePerson(String? value, BillFormState state) {
+    if (value == null || value.trim().isEmpty) {
+      return 'اسم العميل مطلوب';
+    }
+    if (state.personSelected == null) {
+      return 'لم يتم تحديد اسم العميل من القائمة';
+    }
+    return null;
+  }
+
+  void _onPersonChanged(String value) {
+    context.read<BillFormBloc>().add(BillFormPersonSelected(null));
+  }
+
+  Future<List<PersonEntity>> _fetchPersons(String value) {
+    return context.read<BillFormBloc>().searchPersons(value);
+  }
+
+  void _onPersonSelected(PersonEntity person, BillFormState state) {
+    personNameController.text = person.personName;
+    context.read<BillFormBloc>().add(BillFormPersonSelected(person));
+    if (state.requests.isNotEmpty) {
+      state.requests[0].categoryNameFocusNode.requestFocus();
+    }
+  }
+
+  void _onNoteChanged(String value) {
+    context.read<BillFormBloc>().add(BillFormNoteChanged(value));
+  }
+
+  void _onTotalPriceChanged(int index, String value) {
+    context.read<BillFormBloc>().add(BillFormTotalPriceChanged(index, value));
+  }
+
+  void _onTotalPriceEditingComplete(int index, BillFormState state) async {
+    if (index < state.requests.length - 1) {
+      state.requests[index + 1].categoryNameFocusNode.requestFocus();
+      return;
+    }
+    final sure = await makeSure(
+      context: context,
+      title: 'إضافة طلبية',
+      content: 'هل تريد إضافة طلبية جديدة؟',
+    );
+    if (!sure || !context.mounted) return;
+    context.read<BillFormBloc>().add(BillFormRequestAdded());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+      final requests = context.read<BillFormBloc>().state.requests;
+      if (requests.isNotEmpty) {
+        requests.last.categoryNameFocusNode.requestFocus();
+      }
+    });
+  }
+
+  String? _validateRequiredPriceOrCount(String? value) {
+    if (value == null || value.trim().isEmpty) return 'مطلوب';
+    final doubleVal = double.tryParse(value.replaceAll(',', ''));
+    if (doubleVal == null || doubleVal <= 0) {
+      return 'يجب أن يكون أكبر من 0';
+    }
+    return null;
+  }
+
+  void _onUnitPriceChanged(int index, String value) {
+    context.read<BillFormBloc>().add(BillFormUnitPriceChanged(index, value));
+  }
+
+  void _onCountUnitsChanged(int index, String value) {
+    context.read<BillFormBloc>().add(BillFormCountUnitsChanged(index, value));
+  }
+
+  Future<List<SimpleCategoryEntity>> _fetchCategories(String value) {
+    return context.read<BillFormBloc>().searchCategories(value);
+  }
+
+  void _onCategorySelected(
+    int index,
+    SimpleCategoryEntity? category,
+    RequestModel request,
+  ) {
+    context.read<BillFormBloc>().add(BillFormCategorySelected(index, category));
+    if (category != null) {
+      request.countUnitsFocusNode.requestFocus();
+    }
+  }
+
+  String? _validateCategory(String? value, RequestModel request) {
+    if (value == null || value.trim().isEmpty) return 'مطلوب';
+    if (request.category == null) return 'غير محدد';
+    return null;
+  }
+
+  void _onCategoryChanged(int index, String value) {
+    context.read<BillFormBloc>().add(BillFormCategorySelected(index, null));
   }
 
   @override
@@ -226,7 +353,6 @@ class _BillFormViewState extends State<_BillFormView> {
 
   Widget buildBill(BuildContext context, BillFormState state) {
     final colors = AppStyle.of(context);
-    final bloc = context.read<BillFormBloc>();
 
     return SingleChildScrollView(
       child: Column(
@@ -240,7 +366,7 @@ class _BillFormViewState extends State<_BillFormView> {
                     selected: state.dateSelected,
                     startDate: state.firstDate,
                     endDate: DateTime.now(),
-                    onChanged: (date) => bloc.add(BillFormDateChanged(date)),
+                    onChanged: _onDateChanged,
                   ),
                 ),
               ),
@@ -260,8 +386,7 @@ class _BillFormViewState extends State<_BillFormView> {
                     ),
                     const SizedBox(width: 5.0),
                     HoverButton(
-                      onPressed: () =>
-                          bloc.add(BillFormCashTypeChanged(BillCashType.cash)),
+                      onPressed: () => _onCashTypeChanged(BillCashType.cash),
                       builder: (context, states) {
                         return TextWidget(
                           text: 'نقدا',
@@ -287,9 +412,7 @@ class _BillFormViewState extends State<_BillFormView> {
                     ),
                     const SizedBox(width: 2.0),
                     HoverButton(
-                      onPressed: () => bloc.add(
-                        BillFormCashTypeChanged(BillCashType.future),
-                      ),
+                      onPressed: () => _onCashTypeChanged(BillCashType.future),
                       builder: (context, states) {
                         return TextWidget(
                           text: 'آجل',
@@ -360,17 +483,37 @@ class _BillFormViewState extends State<_BillFormView> {
                         ),
                       );
                     }).toList(),
-                    onChanged: (warehouse) {
-                      if (warehouse != null) {
-                        bloc.add(BillFormWarehouseChanged(warehouse));
-                      }
-                    },
+                    onChanged: _onWarehouseChanged,
                     placeholder: const Text('المخزن'),
                     validator: (value) => value == null ? 'المخزن مطلوب' : null,
                   ),
                 ),
               ),
               const SizedBox(width: 10),
+              Expanded(
+                child: InfoLabel(
+                  label: 'العملة',
+                  child: ComboboxFormField<CurrencyEntity>(
+                    value: state.currencySelected,
+                    isExpanded: true,
+                    items: state.currencies.map((currency) {
+                      return ComboBoxItem<CurrencyEntity>(
+                        value: currency,
+                        child: Text(
+                          currency.name,
+                          style: Styles.titleSmall.copyWith(
+                            color: colors.onSurface,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: _onCurrencyChanged,
+                    placeholder: const Text('العملة'),
+                    validator: (value) =>
+                        value == null ? 'العملة مطلوبة' : null,
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -383,11 +526,7 @@ class _BillFormViewState extends State<_BillFormView> {
               textAlignVertical: isDesktop
                   ? TextAlignVertical.center
                   : TextAlignVertical.bottom,
-              onEditingComplete: () {
-                if (state.requests.isNotEmpty) {
-                  state.requests[0].categoryNameFocusNode.requestFocus();
-                }
-              },
+              onEditingComplete: () => _onPersonEditingComplete(state),
               placeHolder: 'ادخل اسم العميل',
               prefix: Tooltip(
                 message: 'اضافة اسم جديد',
@@ -396,31 +535,11 @@ class _BillFormViewState extends State<_BillFormView> {
                   onPressed: () => _onAddNewPerson(context),
                 ),
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'اسم العميل مطلوب';
-                }
-                if (state.personSelected == null) {
-                  return 'لم يتم تحديد اسم العميل من القائمة';
-                }
-                return null;
-              },
-              onChanged: (value) => bloc.add(BillFormPersonSelected(null)),
-              itemsBuilder: (value) async {
-                final result = await sl<GetPersonsUseCase>().call();
-                return result.fold(
-                  (l) => [],
-                  (r) => r.where((p) => p.personName.contains(value)).toList(),
-                );
-              },
+              validator: (value) => _validatePerson(value, state),
+              onChanged: _onPersonChanged,
+              itemsBuilder: _fetchPersons,
               labelMenu: (person) => person.personName,
-              onSelectedItem: (person) {
-                personNameController.text = person.personName;
-                bloc.add(BillFormPersonSelected(person));
-                if (state.requests.isNotEmpty) {
-                  state.requests[0].categoryNameFocusNode.requestFocus();
-                }
-              },
+              onSelectedItem: (person) => _onPersonSelected(person, state),
             ),
           ),
           const SizedBox(height: 10),
@@ -504,7 +623,7 @@ class _BillFormViewState extends State<_BillFormView> {
           InfoLabel(
             label: 'ملاحظة',
             child: TextFormBox(
-              onChanged: (value) => bloc.add(BillFormNoteChanged(value)),
+              onChanged: _onNoteChanged,
               maxLines: 2,
               style: Styles.titleSmall,
               placeholder: 'ادخل الملاحظة',
@@ -519,7 +638,6 @@ class _BillFormViewState extends State<_BillFormView> {
 
   Widget _buildBillTable(BuildContext context, BillFormState state) {
     final colors = AppStyle.of(context);
-    final bloc = context.read<BillFormBloc>();
 
     return Table(
       border: TableBorder.all(width: 0.50),
@@ -583,178 +701,94 @@ class _BillFormViewState extends State<_BillFormView> {
                   );
                 },
               ),
-              SizedBox(
-                height: 28.0,
-                child: TextFormBox(
-                  textInputAction: TextInputAction.done,
-                  controller: request.totalPriceController,
-                  focusNode: request.totalPriceFocusNode,
-                  keyboardType: TextInputType.number,
-                  textDirection: .ltr,
-                  cursorHeight: 13.0,
-                  style: colors.body,
-                  textAlign: TextAlign.center,
-                  inputFormatters: [ThousandsFormatter(allowFraction: true)],
-                  placeholder: '---',
-                  placeholderStyle: colors.body.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                  padding: EdgeInsets.only(
-                    right: 2,
-                    left: 2,
-                    bottom: isDesktop ? 18.0 : 16.0,
-                  ),
-                  onChanged: (value) =>
-                      bloc.add(BillFormTotalPriceChanged(index, value)),
-                  onEditingComplete: () {
-                    index + 1 == state.requests.length
-                        ? bloc.add(BillFormRequestAdded())
-                        : state.requests[index + 1].categoryNameFocusNode
-                              .requestFocus();
-                  },
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) return 'مطلوب';
-                    final doubleVal = double.tryParse(
-                      value.replaceAll(',', ''),
-                    );
-                    if (doubleVal == null || doubleVal <= 0) {
-                      return 'يجب أن يكون أكبر من 0';
-                    }
-                    return null;
-                  },
+              TextFormBox(
+                textInputAction: TextInputAction.done,
+                controller: request.totalPriceController,
+                focusNode: request.totalPriceFocusNode,
+                keyboardType: TextInputType.number,
+                textDirection: TextDirection.ltr,
+                cursorHeight: 13.0,
+                style: colors.body,
+                textAlign: TextAlign.center,
+                inputFormatters: [ThousandsFormatter(allowFraction: true)],
+                placeholder: '---',
+                placeholderStyle: colors.body.copyWith(
+                  color: colors.onSurfaceVariant,
                 ),
+                onChanged: (value) => _onTotalPriceChanged(index, value),
+                onEditingComplete: () =>
+                    _onTotalPriceEditingComplete(index, state),
+                validator: _validateRequiredPriceOrCount,
               ),
-              SizedBox(
-                height: 28.0,
-                child: Align(
-                  child: TextFormBox(
-                    textInputAction: TextInputAction.next,
-                    controller: request.unitPriceController,
-                    focusNode: request.unitPriceFocusNode,
-                    keyboardType: TextInputType.number,
-                    textDirection: .ltr,
-                    cursorHeight: 13.0,
-                    style: colors.body,
-                    textAlign: TextAlign.center,
-                    inputFormatters: [ThousandsFormatter(allowFraction: true)],
-                    placeholder: '---',
-                    placeholderStyle: colors.body.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                    padding: EdgeInsets.only(
-                      right: 2,
-                      left: 2,
-                      bottom: isDesktop ? 18.0 : 16.0,
-                    ),
-                    onChanged: (value) =>
-                        bloc.add(BillFormUnitPriceChanged(index, value)),
-                    onEditingComplete: request.totalPriceFocusNode.requestFocus,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) return 'مطلوب';
-                      final doubleVal = double.tryParse(
-                        value.replaceAll(',', ''),
-                      );
-                      if (doubleVal == null || doubleVal <= 0) {
-                        return 'يجب أن يكون أكبر من 0';
-                      }
-                      return null;
-                    },
-                  ),
+              TextFormBox(
+                textInputAction: TextInputAction.next,
+                controller: request.unitPriceController,
+                focusNode: request.unitPriceFocusNode,
+                keyboardType: TextInputType.number,
+                textDirection: TextDirection.ltr,
+                cursorHeight: 13.0,
+                style: colors.body,
+                textAlign: TextAlign.center,
+                inputFormatters: [ThousandsFormatter(allowFraction: true)],
+                placeholder: '---',
+                placeholderStyle: colors.body.copyWith(
+                  color: colors.onSurfaceVariant,
                 ),
+                onChanged: (value) => _onUnitPriceChanged(index, value),
+                onEditingComplete: request.totalPriceFocusNode.requestFocus,
+                validator: _validateRequiredPriceOrCount,
               ),
-              SizedBox(
-                height: 28.0,
-                child: Align(
-                  child: TextFormBox(
-                    textInputAction: TextInputAction.next,
-                    controller: request.countUnitsController,
-                    focusNode: request.countUnitsFocusNode,
-                    keyboardType: TextInputType.number,
-                    textDirection: .ltr,
-                    cursorHeight: 13.0,
-                    style: colors.body,
-                    textAlign: TextAlign.center,
-                    inputFormatters: [
-                      (request.category?.unitType.isPiece ?? true)
-                          ? FilteringTextInputFormatter.digitsOnly
-                          : FilteringTextInputFormatter.allow(
-                              RegExp(r'\d+\.?\d*'),
-                              replacementString:
-                                  request.countUnitsController.text.contains(
-                                    '.',
-                                  )
-                                  ? ''
-                                  : '.',
-                            ),
-                    ],
-                    placeholder: '---',
-                    placeholderStyle: colors.body.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                    padding: EdgeInsets.only(
-                      right: 2,
-                      left: 2,
-                      bottom: isDesktop ? 18.0 : 16.0,
-                    ),
-                    onChanged: (value) =>
-                        bloc.add(BillFormCountUnitsChanged(index, value)),
-                    onEditingComplete: () =>
-                        request.unitPriceFocusNode.requestFocus(),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) return 'مطلوب';
-                      final doubleVal = double.tryParse(
-                        value.replaceAll(',', ''),
-                      );
-                      if (doubleVal == null || doubleVal <= 0) {
-                        return 'يجب أن يكون أكبر من 0';
-                      }
-                      return null;
-                    },
-                  ),
+              TextFormBox(
+                textInputAction: TextInputAction.next,
+                controller: request.countUnitsController,
+                focusNode: request.countUnitsFocusNode,
+                keyboardType: TextInputType.number,
+                textDirection: TextDirection.ltr,
+                cursorHeight: 13.0,
+                style: colors.body,
+                textAlign: TextAlign.center,
+                inputFormatters: [
+                  (request.category?.unitType.isPiece ?? true)
+                      ? FilteringTextInputFormatter.digitsOnly
+                      : FilteringTextInputFormatter.allow(
+                          RegExp(r'\d+\.?\d*'),
+                          replacementString:
+                              request.countUnitsController.text.contains('.')
+                              ? ''
+                              : '.',
+                        ),
+                ],
+                placeholder: '---',
+                placeholderStyle: colors.body.copyWith(
+                  color: colors.onSurfaceVariant,
                 ),
+                onChanged: (value) => _onCountUnitsChanged(index, value),
+                onEditingComplete: request.unitPriceFocusNode.requestFocus,
+                validator: _validateRequiredPriceOrCount,
               ),
-              Container(
-                height: 28.0,
+              TextWidget(
+                text: request.category?.unitType.unitName ?? 'الوحدة',
+                overflow: TextOverflow.fade,
                 alignment: Alignment.center,
-                padding: const EdgeInsets.all(3.0),
-                child: Text(
-                  request.category?.unitType.unitName ?? 'الوحدة',
-                  overflow: TextOverflow.fade,
-                  style: colors.body.copyWith(
-                    color: request.category != null
-                        ? null
-                        : colors.onSurfaceVariant,
-                  ),
+                style: colors.body.copyWith(
+                  color: request.category != null
+                      ? null
+                      : colors.onSurfaceVariant,
                 ),
               ),
-              SizedBox(
-                height: 30.0,
-                child: Align(
-                  child: ComboBoxForm<SimpleCategoryEntity>(
-                    itemsBuilder: (value) async {
-                      final result =
-                          await sl<GetCategoriesWhereContainsNameUseCase>()
-                              .call(value);
-                      return result.fold((l) => [], (r) => r);
-                    },
-                    onSelectedItem: (category) =>
-                        bloc.add(BillFormCategorySelected(index, category)),
-                    style: colors.body,
-                    controller: request.categoryNameController,
-                    labelMenu: (category) => category.categoryName,
-                    focusNode: request.categoryNameFocusNode,
-                    placeHolder: 'ادخل الطلبية',
-                    cursorHeight: 13.0,
-                    minCharsForSuggestions: 2,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) return 'مطلوب';
-                      if (request.category == null) return 'غير محدد';
-                      return null;
-                    },
-                    onChanged: (value) =>
-                        bloc.add(BillFormCategorySelected(index, null)),
-                  ),
-                ),
+              ComboBoxForm<SimpleCategoryEntity>(
+                itemsBuilder: _fetchCategories,
+                onSelectedItem: (category) =>
+                    _onCategorySelected(index, category, request),
+                style: colors.body,
+                controller: request.categoryNameController,
+                labelMenu: (category) => category.categoryName,
+                focusNode: request.categoryNameFocusNode,
+                placeHolder: 'ادخل الطلبية',
+                cursorHeight: 13.0,
+                minCharsForSuggestions: 2,
+                validator: (value) => _validateCategory(value, request),
+                onChanged: (value) => _onCategoryChanged(index, value),
               ),
             ],
           );

@@ -16,6 +16,7 @@ class BillEntity extends Entity {
   final int? inventoryTransactionId;
   final bool isCash;
   final InvoiceType billType;
+  final int? costGoodId;
   final List<BillOrderEntity> orders;
 
   const BillEntity({
@@ -32,6 +33,7 @@ class BillEntity extends Entity {
     this.inventoryTransactionId,
     required this.isCash,
     required this.billType,
+    this.costGoodId,
     this.orders = const [],
   });
   @override
@@ -49,6 +51,7 @@ class BillEntity extends Entity {
     inventoryTransactionId,
     isCash,
     billType,
+    costGoodId,
     orders,
   ];
 
@@ -67,6 +70,7 @@ class BillEntity extends Entity {
     int? inventoryTransactionId,
     bool? isCash,
     InvoiceType? billType,
+    int? costGoodId,
     List<BillOrderEntity>? orders,
   }) {
     return BillEntity(
@@ -84,7 +88,16 @@ class BillEntity extends Entity {
           inventoryTransactionId ?? this.inventoryTransactionId,
       isCash: isCash ?? this.isCash,
       billType: billType ?? this.billType,
+      costGoodId: costGoodId ?? this.costGoodId,
       orders: orders ?? this.orders,
     );
+  }
+
+  String get billnumberFormat {
+    return billNumber.toString().padLeft(5, '0');
+  }
+
+  String get billHistory {
+    return '${billType.displayName()} ${isCash ? 'نقدا' : 'آجل'} رقم $billnumberFormat';
   }
 }

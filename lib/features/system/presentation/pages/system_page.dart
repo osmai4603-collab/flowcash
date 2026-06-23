@@ -1,7 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/injection_container.dart';
-import 'package:flowcash/features/system/presentation/bloc/company/company_cubit.dart';
 import 'package:flowcash/features/system/presentation/bloc/currencies/currencies_cubit.dart';
 import 'package:flowcash/features/system/presentation/bloc/defaults/defaults_cubit.dart';
 import 'package:flowcash/features/system/presentation/bloc/exchange_rates/exchange_rates_cubit.dart';
@@ -9,7 +8,6 @@ import 'package:flowcash/features/system/presentation/bloc/financial_periods/fin
 import 'package:flowcash/features/system/presentation/bloc/value_counters/value_counters_cubit.dart';
 import 'package:flowcash/features/system/presentation/bloc/warehouse_values/warehouse_values_cubit.dart';
 import 'package:flowcash/features/system/presentation/bloc/warehouses/warehouses_cubit.dart';
-import '../pages/company/company_page.dart';
 import '../pages/currencies/currencies_page.dart';
 import '../pages/defaults/defaults_page.dart';
 import '../pages/exchange_rates/exchange_rates_page.dart';

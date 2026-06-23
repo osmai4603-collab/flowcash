@@ -412,4 +412,16 @@ class SubAccountRepositoryImpl implements SubAccountRepository {
       return Left(DatabaseFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, List<SubAccountEntity>>> search(String query) async {
+    try {
+      final res = await _dataSource.search(query);
+      return Right(res);
+    } on Failure catch (f) {
+      return Left(f);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
 }
