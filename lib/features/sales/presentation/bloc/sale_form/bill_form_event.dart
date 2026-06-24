@@ -109,4 +109,12 @@ class BillFormCurrencyChanged extends BillFormEvent {
   List<Object?> get props => [currency];
 }
 
+class BillFormTreasurySelected extends BillFormEvent {
+  final PersonEntity? treasury;
+  BillFormTreasurySelected(this.treasury);
+
+  @override
+  List<Object?> get props => [treasury];
+}
+
 class BillFormSubmitRequested extends BillFormEvent {}

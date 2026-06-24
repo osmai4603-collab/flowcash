@@ -129,6 +129,12 @@ class _BillFormViewState extends State<_BillFormView> {
     }
   }
 
+  void _onTreasuryChanged(PersonEntity? treasury) {
+    if (treasury != null) {
+      context.read<BillFormBloc>().add(BillFormTreasurySelected(treasury));
+    }
+  }
+
   void _onPersonEditingComplete(BillFormState state) {
     if (state.requests.isNotEmpty) {
       state.requests[0].categoryNameFocusNode.requestFocus();
@@ -543,6 +549,33 @@ class _BillFormViewState extends State<_BillFormView> {
             ),
           ),
           const SizedBox(height: 10),
+          if (state.billCashType == BillCashType.cash) ...[
+            InfoLabel(
+              label: 'الخزينة النقدية',
+              child: ComboboxFormField<PersonEntity>(
+                value: state.treasurySelected?.id != 0
+                    ? state.treasurySelected
+                    : null,
+                isExpanded: true,
+                items: state.treasuries.map((treasury) {
+                  return ComboBoxItem<PersonEntity>(
+                    value: treasury,
+                    child: Text(
+                      treasury.personName,
+                      style: Styles.titleSmall.copyWith(
+                        color: colors.onSurface,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                onChanged: _onTreasuryChanged,
+                placeholder: const Text('اختر الخزينة النقدية'),
+                validator: (value) =>
+                    value == null ? 'الخزينة النقدية مطلوبة' : null,
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
           _buildBillTable(context, state),
           const SizedBox(height: 5),
           if (!isDesktop)

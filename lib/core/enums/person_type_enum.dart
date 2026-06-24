@@ -23,6 +23,7 @@ sealed class PersonType extends AppEnum {
   static const costOfSales = CostOfSalesPersonType._();
   static const assets = AssetsPersonType._();
   static const moneyHead = MoneyHeadPersonType._();
+  static const cashTreasury = CashTreasuryPersonType._();
 
   static const List<PersonType> values = [
     supplier,
@@ -44,6 +45,7 @@ sealed class PersonType extends AppEnum {
     costOfSales,
     assets,
     moneyHead,
+    cashTreasury,
   ];
 
   static PersonType of(String name) {
@@ -208,4 +210,12 @@ final class MoneyHeadPersonType extends PersonType {
   String get name => 'money_head';
   @override
   int get index => 18;
+}
+
+final class CashTreasuryPersonType extends PersonType {
+  const CashTreasuryPersonType._() : super(typeName: 'الخزينة النقدية');
+  @override
+  String get name => 'cash_treasury';
+  @override
+  int get index => 19;
 }

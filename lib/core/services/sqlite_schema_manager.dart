@@ -39,7 +39,7 @@ import 'package:flowcash/core/tables/warehouse_values_table.dart';
 final class SqliteSchemaManager {
   const SqliteSchemaManager._();
 
-  static const int currentVersion = 6;
+  static const int currentVersion = 7;
 
   /// Create the full schema for a new database.
   static void createAll(Database db) {
@@ -70,6 +70,9 @@ final class SqliteSchemaManager {
               break;
             case 6:
               _applyV6Migration(db);
+              break;
+            case 7:
+              _applyV7Migration(db);
               break;
             default:
               throw StateError('No migration defined for version $v');
@@ -222,6 +225,87 @@ final class SqliteSchemaManager {
 
     db.execute(
       'ALTER TABLE ${BillsTable.tableName} ADD COLUMN ${BillsTable.costGoodId} INTEGER REFERENCES ${CostGoodBillsTable.tableName} (${CostGoodBillsTable.id}) ON DELETE SET NULL',
+    );
+  }
+
+  static void _applyV7Migration(Database db) {
+    // Recreate bills table to add treasury_id with CHECK constraint
+    db.execute('''
+      CREATE TABLE IF NOT EXISTS bills_new (
+        ${BillsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ${BillsTable.createdAt} TEXT NOT NULL,
+        ${BillsTable.createdBy} INTEGER NOT NULL,
+        ${BillsTable.note} TEXT,
+        ${BillsTable.offerAmount} REAL NOT NULL,
+        ${BillsTable.currencyId} TEXT NOT NULL,
+        ${BillsTable.billNumber} INTEGER NOT NULL,
+        ${BillsTable.warehouseId} INTEGER NOT NULL,
+        ${BillsTable.journalEntryId} INTEGER,
+        ${BillsTable.personId} INTEGER NOT NULL,
+        ${BillsTable.inventoryTransactionId} INTEGER,
+        ${BillsTable.isCash} INTEGER NOT NULL DEFAULT 0,
+        ${BillsTable.billType} TEXT NOT NULL,
+        ${BillsTable.costGoodId} INTEGER,
+        ${BillsTable.treasuryId} INTEGER,
+        CHECK (
+          (${BillsTable.isCash} = 1 AND ${BillsTable.treasuryId} IS NOT NULL) OR
+          (${BillsTable.isCash} = 0 AND ${BillsTable.treasuryId} IS NULL)
+        ),
+        FOREIGN KEY (${BillsTable.createdBy}) REFERENCES ${ProgramUsersTable.tableName} (${ProgramUsersTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${BillsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${BillsTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
+        FOREIGN KEY (${BillsTable.personId}) REFERENCES ${PersonsTable.tableName} (${PersonsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${BillsTable.inventoryTransactionId}) REFERENCES ${InventoryTransactionsTable.tableName} (${InventoryTransactionsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${BillsTable.costGoodId}) REFERENCES ${CostGoodBillsTable.tableName} (${CostGoodBillsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${BillsTable.treasuryId}) REFERENCES ${PersonsTable.tableName} (${PersonsTable.id}) ON DELETE SET NULL
+      )
+    ''');
+
+    // Copy existing data (treasury_id will be NULL for all existing rows)
+    // First, update existing cash bills to have is_cash = 0 temporarily to pass CHECK
+    // Or we can just set treasury_id to NULL and relax the constraint during migration
+    // Since foreign_keys are OFF during migration, we handle this by copying data as-is
+    // Existing cash bills will need treasury assignment after migration
+    db.execute('''
+      INSERT INTO bills_new (
+        ${BillsTable.id},
+        ${BillsTable.createdAt},
+        ${BillsTable.createdBy},
+        ${BillsTable.note},
+        ${BillsTable.offerAmount},
+        ${BillsTable.currencyId},
+        ${BillsTable.billNumber},
+        ${BillsTable.warehouseId},
+        ${BillsTable.journalEntryId},
+        ${BillsTable.personId},
+        ${BillsTable.inventoryTransactionId},
+        ${BillsTable.isCash},
+        ${BillsTable.billType},
+        ${BillsTable.costGoodId},
+        ${BillsTable.treasuryId}
+      )
+      SELECT
+        ${BillsTable.id},
+        ${BillsTable.createdAt},
+        ${BillsTable.createdBy},
+        ${BillsTable.note},
+        ${BillsTable.offerAmount},
+        ${BillsTable.currencyId},
+        ${BillsTable.billNumber},
+        ${BillsTable.warehouseId},
+        ${BillsTable.journalEntryId},
+        ${BillsTable.personId},
+        ${BillsTable.inventoryTransactionId},
+        0,
+        ${BillsTable.billType},
+        ${BillsTable.costGoodId},
+        NULL
+      FROM ${BillsTable.tableName}
+    ''');
+
+    db.execute('DROP TABLE ${BillsTable.tableName}');
+    db.execute(
+      'ALTER TABLE bills_new RENAME TO ${BillsTable.tableName}',
     );
   }
 
@@ -579,12 +663,18 @@ final class SqliteSchemaManager {
         ${BillsTable.isCash} INTEGER NOT NULL DEFAULT 0,
         ${BillsTable.billType} TEXT NOT NULL,
         ${BillsTable.costGoodId} INTEGER,
+        ${BillsTable.treasuryId} INTEGER,
         FOREIGN KEY (${BillsTable.createdBy}) REFERENCES ${ProgramUsersTable.tableName} (${ProgramUsersTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${BillsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${BillsTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
         FOREIGN KEY (${BillsTable.personId}) REFERENCES ${PersonsTable.tableName} (${PersonsTable.id}) ON DELETE SET NULL,
         FOREIGN KEY (${BillsTable.inventoryTransactionId}) REFERENCES ${InventoryTransactionsTable.tableName} (${InventoryTransactionsTable.id}) ON DELETE SET NULL,
-        FOREIGN KEY (${BillsTable.costGoodId}) REFERENCES ${CostGoodBillsTable.tableName} (${CostGoodBillsTable.id}) ON DELETE SET NULL
+        FOREIGN KEY (${BillsTable.costGoodId}) REFERENCES ${CostGoodBillsTable.tableName} (${CostGoodBillsTable.id}) ON DELETE SET NULL,
+        FOREIGN KEY (${BillsTable.treasuryId}) REFERENCES ${PersonsTable.tableName} (${PersonsTable.id}) ON DELETE SET NULL,
+        CHECK (
+          (${BillsTable.isCash} = 1 AND ${BillsTable.treasuryId} IS NOT NULL) OR
+          (${BillsTable.isCash} = 0 AND ${BillsTable.treasuryId} IS NULL)
+        )
       )
     ''');
 

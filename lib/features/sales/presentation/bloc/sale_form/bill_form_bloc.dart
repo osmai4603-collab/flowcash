@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowcash/core/entities/person_entity.dart';
 import 'package:flowcash/core/enums/invoice_type_enum.dart';
+import 'package:flowcash/core/enums/person_type_enum.dart';
 import 'package:flowcash/core/enums/value_counter_type_enum.dart';
 import 'package:flowcash/core/formatters/money_formatter.dart';
 import 'package:flowcash/core/usecases/person_repository_usecases.dart';
@@ -80,6 +81,7 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     on<BillFormUnitPriceChanged>(_onUnitPriceChanged);
     on<BillFormTotalPriceChanged>(_onTotalPriceChanged);
     on<BillFormCurrencyChanged>(_onCurrencyChanged);
+    on<BillFormTreasurySelected>(_onTreasurySelected);
     on<BillFormSubmitRequested>(_onSubmitRequested);
   }
 
@@ -134,6 +136,15 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
       final counterResult = await getValueCounter(counterType);
       final billCounter = counterResult.fold((l) => null, (r) => r);
 
+      // Load cash treasuries (persons with type cashTreasury)
+      final personsResult = await getPersons.call();
+      final treasuries = personsResult.fold(
+        (l) => <PersonEntity>[],
+        (r) => r
+            .where((p) => p.personType == PersonType.cashTreasury)
+            .toList(),
+      );
+
       final currencyId = period.currencyId;
       final indexOfCurrency = currencies.indexWhere(
         (c) => c.id == currencyId || event.bill?.currencyId == c.id,
@@ -154,6 +165,7 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
           warehouseSelected: userSession.currentWarehouse,
           firstDate: period.dateOfStartPeriod,
           requests: [RequestModel()],
+          treasuries: treasuries,
         ),
       );
     } catch (e) {
@@ -189,7 +201,19 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     BillFormCashTypeChanged event,
     Emitter<BillFormState> emit,
   ) {
-    emit(state.copyWith(billCashType: event.cashType, isDataChanged: true));
+    if (event.cashType == BillCashType.future) {
+      // When switching to آجل, clear the treasury selection
+      emit(state.copyWith(
+        billCashType: event.cashType,
+        isDataChanged: true,
+        treasurySelected: const PersonEntity(
+          id: 0,
+          personType: PersonType.cashTreasury,
+        ),
+      ));
+    } else {
+      emit(state.copyWith(billCashType: event.cashType, isDataChanged: true));
+    }
   }
 
   void _onWarehouseChanged(
@@ -242,6 +266,13 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     Emitter<BillFormState> emit,
   ) {
     emit(state.copyWith(currencySelected: event.currency, isDataChanged: true));
+  }
+
+  void _onTreasurySelected(
+    BillFormTreasurySelected event,
+    Emitter<BillFormState> emit,
+  ) {
+    emit(state.copyWith(treasurySelected: event.treasury, isDataChanged: true));
   }
 
   void _onCategorySelected(
@@ -329,6 +360,17 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
       return;
     }
 
+    // Validate treasury for cash bills
+    if (state.billCashType.isCash && (state.treasurySelected == null || state.treasurySelected!.id == 0)) {
+      emit(
+        state.copyWith(
+          status: BillFormStatus.submitFailure,
+          errorMessage: 'يجب اختيار الخزينة النقدية للفاتورة النقدية',
+        ),
+      );
+      return;
+    }
+
     emit(state.copyWith(status: BillFormStatus.submitting));
 
     try {
@@ -344,6 +386,9 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
         personId: state.personSelected!.id,
         isCash: state.billCashType.isCash,
         billType: state.billType,
+        treasuryId: state.billCashType.isCash
+            ? state.treasurySelected?.id
+            : null,
         orders: state.requests
             .map(
               (r) => BillOrderEntity(

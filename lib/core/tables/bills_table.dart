@@ -18,6 +18,7 @@ class BillsTable {
   static const String isCash = 'is_cash';
   static const String billType = 'bill_type';
   static const String costGoodId = 'cost_good_id';
+  static const String treasuryId = 'treasury_id';
 
   static const List<String> fields = [
     id,
@@ -34,5 +35,6 @@ class BillsTable {
     isCash,
     billType,
     costGoodId,
+    treasuryId,
   ];
 }

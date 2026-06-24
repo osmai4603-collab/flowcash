@@ -22,6 +22,8 @@ class BillFormState extends Equatable {
   final String? errorMessage;
   final InvoiceType billType;
   final BillEntity? initialBill;
+  final PersonEntity? treasurySelected;
+  final List<PersonEntity> treasuries;
 
   const BillFormState({
     this.status = BillFormStatus.initial,
@@ -43,6 +45,8 @@ class BillFormState extends Equatable {
     this.errorMessage,
     required this.billType,
     this.initialBill,
+    this.treasurySelected,
+    this.treasuries = const [],
   });
 
   BillFormState copyWith({
@@ -65,6 +69,8 @@ class BillFormState extends Equatable {
     String? errorMessage,
     InvoiceType? billType,
     BillEntity? initialBill,
+    PersonEntity? treasurySelected,
+    List<PersonEntity>? treasuries,
   }) {
     return BillFormState(
       status: status ?? this.status,
@@ -86,6 +92,8 @@ class BillFormState extends Equatable {
       errorMessage: errorMessage ?? this.errorMessage,
       billType: billType ?? this.billType,
       initialBill: initialBill ?? this.initialBill,
+      treasurySelected: treasurySelected ?? this.treasurySelected,
+      treasuries: treasuries ?? this.treasuries,
     );
   }
 
@@ -110,5 +118,7 @@ class BillFormState extends Equatable {
         errorMessage,
         billType,
         initialBill,
+        treasurySelected,
+        treasuries,
       ];
 }

@@ -17,6 +17,7 @@ class BillEntity extends Entity {
   final bool isCash;
   final InvoiceType billType;
   final int? costGoodId;
+  final int? treasuryId;
   final List<BillOrderEntity> orders;
 
   const BillEntity({
@@ -34,6 +35,7 @@ class BillEntity extends Entity {
     required this.isCash,
     required this.billType,
     this.costGoodId,
+    this.treasuryId,
     this.orders = const [],
   });
   @override
@@ -52,6 +54,7 @@ class BillEntity extends Entity {
     isCash,
     billType,
     costGoodId,
+    treasuryId,
     orders,
   ];
 
@@ -71,6 +74,7 @@ class BillEntity extends Entity {
     bool? isCash,
     InvoiceType? billType,
     int? costGoodId,
+    int? treasuryId,
     List<BillOrderEntity>? orders,
   }) {
     return BillEntity(
@@ -89,6 +93,7 @@ class BillEntity extends Entity {
       isCash: isCash ?? this.isCash,
       billType: billType ?? this.billType,
       costGoodId: costGoodId ?? this.costGoodId,
+      treasuryId: treasuryId ?? this.treasuryId,
       orders: orders ?? this.orders,
     );
   }

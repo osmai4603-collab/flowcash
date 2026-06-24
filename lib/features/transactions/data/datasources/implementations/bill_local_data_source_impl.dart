@@ -134,6 +134,7 @@ final class BillLocalDataSourceImpl implements BillDataSource {
       inventoryTransactionId: map[BillsTable.inventoryTransactionId] as int?,
       isCash: (map[BillsTable.isCash] == true || map[BillsTable.isCash] == 1),
       billType: InvoiceType.of(map[BillsTable.billType] as String? ?? 'sales'),
+      treasuryId: map[BillsTable.treasuryId] as int?,
     );
   }
 
@@ -153,6 +154,7 @@ final class BillLocalDataSourceImpl implements BillDataSource {
       BillsTable.inventoryTransactionId: entity.inventoryTransactionId,
       BillsTable.isCash: entity.isCash ? 1 : 0,
       BillsTable.billType: entity.billType.name,
+      BillsTable.treasuryId: entity.treasuryId,
     };
   }
 
