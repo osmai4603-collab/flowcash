@@ -1,0 +1,1 @@
+enum InventoryAccountField { revenue, expense }
