@@ -121,7 +121,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
       createdBy: 1,
       warehouseId: _selectedFromWarehouseId!,
       billNumber: billNum,
-      transactionType: InventoryTransactionType.inventoryDelivery,
+      transactionType: InventoryTransactionType.exportInventory,
       note:
           'تحويل مخزني صادر إلى مستودع ${_selectedToWarehouseId}: ${_noteController.text}'
               .trim(),
@@ -134,7 +134,7 @@ class _TransferFormDialogState extends State<TransferFormDialog> {
       createdBy: 1,
       warehouseId: _selectedToWarehouseId!,
       billNumber: billNum,
-      transactionType: InventoryTransactionType.inventoryReceipt,
+      transactionType: InventoryTransactionType.importInventory,
       note:
           'تحويل مخزني وارد من مستودع ${_selectedFromWarehouseId}: ${_noteController.text}'
               .trim(),

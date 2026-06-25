@@ -9,7 +9,7 @@ final class InventoryTransactionOrderModel
     super.inventoryId,
     super.countUnits = 0.0,
     super.tranId = 0,
-    super.transactionType = InventoryTransactionType.inventoryReceipt,
+    super.transactionType = InventoryTransactionType.importInventory,
   });
 
   factory InventoryTransactionOrderModel.fromMap(Map<String, dynamic> map) {

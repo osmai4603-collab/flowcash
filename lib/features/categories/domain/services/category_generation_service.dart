@@ -2,7 +2,6 @@ import 'package:fpdart/fpdart.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flowcash/core/errors/failure.dart';
-import 'package:flowcash/core/enums/category_type_enum.dart';
 import 'package:flowcash/core/utils/combinatorics_utils.dart';
 
 import '../entities/category_attribute_entity.dart';
@@ -174,7 +173,16 @@ class CategoryGenerationService {
             .getOrElse((l) => '0')
             .toString();
 
-        // Prepare Category Entity
+        // Prepare Attributes
+        final attributes = List.generate(combination.length, (index) {
+          return CategoryAttributeEntity(
+            id: 0,
+            subcategoryUnitId: combination[index].id,
+            categoryId: 0, // Will be set by DataSource
+          );
+        });
+
+        // Prepare Category Entity with Attributes
         CategoryEntity newCategory = CategoryEntity(
           id: 0,
           categoryName: categoryName,
@@ -185,29 +193,14 @@ class CategoryGenerationService {
           barcode: null,
           categoryType: mainCategory.type,
           subcategoryId: subcategoryId,
+          attributes: attributes,
         );
 
-        // Save Category
+        // Save Category (and its attributes automatically via DataSource transaction)
         final addCategoryResult = await usecases.addCategory(
           category: newCategory,
         );
-        newCategory = newCategory.copyWith(
-          id: addCategoryResult.getOrElse((l) => throw l),
-        );
-
-        // Save Attributes
-        final attributes = List.generate(combination.length, (index) {
-          return CategoryAttributeEntity(
-            id: 0,
-            subcategoryUnitId: combination[index].id,
-            categoryId: newCategory.id,
-          );
-        });
-
-        newCategory = newCategory.copyWith(attributes: attributes);
-        for (var attribute in newCategory.attributes) {
-          await usecases.addCategoryAttribute(attribute);
-        }
+        newCategory = addCategoryResult.getOrElse((l) => throw l);
 
         generatedCategories.add(newCategory);
       }

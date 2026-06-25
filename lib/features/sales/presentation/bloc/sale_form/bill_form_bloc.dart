@@ -20,6 +20,7 @@ import 'package:flowcash/features/system/domain/entities/value_counter_entity.da
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_order_entity.dart';
 import 'package:flowcash/features/transactions/domain/usecases/bill_repository_usecases.dart';
+import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_accounting_use_case.dart';
 import 'package:flowcash/user_session.dart';
 import 'package:flutter/material.dart';
 
@@ -46,9 +47,16 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
   final GetPersonsUseCase getPersons;
   final InsertBillUseCase insertBill;
   final UpdateBillUseCase updateBill;
+  final PostBillToAccountingUseCase postBillToAccounting;
   final UpdateValueCounterUseCase updateValueCounter;
   final GetCategoriesWhereContainsNameUseCase getCategoriesWhereContainsName;
   final UserSession userSession;
+
+  List<WarehouseEntity> warehouses = [];
+  List<CurrencyEntity> currencies = [];
+  List<ExchangePriceEntity> exPrices = [];
+  List<PersonEntity> treasuries = [];
+  ValueCounterEntity? billCounter;
 
   BillFormBloc({
     required this.getCurrencies,
@@ -58,6 +66,7 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     required this.getPersons,
     required this.insertBill,
     required this.updateBill,
+    required this.postBillToAccounting,
     required this.updateValueCounter,
     required this.getCategoriesWhereContainsName,
     required this.userSession,
@@ -115,33 +124,37 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
       if (period == null) throw Exception('لا توجد فترة محاسبية مفتوحة.');
 
       final currenciesResult = await getCurrencies();
-      final currencies = currenciesResult.fold(
+      currencies = currenciesResult.fold(
         (l) => <CurrencyEntity>[],
         (r) => r,
       );
 
       final exPricesResult = await getExchangePrices();
-      final exPrices = exPricesResult.fold(
+      exPrices = exPricesResult.fold(
         (l) => <ExchangePriceEntity>[],
         (r) => r,
       );
 
       final warehousesResult = await getWarehouses();
-      final warehouses = warehousesResult.fold(
+      warehouses = warehousesResult.fold(
         (l) => <WarehouseEntity>[],
         (r) => r,
       );
 
       final counterType = _getCounterType(event.billType);
       final counterResult = await getValueCounter(counterType);
-      final billCounter = counterResult.fold((l) => null, (r) => r);
+      billCounter = counterResult.fold((l) => null, (r) => r);
 
-      // Load cash treasuries (persons with type cashTreasury)
-      final personsResult = await getPersons.call();
-      final treasuries = personsResult.fold(
+      // Load cash treasuries (persons with type cash or bank)
+      final personsResult = await getPersons();
+      treasuries = personsResult.fold(
         (l) => <PersonEntity>[],
         (r) => r
-            .where((p) => p.personType == PersonType.cashTreasury)
+            .where(
+              (p) =>
+                  p.personType == PersonType.cash ||
+                  p.personType == PersonType.bank,
+            )
             .toList(),
       );
 
@@ -156,16 +169,11 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
       emit(
         state.copyWith(
           status: BillFormStatus.success,
-          currencies: currencies,
-          exPrices: exPrices,
-          warehouses: warehouses,
-          billCounter: billCounter,
           billNumber: billCounter?.count ?? 1,
           currencySelected: currencySelected,
           warehouseSelected: userSession.currentWarehouse,
           firstDate: period.dateOfStartPeriod,
           requests: [RequestModel()],
-          treasuries: treasuries,
         ),
       );
     } catch (e) {
@@ -206,10 +214,7 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
       emit(state.copyWith(
         billCashType: event.cashType,
         isDataChanged: true,
-        treasurySelected: const PersonEntity(
-          id: 0,
-          personType: PersonType.cashTreasury,
-        ),
+        treasurySelected: const PersonEntity(id: 0, personType: PersonType.cash),
       ));
     } else {
       emit(state.copyWith(billCashType: event.cashType, isDataChanged: true));
@@ -361,11 +366,12 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     }
 
     // Validate treasury for cash bills
-    if (state.billCashType.isCash && (state.treasurySelected == null || state.treasurySelected!.id == 0)) {
+    if (state.billCashType.isCash &&
+        (state.treasurySelected == null || state.treasurySelected!.id == 0)) {
       emit(
         state.copyWith(
           status: BillFormStatus.submitFailure,
-          errorMessage: 'يجب اختيار الخزينة النقدية للفاتورة النقدية',
+          errorMessage: 'يجب اختيار الحساب النقدي للفاتورة النقدية',
         ),
       );
       return;
@@ -414,17 +420,27 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
           ),
         ),
         (bill) async {
-          if (state.initialBill == null && state.billCounter != null) {
+          if (state.initialBill == null && billCounter != null) {
             await updateValueCounter(
-              state.billCounter!.copyWith(
-                count: (state.billNumber % state.billCounter!.counterMax) + 1,
+              billCounter!.copyWith(
+                count: (state.billNumber % billCounter!.counterMax) + 1,
               ),
             );
           }
+
+          final postResult = await postBillToAccounting(
+            bill: bill,
+            userId: userSession.currentUser!.id,
+            currencyId: state.currencySelected!.id,
+            exPrices: exPrices,
+          );
+
+          final postedBill = postResult.fold((f) => bill, (b) => b);
+
           emit(
             state.copyWith(
               status: BillFormStatus.submitSuccess,
-              initialBill: bill,
+              initialBill: postedBill,
             ),
           );
         },

@@ -39,6 +39,8 @@ import 'package:flowcash/features/settings/domain/usecases/counters/get_counter.
 import 'package:flowcash/features/settings/domain/usecases/counters/increment_counter.dart';
 import 'package:flowcash/features/system/presentation/bloc/defaults/defaults_cubit.dart';
 import 'package:flowcash/features/system/presentation/bloc/company/company_cubit.dart';
+import 'package:flowcash/features/system/presentation/bloc/account_associations/account_associations_bloc.dart';
+import 'package:flowcash/features/system/presentation/bloc/account_association_form/account_association_form_bloc.dart';
 
 /// تهيئة الاعتماديات لميزة system.
 void initSystemFeature(GetIt sl) {
@@ -113,5 +115,6 @@ void initSystemFeature(GetIt sl) {
   sl.registerFactory(() => DefaultsBloc(sl()));
   sl.registerFactory(() => CompanyBloc());
 
-
+  sl.registerFactory(() => AccountAssociationsBloc());
+  sl.registerFactory(() => AccountAssociationFormBloc());
 }

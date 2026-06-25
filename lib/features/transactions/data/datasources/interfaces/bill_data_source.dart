@@ -7,4 +7,6 @@ abstract interface class BillDataSource
     bool trigger = false,
     bool printQuery = true,
   });
+
+  Future<List<Map<String, dynamic>>> getBillsWithCustomer();
 }

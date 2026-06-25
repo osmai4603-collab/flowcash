@@ -12,7 +12,7 @@ final class InventoryTransactionModel extends InventoryTransactionEntity {
     super.warehouseId = 0,
     super.personId = 0,
     super.billNumber = 0,
-    super.transactionType = InventoryTransactionType.inventoryReceipt,
+    super.transactionType = InventoryTransactionType.importInventory,
     super.orders = const [],
   });
 

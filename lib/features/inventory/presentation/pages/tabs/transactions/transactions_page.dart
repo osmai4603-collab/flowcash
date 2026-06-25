@@ -346,7 +346,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                       final isReceipt =
                                           t.transactionType ==
                                           InventoryTransactionType
-                                              .inventoryReceipt;
+                                              .importInventory;
 
                                       return Card(
                                         color: isSelected

@@ -1,3 +1,4 @@
+import 'package:flowcash/core/enums/histories_group_enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flowcash/features/inventory/domain/entities/goods_cost_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
@@ -55,7 +56,7 @@ class _GoodsCostFormDialogState extends State<GoodsCostFormDialog> {
       currencyId: _selectedCurrency,
       hintId: 0,
       note: _noteController.text.trim(),
-      historyGroup: InventoryTransactionType.goodsCost,
+      historyGroup: InventoryTransactionType.importInventory,
     );
 
     Navigator.of(context).pop(cost);

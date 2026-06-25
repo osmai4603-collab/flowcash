@@ -43,8 +43,7 @@ final class InventoryTransactionLocalDataSourceImpl
   }
 
   @override
-  Future<InventoryTransactionEntity> insert(
-    InventoryTransactionEntity entity,
+  Future<InventoryTransactionEntity> insert(InventoryTransactionEntity entity,
   ) async {
     return await _db.transaction(() async {
       final transactionId = await _db.insert(
@@ -73,6 +72,7 @@ final class InventoryTransactionLocalDataSourceImpl
         }
         entity.orders[index] = order.copyWith(id: orderId);
       }
+
       return entity.copyWith(id: transactionId);
     });
   }

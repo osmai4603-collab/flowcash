@@ -8,15 +8,12 @@ sealed class InventoryTransactionType extends HistoriesGroup {
     required super.priority,
   });
 
-  static const inventoryReceipt = InventoryReceiptTransactionType._();
-  static const inventoryReceive = inventoryReceipt;
-  static const inventoryDelivery = InventoryDeliveryTransactionType._();
-  static const goodsCost = GoodsCostTransactionType._();
+  static const importInventory = InventoryReceiptTransactionType._();
+  static const exportInventory = InventoryDeliveryTransactionType._();
 
   static const List<InventoryTransactionType> values = [
-    inventoryReceipt,
-    inventoryDelivery,
-    goodsCost,
+    importInventory,
+    exportInventory,
   ];
 
   static InventoryTransactionType of(String name) {
@@ -38,13 +35,13 @@ final class InventoryReceiptTransactionType extends InventoryTransactionType {
       );
 
   @override
-  String get name => 'inventory_receive';
+  String get name => 'import_inventory';
 
   @override
   int get index => 0;
 
   @override
-  String displayName() => 'إذن إدخال';
+  String displayName() => 'استلام مخزني';
 }
 
 final class InventoryDeliveryTransactionType extends InventoryTransactionType {
@@ -57,30 +54,12 @@ final class InventoryDeliveryTransactionType extends InventoryTransactionType {
       );
 
   @override
-  String get name => 'inventory_delivery';
+  String get name => 'export_inventory';
 
   @override
   int get index => 1;
 
   @override
-  String displayName() => 'إذن إخراج';
+  String displayName() => 'صرف مخزني';
 }
 
-final class GoodsCostTransactionType extends InventoryTransactionType {
-  const GoodsCostTransactionType._()
-    : super(
-        singleName: 'تكلفة بضاعة',
-        totalName: 'تكلفة البضاعة',
-        counterTypeName: 'تكلفة البضاعة',
-        priority: 2,
-      );
-
-  @override
-  String get name => 'goods_cost';
-
-  @override
-  int get index => 2;
-
-  @override
-  String displayName() => 'تكلفة بضاعة';
-}

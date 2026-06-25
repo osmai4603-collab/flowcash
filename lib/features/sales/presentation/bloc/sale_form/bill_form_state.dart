@@ -4,9 +4,6 @@ enum BillFormStatus { initial, loading, success, failure, submitting, submitSucc
 
 class BillFormState extends Equatable {
   final BillFormStatus status;
-  final List<WarehouseEntity> warehouses;
-  final List<CurrencyEntity> currencies;
-  final List<ExchangePriceEntity> exPrices;
   final List<RequestModel> requests;
   final BillCashType billCashType;
   final WarehouseEntity? warehouseSelected;
@@ -14,7 +11,6 @@ class BillFormState extends Equatable {
   final CurrencyEntity? currencySelected;
   final DateTime dateSelected;
   final DateTime firstDate;
-  final ValueCounterEntity? billCounter;
   final int billNumber;
   final String note;
   final double totalAmount;
@@ -23,13 +19,9 @@ class BillFormState extends Equatable {
   final InvoiceType billType;
   final BillEntity? initialBill;
   final PersonEntity? treasurySelected;
-  final List<PersonEntity> treasuries;
 
   const BillFormState({
     this.status = BillFormStatus.initial,
-    this.warehouses = const [],
-    this.currencies = const [],
-    this.exPrices = const [],
     this.requests = const [],
     this.billCashType = BillCashType.cash,
     this.warehouseSelected,
@@ -37,7 +29,6 @@ class BillFormState extends Equatable {
     this.currencySelected,
     required this.dateSelected,
     required this.firstDate,
-    this.billCounter,
     this.billNumber = 1,
     this.note = '',
     this.totalAmount = 0.0,
@@ -46,14 +37,10 @@ class BillFormState extends Equatable {
     required this.billType,
     this.initialBill,
     this.treasurySelected,
-    this.treasuries = const [],
   });
 
   BillFormState copyWith({
     BillFormStatus? status,
-    List<WarehouseEntity>? warehouses,
-    List<CurrencyEntity>? currencies,
-    List<ExchangePriceEntity>? exPrices,
     List<RequestModel>? requests,
     BillCashType? billCashType,
     WarehouseEntity? warehouseSelected,
@@ -61,7 +48,6 @@ class BillFormState extends Equatable {
     CurrencyEntity? currencySelected,
     DateTime? dateSelected,
     DateTime? firstDate,
-    ValueCounterEntity? billCounter,
     int? billNumber,
     String? note,
     double? totalAmount,
@@ -70,13 +56,9 @@ class BillFormState extends Equatable {
     InvoiceType? billType,
     BillEntity? initialBill,
     PersonEntity? treasurySelected,
-    List<PersonEntity>? treasuries,
   }) {
     return BillFormState(
       status: status ?? this.status,
-      warehouses: warehouses ?? this.warehouses,
-      currencies: currencies ?? this.currencies,
-      exPrices: exPrices ?? this.exPrices,
       requests: requests ?? this.requests,
       billCashType: billCashType ?? this.billCashType,
       warehouseSelected: warehouseSelected ?? this.warehouseSelected,
@@ -84,7 +66,6 @@ class BillFormState extends Equatable {
       currencySelected: currencySelected ?? this.currencySelected,
       dateSelected: dateSelected ?? this.dateSelected,
       firstDate: firstDate ?? this.firstDate,
-      billCounter: billCounter ?? this.billCounter,
       billNumber: billNumber ?? this.billNumber,
       note: note ?? this.note,
       totalAmount: totalAmount ?? this.totalAmount,
@@ -93,16 +74,12 @@ class BillFormState extends Equatable {
       billType: billType ?? this.billType,
       initialBill: initialBill ?? this.initialBill,
       treasurySelected: treasurySelected ?? this.treasurySelected,
-      treasuries: treasuries ?? this.treasuries,
     );
   }
 
   @override
   List<Object?> get props => [
         status,
-        warehouses,
-        currencies,
-        exPrices,
         requests,
         billCashType,
         warehouseSelected,
@@ -110,7 +87,6 @@ class BillFormState extends Equatable {
         currencySelected,
         dateSelected,
         firstDate,
-        billCounter,
         billNumber,
         note,
         totalAmount,
@@ -119,6 +95,5 @@ class BillFormState extends Equatable {
         billType,
         initialBill,
         treasurySelected,
-        treasuries,
       ];
 }

@@ -23,7 +23,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
         : await _db.query(
             table: JournalEntriesTable.tableName,
             where:
-                '${JournalEntriesTable.entryId} IN (${List.filled(ids.length, '?').join(', ')})',
+                '${JournalEntriesTable.id} IN (${List.filled(ids.length, '?').join(', ')})',
             whereArgs: ids.toList(),
           );
 
@@ -41,7 +41,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
   Future<JournalEntryEntity?> getById(int id, {bool getItems = false}) async {
     final rows = await _db.query(
       table: JournalEntriesTable.tableName,
-      where: '${JournalEntriesTable.entryId} = ?',
+      where: '${JournalEntriesTable.id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -94,10 +94,10 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
 
       if (entry.id > 0) {
         final updateData = Map<String, dynamic>.from(toMap(entry))
-          ..remove(JournalEntriesTable.entryId);
+          ..remove(JournalEntriesTable.id);
         final setClause = updateData.keys.map((key) => '$key = ?').join(', ');
         final updateStmt = db.prepare(
-          'UPDATE ${JournalEntriesTable.tableName} SET $setClause WHERE ${JournalEntriesTable.entryId} = ?',
+          'UPDATE ${JournalEntriesTable.tableName} SET $setClause WHERE ${JournalEntriesTable.id} = ?',
         );
         updateStmt.execute([...updateData.values, entry.id]);
         updateStmt.dispose();
@@ -177,7 +177,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
       await _db.update(
         table: JournalEntriesTable.tableName,
         data: toMap(entity),
-        where: {JournalEntriesTable.entryId: entity.id},
+        where: {JournalEntriesTable.id: entity.id},
       );
 
       final updatedItems = <JournalItemEntity>[];
@@ -218,7 +218,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
       );
       await _db.deleteWhere(
         table: JournalEntriesTable.tableName,
-        where: {JournalEntriesTable.entryId: id},
+        where: {JournalEntriesTable.id: id},
       );
       return true;
     });

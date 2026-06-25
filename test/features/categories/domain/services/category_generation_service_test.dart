@@ -59,10 +59,10 @@ class StubGetUnitsUseCase implements GetUnitsUseCase {
 }
 
 class StubAddCategoryUseCase implements AddCategoryUseCase {
-  late Future<Either<Failure, int>> Function({required CategoryEntity category})
+  late Future<Either<Failure, CategoryEntity>> Function({required CategoryEntity category})
   callStub;
   @override
-  Future<Either<Failure, int>> call({required CategoryEntity category}) =>
+  Future<Either<Failure, CategoryEntity>> call({required CategoryEntity category}) =>
       callStub(category: category);
 }
 

@@ -1,42 +1,58 @@
 import 'package:equatable/equatable.dart';
+import 'package:flowcash/core/enums/invoice_type_enum.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 
 class SalesDocument extends Equatable {
-  final int id;
-  final String billHistory;
+  final int billId;
   final String customerName;
-  final double amount;
-  final String currencySymbol;
-  final DateTime date;
-  final bool isJournalPosted;
-  final bool isInventoryPosted;
-  final bool isCostGoodPosted;
+  final double totalAmount;
+  final String currencyId;
+  final DateTime createdAt;
+  final int? journalStatusId;
+  final int? costOfGoodId;
+  final int? inventoryTransactionId;
+  final InvoiceType billType;
+  final bool isCash;
+  final int billNumber;
   final BillEntity rawBill;
 
   const SalesDocument({
-    required this.id,
-    required this.billHistory,
+    required this.billId,
     required this.customerName,
-    required this.amount,
-    required this.currencySymbol,
-    required this.date,
-    required this.isJournalPosted,
-    required this.isInventoryPosted,
-    required this.isCostGoodPosted,
+    required this.totalAmount,
+    required this.currencyId,
+    required this.createdAt,
+    this.journalStatusId,
+    this.costOfGoodId,
+    this.inventoryTransactionId,
+    required this.billType,
+    required this.isCash,
+    required this.billNumber,
     required this.rawBill,
   });
 
+  String get billnumberFormat => billNumber.toString().padLeft(5, '0');
+
+  String get billHistory =>
+      '${billType.displayName()} ${isCash ? 'نقدا' : 'آجل'} رقم $billnumberFormat';
+
+  bool get isJournalPosted => journalStatusId != null;
+  bool get isInventoryPosted => inventoryTransactionId != null;
+  bool get isCostGoodPosted => costOfGoodId != null;
+
   @override
   List<Object?> get props => [
-    id,
-    billHistory,
+    billId,
     customerName,
-    amount,
-    currencySymbol,
-    date,
-    isJournalPosted,
-    isInventoryPosted,
-    isCostGoodPosted,
+    totalAmount,
+    currencyId,
+    createdAt,
+    journalStatusId,
+    costOfGoodId,
+    inventoryTransactionId,
+    billType,
+    isCash,
+    billNumber,
     rawBill,
   ];
 }
@@ -66,6 +82,15 @@ class SalesPageOperationFailure extends SalesPageState {
   final String message;
 
   const SalesPageOperationFailure(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class SalesPageOperationSuccess extends SalesPageState {
+  final String message;
+
+  const SalesPageOperationSuccess(this.message);
 
   @override
   List<Object?> get props => [message];

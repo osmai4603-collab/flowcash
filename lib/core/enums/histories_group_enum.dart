@@ -1,4 +1,6 @@
 import 'package:flowcash/core/enums/invoice_type_enum.dart';
+import 'package:flowcash/core/enums/value_counter_type_enum.dart';
+import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart';
 
 import 'app_enum.dart';
 import 'counter_type_enum.dart';
@@ -89,9 +91,14 @@ abstract class HistoriesGroup extends AppEnum {
   static const assetsSales = AssetType.assetsSales;
   static const openingEntries = EntryType.openingEntries;
   static const closingEntries = EntryType.closingEntries;
-  static const inventoryReceive = InventoryTransactionType.inventoryReceive;
-  static const inventoryDelivery = InventoryTransactionType.inventoryDelivery;
-  static const goodsCost = InventoryTransactionType.goodsCost;
+  static const inventoryReceive = InventoryTransactionType.importInventory;
+  static const inventoryDelivery = InventoryTransactionType.exportInventory;
+  static const goodsCost = CostOfGoodsEnum._(
+    singleName: 'تكلفة البضاعة',
+    totalName: 'تكاليف البضائع',
+    counterTypeName: 'رقم الفاتورة',
+    priority: 16,
+  );
 
   static const List<HistoriesGroup> values = [
     sales,
@@ -119,4 +126,21 @@ abstract class HistoriesGroup extends AppEnum {
       orElse: () => throw ArgumentError('Unknown HistoriesGroup: $name'),
     );
   }
+}
+
+
+final class CostOfGoodsEnum extends HistoriesGroup {
+  const CostOfGoodsEnum._({required super.singleName, required super.totalName, required super.counterTypeName, required super.priority});
+
+  @override
+  String displayName() {
+    return 'تكلفة بضاعة';
+  }
+
+  @override
+  int get index => 16 ;
+
+  @override
+  String get name => 'cost_of_goods';
+
 }

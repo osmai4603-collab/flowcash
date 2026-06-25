@@ -18,7 +18,7 @@ final class JournalEntryModel extends JournalEntryEntity {
 
   factory JournalEntryModel.fromMap(Map<String, dynamic> map, {List<JournalItemEntity> items = const []}) {
     return JournalEntryModel(
-      id: map[JournalEntriesTable.entryId] as int,
+      id: map[JournalEntriesTable.id] as int,
       referenceNumber: (map[JournalEntriesTable.referenceNumber] as String?) ?? '',
       description: map[JournalEntriesTable.description] as String?,
       createdAt: DateTime.parse(map[JournalEntriesTable.createdAt] as String),
@@ -32,7 +32,7 @@ final class JournalEntryModel extends JournalEntryEntity {
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) JournalEntriesTable.entryId: id,
+      if (id > 0) JournalEntriesTable.id: id,
       JournalEntriesTable.referenceNumber: referenceNumber,
       JournalEntriesTable.description: description,
       JournalEntriesTable.createdAt: createdAt.toIso8601String(),

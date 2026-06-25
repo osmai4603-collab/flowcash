@@ -8,6 +8,8 @@ import 'package:flowcash/features/system/presentation/bloc/financial_periods/fin
 import 'package:flowcash/features/system/presentation/bloc/value_counters/value_counters_cubit.dart';
 import 'package:flowcash/features/system/presentation/bloc/warehouse_values/warehouse_values_cubit.dart';
 import 'package:flowcash/features/system/presentation/bloc/warehouses/warehouses_cubit.dart';
+import 'package:flowcash/features/system/presentation/bloc/account_associations/account_associations_bloc.dart';
+import 'package:flowcash/features/system/presentation/bloc/account_associations/account_associations_event.dart';
 import '../pages/currencies/currencies_page.dart';
 import '../pages/defaults/defaults_page.dart';
 import '../pages/exchange_rates/exchange_rates_page.dart';
@@ -15,6 +17,7 @@ import '../pages/financial_periods/financial_periods_page.dart';
 import '../pages/warehouse_values/warehouse_values_page.dart';
 import '../pages/warehouses/warehouses_page.dart';
 import '../pages/value_counters/value_counters_page.dart';
+import '../pages/account_associations/account_associations_page.dart';
 
 class SystemPage extends StatefulWidget {
   const SystemPage({super.key});
@@ -95,6 +98,14 @@ class _SystemPageState extends State<SystemPage> {
               body: BlocProvider(
                 create: (_) => sl<DefaultsBloc>()..add(LoadDefaultsEvent()),
                 child: const DefaultsPage(),
+              ),
+            ),
+            PaneItem(
+              icon: const Icon(FluentIcons.all_apps),
+              title: const Text('ارتباط الحسابات'),
+              body: BlocProvider(
+                create: (_) => sl<AccountAssociationsBloc>()..add(LoadAccountAssociationsEvent()),
+                child: const AccountAssociationsPage(),
               ),
             ),
           ],

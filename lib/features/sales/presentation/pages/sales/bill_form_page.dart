@@ -31,6 +31,7 @@ import '../../../../currencies/domain/entities/currency_entity.dart';
 import '../../../../injection_container.dart';
 import '../../../../inventory/domain/entities/warehouse_entity.dart';
 import '../../../../inventory/domain/usecases/warehouse_usecases.dart';
+import '../../../../transactions/domain/usecases/post_bill_to_accounting_use_case.dart';
 
 class BillFormPage extends StatelessWidget {
   final BillEntity? bill;
@@ -49,7 +50,8 @@ class BillFormPage extends StatelessWidget {
         getPersons: sl<GetPersonsUseCase>(),
         insertBill: sl<InsertBillUseCase>(),
         updateBill: sl<UpdateBillUseCase>(),
-        updateValueCounter: sl<UpdateValueCounterUseCase>(),
+        postBillToAccounting: sl(),
+        updateValueCounter: sl(),
         getCategoriesWhereContainsName:
             sl<GetCategoriesWhereContainsNameUseCase>(),
         userSession: context.read<UserSession>(),
@@ -458,9 +460,14 @@ class _BillFormViewState extends State<_BillFormView> {
                       ),
                       Text(
                         state.billNumber.toString().padLeft(
-                          state.billCounter?.formatValue.length ?? 5,
-                          '0',
-                        ),
+                              context
+                                      .read<BillFormBloc>()
+                                      .billCounter
+                                      ?.formatValue
+                                      .length ??
+                                  5,
+                              '0',
+                            ),
                         style: TextStyle(color: colors.primary, fontSize: 18),
                       ),
                     ],
@@ -478,7 +485,7 @@ class _BillFormViewState extends State<_BillFormView> {
                   child: ComboboxFormField<WarehouseEntity>(
                     value: state.warehouseSelected,
                     isExpanded: true,
-                    items: state.warehouses.map((store) {
+                    items: context.read<BillFormBloc>().warehouses.map((store) {
                       return ComboBoxItem<WarehouseEntity>(
                         value: store,
                         child: Text(
@@ -502,7 +509,8 @@ class _BillFormViewState extends State<_BillFormView> {
                   child: ComboboxFormField<CurrencyEntity>(
                     value: state.currencySelected,
                     isExpanded: true,
-                    items: state.currencies.map((currency) {
+                    items:
+                        context.read<BillFormBloc>().currencies.map((currency) {
                       return ComboBoxItem<CurrencyEntity>(
                         value: currency,
                         child: Text(
@@ -551,13 +559,14 @@ class _BillFormViewState extends State<_BillFormView> {
           const SizedBox(height: 10),
           if (state.billCashType == BillCashType.cash) ...[
             InfoLabel(
-              label: 'الخزينة النقدية',
+              label: 'الحساب النقدي',
               child: ComboboxFormField<PersonEntity>(
                 value: state.treasurySelected?.id != 0
                     ? state.treasurySelected
                     : null,
                 isExpanded: true,
-                items: state.treasuries.map((treasury) {
+                items:
+                    context.read<BillFormBloc>().treasuries.map((treasury) {
                   return ComboBoxItem<PersonEntity>(
                     value: treasury,
                     child: Text(
@@ -569,9 +578,9 @@ class _BillFormViewState extends State<_BillFormView> {
                   );
                 }).toList(),
                 onChanged: _onTreasuryChanged,
-                placeholder: const Text('اختر الخزينة النقدية'),
+                placeholder: const Text('اختر الحساب النقدي'),
                 validator: (value) =>
-                    value == null ? 'الخزينة النقدية مطلوبة' : null,
+                    value == null ? 'الحساب النقدي مطلوب' : null,
               ),
             ),
             const SizedBox(height: 10),

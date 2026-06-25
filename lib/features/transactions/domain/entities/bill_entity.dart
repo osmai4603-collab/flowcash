@@ -37,7 +37,8 @@ class BillEntity extends Entity {
     this.costGoodId,
     this.treasuryId,
     this.orders = const [],
-  });
+  }) : assert((isCash && treasuryId != null) || (!isCash && treasuryId == null)),
+       assert(offerAmount > 0);
   @override
   List<Object?> get props => [
     id,

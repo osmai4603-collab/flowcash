@@ -314,7 +314,7 @@ final class OpeningQuantityLocalDataSourceImpl
         await _db.update(
           table: JournalEntriesTable.tableName,
           data: journalEntryToMap(journalEntry),
-          where: {JournalEntriesTable.entryId: journalEntryId},
+          where: {JournalEntriesTable.id: journalEntryId},
         );
 
         // Update increment journal item
@@ -465,7 +465,7 @@ final class OpeningQuantityLocalDataSourceImpl
           // Delete journal entry
           await _db.deleteWhere(
             table: JournalEntriesTable.tableName,
-            where: {JournalEntriesTable.entryId: journalEntryId},
+            where: {JournalEntriesTable.id: journalEntryId},
           );
         }
       }

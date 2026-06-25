@@ -13,7 +13,7 @@ class InventoryTransactionOrderEntity extends Entity {
     this.inventoryId,
     this.countUnits = 0.0,
     this.tranId = 0,
-    this.transactionType = InventoryTransactionType.inventoryReceipt,
+    this.transactionType = InventoryTransactionType.importInventory,
   });
 
   @override

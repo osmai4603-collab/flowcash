@@ -137,7 +137,7 @@ void initInventoryFeature(GetIt sl) {
     () => OpeningQuantityLocalDataSourceImpl(
       sl(),
       (entry) => {
-        if (entry.id > 0) JournalEntriesTable.entryId: entry.id,
+        if (entry.id > 0) JournalEntriesTable.id: entry.id,
         JournalEntriesTable.referenceNumber: entry.referenceNumber,
         JournalEntriesTable.description: entry.description,
         JournalEntriesTable.createdAt: entry.createdAt.toIso8601String(),

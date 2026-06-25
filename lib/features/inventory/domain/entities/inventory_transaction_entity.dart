@@ -21,7 +21,7 @@ class InventoryTransactionEntity extends Entity {
     this.warehouseId = 0,
     this.personId = 0,
     this.billNumber = 0,
-    this.transactionType = InventoryTransactionType.inventoryReceipt,
+    this.transactionType = InventoryTransactionType.importInventory,
     this.orders = const [],
   });
 

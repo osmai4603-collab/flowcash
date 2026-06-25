@@ -59,7 +59,7 @@ class TransactionDetailPanel extends StatelessWidget {
 
     final isReceipt =
         transaction.transactionType ==
-        InventoryTransactionType.inventoryReceipt;
+        InventoryTransactionType.importInventory;
 
     return Card(
       elevation: 4,

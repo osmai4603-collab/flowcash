@@ -57,7 +57,7 @@ final class InventoryOrdersTrigger {
           ${JournalItemsTable.journalStatus}
         )
         SELECT 
-          e.${JournalEntriesTable.entryId},
+          e.${JournalEntriesTable.id},
           CASE 
             WHEN NEW.${InventoryTransactionsOrdersTable.transactionType} = 'inventory_receive' 
             THEN inv.${InventoriesTable.incomeStockId}
@@ -97,7 +97,7 @@ final class InventoryOrdersTrigger {
               ELSE 'decrement' 
             END
         WHERE ${JournalItemsTable.entryId} = (
-          SELECT ${JournalEntriesTable.entryId} FROM ${JournalEntriesTable.tableName}
+          SELECT ${JournalEntriesTable.id} FROM ${JournalEntriesTable.tableName}
           WHERE ${JournalEntriesTable.referenceNumber} = 'INV-' || OLD.${InventoryTransactionsOrdersTable.tranId}
         );
       END;
@@ -110,7 +110,7 @@ final class InventoryOrdersTrigger {
       BEGIN
         DELETE FROM ${JournalItemsTable.tableName}
         WHERE ${JournalItemsTable.entryId} = (
-          SELECT ${JournalEntriesTable.entryId} FROM ${JournalEntriesTable.tableName}
+          SELECT ${JournalEntriesTable.id} FROM ${JournalEntriesTable.tableName}
           WHERE ${JournalEntriesTable.referenceNumber} = 'INV-' || OLD.${InventoryTransactionsOrdersTable.tranId}
         );
 
@@ -118,7 +118,7 @@ final class InventoryOrdersTrigger {
         WHERE ${JournalEntriesTable.referenceNumber} = 'INV-' || OLD.${InventoryTransactionsOrdersTable.tranId}
         AND NOT EXISTS (
           SELECT 1 FROM ${JournalItemsTable.tableName} 
-          WHERE ${JournalItemsTable.entryId} = ${JournalEntriesTable.tableName}.${JournalEntriesTable.entryId}
+          WHERE ${JournalItemsTable.entryId} = ${JournalEntriesTable.tableName}.${JournalEntriesTable.id}
         );
       END;
     ''');

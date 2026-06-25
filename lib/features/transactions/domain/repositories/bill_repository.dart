@@ -18,4 +18,12 @@ abstract interface class BillRepository implements RepositoryDB<BillEntity> {
     required String currencyId,
     required List<ExchangePriceEntity> exPrices,
   });
+
+  /// ترحيل الفاتورة مخزنياً — إنشاء حركة مخزون.
+  Future<Either<Failure, BillEntity>> postToInventory({
+    required BillEntity bill,
+    required int userId,
+  });
+
+  Future<Either<Failure, List<Map<String, dynamic>>>> getBillsWithCustomer();
 }

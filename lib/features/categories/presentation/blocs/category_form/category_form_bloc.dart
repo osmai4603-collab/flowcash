@@ -212,10 +212,10 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
             messageError: failure.message,
           ),
         ),
-        (value) {
+        (entity) {
           final newState = state
               .copyWithStatus(status: CategoryFormStatus.saved)
-              .copyWithId(id: value);
+              .copyWithId(id: entity.id);
           emit(newState);
         },
       );

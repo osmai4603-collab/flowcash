@@ -12,8 +12,11 @@ import 'package:get_it/get_it.dart';
 import 'package:flowcash/features/sales/presentation/bloc/sales_page/sales_page_bloc.dart';
 import 'package:flowcash/features/sales/presentation/bloc/sales_page/sales_page_event.dart';
 import 'package:flowcash/features/sales/presentation/bloc/sales_page/sales_page_state.dart';
-import 'package:flowcash/features/transactions/domain/usecases/bill_repository_usecases.dart';
+import 'package:flowcash/features/currencies/domain/usecases/exchange_price_repository_usecases.dart';
+import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_accounting_use_case.dart';
+import 'package:flowcash/user_session.dart';
 import 'package:flowcash/widgets/message.dart';
+import 'package:flowcash/features/injection_container.dart';
 
 import '../../../../../core/enums/invoice_type_enum.dart';
 
@@ -23,9 +26,13 @@ class SalesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SalesPageBloc>(
-      create: (_) =>
-          SalesPageBloc(getBillsUseCase: GetIt.instance<GetBillsUseCase>())
-            ..add(LoadSalesPageEvent()),
+      create: (_) => SalesPageBloc(
+        getBillsWithCustomerUseCase: sl(),
+        deleteBillUseCase: sl(),
+        postBillToAccountingUseCase: sl<PostBillToAccountingUseCase>(),
+        getExchangePricesUseCase: sl<GetExchangePricesUseCase>(),
+        userSession: sl<UserSession>(),
+      )..add(LoadSalesPageEvent()),
       child: const _SalesPageView(),
     );
   }
@@ -194,14 +201,14 @@ class _SalesPageViewState extends State<_SalesPageView> {
                             textBaseline: TextBaseline.alphabetic,
                             children: [
                               fluent.Text(
-                                AppMoneyFormatter.formatDouble(item.amount),
+                                AppMoneyFormatter.formatDouble(item.totalAmount),
                                 style: colors.body.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               const SizedBox(width: 4),
                               fluent.Text(
-                                item.currencySymbol,
+                                item.currencyId,
                                 style: colors.body.copyWith(
                                   fontSize:
                                       (colors.body.fontSize ?? 14.0) * 0.75,
@@ -218,7 +225,7 @@ class _SalesPageViewState extends State<_SalesPageView> {
                             vertical: 6.0,
                           ),
                           child: fluent.Text(
-                            '${item.date.year}-${item.date.month.toString().padLeft(2, '0')}-${item.date.day.toString().padLeft(2, '0')}',
+                            '${item.createdAt.year}-${item.createdAt.month.toString().padLeft(2, '0')}-${item.createdAt.day.toString().padLeft(2, '0')}',
                             style: colors.body,
                           ),
                         ),
@@ -390,6 +397,12 @@ class _SalesPageViewState extends State<_SalesPageView> {
         listener: (context, state) {
           if (state is SalesPageOperationFailure) {
             error(context: context, toast: state.message);
+          } else if (state is SalesPageOperationSuccess) {
+            successToast(
+              context: context,
+              title: 'نجاح العملية',
+              toast: state.message,
+            );
           }
         },
         child: BlocBuilder<SalesPageBloc, SalesPageState>(
@@ -447,7 +460,7 @@ class _SalesPageViewState extends State<_SalesPageView> {
     );
     if (!sure || !context.mounted) return;
 
-    context.read<SalesPageBloc>().add(DeleteSalesDocumentEvent(doc.rawBill.id));
+    context.read<SalesPageBloc>().add(DeleteSalesDocumentEvent(doc.billId));
   }
 
   void _onPostJournal(SalesDocument doc) async {
@@ -462,13 +475,15 @@ class _SalesPageViewState extends State<_SalesPageView> {
     );
     if (!sure || !context.mounted) return;
 
-    successToast(
-      context: context,
-      title: 'عملية الترحيل',
-      toast: doc.isJournalPosted
-          ? 'تم إلغاء الترحيل المحاسبي بنجاح'
-          : 'تم الترحيل المحاسبي بنجاح',
-    );
+    if (!doc.isJournalPosted) {
+      context
+          .read<SalesPageBloc>()
+          .add(PostSalesDocumentToAccountingEvent(doc));
+    } else {
+      // Currently we only support posting, not un-posting from here yet.
+      // But we can show a message.
+      error(context: context, toast: 'إلغاء الترحيل غير مدعوم حالياً من هنا.');
+    }
   }
 
   void _onPostInventory(SalesDocument doc) async {

@@ -45,9 +45,8 @@ class AddCategoryUseCase {
 
   const AddCategoryUseCase(this._repository);
 
-  Future<Either<Failure, int>> call({required CategoryEntity category}) async {
-    final result = await _repository.insert(category);
-    return result.map((e) => e.id);
+  Future<Either<Failure, CategoryEntity>> call({required CategoryEntity category}) {
+    return _repository.insert(category);
   }
 }
 

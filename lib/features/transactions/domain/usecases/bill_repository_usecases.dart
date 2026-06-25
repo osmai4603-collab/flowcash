@@ -15,6 +15,16 @@ class GetBillsUseCase {
   }
 }
 
+class GetBillsWithCustomerUseCase {
+  final BillRepository _repository;
+
+  const GetBillsWithCustomerUseCase(this._repository);
+
+  Future<Either<Failure, List<Map<String, dynamic>>>> call() async {
+    return await _repository.getBillsWithCustomer();
+  }
+}
+
 class GetBillByIdUseCase {
   final BillRepository _repository;
 

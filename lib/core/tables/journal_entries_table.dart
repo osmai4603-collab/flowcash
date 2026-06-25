@@ -4,7 +4,7 @@ class JournalEntriesTable {
 
   static const String tableName = 'journal_entries';
 
-  static const String entryId = 'entry_id';
+  static const String id = 'entry_id';
   static const String referenceNumber = 'reference_number';
   static const String description = 'description';
   static const String createdAt = 'created_at';
@@ -14,7 +14,7 @@ class JournalEntriesTable {
   static const String warehouseId = 'warehouse_id';
 
   static const List<String> fields = [
-    entryId,
+    id,
     referenceNumber,
     description,
     createdAt,

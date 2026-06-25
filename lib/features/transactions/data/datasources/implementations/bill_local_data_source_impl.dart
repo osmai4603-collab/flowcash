@@ -6,6 +6,8 @@ import 'package:flowcash/core/services/sqlite_service.dart';
 import 'package:flowcash/core/tables/bill_orders_table.dart';
 import 'package:flowcash/core/tables/bills_table.dart';
 
+import '../../../../../core/tables/persons_table.dart';
+
 final class BillLocalDataSourceImpl implements BillDataSource {
   final SqliteService _db;
   final Map<String, dynamic> Function(BillOrderEntity) orderToMap;
@@ -164,6 +166,19 @@ final class BillLocalDataSourceImpl implements BillDataSource {
     bool printQuery = true,
   }) async {
     throw UnimplementedError();
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getBillsWithCustomer() async {
+    final query = '''
+      SELECT 
+          b.*,
+          p.${PersonsTable.personName} as customerName
+      FROM ${BillsTable.tableName} b 
+      LEFT JOIN ${PersonsTable.tableName} p ON b.${BillsTable.personId} = p.${PersonsTable.id}
+      ORDER BY b.${BillsTable.createdAt} DESC
+    ''';
+    return await _db.rawQuery(query);
   }
 
   Map<String, dynamic> _sanitizeInsertData(

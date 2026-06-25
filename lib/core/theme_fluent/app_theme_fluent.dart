@@ -17,7 +17,7 @@ sealed class ThemesFluent {
     required Brightness brightness,
     required AppStyle colors,
   }) {
-    final resurces = _buildResources(colors, brightness);
+    final resources = _buildResources(colors, brightness);
     return FluentThemeData(fontFamily: 'Noto_Naskh_Arabic').copyWith(
       extensions: [colors],
       brightness: brightness,
@@ -55,10 +55,10 @@ sealed class ThemesFluent {
         ),
         padding: Paddings.mediumAll,
       ),
-      resources: resurces,
+      resources: resources,
 
       navigationPaneTheme: NavigationPaneThemeData.fromResources(
-        resources: resurces,
+        resources: resources,
         animationCurve: standardCurve,
         animationDuration: const Duration(milliseconds: 167),
         highlightColor: colors.primary,

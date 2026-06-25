@@ -115,7 +115,7 @@ void main() {
   // Insert a Journal Entry
   db.execute('''
     INSERT INTO ${JournalEntriesTable.tableName} (
-      ${JournalEntriesTable.entryId}, ${JournalEntriesTable.referenceNumber}, ${JournalEntriesTable.description},
+      ${JournalEntriesTable.id}, ${JournalEntriesTable.referenceNumber}, ${JournalEntriesTable.description},
       ${JournalEntriesTable.createdAt}, ${JournalEntriesTable.userId}, ${JournalEntriesTable.currencyId},
       ${JournalEntriesTable.amount}, ${JournalEntriesTable.warehouseId}
     ) VALUES (100, 'JE-001', 'قيد تجريبي يدوي', '$nowStr', 1, 'YER', 1000.0, 1)
@@ -299,9 +299,9 @@ void main() {
 
   final jeId =
       db.select(
-            'SELECT ${JournalEntriesTable.entryId} FROM ${JournalEntriesTable.tableName} WHERE ${JournalEntriesTable.referenceNumber} = ?',
+            'SELECT ${JournalEntriesTable.id} FROM ${JournalEntriesTable.tableName} WHERE ${JournalEntriesTable.referenceNumber} = ?',
             ['INVCAT-300'],
-          ).first[JournalEntriesTable.entryId]
+          ).first[JournalEntriesTable.id]
           as int;
   final jiCount =
       db.select(
@@ -348,7 +348,7 @@ void main() {
   // Verify Journal Entry amount and items are updated
   final jeAmount =
       db.select(
-            'SELECT ${JournalEntriesTable.amount} FROM ${JournalEntriesTable.tableName} WHERE ${JournalEntriesTable.entryId} = ?',
+            'SELECT ${JournalEntriesTable.amount} FROM ${JournalEntriesTable.tableName} WHERE ${JournalEntriesTable.id} = ?',
             [jeId],
           ).first[JournalEntriesTable.amount]
           as double;
@@ -485,9 +485,9 @@ void main() {
 
   final orderJeId =
       db.select(
-            'SELECT ${JournalEntriesTable.entryId} FROM ${JournalEntriesTable.tableName} WHERE ${JournalEntriesTable.referenceNumber} = ?',
+            'SELECT ${JournalEntriesTable.id} FROM ${JournalEntriesTable.tableName} WHERE ${JournalEntriesTable.referenceNumber} = ?',
             ['INV-400'],
-          ).first[JournalEntriesTable.entryId]
+          ).first[JournalEntriesTable.id]
           as int;
   final orderJiCount =
       db.select(

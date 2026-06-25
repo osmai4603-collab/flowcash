@@ -163,7 +163,7 @@ void main() async {
   final entries = db.select('SELECT * FROM ${JournalEntriesTable.tableName} WHERE ${JournalEntriesTable.referenceNumber} LIKE ?', ['%900']);
   for (final row in entries) {
     print('Journal Entry: ${row[JournalEntriesTable.referenceNumber]} - ${row[JournalEntriesTable.description]} - Amount: ${row[JournalEntriesTable.amount]} YER');
-    final items = db.select('SELECT * FROM ${JournalItemsTable.tableName} WHERE ${JournalItemsTable.entryId} = ?', [row[JournalEntriesTable.entryId]]);
+    final items = db.select('SELECT * FROM ${JournalItemsTable.tableName} WHERE ${JournalItemsTable.entryId} = ?', [row[JournalEntriesTable.id]]);
     for (final item in items) {
       print('  -> Journal Item: Account: ${item[JournalItemsTable.accountId]}, Amount: ${item[JournalItemsTable.amount]}, Status: ${item[JournalItemsTable.journalStatus]}');
     }

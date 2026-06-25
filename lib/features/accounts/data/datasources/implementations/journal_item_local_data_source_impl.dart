@@ -120,7 +120,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
       SELECT ji.*
       FROM ${JournalItemsTable.tableName} AS ji
       INNER JOIN ${JournalEntriesTable.tableName} AS je
-        ON ji.${JournalItemsTable.entryId} = je.${JournalEntriesTable.entryId}
+        ON ji.${JournalItemsTable.entryId} = je.${JournalEntriesTable.id}
       WHERE je.${JournalEntriesTable.warehouseId} = ?
     ''');
     final result = stmt.select([warehouseId]);

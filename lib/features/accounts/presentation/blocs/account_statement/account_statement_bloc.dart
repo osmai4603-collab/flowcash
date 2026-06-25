@@ -113,8 +113,8 @@ class AccountStatementBloc
 
             // Sort filtered items by entry date ascending
             filteredItems.sort((a, b) {
-              final entryA = entriesMap[a.entryId];
-              final entryB = entriesMap[b.entryId];
+              final entryA = entriesMap[a.id];
+              final entryB = entriesMap[b.id];
               if (entryA == null || entryB == null) return 0;
               return entryA.createdAt.compareTo(entryB.createdAt);
             });

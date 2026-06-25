@@ -1,3 +1,4 @@
+import 'package:flowcash/core/enums/account_status_enum.dart';
 import 'package:flowcash/core/enums/sub_account_type_enum.dart';
 import 'package:flowcash/core/entities/entity.dart';
 
@@ -41,6 +42,8 @@ class SubAccountEntity extends Entity {
     subAccountType,
     createdAt,
   ];
+
+  AccountStatus get accountStatus => subAccountType.mainAccountType.accountStatus;
 
   @override
   SubAccountEntity copyWith({

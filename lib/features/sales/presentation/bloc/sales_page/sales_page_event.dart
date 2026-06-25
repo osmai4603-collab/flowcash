@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flowcash/features/sales/presentation/bloc/sales_page/sales_page_state.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 
 abstract class SalesPageEvent extends Equatable {
@@ -46,4 +47,13 @@ class DeleteSalesDocumentEvent extends SalesPageEvent {
 
   @override
   List<Object?> get props => [billId];
+}
+
+class PostSalesDocumentToAccountingEvent extends SalesPageEvent {
+  final SalesDocument doc;
+
+  const PostSalesDocumentToAccountingEvent(this.doc);
+
+  @override
+  List<Object?> get props => [doc];
 }

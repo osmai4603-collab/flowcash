@@ -37,7 +37,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
   // Header fields
   int? _selectedWarehouseId;
   InventoryTransactionType _selectedType =
-      InventoryTransactionType.inventoryReceipt;
+      InventoryTransactionType.importInventory;
   final _billNumberController = TextEditingController();
   final _noteController = TextEditingController();
 
