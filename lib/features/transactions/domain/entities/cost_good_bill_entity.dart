@@ -1,7 +1,7 @@
 import 'package:flowcash/core/entities/entity.dart';
-import 'package:flowcash/core/enums/histories_group_enum.dart';
+import 'package:flowcash/features/transactions/domain/entities/cost_good_bill_order_entity.dart';
 
-class GoodsCostEntity extends Entity {
+class CostGoodBillEntity extends Entity {
   final int id;
   final DateTime createdAt;
   final int createdBy;
@@ -11,11 +11,11 @@ class GoodsCostEntity extends Entity {
   final int billNumber;
   final int warehouseId;
   final int? journalEntryId;
-  final int hintId;
-  final int? orderId;
-  final HistoriesGroup historyGroup;
+  final int personId;
+  final int billId;
+  final List<CostGoodBillOrderEntity> orders;
 
-  const GoodsCostEntity({
+  const CostGoodBillEntity({
     required this.id,
     required this.createdAt,
     required this.createdBy,
@@ -25,9 +25,9 @@ class GoodsCostEntity extends Entity {
     required this.billNumber,
     required this.warehouseId,
     this.journalEntryId,
-    required this.hintId,
-    this.orderId,
-    required this.historyGroup,
+    required this.personId,
+    required this.billId,
+    this.orders = const [],
   });
 
   @override
@@ -41,13 +41,13 @@ class GoodsCostEntity extends Entity {
     billNumber,
     warehouseId,
     journalEntryId,
-    hintId,
-    orderId,
-    historyGroup,
+    personId,
+    billId,
+    orders,
   ];
 
   @override
-  GoodsCostEntity copyWith({
+  CostGoodBillEntity copyWith({
     int? id,
     DateTime? createdAt,
     int? createdBy,
@@ -57,11 +57,11 @@ class GoodsCostEntity extends Entity {
     int? billNumber,
     int? warehouseId,
     int? journalEntryId,
-    int? hintId,
-    int? orderId,
-    HistoriesGroup? historyGroup,
+    int? personId,
+    int? billId,
+    List<CostGoodBillOrderEntity>? orders,
   }) {
-    return GoodsCostEntity(
+    return CostGoodBillEntity(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       createdBy: createdBy ?? this.createdBy,
@@ -71,9 +71,9 @@ class GoodsCostEntity extends Entity {
       billNumber: billNumber ?? this.billNumber,
       warehouseId: warehouseId ?? this.warehouseId,
       journalEntryId: journalEntryId ?? this.journalEntryId,
-      hintId: hintId ?? this.hintId,
-      orderId: orderId ?? this.orderId,
-      historyGroup: historyGroup ?? this.historyGroup,
+      personId: personId ?? this.personId,
+      billId: billId ?? this.billId,
+      orders: orders ?? this.orders,
     );
   }
 }
