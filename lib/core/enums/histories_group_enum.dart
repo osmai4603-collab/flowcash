@@ -60,8 +60,6 @@ abstract class HistoriesGroup extends AppEnum {
         return CounterType.goodsReceipt;
       case HistoriesGroup.inventoryDelivery:
         return CounterType.goodsDelivery;
-      case HistoriesGroup.goodsCost:
-        return CounterType.goodsCost;
       default:
         return CounterType.openingEntries;
     }
@@ -93,12 +91,6 @@ abstract class HistoriesGroup extends AppEnum {
   static const closingEntries = EntryType.closingEntries;
   static const inventoryReceive = InventoryTransactionType.importInventory;
   static const inventoryDelivery = InventoryTransactionType.exportInventory;
-  static const goodsCost = CostOfGoodsEnum._(
-    singleName: 'تكلفة البضاعة',
-    totalName: 'تكاليف البضائع',
-    counterTypeName: 'رقم الفاتورة',
-    priority: 16,
-  );
 
   static const List<HistoriesGroup> values = [
     sales,
@@ -117,7 +109,6 @@ abstract class HistoriesGroup extends AppEnum {
     closingEntries,
     inventoryReceive,
     inventoryDelivery,
-    goodsCost,
   ];
 
   static HistoriesGroup of(String name) {
@@ -126,21 +117,4 @@ abstract class HistoriesGroup extends AppEnum {
       orElse: () => throw ArgumentError('Unknown HistoriesGroup: $name'),
     );
   }
-}
-
-
-final class CostOfGoodsEnum extends HistoriesGroup {
-  const CostOfGoodsEnum._({required super.singleName, required super.totalName, required super.counterTypeName, required super.priority});
-
-  @override
-  String displayName() {
-    return 'تكلفة بضاعة';
-  }
-
-  @override
-  int get index => 16 ;
-
-  @override
-  String get name => 'cost_of_goods';
-
 }

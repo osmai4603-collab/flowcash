@@ -30,10 +30,6 @@ abstract interface class SubAccountRepository
   Future<Either<Failure, SubAccountEntity?>> firstWhereMainAccount(
     int mainAccountId,
   );
-  Future<Either<Failure, SubAccountEntity>> getGoodsCost({
-    required int personId,
-    required int periodId,
-  });
   Future<Either<Failure, bool>> updateBalances({
     required double incrementBalance,
     required double decrementBalance,

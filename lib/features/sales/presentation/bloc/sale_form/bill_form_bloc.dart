@@ -20,11 +20,14 @@ import 'package:flowcash/features/system/domain/entities/value_counter_entity.da
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_order_entity.dart';
 import 'package:flowcash/features/transactions/domain/usecases/bill_repository_usecases.dart';
-import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_accounting_use_case.dart';
+import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_inventory_use_case.dart';
+import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_costing_use_case.dart';
 import 'package:flowcash/user_session.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
+
+import '../../../../transactions/domain/usecases/post_bill_to_accounting_use_case.dart';
 
 part 'bill_form_event.dart';
 part 'bill_form_state.dart';
@@ -48,6 +51,8 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
   final InsertBillUseCase insertBill;
   final UpdateBillUseCase updateBill;
   final PostBillToAccountingUseCase postBillToAccounting;
+  final PostBillToInventoryUseCase postBillToInventory;
+  final PostBillToCostingUseCase postBillToCosting;
   final UpdateValueCounterUseCase updateValueCounter;
   final GetCategoriesWhereContainsNameUseCase getCategoriesWhereContainsName;
   final UserSession userSession;
@@ -70,6 +75,8 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     required this.updateValueCounter,
     required this.getCategoriesWhereContainsName,
     required this.userSession,
+    required this.postBillToCosting,
+    required this.postBillToInventory,
   }) : super(
          BillFormState(
            dateSelected: DateTime.now(),
@@ -92,6 +99,9 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
     on<BillFormCurrencyChanged>(_onCurrencyChanged);
     on<BillFormTreasurySelected>(_onTreasurySelected);
     on<BillFormSubmitRequested>(_onSubmitRequested);
+    on<BillFormPostToAccountingRequested>(_onPostToAccounting);
+    on<BillFormPostToInventoryRequested>(_onPostToInventory);
+    on<BillFormPostToCostingRequested>(_onPostToCosting);
   }
 
   Future<List<PersonEntity>> searchPersons(String value) async {
@@ -124,22 +134,13 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
       if (period == null) throw Exception('لا توجد فترة محاسبية مفتوحة.');
 
       final currenciesResult = await getCurrencies();
-      currencies = currenciesResult.fold(
-        (l) => <CurrencyEntity>[],
-        (r) => r,
-      );
+      currencies = currenciesResult.fold((l) => <CurrencyEntity>[], (r) => r);
 
       final exPricesResult = await getExchangePrices();
-      exPrices = exPricesResult.fold(
-        (l) => <ExchangePriceEntity>[],
-        (r) => r,
-      );
+      exPrices = exPricesResult.fold((l) => <ExchangePriceEntity>[], (r) => r);
 
       final warehousesResult = await getWarehouses();
-      warehouses = warehousesResult.fold(
-        (l) => <WarehouseEntity>[],
-        (r) => r,
-      );
+      warehouses = warehousesResult.fold((l) => <WarehouseEntity>[], (r) => r);
 
       final counterType = _getCounterType(event.billType);
       final counterResult = await getValueCounter(counterType);
@@ -211,11 +212,16 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
   ) {
     if (event.cashType == BillCashType.future) {
       // When switching to آجل, clear the treasury selection
-      emit(state.copyWith(
-        billCashType: event.cashType,
-        isDataChanged: true,
-        treasurySelected: const PersonEntity(id: 0, personType: PersonType.cash),
-      ));
+      emit(
+        state.copyWith(
+          billCashType: event.cashType,
+          isDataChanged: true,
+          treasurySelected: const PersonEntity(
+            id: 0,
+            personType: PersonType.cash,
+          ),
+        ),
+      );
     } else {
       emit(state.copyWith(billCashType: event.cashType, isDataChanged: true));
     }
@@ -428,19 +434,10 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
             );
           }
 
-          final postResult = await postBillToAccounting(
-            bill: bill,
-            userId: userSession.currentUser!.id,
-            currencyId: state.currencySelected!.id,
-            exPrices: exPrices,
-          );
-
-          final postedBill = postResult.fold((f) => bill, (b) => b);
-
           emit(
             state.copyWith(
               status: BillFormStatus.submitSuccess,
-              initialBill: postedBill,
+              initialBill: bill,
             ),
           );
         },
@@ -453,6 +450,80 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
         ),
       );
     }
+  }
+
+  Future<void> _onPostToAccounting(
+    BillFormPostToAccountingRequested event,
+    Emitter<BillFormState> emit,
+  ) async {
+    if (state.initialBill == null) return;
+    emit(state.copyWith(status: BillFormStatus.submitting));
+    
+    final result = await postBillToAccounting(
+      bill: state.initialBill!,
+      userId: userSession.currentUser!.id,
+      currencyId: state.currencySelected!.id,
+      exPrices: exPrices,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        status: BillFormStatus.submitFailure,
+        errorMessage: failure.message,
+      )),
+      (bill) => emit(state.copyWith(
+        status: BillFormStatus.submitSuccess,
+        initialBill: bill,
+      )),
+    );
+  }
+
+  Future<void> _onPostToInventory(
+    BillFormPostToInventoryRequested event,
+    Emitter<BillFormState> emit,
+  ) async {
+    if (state.initialBill == null) return;
+    emit(state.copyWith(status: BillFormStatus.submitting));
+
+    final result = await postBillToInventory(
+      bill: state.initialBill!,
+      userId: userSession.currentUser!.id,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        status: BillFormStatus.submitFailure,
+        errorMessage: failure.message,
+      )),
+      (bill) => emit(state.copyWith(
+        status: BillFormStatus.submitSuccess,
+        initialBill: bill,
+      )),
+    );
+  }
+
+  Future<void> _onPostToCosting(
+    BillFormPostToCostingRequested event,
+    Emitter<BillFormState> emit,
+  ) async {
+    if (state.initialBill == null) return;
+    emit(state.copyWith(status: BillFormStatus.submitting));
+
+    final result = await postBillToCosting(
+      bill: state.initialBill!,
+      userId: userSession.currentUser!.id,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        status: BillFormStatus.submitFailure,
+        errorMessage: failure.message,
+      )),
+      (bill) => emit(state.copyWith(
+        status: BillFormStatus.submitSuccess,
+        initialBill: bill,
+      )),
+    );
   }
 }
 

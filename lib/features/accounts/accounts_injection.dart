@@ -136,7 +136,6 @@ void initAccountsFeature(GetIt sl) {
   sl.registerLazySingleton(() => GetSubaccountDebtorBalanceUseCase(sl()));
   sl.registerLazySingleton(() => GetSubaccountCreditorBalanceUseCase(sl()));
   sl.registerLazySingleton(() => FirstWhereMainAccountUseCase(sl()));
-  sl.registerLazySingleton(() => GetGoodsCostUseCase(sl()));
   sl.registerLazySingleton(() => UpdateSubaccountBalancesUseCase(sl()));
   sl.registerLazySingleton(() => ChangeDefaultSubaccountUseCase(sl()));
   sl.registerLazySingleton(() => UpdateSubaccountBalanceUseCase(sl()));

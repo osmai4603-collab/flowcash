@@ -466,7 +466,6 @@ void main() {
     INSERT INTO ${InventoryTransactionsOrdersTable.tableName} (
       ${InventoryTransactionsOrdersTable.id}, ${InventoryTransactionsOrdersTable.inventoryId},
       ${InventoryTransactionsOrdersTable.countUnits}, ${InventoryTransactionsOrdersTable.tranId},
-      ${InventoryTransactionsOrdersTable.transactionType}
     ) VALUES (500, 300, 15.0, 400, 'inventory_receive')
   ''');
 

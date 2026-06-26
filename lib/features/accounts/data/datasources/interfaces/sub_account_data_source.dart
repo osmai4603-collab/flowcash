@@ -19,10 +19,6 @@ abstract interface class SubAccountDataSource
   Future<double> getDebtorBalance(int branchAccountId);
   Future<double> getCreditorBalance(int branchAccountId);
   Future<SubAccountEntity?> firstWhereMainAccount(int mainAccountId);
-  Future<SubAccountEntity> getGoodsCost({
-    required int personId,
-    required int periodId,
-  });
   Future<bool> updateBalances({
     required double incrementBalance,
     required double decrementBalance,

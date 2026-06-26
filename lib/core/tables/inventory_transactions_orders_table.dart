@@ -8,13 +8,11 @@ class InventoryTransactionsOrdersTable {
   static const String inventoryId = 'inventory_id';
   static const String countUnits = 'count_units';
   static const String tranId = 'tran_id';
-  static const String transactionType = 'tran_type';
 
   static const List<String> fields = [
     id,
     inventoryId,
     countUnits,
     tranId,
-    transactionType,
   ];
 }

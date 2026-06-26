@@ -1,8 +1,6 @@
-import 'package:flowcash/core/datasources/interfaces/person_data_source.dart';
-import 'package:flowcash/features/accounts/data/datasources/interfaces/journal_entry_data_source.dart';
-import 'package:flowcash/features/accounts/data/datasources/interfaces/sub_account_data_source.dart';
-import 'package:flowcash/features/inventory/data/datasources/inventory_data_source.dart';
 import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_accounting_use_case.dart';
+import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_inventory_use_case.dart';
+import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_costing_use_case.dart';
 import 'package:flowcash/features/transactions/presentation/blocs/financial_bonds/financial_bonds_bloc.dart';
 import 'package:flowcash/features/transactions/presentation/blocs/financial_transactions/financial_transactions_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -65,7 +63,18 @@ void initTransactionsFeature(GetIt sl) {
 
   // Repositories
   sl.registerLazySingleton<BillRepository>(
-    () => BillRepositoryImpl(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
+    () => BillRepositoryImpl(
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+    ),
   );
   sl.registerLazySingleton<BillOrderRepository>(
     () => BillOrderRepositoryImpl(sl()),
@@ -84,6 +93,8 @@ void initTransactionsFeature(GetIt sl) {
   sl.registerLazySingleton(() => InsertBillUseCase(sl()));
   sl.registerLazySingleton(() => UpdateBillUseCase(sl()));
   sl.registerLazySingleton(() => PostBillToAccountingUseCase(sl()));
+  sl.registerLazySingleton(() => PostBillToInventoryUseCase(sl()));
+  sl.registerLazySingleton(() => PostBillToCostingUseCase(sl()));
   sl.registerLazySingleton(() => DeleteBillUseCase(sl()));
   sl.registerLazySingleton(() => GetBillOrdersUseCase(sl()));
   sl.registerLazySingleton(() => GetBillOrderByIdUseCase(sl()));

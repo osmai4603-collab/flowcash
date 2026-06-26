@@ -92,7 +92,6 @@ final class InventoryTransactionOrderLocalDataSourceImpl
       inventoryId: entity.inventoryId,
       countUnits: entity.countUnits,
       tranId: entity.tranId,
-      transactionType: entity.transactionType,
     ).toMap();
   }
 }

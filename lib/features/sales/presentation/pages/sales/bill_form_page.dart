@@ -32,6 +32,8 @@ import '../../../../injection_container.dart';
 import '../../../../inventory/domain/entities/warehouse_entity.dart';
 import '../../../../inventory/domain/usecases/warehouse_usecases.dart';
 import '../../../../transactions/domain/usecases/post_bill_to_accounting_use_case.dart';
+import '../../../../transactions/domain/usecases/post_bill_to_inventory_use_case.dart';
+import '../../../../transactions/domain/usecases/post_bill_to_costing_use_case.dart';
 
 class BillFormPage extends StatelessWidget {
   final BillEntity? bill;
@@ -50,8 +52,10 @@ class BillFormPage extends StatelessWidget {
         getPersons: sl<GetPersonsUseCase>(),
         insertBill: sl<InsertBillUseCase>(),
         updateBill: sl<UpdateBillUseCase>(),
-        postBillToAccounting: sl(),
-        updateValueCounter: sl(),
+        postBillToAccounting: sl<PostBillToAccountingUseCase>(),
+        postBillToInventory: sl<PostBillToInventoryUseCase>(),
+        postBillToCosting: sl<PostBillToCostingUseCase>(),
+        updateValueCounter: sl<UpdateValueCounterUseCase>(),
         getCategoriesWhereContainsName:
             sl<GetCategoriesWhereContainsNameUseCase>(),
         userSession: context.read<UserSession>(),

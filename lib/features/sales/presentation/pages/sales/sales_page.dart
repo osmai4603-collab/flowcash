@@ -8,12 +8,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/core/theme_fluent/app_colors.dart';
-import 'package:get_it/get_it.dart';
 import 'package:flowcash/features/sales/presentation/bloc/sales_page/sales_page_bloc.dart';
 import 'package:flowcash/features/sales/presentation/bloc/sales_page/sales_page_event.dart';
 import 'package:flowcash/features/sales/presentation/bloc/sales_page/sales_page_state.dart';
 import 'package:flowcash/features/currencies/domain/usecases/exchange_price_repository_usecases.dart';
 import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_accounting_use_case.dart';
+import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_inventory_use_case.dart';
+import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_costing_use_case.dart';
 import 'package:flowcash/user_session.dart';
 import 'package:flowcash/widgets/message.dart';
 import 'package:flowcash/features/injection_container.dart';
@@ -30,6 +31,8 @@ class SalesPage extends StatelessWidget {
         getBillsWithCustomerUseCase: sl(),
         deleteBillUseCase: sl(),
         postBillToAccountingUseCase: sl<PostBillToAccountingUseCase>(),
+        postBillToInventoryUseCase: sl<PostBillToInventoryUseCase>(),
+        postBillToCostingUseCase: sl<PostBillToCostingUseCase>(),
         getExchangePricesUseCase: sl<GetExchangePricesUseCase>(),
         userSession: sl<UserSession>(),
       )..add(LoadSalesPageEvent()),
@@ -498,13 +501,11 @@ class _SalesPageViewState extends State<_SalesPageView> {
     );
     if (!sure || !context.mounted) return;
 
-    successToast(
-      context: context,
-      title: 'الترحيل المخزني',
-      toast: doc.isInventoryPosted
-          ? 'تم إلغاء الترحيل المخزني بنجاح'
-          : 'تم الترحيل المخزني بنجاح',
-    );
+    if (!doc.isInventoryPosted) {
+      context.read<SalesPageBloc>().add(PostSalesDocumentToInventoryEvent(doc));
+    } else {
+      error(context: context, toast: 'إلغاء الترحيل غير مدعوم حالياً من هنا.');
+    }
   }
 
   void _onPostCost(SalesDocument doc) async {
@@ -519,12 +520,10 @@ class _SalesPageViewState extends State<_SalesPageView> {
     );
     if (!sure || !context.mounted) return;
 
-    successToast(
-      context: context,
-      title: 'تكلفة الفاتورة',
-      toast: doc.isCostGoodPosted
-          ? 'تم إلغاء ترحيل التكلفة بنجاح'
-          : 'تم ترحيل التكلفة بنجاح',
-    );
+    if (!doc.isCostGoodPosted) {
+      context.read<SalesPageBloc>().add(PostSalesDocumentToCostingEvent(doc));
+    } else {
+      error(context: context, toast: 'إلغاء الترحيل غير مدعوم حالياً من هنا.');
+    }
   }
 }

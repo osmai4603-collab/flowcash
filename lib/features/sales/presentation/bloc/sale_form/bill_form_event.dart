@@ -118,3 +118,9 @@ class BillFormTreasurySelected extends BillFormEvent {
 }
 
 class BillFormSubmitRequested extends BillFormEvent {}
+
+class BillFormPostToAccountingRequested extends BillFormEvent {}
+
+class BillFormPostToInventoryRequested extends BillFormEvent {}
+
+class BillFormPostToCostingRequested extends BillFormEvent {}

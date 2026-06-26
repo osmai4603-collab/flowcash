@@ -133,9 +133,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
 
     Navigator.of(context).pop({
       'transaction': resultTransaction,
-      'orders': _orders
-          .map((o) => o.copyWith(transactionType: _selectedType))
-          .toList(),
+      'orders': _orders.toList(),
     });
   }
 

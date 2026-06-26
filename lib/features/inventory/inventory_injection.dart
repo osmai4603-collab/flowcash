@@ -8,12 +8,11 @@ import 'package:flowcash/core/tables/inventory_transactions_orders_table.dart';
 import 'package:flowcash/features/inventory/data/datasources/inventory_transaction_local_data_source_impl.dart';
 import 'package:flowcash/features/inventory/data/datasources/inventory_transaction_order_data_source.dart';
 import 'package:flowcash/features/inventory/data/datasources/inventory_transaction_order_local_data_source_impl.dart';
+import 'package:flowcash/features/inventory/data/datasources/inventory_history_data_source.dart';
+import 'package:flowcash/features/inventory/data/datasources/inventory_history_local_data_source_impl.dart';
 import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
 import 'package:flowcash/features/inventory/data/datasources/opening_quantity_data_source.dart';
-import 'package:flowcash/features/inventory/data/datasources/opening_quantity_local_data_source_impl.dart';
-import 'package:flowcash/features/inventory/data/datasources/goods_cost_data_source.dart';
-import 'package:flowcash/features/inventory/data/datasources/goods_cost_local_data_source_impl.dart';
 import 'package:flowcash/features/inventory/data/datasources/warehouse_value_data_source.dart';
 import 'package:flowcash/features/inventory/data/datasources/warehouse_value_local_data_source_impl.dart';
 
@@ -26,25 +25,27 @@ import 'package:flowcash/features/inventory/domain/repositories/inventory_transa
 import 'package:flowcash/features/inventory/data/repositories/inventory_transaction_order_repository_impl.dart';
 import 'package:flowcash/features/inventory/domain/repositories/opening_quantity_repository.dart';
 import 'package:flowcash/features/inventory/data/repositories/opening_quantity_repository_impl.dart';
-import 'package:flowcash/features/inventory/domain/repositories/goods_cost_repository.dart';
-import 'package:flowcash/features/inventory/data/repositories/goods_cost_repository_impl.dart';
+import 'package:flowcash/features/inventory/domain/repositories/inventory_history_repository.dart';
+import 'package:flowcash/features/inventory/data/repositories/inventory_history_repository_impl.dart';
 
 // Use Cases
 import 'package:flowcash/features/inventory/domain/usecases/inventory_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/inventory_transaction_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/inventory_transaction_order_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/opening_quantity_usecases.dart';
-import 'package:flowcash/features/inventory/domain/usecases/goods_cost_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/warehouse_value_usecases.dart';
 import 'package:flowcash/features/inventory/domain/usecases/warehouse_usecases.dart';
+import 'package:flowcash/features/inventory/domain/usecases/inventory_history_usecases.dart';
 
 // Blocs (to be created)
 import 'package:flowcash/features/inventory/presentation/blocs/inventory_catalog/inventory_catalog_bloc.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/transactions/transactions_bloc.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/warehouse_transfers/warehouse_transfers_bloc.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/opening_quantities/opening_quantities_bloc.dart';
-import 'package:flowcash/features/inventory/presentation/blocs/goods_cost/goods_cost_bloc.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/stocktaking/stocktaking_bloc.dart';
+import 'package:flowcash/features/inventory/presentation/blocs/inventory_histories/inventory_histories_bloc.dart';
+
+import 'data/datasources/opening_quantity_local_data_source_impl.dart';
 
 void initInventoryFeature(GetIt sl) {
   //============================================================
@@ -99,17 +100,10 @@ void initInventoryFeature(GetIt sl) {
   );
 
   sl.registerFactory(
-    () => GoodsCostBloc(
-      getGoodsCosts: sl(),
-      insertGoodsCost: sl(),
-      deleteGoodsCost: sl(),
-      getWarehouses: sl(),
-    ),
-  );
-
-  sl.registerFactory(
     () => StocktakingBloc(getInventorys: sl(), getWarehouses: sl()),
   );
+
+  sl.registerFactory(() => InventoryHistoriesBloc(getHistories: sl()));
 
   //============================================================
   // Data Sources
@@ -125,13 +119,14 @@ void initInventoryFeature(GetIt sl) {
         InventoryTransactionsOrdersTable.inventoryId: order.inventoryId,
         InventoryTransactionsOrdersTable.countUnits: order.countUnits,
         InventoryTransactionsOrdersTable.tranId: order.tranId,
-        InventoryTransactionsOrdersTable.transactionType:
-            order.transactionType.name,
       },
     ),
   );
   sl.registerLazySingleton<InventoryTransactionOrderDataSource>(
     () => InventoryTransactionOrderLocalDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<InventoryHistoryDataSource>(
+    () => InventoryHistoryLocalDataSourceImpl(sl()),
   );
   sl.registerLazySingleton<OpeningQuantityDataSource>(
     () => OpeningQuantityLocalDataSourceImpl(
@@ -159,9 +154,6 @@ void initInventoryFeature(GetIt sl) {
       },
     ),
   );
-  sl.registerLazySingleton<GoodsCostDataSource>(
-    () => GoodsCostLocalDataSourceImpl(sl()),
-  );
   // sl.registerLazySingleton<WarehouseValueDataSource>(
   //   () => WarehouseValueLocalDataSourceImpl(sl()),
   // );
@@ -180,8 +172,8 @@ void initInventoryFeature(GetIt sl) {
   sl.registerLazySingleton<OpeningQuantityRepository>(
     () => OpeningQuantityRepositoryImpl(sl()),
   );
-  sl.registerLazySingleton<GoodsCostRepository>(
-    () => GoodsCostRepositoryImpl(sl()),
+  sl.registerLazySingleton<InventoryHistoryRepository>(
+    () => InventoryHistoryRepositoryImpl(sl()),
   );
 
   //============================================================
@@ -221,13 +213,6 @@ void initInventoryFeature(GetIt sl) {
   sl.registerLazySingleton(() => DeleteOpeningQuantityUseCase(sl()));
   // sl.registerLazySingleton(() => GetOpeningQuantitySumUseCase(sl()));
 
-  // Goods Cost
-  sl.registerLazySingleton(() => GetGoodsCostsUseCase(sl()));
-  sl.registerLazySingleton(() => GetGoodsCostByIdUseCase(sl()));
-  sl.registerLazySingleton(() => InsertGoodsCostUseCase(sl()));
-  sl.registerLazySingleton(() => UpdateGoodsCostUseCase(sl()));
-  sl.registerLazySingleton(() => DeleteGoodsCostUseCase(sl()));
-
   // Warehouse Value
   sl.registerLazySingleton(() => GetWarehouseValuesUseCase(sl()));
   sl.registerLazySingleton(() => GetWarehouseValueByIdUseCase(sl()));
@@ -243,4 +228,5 @@ void initInventoryFeature(GetIt sl) {
   sl.registerLazySingleton(() => UpdateWarehouseUseCase(sl()));
   sl.registerLazySingleton(() => DeleteWarehouseUseCase(sl()));
   sl.registerLazySingleton(() => GetByCodeUseCase(sl()));
+  sl.registerLazySingleton(() => GetInventoryHistoriesUseCase(sl()));
 }

@@ -6,7 +6,6 @@ import 'tabs/inventory_catalog/inventory_catalog_page.dart';
 import 'tabs/transactions/transactions_page.dart';
 import 'tabs/warehouse_transfers/warehouse_transfers_page.dart';
 import 'tabs/opening_quantities/opening_quantities_page.dart';
-import 'tabs/goods_cost/goods_cost_page.dart';
 import 'tabs/stocktaking/stocktaking_page.dart';
 import 'tabs/inventory_reports/inventory_reports_page.dart';
 
@@ -44,7 +43,7 @@ class _InventoryPageState extends State<InventoryPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _tabNotifier = InventoryTabNotifier(_tabController);
   }
 
@@ -104,10 +103,6 @@ class _InventoryPageState extends State<InventoryPage>
                 text: 'أرصدة افتتاحية',
               ),
               Tab(
-                icon: fluent.Icon(fluent.FluentIcons.receipt_check),
-                text: 'تكلفة البضاعة',
-              ),
-              Tab(
                 icon: fluent.Icon(fluent.FluentIcons.check_list),
                 text: 'جرد المخزون',
               ),
@@ -137,7 +132,6 @@ class _InventoryPageState extends State<InventoryPage>
               TransactionsPage(),
               WarehouseTransfersPage(),
               OpeningQuantitiesPage(),
-              GoodsCostPage(),
               StocktakingPage(),
               InventoryReportsPage(),
             ],

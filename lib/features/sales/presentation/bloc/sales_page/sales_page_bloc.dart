@@ -4,6 +4,8 @@ import 'package:flowcash/core/enums/invoice_type_enum.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 import 'package:flowcash/features/transactions/domain/usecases/bill_repository_usecases.dart';
 import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_accounting_use_case.dart';
+import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_inventory_use_case.dart';
+import 'package:flowcash/features/transactions/domain/usecases/post_bill_to_costing_use_case.dart';
 import 'package:flowcash/features/currencies/domain/usecases/exchange_price_repository_usecases.dart';
 import 'package:flowcash/user_session.dart';
 import 'sales_page_event.dart';
@@ -13,6 +15,8 @@ class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
   final GetBillsWithCustomerUseCase _getBillsWithCustomerUseCase;
   final DeleteBillUseCase _deleteBillUseCase;
   final PostBillToAccountingUseCase _postBillToAccountingUseCase;
+  final PostBillToInventoryUseCase _postBillToInventoryUseCase;
+  final PostBillToCostingUseCase _postBillToCostingUseCase;
   final GetExchangePricesUseCase _getExchangePricesUseCase;
   final UserSession _userSession;
   final List<SalesDocument> _sales = [];
@@ -21,6 +25,8 @@ class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
     GetBillsWithCustomerUseCase? getBillsWithCustomerUseCase,
     DeleteBillUseCase? deleteBillUseCase,
     PostBillToAccountingUseCase? postBillToAccountingUseCase,
+    PostBillToInventoryUseCase? postBillToInventoryUseCase,
+    PostBillToCostingUseCase? postBillToCostingUseCase,
     GetExchangePricesUseCase? getExchangePricesUseCase,
     UserSession? userSession,
   }) : _getBillsWithCustomerUseCase = getBillsWithCustomerUseCase ??
@@ -29,6 +35,10 @@ class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
            deleteBillUseCase ?? GetIt.instance<DeleteBillUseCase>(),
        _postBillToAccountingUseCase = postBillToAccountingUseCase ??
            GetIt.instance<PostBillToAccountingUseCase>(),
+       _postBillToInventoryUseCase = postBillToInventoryUseCase ??
+           GetIt.instance<PostBillToInventoryUseCase>(),
+       _postBillToCostingUseCase = postBillToCostingUseCase ??
+           GetIt.instance<PostBillToCostingUseCase>(),
        _getExchangePricesUseCase = getExchangePricesUseCase ??
            GetIt.instance<GetExchangePricesUseCase>(),
        _userSession = userSession ?? GetIt.instance<UserSession>(),
@@ -40,6 +50,8 @@ class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
     on<UpdateSalesDocumentEvent>(_onUpdate);
     on<DeleteSalesDocumentEvent>(_onDelete);
     on<PostSalesDocumentToAccountingEvent>(_onPostToAccounting);
+    on<PostSalesDocumentToInventoryEvent>(_onPostToInventory);
+    on<PostSalesDocumentToCostingEvent>(_onPostToCosting);
   }
 
   Future<void> _onLoad(
@@ -188,6 +200,72 @@ class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
         }
         _emitUpdatedList(emit);
         emit(const SalesPageOperationSuccess('تم الترحيل المحاسبي بنجاح.'));
+      },
+    );
+  }
+
+  Future<void> _onPostToInventory(
+    PostSalesDocumentToInventoryEvent event,
+    Emitter<SalesPageState> emit,
+  ) async {
+    if (event.doc.isInventoryPosted) {
+      emit(const SalesPageOperationFailure('هذه الفاتورة مرحلة مخزنياً بالفعل.'));
+      return;
+    }
+
+    final user = _userSession.currentUser;
+    if (user == null) {
+      emit(const SalesPageOperationFailure('لم يتم العثور على جلسة مستخدم.'));
+      return;
+    }
+
+    final result = await _postBillToInventoryUseCase(
+      bill: event.doc.rawBill,
+      userId: user.id,
+    );
+
+    result.fold(
+      (failure) => emit(SalesPageOperationFailure(failure.message)),
+      (postedBill) {
+        final index = _sales.indexWhere((sale) => sale.billId == postedBill.id);
+        if (index != -1) {
+          _sales[index] = _mapToSalesDocument(postedBill, event.doc.customerName);
+        }
+        _emitUpdatedList(emit);
+        emit(const SalesPageOperationSuccess('تم الترحيل المخزني بنجاح.'));
+      },
+    );
+  }
+
+  Future<void> _onPostToCosting(
+    PostSalesDocumentToCostingEvent event,
+    Emitter<SalesPageState> emit,
+  ) async {
+    if (event.doc.isCostGoodPosted) {
+      emit(const SalesPageOperationFailure('تكلفة هذه الفاتورة مرحلة بالفعل.'));
+      return;
+    }
+
+    final user = _userSession.currentUser;
+    if (user == null) {
+      emit(const SalesPageOperationFailure('لم يتم العثور على جلسة مستخدم.'));
+      return;
+    }
+
+    final result = await _postBillToCostingUseCase(
+      bill: event.doc.rawBill,
+      userId: user.id,
+    );
+
+    result.fold(
+      (failure) => emit(SalesPageOperationFailure(failure.message)),
+      (postedBill) {
+        final index = _sales.indexWhere((sale) => sale.billId == postedBill.id);
+        if (index != -1) {
+          _sales[index] = _mapToSalesDocument(postedBill, event.doc.customerName);
+        }
+        _emitUpdatedList(emit);
+        emit(const SalesPageOperationSuccess('تم ترحيل التكلفة بنجاح.'));
       },
     );
   }

@@ -142,22 +142,6 @@ class FirstWhereMainAccountUseCase {
   }
 }
 
-class GetGoodsCostUseCase {
-  final SubAccountRepository _repository;
-
-  const GetGoodsCostUseCase(this._repository);
-
-  Future<Either<Failure, SubAccountEntity>> call({
-    required int personId,
-    required int periodId,
-  }) async {
-    return await _repository.getGoodsCost(
-      personId: personId,
-      periodId: periodId,
-    );
-  }
-}
-
 class UpdateSubaccountBalancesUseCase {
   final SubAccountRepository _repository;
 

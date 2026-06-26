@@ -210,24 +210,6 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   }
 
   @override
-  Future<SubAccountEntity> getGoodsCost({
-    required int personId,
-    required int periodId,
-    bool trigger = false,
-  }) async {
-    final rows = await _db.query(
-      table: SubAccountsTable.tableName,
-      where: '${SubAccountsTable.subAccountType} = ?',
-      whereArgs: [SubAccountType.costOfGoodsSold.name],
-      limit: 1,
-    );
-    if (rows.isEmpty) {
-      throw StateError('Cost of goods sold sub account not found');
-    }
-    return fromMap(rows.first);
-  }
-
-  @override
   Future<bool> updateBalances({
     required double incrementBalance,
     required double decrementBalance,

@@ -19,7 +19,6 @@ sealed class CounterType extends AppEnum {
   static const assetsSales = AssetsSalesCounterType._();
   static const goodsReceipt = GoodsReceiptCounterType._();
   static const goodsDelivery = GoodsDeliveryCounterType._();
-  static const goodsCost = GoodsCostCounterType._();
 
   static const List<CounterType> values = [
     salesBills,
@@ -36,7 +35,6 @@ sealed class CounterType extends AppEnum {
     assetsSales,
     goodsReceipt,
     goodsDelivery,
-    goodsCost,
   ];
 
   static CounterType of(String name) {
@@ -194,14 +192,4 @@ final class GoodsDeliveryCounterType extends CounterType {
 
   @override
   int get index => 13;
-}
-
-final class GoodsCostCounterType extends CounterType {
-  const GoodsCostCounterType._() : super(typeName: 'اسناد تكلفة البضاعة');
-
-  @override
-  String get name => 'goodsCost';
-
-  @override
-  int get index => 14;
 }

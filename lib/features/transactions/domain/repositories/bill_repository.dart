@@ -25,5 +25,11 @@ abstract interface class BillRepository implements RepositoryDB<BillEntity> {
     required int userId,
   });
 
+  /// ترحيل تكلفة الفاتورة (COGS).
+  Future<Either<Failure, BillEntity>> postToCosting({
+    required BillEntity bill,
+    required int userId,
+  });
+
   Future<Either<Failure, List<Map<String, dynamic>>>> getBillsWithCustomer();
 }

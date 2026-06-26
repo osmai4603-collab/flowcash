@@ -154,7 +154,6 @@ void main() async {
     INSERT OR IGNORE INTO ${InventoryTransactionsOrdersTable.tableName} (
       ${InventoryTransactionsOrdersTable.id}, ${InventoryTransactionsOrdersTable.inventoryId},
       ${InventoryTransactionsOrdersTable.countUnits}, ${InventoryTransactionsOrdersTable.tranId},
-      ${InventoryTransactionsOrdersTable.transactionType}
     ) VALUES (900, 900, 35.0, 900, 'inventory_receive')
   ''');
 

@@ -57,3 +57,21 @@ class PostSalesDocumentToAccountingEvent extends SalesPageEvent {
   @override
   List<Object?> get props => [doc];
 }
+
+class PostSalesDocumentToInventoryEvent extends SalesPageEvent {
+  final SalesDocument doc;
+
+  const PostSalesDocumentToInventoryEvent(this.doc);
+
+  @override
+  List<Object?> get props => [doc];
+}
+
+class PostSalesDocumentToCostingEvent extends SalesPageEvent {
+  final SalesDocument doc;
+
+  const PostSalesDocumentToCostingEvent(this.doc);
+
+  @override
+  List<Object?> get props => [doc];
+}

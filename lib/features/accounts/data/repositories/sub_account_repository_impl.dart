@@ -224,24 +224,6 @@ class SubAccountRepositoryImpl implements SubAccountRepository {
   }
 
   @override
-  Future<Either<Failure, SubAccountEntity>> getGoodsCost({
-    required int personId,
-    required int periodId,
-  }) async {
-    try {
-      final res = await _dataSource.getGoodsCost(
-        personId: personId,
-        periodId: periodId,
-      );
-      return Right(res);
-    } on Failure catch (f) {
-      return Left(f);
-    } catch (e) {
-      return Left(DatabaseFailure(e.toString()));
-    }
-  }
-
-  @override
   Future<Either<Failure, bool>> updateBalances({
     required double incrementBalance,
     required double decrementBalance,

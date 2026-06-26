@@ -16,7 +16,7 @@ import 'package:flowcash/core/tables/financial_transactions_table.dart';
 import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
 import 'package:flowcash/core/services/sqlite_triggers/journal_items_balance_trigger.dart';
-import 'package:flowcash/core/services/sqlite_triggers/inventory_orders_trigger.dart';
+import 'package:flowcash/core/services/sqlite_triggers/inventory_balance_trigger.dart';
 import 'package:flowcash/core/tables/categories_attributes_table.dart';
 import 'package:flowcash/core/tables/categories_table.dart';
 import 'package:flowcash/core/tables/inventories_table.dart';
@@ -32,7 +32,6 @@ import 'package:flowcash/core/tables/bills_table.dart';
 import 'package:flowcash/core/tables/bill_orders_table.dart';
 import 'package:flowcash/core/tables/cost_good_bills_table.dart';
 import 'package:flowcash/core/tables/cost_good_bill_orders_table.dart';
-import 'package:flowcash/core/tables/goods_costs_table.dart';
 import 'package:flowcash/core/tables/assets_transactions_table.dart';
 import 'package:flowcash/core/tables/values_table.dart';
 import 'package:flowcash/core/tables/warehouse_values_table.dart';
@@ -665,7 +664,6 @@ final class SqliteSchemaManager {
         ${InventoryTransactionsOrdersTable.inventoryId} INTEGER,
         ${InventoryTransactionsOrdersTable.countUnits} REAL NOT NULL DEFAULT 0.0,
         ${InventoryTransactionsOrdersTable.tranId} INTEGER NOT NULL,
-        ${InventoryTransactionsOrdersTable.transactionType} TEXT NOT NULL CHECK(${InventoryTransactionsOrdersTable.transactionType} IN (${InventoryTransactionType.values.map((e) => "'${e.name}'").join(', ')})),
         FOREIGN KEY (${InventoryTransactionsOrdersTable.inventoryId}) REFERENCES ${InventoriesTable.tableName} (${InventoriesTable.id}) ON DELETE SET NULL,
         FOREIGN KEY (${InventoryTransactionsOrdersTable.tranId}) REFERENCES ${InventoryTransactionsTable.tableName} (${InventoryTransactionsTable.id}) ON DELETE CASCADE
       )
@@ -788,30 +786,7 @@ final class SqliteSchemaManager {
       )
     ''');
 
-    // 25. Goods Costs
-    db.execute('''
-      CREATE TABLE IF NOT EXISTS ${GoodsCostsTable.tableName} (
-        ${GoodsCostsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ${GoodsCostsTable.createdAt} TEXT NOT NULL,
-        ${GoodsCostsTable.createdBy} INTEGER NOT NULL,
-        ${GoodsCostsTable.note} TEXT,
-        ${GoodsCostsTable.offerAmount} REAL NOT NULL,
-        ${GoodsCostsTable.currencyId} TEXT NOT NULL,
-        ${GoodsCostsTable.billNumber} INTEGER NOT NULL,
-        ${GoodsCostsTable.warehouseId} INTEGER NOT NULL,
-        ${GoodsCostsTable.journalEntryId} INTEGER,
-        ${GoodsCostsTable.hintId} INTEGER NOT NULL,
-        ${GoodsCostsTable.orderId} INTEGER,
-        ${GoodsCostsTable.historyGroup} TEXT,
-        FOREIGN KEY (${GoodsCostsTable.createdBy}) REFERENCES ${ProgramUsersTable.tableName} (${ProgramUsersTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
-        FOREIGN KEY (${GoodsCostsTable.currencyId}) REFERENCES ${CurrenciesTable.tableName} (${CurrenciesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
-        FOREIGN KEY (${GoodsCostsTable.warehouseId}) REFERENCES ${WarehousesTable.tableName} (${WarehousesTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
-        FOREIGN KEY (${GoodsCostsTable.hintId}) REFERENCES ${HintsTable.tableName} (${HintsTable.id}) ON UPDATE CASCADE ON DELETE RESTRICT,
-        FOREIGN KEY (${GoodsCostsTable.orderId}) REFERENCES ${BillOrdersTable.tableName} (${BillOrdersTable.id}) ON DELETE SET NULL
-      )
-    ''');
-
-    // 26. Assets Transactions
+    // 25. Assets Transactions
     db.execute('''
       CREATE TABLE IF NOT EXISTS ${AssetsTransactionsTable.tableName} (
         ${AssetsTransactionsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -939,7 +914,7 @@ final class SqliteSchemaManager {
   // ---------------------------------------------------------------------------
   static void _createTriggers(Database db) {
     JournalItemsBalanceTrigger.call(db);
-    InventoryOrdersTrigger.call(db);
+    InventoryBalanceTrigger.call(db);
 
     // Drop the deprecated inventories triggers
     db.execute('DROP TRIGGER IF EXISTS inventories_after_insert_journal');

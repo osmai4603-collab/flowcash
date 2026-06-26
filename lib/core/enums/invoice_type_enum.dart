@@ -8,6 +8,8 @@ sealed class InvoiceType extends HistoriesGroup {
     required super.priority,
   });
 
+  String get invoiceTypeName;
+
   static const sales = SalesInvoiceType._();
   static const buys = PurchaseInvoiceType._();
   static const salesReturn = SalesReturnInvoiceType._();
@@ -45,6 +47,9 @@ final class SalesInvoiceType extends InvoiceType {
 
   @override
   String displayName() => 'فاتورة مبيعات';
+
+  @override
+  String get invoiceTypeName => 'بيع';
 }
 
 final class PurchaseInvoiceType extends InvoiceType {
@@ -64,6 +69,9 @@ final class PurchaseInvoiceType extends InvoiceType {
 
   @override
   String displayName() => 'فاتورة مشتريات';
+
+  @override
+  String get invoiceTypeName => 'شراء';
 }
 
 final class SalesReturnInvoiceType extends InvoiceType {
@@ -83,6 +91,8 @@ final class SalesReturnInvoiceType extends InvoiceType {
 
   @override
   String displayName() => 'فاتورة مرتجع مبيعات';
+  @override
+  String get invoiceTypeName => 'مرتجع بيع';
 }
 
 final class PurchaseReturnInvoiceType extends InvoiceType {
@@ -102,4 +112,7 @@ final class PurchaseReturnInvoiceType extends InvoiceType {
 
   @override
   String displayName() => 'فاتورة مرتجع مشتريات';
+
+  @override
+  String get invoiceTypeName => 'مرتجع شراء';
 }

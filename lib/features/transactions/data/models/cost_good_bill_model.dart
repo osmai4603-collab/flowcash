@@ -2,6 +2,8 @@ import 'package:flowcash/core/tables/cost_good_bills_table.dart';
 import 'package:flowcash/features/transactions/data/models/cost_good_bill_order_model.dart';
 import 'package:flowcash/features/transactions/domain/entities/cost_good_bill_entity.dart';
 
+import '../../domain/entities/cost_good_bill_order_entity.dart';
+
 final class CostGoodBillModel extends CostGoodBillEntity {
   const CostGoodBillModel({
     required super.id,
@@ -64,7 +66,7 @@ final class CostGoodBillModel extends CostGoodBillEntity {
     int? journalEntryId,
     int? personId,
     int? billId,
-    List<CostGoodBillOrderModel>? orders,
+    List<CostGoodBillOrderEntity>? orders,
   }) {
     return CostGoodBillModel(
       id: id ?? this.id,
@@ -78,7 +80,7 @@ final class CostGoodBillModel extends CostGoodBillEntity {
       journalEntryId: journalEntryId ?? this.journalEntryId,
       personId: personId ?? this.personId,
       billId: billId ?? this.billId,
-      orders: orders ?? this.orders as List<CostGoodBillOrderModel>,
+      orders: orders ?? this.orders,
     );
   }
 }

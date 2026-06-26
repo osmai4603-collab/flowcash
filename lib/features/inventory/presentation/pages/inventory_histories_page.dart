@@ -2,7 +2,6 @@ import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/injection_container.dart';
-import 'package:flowcash/features/inventory/domain/entities/inventory_history.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/inventory_histories/inventory_histories_bloc.dart';
 import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -64,168 +63,144 @@ class InventoryHistoriesPage extends StatelessWidget {
                   ),
                 );
               }
-              return Padding(
+              return SingleChildScrollView(
                 padding: Paddings.largeAll,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Table Header
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Table(
+                      columnWidths: const {
+                        0: FlexColumnWidth(1.5),
+                        1: FlexColumnWidth(2),
+                        2: FlexColumnWidth(3),
+                        3: FlexColumnWidth(1.5),
+                        4: FlexColumnWidth(2),
+                      },
+                      border: TableBorder(
+                        horizontalInside: BorderSide(
+                          color: theme.dividerColor.withAlpha(50),
+                          width: 1,
+                        ),
                       ),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withAlpha(50),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Row(
-                        children: [
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              'رقم الطلب',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
+                      children: [
+                        // Table Header
+                        TableRow(
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primaryContainer.withAlpha(50),
                           ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              'نوع الحركة',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: Text(
-                              'الصنف',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              'الكمية',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              'الوحدة',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: histories.length,
-                        itemBuilder: (context, index) {
-                          final history = histories[index];
+                          children: const [
+                            _TableCell(text: 'رقم الطلب', isHeader: true),
+                            _TableCell(text: 'نوع الحركة', isHeader: true),
+                            _TableCell(text: 'الصنف', isHeader: true),
+                            _TableCell(text: 'الكمية', isHeader: true),
+                            _TableCell(text: 'الوحدة', isHeader: true),
+                          ],
+                        ),
+                        // Table Data
+                        ...histories.map((history) {
                           final isReceipt =
                               history.transactionType ==
                               InventoryTransactionType.importInventory;
-                          return Card(
-                            margin: const EdgeInsets.symmetric(vertical: 4),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: BorderSide(
-                                color: theme.dividerColor.withAlpha(50),
+                          return TableRow(
+                            children: [
+                              _TableCell(
+                                text: '#${history.transactionOrderId}',
+                                textStyle: const TextStyle(
+                                  fontFamily: 'monospace',
+                                ),
                               ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
+                              TableCell(
+                                verticalAlignment: TableCellVerticalAlignment.middle,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: (isReceipt
+                                              ? Colors.green
+                                              : Colors.red)
+                                          .withAlpha(30),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
                                     child: Text(
-                                      '#${history.transactionOrderId}',
-                                      style: const TextStyle(
-                                        fontFamily: 'monospace',
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: (isReceipt
-                                                ? Colors.green
-                                                : Colors.red)
-                                            .withAlpha(30),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        history.transactionType.displayName(),
-                                        style: TextStyle(
-                                          color: isReceipt
-                                              ? Colors.green[700]
-                                              : Colors.red[700],
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                      ),
-                                      child: Text(
-                                        history.categoryName,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text(
-                                      history.countUnits.toString(),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      history.categoryUnit,
+                                      history.transactionType.displayName(),
                                       style: TextStyle(
-                                        color: theme.hintColor,
-                                        fontSize: 13,
+                                        color: isReceipt
+                                            ? Colors.green[700]
+                                            : Colors.red[700],
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
                                       ),
+                                      textAlign: TextAlign.center,
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
+                              _TableCell(
+                                text: history.categoryName,
+                                textStyle: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              _TableCell(
+                                text: history.countUnits.toString(),
+                                textStyle: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              _TableCell(
+                                text: history.categoryUnit,
+                                textStyle: TextStyle(
+                                  color: theme.hintColor,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
                           );
-                        },
-                      ),
+                        }),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
             }
             return const SizedBox();
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _TableCell extends StatelessWidget {
+  final String text;
+  final bool isHeader;
+  final TextStyle? textStyle;
+
+  const _TableCell({
+    required this.text,
+    this.isHeader = false,
+    this.textStyle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.middle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Text(
+          text,
+          style: isHeader
+              ? const TextStyle(fontWeight: FontWeight.bold)
+              : textStyle,
         ),
       ),
     );
