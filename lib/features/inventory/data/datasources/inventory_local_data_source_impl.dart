@@ -7,7 +7,7 @@ import 'package:flowcash/core/tables/categories_table.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/core/tables/units_table.dart';
 import 'package:flowcash/core/enums/unit_type_enum.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/inventories_table.dart';
 
 final class InventoryLocalDataSourceImpl implements InventoryDataSource {
@@ -17,13 +17,13 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
   @override
   Future<List<InventoryEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: InventoriesTable.tableName);
+      final rows = await _db.query(table: InventoriesTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${InventoriesTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${InventoriesTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: InventoriesTable.tableName,
+      table: InventoriesTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -33,8 +33,8 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
   @override
   Future<InventoryEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: InventoriesTable.tableName,
-      where: '${InventoriesTable.id} = ?',
+      table: InventoriesTable().tableName,
+      where: '${InventoriesTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -45,7 +45,7 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
   @override
   Future<InventoryEntity> insert(InventoryEntity entity) async {
     final entityId = await _db.insert(
-      table: InventoriesTable.tableName,
+      table: InventoriesTable().tableName,
       data: toMap(entity),
     );
     if (entityId < 0) {
@@ -57,9 +57,9 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
   @override
   Future<InventoryEntity> update(InventoryEntity entity) async {
     await _db.update(
-      table: InventoriesTable.tableName,
+      table: InventoriesTable().tableName,
       data: toMap(entity),
-      where: {InventoriesTable.id: entity.id},
+      where: {InventoriesTable().id: entity.id},
     );
     return entity;
   }
@@ -67,8 +67,8 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
   @override
   Future<bool> delete(int id) async {
     await _db.deleteWhere(
-      table: InventoriesTable.tableName,
-      where: {InventoriesTable.id: id},
+      table: InventoriesTable().tableName,
+      where: {InventoriesTable().id: id},
     );
     return true;
   }
@@ -106,8 +106,8 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
     bool printQuery = true,
   }) async {
     final rows = await _db.query(
-      table: InventoriesTable.tableName,
-      where: '${InventoriesTable.storeId} = ?',
+      table: InventoriesTable().tableName,
+      where: '${InventoriesTable().storeId} = ?',
       whereArgs: [storeId],
     );
     return rows.map(fromMap).toList();
@@ -121,9 +121,9 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
     bool printQuery = true,
   }) async {
     final rows = await _db.query(
-      table: InventoriesTable.tableName,
+      table: InventoriesTable().tableName,
       where:
-          '${InventoriesTable.categoryId} = ? AND ${InventoriesTable.storeId} = ?',
+          '${InventoriesTable().categoryId} = ? AND ${InventoriesTable().storeId} = ?',
       whereArgs: [categoryId, storeId],
       limit: 1,
     );
@@ -155,9 +155,9 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
   }) async {
     if (ids.isEmpty) return [];
     final where =
-        '${InventoriesTable.storeId} = ? AND ${InventoriesTable.categoryId} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${InventoriesTable().storeId} = ? AND ${InventoriesTable().categoryId} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: InventoriesTable.tableName,
+      table: InventoriesTable().tableName,
       where: where,
       whereArgs: [storeId, ...ids],
     );
@@ -171,14 +171,14 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
     // Build base query with JOIN to categories
     final buffer = StringBuffer();
     buffer.write(
-      'SELECT i.${InventoriesTable.id} AS inventory_id, i.${InventoriesTable.categoryId} AS category_id, i.${InventoriesTable.storeId} AS store_id, i.${InventoriesTable.propertyAccountId} AS property_id, i.${InventoriesTable.revenueAccountId} AS revenue_id, i.${InventoriesTable.expenseAccountId} AS expense_id, i.${InventoriesTable.incomeStockId} AS income_stock_id, i.${InventoriesTable.outcomeStockId} AS outcome_stock_id, i.${InventoriesTable.costTotal} AS cost_total, i.${InventoriesTable.countUnits} AS count_units, c.${CategoriesTable.categoryName} AS category_name, c.${CategoriesTable.categoryUnitId} AS category_unit_id, u.${UnitsTable.unitName} AS unit_name, u.${UnitsTable.length} AS unit_length, u.${UnitsTable.width} AS unit_width, u.${UnitsTable.thickness} AS unit_thickness, u.${UnitsTable.unitType} AS unit_type',
+      'SELECT i.${InventoriesTable().id} AS inventory_id, i.${InventoriesTable().categoryId} AS category_id, i.${InventoriesTable().storeId} AS store_id, i.${InventoriesTable().propertyAccountId} AS property_id, i.${InventoriesTable().revenueAccountId} AS revenue_id, i.${InventoriesTable().expenseAccountId} AS expense_id, i.${InventoriesTable().incomeStockId} AS income_stock_id, i.${InventoriesTable().outcomeStockId} AS outcome_stock_id, i.${InventoriesTable().costTotal} AS cost_total, i.${InventoriesTable().countUnits} AS count_units, c.${CategoriesTable().categoryName} AS category_name, c.${CategoriesTable().categoryUnitId} AS category_unit_id, u.${UnitsTable().unitName} AS unit_name, u.${UnitsTable().length} AS unit_length, u.${UnitsTable().width} AS unit_width, u.${UnitsTable().thickness} AS unit_thickness, u.${UnitsTable().unitType} AS unit_type',
     );
     buffer.write(
-      ' FROM ${InventoriesTable.tableName} i LEFT JOIN ${CategoriesTable.tableName} c ON i.${InventoriesTable.categoryId} = c.${CategoriesTable.id} LEFT JOIN ${UnitsTable.tableName} u ON c.${CategoriesTable.categoryUnitId} = u.${UnitsTable.id}',
+      ' FROM ${InventoriesTable().tableName} i LEFT JOIN ${CategoriesTable().tableName} c ON i.${InventoriesTable().categoryId} = c.${CategoriesTable().id} LEFT JOIN ${UnitsTable().tableName} u ON c.${CategoriesTable().categoryUnitId} = u.${UnitsTable().id}',
     );
     final args = <dynamic>[];
     if (warehouseId != null) {
-      buffer.write(' WHERE i.${InventoriesTable.storeId} = ?');
+      buffer.write(' WHERE i.${InventoriesTable().storeId} = ?');
       args.add(warehouseId);
     }
 
@@ -195,7 +195,7 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
     int id,
   ) async {
     final sql =
-        'SELECT i.${InventoriesTable.id} AS inventory_id, i.${InventoriesTable.categoryId} AS category_id, i.${InventoriesTable.storeId} AS store_id, i.${InventoriesTable.propertyAccountId} AS property_id, i.${InventoriesTable.revenueAccountId} AS revenue_id, i.${InventoriesTable.expenseAccountId} AS expense_id, i.${InventoriesTable.incomeStockId} AS income_stock_id, i.${InventoriesTable.outcomeStockId} AS outcome_stock_id, i.${InventoriesTable.costTotal} AS cost_total, i.${InventoriesTable.countUnits} AS count_units, c.${CategoriesTable.categoryName} AS category_name, c.${CategoriesTable.categoryUnitId} AS category_unit_id, u.${UnitsTable.unitName} AS unit_name, u.${UnitsTable.length} AS unit_length, u.${UnitsTable.width} AS unit_width, u.${UnitsTable.thickness} AS unit_thickness, u.${UnitsTable.unitType} AS unit_type FROM ${InventoriesTable.tableName} i LEFT JOIN ${CategoriesTable.tableName} c ON i.${InventoriesTable.categoryId} = c.${CategoriesTable.id} LEFT JOIN ${UnitsTable.tableName} u ON c.${CategoriesTable.categoryUnitId} = u.${UnitsTable.id} WHERE i.${InventoriesTable.id} = ? LIMIT 1';
+        'SELECT i.${InventoriesTable().id} AS inventory_id, i.${InventoriesTable().categoryId} AS category_id, i.${InventoriesTable().storeId} AS store_id, i.${InventoriesTable().propertyAccountId} AS property_id, i.${InventoriesTable().revenueAccountId} AS revenue_id, i.${InventoriesTable().expenseAccountId} AS expense_id, i.${InventoriesTable().incomeStockId} AS income_stock_id, i.${InventoriesTable().outcomeStockId} AS outcome_stock_id, i.${InventoriesTable().costTotal} AS cost_total, i.${InventoriesTable().countUnits} AS count_units, c.${CategoriesTable().categoryName} AS category_name, c.${CategoriesTable().categoryUnitId} AS category_unit_id, u.${UnitsTable().unitName} AS unit_name, u.${UnitsTable().length} AS unit_length, u.${UnitsTable().width} AS unit_width, u.${UnitsTable().thickness} AS unit_thickness, u.${UnitsTable().unitType} AS unit_type FROM ${InventoriesTable().tableName} i LEFT JOIN ${CategoriesTable().tableName} c ON i.${InventoriesTable().categoryId} = c.${CategoriesTable().id} LEFT JOIN ${UnitsTable().tableName} u ON c.${CategoriesTable().categoryUnitId} = u.${UnitsTable().id} WHERE i.${InventoriesTable().id} = ? LIMIT 1';
     final db = await _db.database;
     final stmt = db.prepare(sql);
     final results = stmt.select([id]);

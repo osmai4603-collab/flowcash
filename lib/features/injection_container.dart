@@ -1,5 +1,5 @@
 import 'package:flowcash/core/repositories/implementations/accounting_period_repository_impl.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/features/auth/auth_injection.dart';
 import 'package:flowcash/features/accounts/accounts_injection.dart';
 import 'package:flowcash/features/categories/categories_injection.dart';
@@ -79,15 +79,15 @@ Future<void> initDependencies() async {
     () => JournalEntryLocalDataSourceImpl(
       sl(),
       (item) => {
-        if (item.id > 0) JournalItemsTable.itemId: item.id,
-        JournalItemsTable.entryId: item.entryId,
-        JournalItemsTable.accountId: item.accountId,
-        JournalItemsTable.amount: item.amount,
-        JournalItemsTable.journalStatus: item.journalStatus.name,
-        JournalItemsTable.lineDescription: item.lineDescription,
-        JournalItemsTable.currencyId: item.currencyId,
-        JournalItemsTable.exPrice: item.exPrice,
-        JournalItemsTable.exPriceMain: item.exPriceMain,
+        if (item.id > 0) JournalItemsTable().itemId: item.id,
+        JournalItemsTable().entryId: item.entryId,
+        JournalItemsTable().accountId: item.accountId,
+        JournalItemsTable().amount: item.amount,
+        JournalItemsTable().journalStatus: item.journalStatus.name,
+        JournalItemsTable().lineDescription: item.lineDescription,
+        JournalItemsTable().currencyId: item.currencyId,
+        JournalItemsTable().exPrice: item.exPrice,
+        JournalItemsTable().exPriceMain: item.exPriceMain,
       },
     ),
   );

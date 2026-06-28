@@ -13,24 +13,24 @@ final class ValueCounterModel extends ValueCounterEntity {
   }) : super(count: count);
 
   factory ValueCounterModel.fromMap(Map<String, dynamic> map) {
-    final typeName = map[ValuesCounterTable.counterType] as String? ?? '';
+    final typeName = map[ValuesCounterTable().counterType] as String? ?? '';
     return ValueCounterModel(
-      id: map[ValuesCounterTable.id] ?? 0,
+      id: map[ValuesCounterTable().id] ?? 0,
       counterType: _typeFromName(typeName),
-      count: map[ValuesCounterTable.count] ?? 0,
-      counterMax: map[ValuesCounterTable.counterMax] ?? 99999,
-      incrementValue: map[ValuesCounterTable.incrementValue] ?? 1,
-      formatValue: map[ValuesCounterTable.formatValue]?.toString() ?? '0000',
+      count: map[ValuesCounterTable().count] ?? 0,
+      counterMax: map[ValuesCounterTable().counterMax] ?? 99999,
+      incrementValue: map[ValuesCounterTable().incrementValue] ?? 1,
+      formatValue: map[ValuesCounterTable().formatValue]?.toString() ?? '0000',
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      ValuesCounterTable.counterType: counterType.name,
-      ValuesCounterTable.count: count,
-      ValuesCounterTable.counterMax: counterMax,
-      ValuesCounterTable.incrementValue: incrementValue,
-      ValuesCounterTable.formatValue: formatValue,
+      ValuesCounterTable().counterType: counterType.name,
+      ValuesCounterTable().count: count,
+      ValuesCounterTable().counterMax: counterMax,
+      ValuesCounterTable().incrementValue: incrementValue,
+      ValuesCounterTable().formatValue: formatValue,
     };
   }
 

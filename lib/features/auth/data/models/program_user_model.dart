@@ -12,22 +12,22 @@ final class ProgramUserModel extends ProgramUserEntity {
   });
 
   factory ProgramUserModel.fromMap(Map<String, dynamic> map) {
-    final typeName = map[ProgramUsersTable.userType] as String? ?? '';
+    final typeName = map[ProgramUsersTable().userType] as String? ?? '';
     return ProgramUserModel(
-      id: map[ProgramUsersTable.id] ?? 0,
-      userName: map[ProgramUsersTable.userName]?.toString() ?? '',
-      password: map[ProgramUsersTable.password]?.toString() ?? '',
+      id: map[ProgramUsersTable().id] ?? 0,
+      userName: map[ProgramUsersTable().userName]?.toString() ?? '',
+      password: map[ProgramUsersTable().password]?.toString() ?? '',
       userType: _typeFromName(typeName),
-      warehouseId: map[ProgramUsersTable.warehouseId] ?? 0,
+      warehouseId: map[ProgramUsersTable().warehouseId] ?? 0,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      ProgramUsersTable.userName: userName,
-      ProgramUsersTable.password: password,
-      ProgramUsersTable.userType: userType.name,
-      ProgramUsersTable.warehouseId: warehouseId,
+      ProgramUsersTable().userName: userName,
+      ProgramUsersTable().password: password,
+      ProgramUsersTable().userType: userType.name,
+      ProgramUsersTable().warehouseId: warehouseId,
     };
   }
 

@@ -1,6 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import '../../domain/repositories/database_repository.dart';
 
 class DatabaseRepositoryImpl implements DatabaseRepository {

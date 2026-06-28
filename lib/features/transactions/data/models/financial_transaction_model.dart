@@ -19,21 +19,21 @@ final class FinancialTransactionModel extends FinancialTransactionEntity {
 
   factory FinancialTransactionModel.fromMap(Map<String, dynamic> map) {
     return FinancialTransactionModel(
-      id: map[FinancialTransactionsTable.id] as int,
+      id: map[FinancialTransactionsTable().id] as int,
       createdAt: DateTime.parse(
-        map[FinancialTransactionsTable.createdAt] as String,
+        map[FinancialTransactionsTable().createdAt] as String,
       ),
-      createdBy: map[FinancialTransactionsTable.createdBy] as int,
-      note: map[FinancialTransactionsTable.note] as String?,
-      offerAmount: (map[FinancialTransactionsTable.offerAmount] ?? 0.0)
+      createdBy: map[FinancialTransactionsTable().createdBy] as int,
+      note: map[FinancialTransactionsTable().note] as String?,
+      offerAmount: (map[FinancialTransactionsTable().offerAmount] ?? 0.0)
           .toDouble(),
-      currencyId: map[FinancialTransactionsTable.currencyId] as String? ?? '',
-      billNumber: map[FinancialTransactionsTable.billNumber] as int,
-      warehouseId: map[FinancialTransactionsTable.warehouseId] as int,
-      journalEntryId: map[FinancialTransactionsTable.journalEntryId] as int?,
-      hintId: map[FinancialTransactionsTable.hintId] as int,
+      currencyId: map[FinancialTransactionsTable().currencyId] as String? ?? '',
+      billNumber: map[FinancialTransactionsTable().billNumber] as int,
+      warehouseId: map[FinancialTransactionsTable().warehouseId] as int,
+      journalEntryId: map[FinancialTransactionsTable().journalEntryId] as int?,
+      hintId: map[FinancialTransactionsTable().hintId] as int,
       historyGroup: HistoriesGroup.of(
-        map[FinancialTransactionsTable.transactionType] as String? ??
+        map[FinancialTransactionsTable().transactionType] as String? ??
             'financial_transaction',
       ),
     );
@@ -41,17 +41,17 @@ final class FinancialTransactionModel extends FinancialTransactionEntity {
 
   Map<String, dynamic> toMap() {
     return {
-      FinancialTransactionsTable.id: id,
-      FinancialTransactionsTable.createdAt: createdAt.toIso8601String(),
-      FinancialTransactionsTable.createdBy: createdBy,
-      FinancialTransactionsTable.note: note,
-      FinancialTransactionsTable.offerAmount: offerAmount,
-      FinancialTransactionsTable.currencyId: currencyId,
-      FinancialTransactionsTable.billNumber: billNumber,
-      FinancialTransactionsTable.warehouseId: warehouseId,
-      FinancialTransactionsTable.journalEntryId: journalEntryId,
-      FinancialTransactionsTable.hintId: hintId,
-      FinancialTransactionsTable.transactionType: historyGroup.name,
+      FinancialTransactionsTable().id: id,
+      FinancialTransactionsTable().createdAt: createdAt.toIso8601String(),
+      FinancialTransactionsTable().createdBy: createdBy,
+      FinancialTransactionsTable().note: note,
+      FinancialTransactionsTable().offerAmount: offerAmount,
+      FinancialTransactionsTable().currencyId: currencyId,
+      FinancialTransactionsTable().billNumber: billNumber,
+      FinancialTransactionsTable().warehouseId: warehouseId,
+      FinancialTransactionsTable().journalEntryId: journalEntryId,
+      FinancialTransactionsTable().hintId: hintId,
+      FinancialTransactionsTable().transactionType: historyGroup.name,
     };
   }
 

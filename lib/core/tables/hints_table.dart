@@ -1,12 +1,20 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول البيانات (التلميحات).
-class HintsTable {
-  const HintsTable._();
+class HintsTable extends TableInfo {
+  static final HintsTable _instance = HintsTable.internal();
 
-  static const String tableName = 'hints';
+  factory HintsTable() => _instance;
 
-  static const String id = 'hint_id';
-  static const String hintName = 'hint_name';
-  static const String hintType = 'hint_type';
+  HintsTable.internal();
 
-  static const List<String> fields = [id, hintName, hintType];
+  @override
+  final String tableName = 'hints';
+
+  final String id = 'hint_id';
+  final String hintName = 'hint_name';
+  final String hintType = 'hint_type';
+
+  @override
+  List<String> get columns => [id, hintName, hintType];
 }

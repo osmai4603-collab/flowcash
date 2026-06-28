@@ -1,13 +1,21 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول العملات.
-class CurrenciesTable {
-  const CurrenciesTable._();
+class CurrenciesTable extends TableInfo {
+  static final CurrenciesTable _instance = CurrenciesTable.internal();
 
-  static const String tableName = 'currencies';
+  factory CurrenciesTable() => _instance;
 
-  static const String id = 'currency_id';
-  static const String currencyName = 'name';
-  static const String symbol = 'symbol';
-  static const String isDefault = 'is_default';
+  CurrenciesTable.internal();
 
-  static const List<String> fields = [id, currencyName, symbol, isDefault];
+  @override
+  final String tableName = 'currencies';
+
+  final String id = 'currency_id';
+  final String currencyName = 'name';
+  final String symbol = 'symbol';
+  final String isDefault = 'is_default';
+
+  @override
+  List<String> get columns => [id, currencyName, symbol, isDefault];
 }

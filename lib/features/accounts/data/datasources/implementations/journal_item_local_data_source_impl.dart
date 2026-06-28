@@ -1,7 +1,7 @@
 import 'package:flowcash/features/accounts/data/datasources/interfaces/journal_item_data_source.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
 import 'package:flowcash/features/accounts/data/models/journal_item_model.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
 import 'package:flowcash/core/enums/journal_status_enum.dart';
@@ -13,14 +13,14 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
   @override
   Future<List<JournalItemEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: JournalItemsTable.tableName);
+      final rows = await _db.query(table: JournalItemsTable().tableName);
       return rows.map(fromMap).toList();
     }
 
     final where =
-        '${JournalItemsTable.itemId} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${JournalItemsTable().itemId} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: JournalItemsTable.tableName,
+      table: JournalItemsTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -30,8 +30,8 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
   @override
   Future<JournalItemEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: JournalItemsTable.tableName,
-      where: '${JournalItemsTable.itemId} = ?',
+      table: JournalItemsTable().tableName,
+      where: '${JournalItemsTable().itemId} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -42,7 +42,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
   @override
   Future<JournalItemEntity> insert(JournalItemEntity entity) async {
     final entityId = await _db.insert(
-      table: JournalItemsTable.tableName,
+      table: JournalItemsTable().tableName,
       data: toMap(entity),
     );
     if (entityId < 0) {
@@ -54,9 +54,9 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
   @override
   Future<JournalItemEntity> update(JournalItemEntity entity) async {
     await _db.update(
-      table: JournalItemsTable.tableName,
+      table: JournalItemsTable().tableName,
       data: toMap(entity),
-      where: {JournalItemsTable.itemId: entity.id},
+      where: {JournalItemsTable().itemId: entity.id},
     );
     return entity;
   }
@@ -64,8 +64,8 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
   @override
   Future<bool> delete(int id) async {
     await _db.deleteWhere(
-      table: JournalItemsTable.tableName,
-      where: {JournalItemsTable.itemId: id},
+      table: JournalItemsTable().tableName,
+      where: {JournalItemsTable().itemId: id},
     );
     return true;
   }
@@ -96,8 +96,8 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
   @override
   Future<List<JournalItemEntity>> whereEntryId(int entryId) async {
     final rows = await _db.query(
-      table: JournalItemsTable.tableName,
-      where: '${JournalItemsTable.entryId} = ?',
+      table: JournalItemsTable().tableName,
+      where: '${JournalItemsTable().entryId} = ?',
       whereArgs: [entryId],
     );
     return rows.map(fromMap).toList();
@@ -106,8 +106,8 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
   @override
   Future<List<JournalItemEntity>> whereAccountId(int accountId) async {
     final rows = await _db.query(
-      table: JournalItemsTable.tableName,
-      where: '${JournalItemsTable.accountId} = ?',
+      table: JournalItemsTable().tableName,
+      where: '${JournalItemsTable().accountId} = ?',
       whereArgs: [accountId],
     );
     return rows.map(fromMap).toList();
@@ -118,10 +118,10 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
     final db = await _db.database;
     final stmt = db.prepare('''
       SELECT ji.*
-      FROM ${JournalItemsTable.tableName} AS ji
-      INNER JOIN ${JournalEntriesTable.tableName} AS je
-        ON ji.${JournalItemsTable.entryId} = je.${JournalEntriesTable.id}
-      WHERE je.${JournalEntriesTable.warehouseId} = ?
+      FROM ${JournalItemsTable().tableName} AS ji
+      INNER JOIN ${JournalEntriesTable().tableName} AS je
+        ON ji.${JournalItemsTable().entryId} = je.${JournalEntriesTable().id}
+      WHERE je.${JournalEntriesTable().warehouseId} = ?
     ''');
     final result = stmt.select([warehouseId]);
     final items = result

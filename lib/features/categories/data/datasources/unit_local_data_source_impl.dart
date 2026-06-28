@@ -1,7 +1,7 @@
 import 'package:flowcash/features/categories/data/datasources/unit_data_source.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/features/categories/data/models/unit_model.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/units_table.dart';
 import 'package:flowcash/core/tables/catalogs_table.dart';
 import 'package:flowcash/core/tables/catalog_infos_table.dart';
@@ -14,13 +14,13 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
   @override
   Future<List<UnitEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: UnitsTable.tableName);
+      final rows = await _db.query(table: UnitsTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${UnitsTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${UnitsTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: UnitsTable.tableName,
+      table: UnitsTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -30,8 +30,8 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
   @override
   Future<UnitEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: UnitsTable.tableName,
-      where: '${UnitsTable.id} = ?',
+      table: UnitsTable().tableName,
+      where: '${UnitsTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -42,7 +42,7 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
   @override
   Future<UnitEntity> insert(UnitEntity entity) async {
     final entityId = await _db.insert(
-      table: UnitsTable.tableName,
+      table: UnitsTable().tableName,
       data: toMap(entity),
     );
     if (entityId < 0) {
@@ -54,9 +54,9 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
   @override
   Future<UnitEntity> update(UnitEntity entity) async {
     await _db.update(
-      table: UnitsTable.tableName,
+      table: UnitsTable().tableName,
       data: toMap(entity),
-      where: {UnitsTable.id: entity.id},
+      where: {UnitsTable().id: entity.id},
     );
     return entity;
   }
@@ -64,8 +64,8 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
   @override
   Future<bool> delete(int id) async {
     await _db.deleteWhere(
-      table: UnitsTable.tableName,
-      where: {UnitsTable.id: id},
+      table: UnitsTable().tableName,
+      where: {UnitsTable().id: id},
     );
     return true;
   }
@@ -96,9 +96,9 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
         .map((e) => e.name)
         .toList();
     final result = await _db.query(
-      table: UnitsTable.tableName,
+      table: UnitsTable().tableName,
       where:
-          '${UnitsTable.unitType} IN (${List.filled(types.length, '?').join(', ')}) AND ${UnitsTable.length} == ? AND ${UnitsTable.width} == ? AND ${UnitsTable.thickness} == ?',
+          '${UnitsTable().unitType} IN (${List.filled(types.length, '?').join(', ')}) AND ${UnitsTable().length} == ? AND ${UnitsTable().width} == ? AND ${UnitsTable().thickness} == ?',
       whereArgs: [...types, 0.0, 0.0, 0.0],
     );
     return result.map(fromMap).toList();
@@ -113,28 +113,28 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
     required UnitType unitType,
     String? unitName,
   }) async {
-    final List<String> where = ['${UnitsTable.unitType} = ?'];
+    final List<String> where = ['${UnitsTable().unitType} = ?'];
     final List<dynamic> args = [unitType.name];
 
     if (length != null) {
-      where.add('${UnitsTable.length} = ?');
+      where.add('${UnitsTable().length} = ?');
       args.add(length);
     }
     if (width != null) {
-      where.add('${UnitsTable.width} = ?');
+      where.add('${UnitsTable().width} = ?');
       args.add(width);
     }
     if (thickness != null) {
-      where.add('${UnitsTable.thickness} = ?');
+      where.add('${UnitsTable().thickness} = ?');
       args.add(thickness);
     }
     if (unitName != null && unitName.isNotEmpty) {
-      where.add('${UnitsTable.unitName} = ?');
+      where.add('${UnitsTable().unitName} = ?');
       args.add(unitName);
     }
 
     final rows = await _db.query(
-      table: UnitsTable.tableName,
+      table: UnitsTable().tableName,
       where: where.join(' AND '),
       whereArgs: args,
       limit: 1,
@@ -148,14 +148,14 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
   Future<List<UnitEntity>> getByMainCategory(int mainCategoryId) async {
     final String query =
         '''
-      SELECT * FROM ${UnitsTable.tableName}
-      WHERE ${UnitsTable.id} IN (
-        SELECT ${SubcategoriesUnitsTable.unitId}
-        FROM ${SubcategoriesUnitsTable.tableName}
-        WHERE ${SubcategoriesUnitsTable.subcategoryId} IN (
-          SELECT ${SubcategoriesTable.id}
-          FROM ${SubcategoriesTable.tableName}
-          WHERE ${SubcategoriesTable.mainCategoryId} = ?
+      SELECT * FROM ${UnitsTable().tableName}
+      WHERE ${UnitsTable().id} IN (
+        SELECT ${SubcategoriesUnitsTable().unitId}
+        FROM ${SubcategoriesUnitsTable().tableName}
+        WHERE ${SubcategoriesUnitsTable().subcategoryId} IN (
+          SELECT ${SubcategoriesTable().id}
+          FROM ${SubcategoriesTable().tableName}
+          WHERE ${SubcategoriesTable().mainCategoryId} = ?
         )
       )
     ''';

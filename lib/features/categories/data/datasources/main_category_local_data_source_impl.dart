@@ -1,8 +1,9 @@
 import 'package:flowcash/core/tables/category_properties_table.dart';
 import 'package:flowcash/features/categories/data/datasources/main_category_data_source.dart';
+import 'package:flowcash/features/categories/data/models/category_property_model.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/main_categories_table.dart';
 import 'package:flowcash/core/enums/category_type_enum.dart';
 import 'package:flowcash/core/enums/unit_type_enum.dart';
@@ -10,19 +11,18 @@ import 'package:flowcash/core/enums/unit_type_enum.dart';
 final class MainCategoryLocalDataSourceImpl
     implements MainCategoryLocalDataSource {
   final SqliteService _db;
-  final Map<String, dynamic> Function(CategoryPropertyEntity) propertyToMap;
-  const MainCategoryLocalDataSourceImpl(this._db, this.propertyToMap);
+  const MainCategoryLocalDataSourceImpl(this._db);
 
   @override
   Future<List<MainCategoryEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: MainCategoriesTable.tableName);
+      final rows = await _db.query(table: MainCategoriesTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${MainCategoriesTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${MainCategoriesTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: MainCategoriesTable.tableName,
+      table: MainCategoriesTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -32,8 +32,8 @@ final class MainCategoryLocalDataSourceImpl
   @override
   Future<MainCategoryEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: MainCategoriesTable.tableName,
-      where: '${MainCategoriesTable.id} = ?',
+      table: MainCategoriesTable().tableName,
+      where: '${MainCategoriesTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -45,7 +45,7 @@ final class MainCategoryLocalDataSourceImpl
   Future<MainCategoryEntity> insert(MainCategoryEntity entity) async {
     return await _db.transaction(() async {
       final entityId = await _db.insert(
-        table: MainCategoriesTable.tableName,
+        table: MainCategoriesTable().tableName,
         data: toMap(entity),
       );
       if (entityId <= 0) {
@@ -60,8 +60,8 @@ final class MainCategoryLocalDataSourceImpl
       for (var index = 0; index < properties.length; index++) {
         final property = properties[index];
         final propertyId = await _db.insert(
-          table: CategoryPropertiesTable.tableName,
-          data: propertyToMap(property),
+          table: CategoryPropertiesTable().tableName,
+          data: CategoryPropertyModel.fromEntity(property).toMap(), //
         );
         if (propertyId <= 0) {
           throw Exception('Failed to insert category property at index $index');
@@ -76,9 +76,9 @@ final class MainCategoryLocalDataSourceImpl
   Future<MainCategoryEntity> update(MainCategoryEntity entity) async {
     return await _db.transaction(() async {
       await _db.update(
-        table: MainCategoriesTable.tableName,
+        table: MainCategoriesTable().tableName,
         data: toMap(entity),
-        where: {MainCategoriesTable.id: entity.id},
+        where: {MainCategoriesTable().id: entity.id},
       );
 
       final updatedProperties = <CategoryPropertyEntity>[];
@@ -89,15 +89,19 @@ final class MainCategoryLocalDataSourceImpl
 
         if (property.id > 0) {
           await _db.update(
-            table: CategoryPropertiesTable.tableName,
-            data: propertyToMap(property),
-            where: {CategoryPropertiesTable.id: property.id},
+            table: CategoryPropertiesTable().tableName,
+            data: CategoryPropertyModel.fromEntity(
+              property,
+            ).toMap(), // _propertyToMap(property),
+            where: {CategoryPropertiesTable().id: property.id},
           );
           updatedProperties.add(property);
         } else {
           final propertyId = await _db.insert(
-            table: CategoryPropertiesTable.tableName,
-            data: propertyToMap(property),
+            table: CategoryPropertiesTable().tableName,
+            data: CategoryPropertyModel.fromEntity(
+              property,
+            ).toMap(), // _propertyToMap(property),
           );
           if (propertyId <= 0) {
             throw Exception(
@@ -116,12 +120,12 @@ final class MainCategoryLocalDataSourceImpl
   Future<bool> delete(int id) async {
     return await _db.transaction(() async {
       await _db.deleteWhere(
-        table: CategoryPropertiesTable.tableName,
-        where: {CategoryPropertiesTable.mainCategoryId: id},
+        table: CategoryPropertiesTable().tableName,
+        where: {CategoryPropertiesTable().mainCategoryId: id},
       );
       await _db.deleteWhere(
-        table: MainCategoriesTable.tableName,
-        where: {MainCategoriesTable.id: id},
+        table: MainCategoriesTable().tableName,
+        where: {MainCategoriesTable().id: id},
       );
       return true;
     });
@@ -130,14 +134,14 @@ final class MainCategoryLocalDataSourceImpl
   @override
   MainCategoryEntity fromMap(Map<String, dynamic> map) {
     return MainCategoryEntity(
-      id: map[MainCategoriesTable.id] as int,
-      name: (map[MainCategoriesTable.categoryName] as String?) ?? "",
+      id: map[MainCategoriesTable().id] as int,
+      name: (map[MainCategoriesTable().categoryName] as String?) ?? "",
       type: CategoryDefineType.values.firstWhere(
-        (e) => e.name == map[MainCategoriesTable.categoryType] as String,
+        (e) => e.name == map[MainCategoriesTable().categoryType] as String,
       ),
-      unitName: (map[MainCategoriesTable.unitName] as String?) ?? "",
+      unitName: (map[MainCategoriesTable().unitName] as String?) ?? "",
       unitType: UnitType.values.firstWhere(
-        (e) => e.name == map[MainCategoriesTable.unitType] as String,
+        (e) => e.name == map[MainCategoriesTable().unitType] as String,
       ),
     );
   }
@@ -145,11 +149,11 @@ final class MainCategoryLocalDataSourceImpl
   @override
   Map<String, dynamic> toMap(MainCategoryEntity entity) {
     return {
-      if (entity.id > 0) MainCategoriesTable.id: entity.id,
-      MainCategoriesTable.categoryName: entity.name,
-      MainCategoriesTable.categoryType: entity.type.name,
-      MainCategoriesTable.unitName: entity.unitName,
-      MainCategoriesTable.unitType: entity.unitType.name,
+      if (entity.id > 0) MainCategoriesTable().id: entity.id,
+      MainCategoriesTable().categoryName: entity.name,
+      MainCategoriesTable().categoryType: entity.type.name,
+      MainCategoriesTable().unitName: entity.unitName,
+      MainCategoriesTable().unitType: entity.unitType.name,
     };
   }
 
@@ -158,8 +162,8 @@ final class MainCategoryLocalDataSourceImpl
     String categoryName,
   ) async {
     final rows = await _db.query(
-      table: MainCategoriesTable.tableName,
-      where: '${MainCategoriesTable.categoryName} = ?',
+      table: MainCategoriesTable().tableName,
+      where: '${MainCategoriesTable().categoryName} = ?',
       whereArgs: [categoryName],
       limit: 1,
     );

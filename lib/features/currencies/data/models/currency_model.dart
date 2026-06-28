@@ -11,19 +11,19 @@ final class CurrencyModel extends CurrencyEntity {
 
   factory CurrencyModel.fromMap(Map<String, dynamic> map) {
     return CurrencyModel(
-      id: map[CurrenciesTable.id] as String,
-      name: (map[CurrenciesTable.currencyName] as String?) ?? '',
-      symbol: (map[CurrenciesTable.symbol] as String?) ?? '',
-      isDefault: map[CurrenciesTable.isDefault] == true || map[CurrenciesTable.isDefault] == 1,
+      id: map[CurrenciesTable().id] as String,
+      name: (map[CurrenciesTable().currencyName] as String?) ?? '',
+      symbol: (map[CurrenciesTable().symbol] as String?) ?? '',
+      isDefault: map[CurrenciesTable().isDefault] == true || map[CurrenciesTable().isDefault] == 1,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      CurrenciesTable.id: id,
-      CurrenciesTable.currencyName: name,
-      CurrenciesTable.symbol: symbol,
-      CurrenciesTable.isDefault: isDefault ? 1 : 0,
+      CurrenciesTable().id: id,
+      CurrenciesTable().currencyName: name,
+      CurrenciesTable().symbol: symbol,
+      CurrenciesTable().isDefault: isDefault ? 1 : 0,
     };
   }
 

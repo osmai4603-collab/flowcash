@@ -19,35 +19,35 @@ final class FinancialBondModel extends FinancialBondEntity {
 
   factory FinancialBondModel.fromMap(Map<String, dynamic> map) {
     return FinancialBondModel(
-      id: map[FinancialBondsTable.id] as int,
-      createdAt: DateTime.parse(map[FinancialBondsTable.createdAt] as String),
-      createdBy: map[FinancialBondsTable.createdBy] as int,
-      note: map[FinancialBondsTable.note] as String?,
-      offerAmount: (map[FinancialBondsTable.offerAmount] ?? 0.0).toDouble(),
-      currencyId: map[FinancialBondsTable.currencyId] as String? ?? '',
-      billNumber: map[FinancialBondsTable.billNumber] as int,
-      warehouseId: map[FinancialBondsTable.warehouseId] as int,
-      journalEntryId: map[FinancialBondsTable.journalEntryId] as int?,
-      hintId: map[FinancialBondsTable.hintId] as int,
+      id: map[FinancialBondsTable().id] as int,
+      createdAt: DateTime.parse(map[FinancialBondsTable().createdAt] as String),
+      createdBy: map[FinancialBondsTable().createdBy] as int,
+      note: map[FinancialBondsTable().note] as String?,
+      offerAmount: (map[FinancialBondsTable().offerAmount] ?? 0.0).toDouble(),
+      currencyId: map[FinancialBondsTable().currencyId] as String? ?? '',
+      billNumber: map[FinancialBondsTable().billNumber] as int,
+      warehouseId: map[FinancialBondsTable().warehouseId] as int,
+      journalEntryId: map[FinancialBondsTable().journalEntryId] as int?,
+      hintId: map[FinancialBondsTable().hintId] as int,
       historyGroup: HistoriesGroup.of(
-        map[FinancialBondsTable.bondType] as String? ?? 'financial_bond',
+        map[FinancialBondsTable().bondType] as String? ?? 'financial_bond',
       ),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      FinancialBondsTable.id: id,
-      FinancialBondsTable.createdAt: createdAt.toIso8601String(),
-      FinancialBondsTable.createdBy: createdBy,
-      FinancialBondsTable.note: note,
-      FinancialBondsTable.offerAmount: offerAmount,
-      FinancialBondsTable.currencyId: currencyId,
-      FinancialBondsTable.billNumber: billNumber,
-      FinancialBondsTable.warehouseId: warehouseId,
-      FinancialBondsTable.journalEntryId: journalEntryId,
-      FinancialBondsTable.hintId: hintId,
-      FinancialBondsTable.bondType: historyGroup.name,
+      FinancialBondsTable().id: id,
+      FinancialBondsTable().createdAt: createdAt.toIso8601String(),
+      FinancialBondsTable().createdBy: createdBy,
+      FinancialBondsTable().note: note,
+      FinancialBondsTable().offerAmount: offerAmount,
+      FinancialBondsTable().currencyId: currencyId,
+      FinancialBondsTable().billNumber: billNumber,
+      FinancialBondsTable().warehouseId: warehouseId,
+      FinancialBondsTable().journalEntryId: journalEntryId,
+      FinancialBondsTable().hintId: hintId,
+      FinancialBondsTable().bondType: historyGroup.name,
     };
   }
 

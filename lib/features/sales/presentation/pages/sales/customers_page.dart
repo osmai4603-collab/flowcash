@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flowcash/core/datasources/implementations/person_local_data_source_impl.dart';
 import 'package:flowcash/core/entities/person_entity.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/features/sales/presentation/pages/customers/customer_form_page.dart';
 import 'package:flowcash/features/injection_container.dart';
 

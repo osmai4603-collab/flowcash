@@ -3,7 +3,7 @@ import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dar
 import 'package:flowcash/features/inventory/data/models/warehouse_model.dart';
 import 'package:flowcash/core/enums/warehouse_type_enum.dart';
 import 'package:flowcash/core/enums/warehouse_value_type_enum.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/warehouse_values_table.dart';
 import 'package:flowcash/core/tables/warehouses_table.dart';
 
@@ -14,13 +14,13 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
   @override
   Future<List<WarehouseEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: WarehousesTable.tableName);
+      final rows = await _db.query(table: WarehousesTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${WarehousesTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${WarehousesTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: WarehousesTable.tableName,
+      table: WarehousesTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -30,8 +30,8 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
   @override
   Future<WarehouseEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: WarehousesTable.tableName,
-      where: '${WarehousesTable.id} = ?',
+      table: WarehousesTable().tableName,
+      where: '${WarehousesTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -43,8 +43,8 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
   Future<WarehouseEntity> insert(WarehouseEntity entity) async {
     return await _db.transaction(() async {
       final entityId = await _db.insert(
-        table: WarehousesTable.tableName,
-        data: _sanitizeInsertData(toMap(entity), WarehousesTable.id),
+        table: WarehousesTable().tableName,
+        data: _sanitizeInsertData(toMap(entity), WarehousesTable().id),
       );
       if (entityId < 0) {
         throw Exception('Failed to insert warehouse');
@@ -53,15 +53,15 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
       final values = WarehouseValueType.values
           .map(
             (valueType) => {
-              WarehouseValuesTable.warehouseId: entityId,
-              WarehouseValuesTable.valueType: valueType.name,
-              WarehouseValuesTable.value: null,
+              WarehouseValuesTable().warehouseId: entityId,
+              WarehouseValuesTable().valueType: valueType.name,
+              WarehouseValuesTable().value: null,
             },
           )
           .toList();
 
       await _db.insertAll(
-         table: WarehouseValuesTable.tableName,
+         table: WarehouseValuesTable().tableName,
          dataList: values,
       );
 
@@ -72,9 +72,9 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
   @override
   Future<WarehouseEntity> update(WarehouseEntity entity) async {
     await _db.update(
-      table: WarehousesTable.tableName,
+      table: WarehousesTable().tableName,
       data: toMap(entity),
-      where: {WarehousesTable.id: entity.id},
+      where: {WarehousesTable().id: entity.id},
     );
     return entity;
   }
@@ -83,13 +83,13 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
   Future<bool> delete(int id) async {
     await _db.transaction(() async {
       await _db.deleteWhere(
-        table: WarehouseValuesTable.tableName,
-        where: {WarehouseValuesTable.warehouseId: id},
+        table: WarehouseValuesTable().tableName,
+        where: {WarehouseValuesTable().warehouseId: id},
       );
 
       await _db.deleteWhere(
-        table: WarehousesTable.tableName,
-        where: {WarehousesTable.id: id},
+        table: WarehousesTable().tableName,
+        where: {WarehousesTable().id: id},
       );
     });
     return true;
@@ -102,8 +102,8 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
     bool printQuery = true,
   }) async {
     final rows = await _db.query(
-      table: WarehousesTable.tableName,
-      where: '${WarehousesTable.id} = ? OR ${WarehousesTable.parentId} = ?',
+      table: WarehousesTable().tableName,
+      where: '${WarehousesTable().id} = ? OR ${WarehousesTable().parentId} = ?',
       whereArgs: [warehouseId, warehouseId],
     );
     return rows.map(fromMap).toList();
@@ -112,8 +112,8 @@ final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
   @override
   Future<WarehouseEntity?> getByCode(String code) async {
     final rows = await _db.query(
-      table: WarehousesTable.tableName,
-      where: '${WarehousesTable.warehouseName} = ?',
+      table: WarehousesTable().tableName,
+      where: '${WarehousesTable().warehouseName} = ?',
       whereArgs: [code],
       limit: 1,
     );

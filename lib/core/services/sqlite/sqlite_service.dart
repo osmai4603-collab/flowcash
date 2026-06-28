@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:flowcash/core/services/sqlite_default_data.dart';
-import 'package:flowcash/core/services/sqlite_schema_manager.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_default_data.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_schema_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:path/path.dart';
@@ -72,8 +72,10 @@ final class SqliteService {
   const SqliteService._();
   factory SqliteService() => instance;
 
+  static Database? overrideDatabase;
+
   Future<Database> get database async =>
-      SqliteDatabaseManager.instance.database;
+      overrideDatabase ?? SqliteDatabaseManager.instance.database;
 
   /// Insert a map of values into the database and return the last inserted row id.
   Future<int> insert({
@@ -157,7 +159,9 @@ final class SqliteService {
     final whereClause = where.keys.map((k) => '$k = ?').join(' AND ');
     final sql = 'UPDATE $table SET $setClause WHERE $whereClause';
     final stmt = db.prepare(sql);
-    debugPrint('${sql}with args: ${data.values.join()}');
+    debugPrint(
+      '$sql,  with args: ${[...data.values, ...where.values].join(', ')}',
+    );
     stmt.execute([...data.values, ...where.values]);
     stmt.dispose();
   }

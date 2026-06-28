@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_unit_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/categories/domain/repositories/subcategory_repository.dart';
 import 'package:flowcash/features/categories/data/datasources/subcategory_data_source.dart';
 
@@ -125,11 +126,39 @@ class SubcategoryRepositoryImpl implements SubcategoryRepository {
   }
 
   @override
+  Future<Either<Failure, SubcategoryUnitEntity>> insertSubcategoryUnit(
+    SubcategoryUnitEntity entity,
+  ) async {
+    try {
+      final res = await _dataSource.insertSubcategoryUnit(entity);
+      return Right(res);
+    } on Failure catch (f) {
+      return Left(f);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, SubcategoryEntity?>> firstWhereCategory(
     int categoryId,
   ) async {
     try {
       final res = await _dataSource.firstWhereCategory(categoryId);
+      return Right(res);
+    } on Failure catch (f) {
+      return Left(f);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<CategoryEntity>>> generateCategories(
+    int subcategoryId,
+  ) async {
+    try {
+      final res = await _dataSource.generateCategories(subcategoryId);
       return Right(res);
     } on Failure catch (f) {
       return Left(f);

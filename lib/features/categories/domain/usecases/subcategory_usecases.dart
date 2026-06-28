@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_unit_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/categories/domain/repositories/subcategory_repository.dart';
 
 /// UseCases for SubcategoryRepository
@@ -99,5 +100,24 @@ class SaveSubcategoryWithUnitsUseCase {
     List<SubcategoryUnitEntity> units,
   ) async {
     return await _repository.saveWithUnits(catalog, units);
+  }
+}
+
+class AddSubcategoryUnitUseCase {
+  final SubcategoryRepository _repository;
+  const AddSubcategoryUnitUseCase(this._repository);
+  Future<Either<Failure, SubcategoryUnitEntity>> call(
+    SubcategoryUnitEntity entity,
+  ) async {
+    return await _repository.insertSubcategoryUnit(entity);
+  }
+}
+
+class GenerateSubcategoryCategoriesUseCase {
+  final SubcategoryRepository _repository;
+  const GenerateSubcategoryCategoriesUseCase(this._repository);
+
+  Future<Either<Failure, List<CategoryEntity>>> call(int subcategoryId) async {
+    return await _repository.generateCategories(subcategoryId);
   }
 }

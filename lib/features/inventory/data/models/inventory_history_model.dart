@@ -18,14 +18,14 @@ class InventoryHistoryModel extends InventoryHistory {
 
   factory InventoryHistoryModel.fromMap(Map<String, dynamic> map) {
     return InventoryHistoryModel(
-      transactionOrderId: map[InventoryTransactionsOrdersTable.id] as int,
+      transactionOrderId: map[InventoryTransactionsOrdersTable().id] as int,
       transactionType: InventoryTransactionType.of(
-        map[InventoryTransactionsTable.transactionType] as String,
+        map[InventoryTransactionsTable().transactionType] as String,
       ),
-      countUnits: (map[InventoryTransactionsOrdersTable.countUnits] as num).toDouble(),
-      categoryName: map[CategoriesTable.categoryName] as String,
-      categoryUnit: map[UnitsTable.unitName] as String,
-      inventoryId: map[InventoryTransactionsOrdersTable.inventoryId] as int,
+      countUnits: (map[InventoryTransactionsOrdersTable().countUnits] as num).toDouble(),
+      categoryName: map[CategoriesTable().categoryName] as String,
+      categoryUnit: map[UnitsTable().unitName] as String,
+      inventoryId: map[InventoryTransactionsOrdersTable().inventoryId] as int,
     );
   }
 

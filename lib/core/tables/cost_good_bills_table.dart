@@ -1,23 +1,30 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول تكلفة الفواتير المباعة.
-class CostGoodBillsTable {
-  const CostGoodBillsTable._();
+class CostGoodBillsTable extends TableInfo {
+  static final CostGoodBillsTable _instance = CostGoodBillsTable.internal();
 
-  static const String tableName = 'cost_good_bills';
+  factory CostGoodBillsTable() => _instance;
 
-  static const String id = 'cost_good_bill_id';
-  static const String createdAt = 'create_at';
-  static const String createdBy = 'create_by';
-  static const String note = 'note';
-  static const String offerAmount = 'amount';
-  static const String currencyId = 'currency_id';
-  static const String billNumber = 'bill_number';
-  static const String warehouseId = 'warehouse_id';
-  static const String journalEntryId = 'journal_entry_id';
-  static const String personId = 'person_id';
-  static const String billId = 'bill_id';
+  CostGoodBillsTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'cost_good_bills';
+
+  final String id = 'cost_good_bill_id';
+  final String createdAt = 'create_at';
+  final String createdBy = 'create_by';
+  final String note = 'note';
+  final String offerAmount = 'amount';
+  final String currencyId = 'currency_id';
+  final String billNumber = 'bill_number';
+  final String warehouseId = 'warehouse_id';
+  final String journalEntryId = 'journal_entry_id';
+  final String personId = 'person_id';
+  final String billId = 'bill_id';
+
+  @override
+  List<String> get columns => [id,
     createdAt,
     createdBy,
     note,
@@ -27,6 +34,5 @@ class CostGoodBillsTable {
     warehouseId,
     journalEntryId,
     personId,
-    billId,
-  ];
+    billId,];
 }

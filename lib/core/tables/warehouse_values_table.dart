@@ -1,13 +1,21 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول القيم الافتراضية للمستودع.
-class WarehouseValuesTable {
-  const WarehouseValuesTable._();
+class WarehouseValuesTable extends TableInfo {
+  static final WarehouseValuesTable _instance = WarehouseValuesTable.internal();
 
-  static const String tableName = 'warehouse_default_values';
+  factory WarehouseValuesTable() => _instance;
 
-  static const String id = 'value_id';
-  static const String warehouseId = 'warehouse_id';
-  static const String valueType = 'value_type';
-  static const String value = 'data';
+  WarehouseValuesTable.internal();
 
-  static const List<String> fields = [id, warehouseId, valueType, value];
+  @override
+  final String tableName = 'warehouse_default_values';
+
+  final String id = 'value_id';
+  final String warehouseId = 'warehouse_id';
+  final String valueType = 'value_type';
+  final String value = 'data';
+
+  @override
+  List<String> get columns => [id, warehouseId, valueType, value];
 }

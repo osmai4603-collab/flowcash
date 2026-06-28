@@ -2,11 +2,13 @@ import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/subcategory_unit_entity.dart';
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_property_usecases.dart';
 import 'package:flowcash/features/categories/domain/usecases/subcategory_usecases.dart';
-import 'package:flowcash/features/categories/domain/services/category_generation_service.dart';
+import 'package:flowcash/features/categories/domain/usecases/main_category_usecases.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_event.dart';
@@ -23,6 +25,9 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
   getCategoryPropertiesByMainCategoryUseCase;
   final InsertSubcategoryUseCase addSubcategoryUseCase;
   final DeleteSubcategoryUseCase deleteSubcategoryUseCase;
+  final GetAllMainCategoriesUseCase getAllMainCategoriesUseCase;
+  final AddSubcategoryUnitUseCase addSubcategoryUnitUseCase;
+  final GenerateSubcategoryCategoriesUseCase generateSubcategoryCategoriesUseCase;
 
   SubcategoriesController _controller = SubcategoriesController([], [], []);
 
@@ -33,6 +38,9 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
     required this.getCategoryPropertiesByMainCategoryUseCase,
     required this.addSubcategoryUseCase,
     required this.deleteSubcategoryUseCase,
+    required this.getAllMainCategoriesUseCase,
+    required this.addSubcategoryUnitUseCase,
+    required this.generateSubcategoryCategoriesUseCase,
   }) : super(const SubcategoriesInitial()) {
     on<LoadSubcategoriesEvent>(_onLoadSubcategories);
     on<RefreshSubcategoriesEvent>(_onRefreshSubcategories);
@@ -50,6 +58,12 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
     Emitter<SubcategoriesState> emit,
   ) async {
     emit(const SubcategoriesLoadInProgress());
+
+    final mainCatsResult = await getAllMainCategoriesUseCase();
+    final mainCategories = mainCatsResult.fold(
+      (failure) => <MainCategoryEntity>[],
+      (list) => list,
+    );
 
     final catalogsResult = event.mainCategoryId == null
         ? await getAllSubcategoriesUseCase()
@@ -77,7 +91,12 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
                   infos,
                   properties,
                 );
-                emit(SubcategoriesLoadSuccess(controller: _controller));
+                emit(
+                  SubcategoriesLoadSuccess(
+                    controller: _controller,
+                    mainCategories: mainCategories,
+                  ),
+                );
               },
             );
           },
@@ -184,25 +203,10 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
     if (state is! SubcategoriesLoadSuccess) return;
     final currentState = state as SubcategoriesLoadSuccess;
 
-    emit(const SubcategoriesLoadInProgress());
+    emit(currentState.copyWith(isGenerating: true));
 
     try {
-      final service = CategoryGenerationService(
-        usecases: CategoriesUsecases(
-          getMainCategoryById: sl(),
-          getUnits: sl(),
-          getBasicUnits: sl(),
-          addCategory: sl(),
-          addCategoryAttribute: sl(),
-          hasCategoryName: sl(),
-          getNewCategoryNumber: sl(),
-          getSubcategoryById: sl(),
-          getCategoryPropertiesByMainCategory: sl(),
-          getSubcategoryUnitsBySubcategoryIds: sl(),
-        ),
-      );
-
-      final result = await service.generate(event.catalogId);
+      final result = await generateSubcategoryCategoriesUseCase(event.catalogId);
 
       result.fold(
         (failure) {
@@ -221,6 +225,7 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
           final names = categories.map((c) => c.categoryName).toList();
           emit(
             currentState.copyWith(
+              isGenerating: false,
               generatedCategoryNames: names,
               statusMessage: null,
             ),
@@ -248,15 +253,20 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
     Emitter<SubcategoriesState> emit,
   ) async {
     if (state is! SubcategoriesLoadSuccess) return;
-    // final result = await addSubcategoryUnitUseCase(event.catalogId, event.unitId, event.propertyId);
-    // result.fold(
-    //   (failure) => emit(SubcategoriesLoadFailure(failure.message)),
-    //   (info) {
-    //     _controller.addSubcategoryUnit(info);
-    //     final currentState = state as SubcategoriesLoadSuccess;
-    //     emit(currentState.copyWith(controller: _controller));
-    //   },
-    // );
+
+    final unitEntity = SubcategoryUnitEntity(
+      id: 0,
+      subcategoryId: event.catalogId,
+      unitId: event.unitId,
+      propertyId: event.propertyId,
+    );
+
+    final result = await addSubcategoryUnitUseCase(unitEntity);
+    result.fold((failure) => emit(SubcategoriesLoadFailure(failure.message)), (
+      info,
+    ) {
+      add(const LoadSubcategoriesEvent());
+    });
   }
 
   Future<void> _onDeleteSubcategoryUnit(

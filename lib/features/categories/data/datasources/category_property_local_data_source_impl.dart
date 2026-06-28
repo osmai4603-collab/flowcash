@@ -1,6 +1,6 @@
 import 'package:flowcash/features/categories/data/datasources/category_property_data_source.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/category_properties_table.dart';
 import 'package:flowcash/core/enums/unit_type_enum.dart';
 
@@ -12,13 +12,13 @@ final class CategoryPropertyLocalDataSourceImpl
   @override
   Future<List<CategoryPropertyEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: CategoryPropertiesTable.tableName);
+      final rows = await _db.query(table: CategoryPropertiesTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${CategoryPropertiesTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${CategoryPropertiesTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: CategoryPropertiesTable.tableName,
+      table: CategoryPropertiesTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -28,8 +28,8 @@ final class CategoryPropertyLocalDataSourceImpl
   @override
   Future<CategoryPropertyEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: CategoryPropertiesTable.tableName,
-      where: '${CategoryPropertiesTable.id} = ?',
+      table: CategoryPropertiesTable().tableName,
+      where: '${CategoryPropertiesTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -40,8 +40,8 @@ final class CategoryPropertyLocalDataSourceImpl
   @override
   Future<CategoryPropertyEntity> insert(CategoryPropertyEntity entity) async {
     final entityId = await _db.insert(
-      table: CategoryPropertiesTable.tableName,
-      data: _sanitizeInsertData(toMap(entity), CategoryPropertiesTable.id),
+      table: CategoryPropertiesTable().tableName,
+      data: _sanitizeInsertData(toMap(entity), CategoryPropertiesTable().id),
     );
     if (entityId < 0) {
       throw Exception('Failed to insert category property');
@@ -52,9 +52,9 @@ final class CategoryPropertyLocalDataSourceImpl
   @override
   Future<CategoryPropertyEntity> update(CategoryPropertyEntity entity) async {
     await _db.update(
-      table: CategoryPropertiesTable.tableName,
+      table: CategoryPropertiesTable().tableName,
       data: toMap(entity),
-      where: {CategoryPropertiesTable.id: entity.id},
+      where: {CategoryPropertiesTable().id: entity.id},
     );
     return entity;
   }
@@ -62,8 +62,8 @@ final class CategoryPropertyLocalDataSourceImpl
   @override
   Future<bool> delete(int id) async {
     await _db.deleteWhere(
-      table: CategoryPropertiesTable.tableName,
-      where: {CategoryPropertiesTable.id: id},
+      table: CategoryPropertiesTable().tableName,
+      where: {CategoryPropertiesTable().id: id},
     );
     return true;
   }
@@ -71,39 +71,39 @@ final class CategoryPropertyLocalDataSourceImpl
   @override
   CategoryPropertyEntity fromMap(Map<String, dynamic> map) {
     return CategoryPropertyEntity(
-      id: map[CategoryPropertiesTable.id] as int,
-      mainCategoryId: map[CategoryPropertiesTable.mainCategoryId] as int,
+      id: map[CategoryPropertiesTable().id] as int,
+      mainCategoryId: map[CategoryPropertiesTable().mainCategoryId] as int,
       propertyName:
-          (map[CategoryPropertiesTable.propertyName] as String?) ?? "",
+          (map[CategoryPropertiesTable().propertyName] as String?) ?? "",
       unitType: UnitType.values.firstWhere(
-        (e) => e.name == map[CategoryPropertiesTable.unitType] as String,
+        (e) => e.name == map[CategoryPropertiesTable().unitType] as String,
       ),
       isSingle:
-          (map[CategoryPropertiesTable.isSingle] == true ||
-          map[CategoryPropertiesTable.isSingle] == 1),
+          (map[CategoryPropertiesTable().isSingle] == true ||
+          map[CategoryPropertiesTable().isSingle] == 1),
       isCategoryUnit:
-          (map[CategoryPropertiesTable.isCategoryUnit] == true ||
-          map[CategoryPropertiesTable.isCategoryUnit] == 1),
+          (map[CategoryPropertiesTable().isCategoryUnit] == true ||
+          map[CategoryPropertiesTable().isCategoryUnit] == 1),
       isPricingUnit:
-          (map[CategoryPropertiesTable.isPricingUnit] == true ||
-          map[CategoryPropertiesTable.isPricingUnit] == 1),
+          (map[CategoryPropertiesTable().isPricingUnit] == true ||
+          map[CategoryPropertiesTable().isPricingUnit] == 1),
       isInventoryUnit:
-          (map[CategoryPropertiesTable.isInventoryUnit] == true ||
-          map[CategoryPropertiesTable.isInventoryUnit] == 1),
+          (map[CategoryPropertiesTable().isInventoryUnit] == true ||
+          map[CategoryPropertiesTable().isInventoryUnit] == 1),
     );
   }
 
   @override
   Map<String, dynamic> toMap(CategoryPropertyEntity entity) {
     return {
-      if (entity.id > 0) CategoryPropertiesTable.id: entity.id,
-      CategoryPropertiesTable.mainCategoryId: entity.mainCategoryId,
-      CategoryPropertiesTable.propertyName: entity.propertyName,
-      CategoryPropertiesTable.unitType: entity.unitType.name,
-      CategoryPropertiesTable.isSingle: entity.isSingle ? 1 : 0,
-      CategoryPropertiesTable.isCategoryUnit: entity.isCategoryUnit ? 1 : 0,
-      CategoryPropertiesTable.isPricingUnit: entity.isPricingUnit ? 1 : 0,
-      CategoryPropertiesTable.isInventoryUnit: entity.isInventoryUnit ? 1 : 0,
+      if (entity.id > 0) CategoryPropertiesTable().id: entity.id,
+      CategoryPropertiesTable().mainCategoryId: entity.mainCategoryId,
+      CategoryPropertiesTable().propertyName: entity.propertyName,
+      CategoryPropertiesTable().unitType: entity.unitType.name,
+      CategoryPropertiesTable().isSingle: entity.isSingle ? 1 : 0,
+      CategoryPropertiesTable().isCategoryUnit: entity.isCategoryUnit ? 1 : 0,
+      CategoryPropertiesTable().isPricingUnit: entity.isPricingUnit ? 1 : 0,
+      CategoryPropertiesTable().isInventoryUnit: entity.isInventoryUnit ? 1 : 0,
     };
   }
 
@@ -118,9 +118,9 @@ final class CategoryPropertyLocalDataSourceImpl
     }
 
     final where =
-        '${CategoryPropertiesTable.mainCategoryId} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${CategoryPropertiesTable().mainCategoryId} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: CategoryPropertiesTable.tableName,
+      table: CategoryPropertiesTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );

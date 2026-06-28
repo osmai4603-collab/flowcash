@@ -2,7 +2,8 @@ import 'package:flowcash/features/inventory/data/datasources/inventory_transacti
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
 import 'package:flowcash/features/inventory/data/models/inventory_transaction_model.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/features/inventory/data/models/inventory_transaction_order_model.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/inventory_transactions_orders_table.dart';
 import 'package:flowcash/core/tables/inventory_transactions_table.dart';
 import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
@@ -17,13 +18,13 @@ final class InventoryTransactionLocalDataSourceImpl
   @override
   Future<List<InventoryTransactionEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: InventoryTransactionsTable.tableName);
+      final rows = await _db.query(table: InventoryTransactionsTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${InventoryTransactionsTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${InventoryTransactionsTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: InventoryTransactionsTable.tableName,
+      table: InventoryTransactionsTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -33,8 +34,8 @@ final class InventoryTransactionLocalDataSourceImpl
   @override
   Future<InventoryTransactionEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: InventoryTransactionsTable.tableName,
-      where: '${InventoryTransactionsTable.id} = ?',
+      table: InventoryTransactionsTable().tableName,
+      where: '${InventoryTransactionsTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -47,8 +48,8 @@ final class InventoryTransactionLocalDataSourceImpl
   ) async {
     return await _db.transaction(() async {
       final transactionId = await _db.insert(
-        table: InventoryTransactionsTable.tableName,
-        data: _sanitizeInsertData(toMap(entity), InventoryTransactionsTable.id),
+        table: InventoryTransactionsTable().tableName,
+        data: _sanitizeInsertData(toMap(entity), InventoryTransactionsTable().id),
       );
 
       if (transactionId <= 0) {
@@ -58,10 +59,10 @@ final class InventoryTransactionLocalDataSourceImpl
       for (var index = 0; index < entity.orders.length; index++) {
         final order = entity.orders[index].copyWith(tranId: transactionId);
         final orderId = await _db.insert(
-          table: InventoryTransactionsOrdersTable.tableName,
+          table: InventoryTransactionsOrdersTable().tableName,
           data: _sanitizeInsertData(
             orderToMap(order),
-            InventoryTransactionsOrdersTable.id,
+            InventoryTransactionsOrdersTable().id,
           ),
         );
 
@@ -83,9 +84,9 @@ final class InventoryTransactionLocalDataSourceImpl
   ) async {
     return await _db.transaction(() async {
       await _db.update(
-        table: InventoryTransactionsTable.tableName,
+        table: InventoryTransactionsTable().tableName,
         data: toMap(entity),
-        where: {InventoryTransactionsTable.id: entity.id},
+        where: {InventoryTransactionsTable().id: entity.id},
       );
 
       final updatedOrders = <InventoryTransactionOrderEntity>[];
@@ -93,17 +94,17 @@ final class InventoryTransactionLocalDataSourceImpl
         final order = entity.orders[index].copyWith(tranId: entity.id);
         if (order.id > 0) {
           await _db.update(
-            table: InventoryTransactionsOrdersTable.tableName,
+            table: InventoryTransactionsOrdersTable().tableName,
             data: orderToMap(order),
-            where: {InventoryTransactionsOrdersTable.id: order.id},
+            where: {InventoryTransactionsOrdersTable().id: order.id},
           );
           updatedOrders.add(order);
         } else {
           final orderId = await _db.insert(
-            table: InventoryTransactionsOrdersTable.tableName,
+            table: InventoryTransactionsOrdersTable().tableName,
             data: _sanitizeInsertData(
               orderToMap(order),
-              InventoryTransactionsOrdersTable.id,
+              InventoryTransactionsOrdersTable().id,
             ),
           );
           if (orderId <= 0) {
@@ -129,12 +130,12 @@ final class InventoryTransactionLocalDataSourceImpl
   Future<bool> delete(int id) async {
     return await _db.transaction(() async {
       await _db.deleteWhere(
-        table: InventoryTransactionsOrdersTable.tableName,
-        where: {InventoryTransactionsOrdersTable.tranId: id},
+        table: InventoryTransactionsOrdersTable().tableName,
+        where: {InventoryTransactionsOrdersTable().tranId: id},
       );
       await _db.deleteWhere(
-        table: InventoryTransactionsTable.tableName,
-        where: {InventoryTransactionsTable.id: id},
+        table: InventoryTransactionsTable().tableName,
+        where: {InventoryTransactionsTable().id: id},
       );
       return true;
     });
@@ -159,29 +160,72 @@ final class InventoryTransactionLocalDataSourceImpl
       personId: entity.personId,
       billNumber: entity.billNumber,
       transactionType: entity.transactionType,
+      transactionNature: entity.transactionNature,
       orders: entity.orders,
     ).toMap();
+  }
+
+  Future<List<InventoryTransactionEntity>> _loadOrders(
+    List<InventoryTransactionEntity> list,
+  ) async {
+    if (list.isEmpty) return list;
+    final ids = list.map((e) => e.id).toList();
+    final where =
+        '${InventoryTransactionsOrdersTable().tranId} IN (${List.filled(ids.length, '?').join(', ')})';
+    final rows = await _db.query(
+      table: InventoryTransactionsOrdersTable().tableName,
+      where: where,
+      whereArgs: ids,
+    );
+    final orders = rows
+        .map((row) => InventoryTransactionOrderModel.fromMap(row))
+        .toList();
+
+    return list.map((tran) {
+      final tranOrders =
+          orders.where((order) => order.tranId == tran.id).toList();
+      return tran.copyWith(orders: tranOrders);
+    }).toList();
   }
 
   @override
   Future<List<InventoryTransactionEntity>> whereStoreId(
     Iterable<int> ids,
   ) async {
-    throw UnimplementedError();
+    if (ids.isEmpty) return [];
+    final where =
+        '${InventoryTransactionsTable().warehouseId} IN (${List.filled(ids.length, '?').join(', ')})';
+    final rows = await _db.query(
+      table: InventoryTransactionsTable().tableName,
+      where: where,
+      whereArgs: ids.toList(),
+    );
+    final list = rows.map(fromMap).toList();
+    return await _loadOrders(list);
   }
 
   @override
   Future<Map<int, InventoryTransactionEntity>> whereStoreToMap(
     int storeId,
   ) async {
-    throw UnimplementedError();
+    final list = await whereStoreId([storeId]);
+    return {for (final item in list) item.id: item};
   }
 
   @override
   Future<List<InventoryTransactionEntity>> wherePersonId(
     Iterable<int> ids,
   ) async {
-    throw UnimplementedError();
+    if (ids.isEmpty) return [];
+    final where =
+        '${InventoryTransactionsTable().personId} IN (${List.filled(ids.length, '?').join(', ')})';
+    final rows = await _db.query(
+      table: InventoryTransactionsTable().tableName,
+      where: where,
+      whereArgs: ids.toList(),
+    );
+    final list = rows.map(fromMap).toList();
+    return await _loadOrders(list);
   }
 
   @override
@@ -191,7 +235,18 @@ final class InventoryTransactionLocalDataSourceImpl
     bool trigger = false,
     bool printQuery = true,
   }) async {
-    throw UnimplementedError();
+    if (storesIds.isEmpty || personsIds.isEmpty) return [];
+    final storesWhere =
+        '${InventoryTransactionsTable().warehouseId} IN (${List.filled(storesIds.length, '?').join(', ')})';
+    final personsWhere =
+        '${InventoryTransactionsTable().personId} IN (${List.filled(personsIds.length, '?').join(', ')})';
+    final rows = await _db.query(
+      table: InventoryTransactionsTable().tableName,
+      where: '$storesWhere AND $personsWhere',
+      whereArgs: [...storesIds.toList(), ...personsIds.toList()],
+    );
+    final list = rows.map(fromMap).toList();
+    return await _loadOrders(list);
   }
 
   @override
@@ -199,7 +254,14 @@ final class InventoryTransactionLocalDataSourceImpl
     int storeId, {
     bool printQuery = true,
   }) async {
-    throw UnimplementedError();
+    final rows = await _db.query(
+      table: InventoryTransactionsTable().tableName,
+      where: '${InventoryTransactionsTable().warehouseId} = ?',
+      whereArgs: [storeId],
+    );
+    return rows
+        .map((row) => row[InventoryTransactionsTable().id] as int)
+        .toList();
   }
 
   Map<String, dynamic> _sanitizeInsertData(

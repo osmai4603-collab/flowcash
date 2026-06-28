@@ -12,21 +12,21 @@ final class SimpleCategoryModel extends SimpleCategoryEntity {
 
   factory SimpleCategoryModel.fromMap(Map<String, dynamic> map) {
     return SimpleCategoryModel(
-      id: map[MainCategoriesTable.id] as int,
-      categoryName: map[MainCategoriesTable.categoryName] as String? ?? '',
-      unitName: map[MainCategoriesTable.unitName] as String? ?? '',
+      id: map[MainCategoriesTable().id] as int,
+      categoryName: map[MainCategoriesTable().categoryName] as String? ?? '',
+      unitName: map[MainCategoriesTable().unitName] as String? ?? '',
       unitType: UnitType.of(
-        map[MainCategoriesTable.unitType] as String? ?? 'piece',
+        map[MainCategoriesTable().unitType] as String? ?? 'piece',
       ),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      MainCategoriesTable.id: id,
-      MainCategoriesTable.categoryName: categoryName,
-      MainCategoriesTable.unitName: unitName,
-      MainCategoriesTable.unitType: unitType.name,
+      MainCategoriesTable().id: id,
+      MainCategoriesTable().categoryName: categoryName,
+      MainCategoriesTable().unitName: unitName,
+      MainCategoriesTable().unitType: unitType.name,
     };
   }
 

@@ -12,20 +12,20 @@ final class InventoryTransactionOrderModel
 
   factory InventoryTransactionOrderModel.fromMap(Map<String, dynamic> map) {
     return InventoryTransactionOrderModel(
-      id: map[InventoryTransactionsOrdersTable.id] as int,
-      inventoryId: map[InventoryTransactionsOrdersTable.inventoryId] as int?,
-      countUnits: ((map[InventoryTransactionsOrdersTable.countUnits]) as num)
+      id: map[InventoryTransactionsOrdersTable().id] as int,
+      inventoryId: map[InventoryTransactionsOrdersTable().inventoryId] as int?,
+      countUnits: ((map[InventoryTransactionsOrdersTable().countUnits]) as num)
           .toDouble(),
-      tranId: map[InventoryTransactionsOrdersTable.tranId] as int,
+      tranId: map[InventoryTransactionsOrdersTable().tranId] as int,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) InventoryTransactionsOrdersTable.id: id,
-      InventoryTransactionsOrdersTable.inventoryId: inventoryId,
-      InventoryTransactionsOrdersTable.countUnits: countUnits,
-      InventoryTransactionsOrdersTable.tranId: tranId,
+      if (id > 0) InventoryTransactionsOrdersTable().id: id,
+      InventoryTransactionsOrdersTable().inventoryId: inventoryId,
+      InventoryTransactionsOrdersTable().countUnits: countUnits,
+      InventoryTransactionsOrdersTable().tranId: tranId,
     };
   }
 

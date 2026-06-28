@@ -12,7 +12,7 @@ class ValueCounterEntity extends Entity {
   const ValueCounterEntity({
     this.id = 0,
     this.counterType = ValueCounterType.billNumber,
-    this.count = 0,
+    this.count = 1,
     this.counterMax = 99999,
     this.incrementValue = 1,
     this.formatValue = '0000',

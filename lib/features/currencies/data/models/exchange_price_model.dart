@@ -11,19 +11,19 @@ final class ExchangePriceModel extends ExchangePriceEntity {
 
   factory ExchangePriceModel.fromMap(Map<String, dynamic> map) {
     return ExchangePriceModel(
-      id: map[ExchangePricesTable.id] as int? ?? 0,
-      fromCurrencyId: (map[ExchangePricesTable.fromCurrencyId] as String),
-      toCurrencyId: (map[ExchangePricesTable.toCurrencyId] as String?) ?? '',
-      price: ((map[ExchangePricesTable.exchangePrice]) as num).toDouble(),
+      id: map[ExchangePricesTable().id] as int? ?? 0,
+      fromCurrencyId: (map[ExchangePricesTable().fromCurrencyId] as String),
+      toCurrencyId: (map[ExchangePricesTable().toCurrencyId] as String?) ?? '',
+      price: ((map[ExchangePricesTable().exchangePrice]) as num).toDouble(),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) ExchangePricesTable.id: id,
-      ExchangePricesTable.fromCurrencyId: fromCurrencyId,
-      ExchangePricesTable.toCurrencyId: toCurrencyId,
-      ExchangePricesTable.exchangePrice: price,
+      if (id > 0) ExchangePricesTable().id: id,
+      ExchangePricesTable().fromCurrencyId: fromCurrencyId,
+      ExchangePricesTable().toCurrencyId: toCurrencyId,
+      ExchangePricesTable().exchangePrice: price,
     };
   }
 

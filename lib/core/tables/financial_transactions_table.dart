@@ -1,23 +1,30 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول الحركات المالية.
-class FinancialTransactionsTable {
-  const FinancialTransactionsTable._();
+class FinancialTransactionsTable extends TableInfo {
+  static final FinancialTransactionsTable _instance = FinancialTransactionsTable.internal();
 
-  static const String tableName = 'financial_transactions';
+  factory FinancialTransactionsTable() => _instance;
 
-  static const String id = 'tran_id';
-  static const String createdAt = 'create_at';
-  static const String createdBy = 'created_by';
-  static const String note = 'note';
-  static const String offerAmount = 'amount';
-  static const String currencyId = 'currency_id';
-  static const String billNumber = 'bill_number';
-  static const String warehouseId = 'warehouse_id';
-  static const String journalEntryId = 'journal_entry_id';
-  static const String hintId = 'hint_id';
-  static const String transactionType = 'tran_type';
+  FinancialTransactionsTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'financial_transactions';
+
+  final String id = 'tran_id';
+  final String createdAt = 'create_at';
+  final String createdBy = 'created_by';
+  final String note = 'note';
+  final String offerAmount = 'amount';
+  final String currencyId = 'currency_id';
+  final String billNumber = 'bill_number';
+  final String warehouseId = 'warehouse_id';
+  final String journalEntryId = 'journal_entry_id';
+  final String hintId = 'hint_id';
+  final String transactionType = 'tran_type';
+
+  @override
+  List<String> get columns => [id,
     createdAt,
     createdBy,
     note,
@@ -27,6 +34,5 @@ class FinancialTransactionsTable {
     warehouseId,
     journalEntryId,
     hintId,
-    transactionType,
-  ];
+    transactionType,];
 }

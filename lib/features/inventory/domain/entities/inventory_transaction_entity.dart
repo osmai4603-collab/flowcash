@@ -1,4 +1,5 @@
 import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
+import 'package:flowcash/core/enums/inventory_transaction_nature_enum.dart';
 import 'package:flowcash/core/entities/entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
 
@@ -11,6 +12,7 @@ class InventoryTransactionEntity extends Entity {
   final int personId;
   final int billNumber;
   final InventoryTransactionType transactionType;
+  final InventoryTransactionNature transactionNature;
   final List<InventoryTransactionOrderEntity> orders;
 
   const InventoryTransactionEntity({
@@ -22,20 +24,22 @@ class InventoryTransactionEntity extends Entity {
     this.personId = 0,
     this.billNumber = 0,
     this.transactionType = InventoryTransactionType.importInventory,
+    this.transactionNature = InventoryTransactionNature.purchases,
     this.orders = const [],
   });
 
   @override
   List<Object?> get props => [
-    id,
-    createdAt,
-    createdBy,
-    note,
-    warehouseId,
-    personId,
-    billNumber,
-    transactionType,
-  ];
+        id,
+        createdAt,
+        createdBy,
+        note,
+        warehouseId,
+        personId,
+        billNumber,
+        transactionType,
+        transactionNature,
+      ];
 
   @override
   InventoryTransactionEntity copyWith({
@@ -47,6 +51,7 @@ class InventoryTransactionEntity extends Entity {
     int? personId,
     int? billNumber,
     InventoryTransactionType? transactionType,
+    InventoryTransactionNature? transactionNature,
     List<InventoryTransactionOrderEntity>? orders,
   }) {
     return InventoryTransactionEntity(
@@ -58,7 +63,9 @@ class InventoryTransactionEntity extends Entity {
       personId: personId ?? this.personId,
       billNumber: billNumber ?? this.billNumber,
       transactionType: transactionType ?? this.transactionType,
+      transactionNature: transactionNature ?? this.transactionNature,
       orders: orders ?? this.orders,
     );
   }
 }
+

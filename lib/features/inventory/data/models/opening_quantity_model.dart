@@ -15,29 +15,29 @@ final class OpeningQuantityModel extends OpeningQuantityEntity {
 
   factory OpeningQuantityModel.fromMap(Map<String, dynamic> map) {
     return OpeningQuantityModel(
-      id: map[OpeningQuantitiesTable.id] as int,
-      inventoryId: map[OpeningQuantitiesTable.inventoryId] as int,
-      countUnits: ((map[OpeningQuantitiesTable.countUnits]) as num).toDouble(),
+      id: map[OpeningQuantitiesTable().id] as int,
+      inventoryId: map[OpeningQuantitiesTable().inventoryId] as int,
+      countUnits: ((map[OpeningQuantitiesTable().countUnits]) as num).toDouble(),
       createdAt: DateTime.parse(
-        map[OpeningQuantitiesTable.createdAt] as String? ?? "",
+        map[OpeningQuantitiesTable().createdAt] as String? ?? "",
       ),
-      costTotal: ((map[OpeningQuantitiesTable.costTotal]) as num).toDouble(),
-      periodId: map[OpeningQuantitiesTable.periodId] as int,
-      currencyId: map[OpeningQuantitiesTable.currencyId] as String,
-      journalEntryId: map[OpeningQuantitiesTable.journalEntryId] as int?,
+      costTotal: ((map[OpeningQuantitiesTable().costTotal]) as num).toDouble(),
+      periodId: map[OpeningQuantitiesTable().periodId] as int,
+      currencyId: map[OpeningQuantitiesTable().currencyId] as String,
+      journalEntryId: map[OpeningQuantitiesTable().journalEntryId] as int?,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) OpeningQuantitiesTable.id: id,
-      OpeningQuantitiesTable.inventoryId: inventoryId,
-      OpeningQuantitiesTable.countUnits: countUnits,
-      OpeningQuantitiesTable.createdAt: createdAt.toIso8601String(),
-      OpeningQuantitiesTable.costTotal: costTotal,
-      OpeningQuantitiesTable.periodId: periodId,
-      OpeningQuantitiesTable.currencyId: currencyId,
-      OpeningQuantitiesTable.journalEntryId: journalEntryId,
+      if (id > 0) OpeningQuantitiesTable().id: id,
+      OpeningQuantitiesTable().inventoryId: inventoryId,
+      OpeningQuantitiesTable().countUnits: countUnits,
+      OpeningQuantitiesTable().createdAt: createdAt.toIso8601String(),
+      OpeningQuantitiesTable().costTotal: costTotal,
+      OpeningQuantitiesTable().periodId: periodId,
+      OpeningQuantitiesTable().currencyId: currencyId,
+      OpeningQuantitiesTable().journalEntryId: journalEntryId,
     };
   }
 

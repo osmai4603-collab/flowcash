@@ -1,26 +1,32 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول قيود اليومية.
-class JournalEntriesTable {
-  const JournalEntriesTable._();
+class JournalEntriesTable extends TableInfo {
+  static final JournalEntriesTable _instance = JournalEntriesTable.internal();
 
-  static const String tableName = 'journal_entries';
+  factory JournalEntriesTable() => _instance;
 
-  static const String id = 'entry_id';
-  static const String referenceNumber = 'reference_number';
-  static const String description = 'description';
-  static const String createdAt = 'created_at';
-  static const String userId = 'user_id';
-  static const String currencyId = 'currency_id';
-  static const String amount = 'amount';
-  static const String warehouseId = 'warehouse_id';
+  JournalEntriesTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'journal_entries';
+
+  final String id = 'entry_id';
+  final String referenceNumber = 'reference_number';
+  final String description = 'description';
+  final String createdAt = 'created_at';
+  final String userId = 'user_id';
+  final String currencyId = 'currency_id';
+  final String amount = 'amount';
+  final String warehouseId = 'warehouse_id';
+
+  @override
+  List<String> get columns => [id,
     referenceNumber,
     description,
     createdAt,
     userId,
     currencyId,
     amount,
-    warehouseId,
-  ];
+    warehouseId,];
 }

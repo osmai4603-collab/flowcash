@@ -1,7 +1,7 @@
 import 'package:flowcash/features/currencies/data/datasources/exchange_price_data_source.dart';
 import 'package:flowcash/features/currencies/domain/entities/exchange_price_entity.dart';
 import 'package:flowcash/features/currencies/data/models/exchange_price_model.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/exchange_prices_table.dart';
 
 final class ExchangePriceLocalDataSourceImpl
@@ -12,13 +12,13 @@ final class ExchangePriceLocalDataSourceImpl
   @override
   Future<List<ExchangePriceEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: ExchangePricesTable.tableName);
+      final rows = await _db.query(table: ExchangePricesTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${ExchangePricesTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${ExchangePricesTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: ExchangePricesTable.tableName,
+      table: ExchangePricesTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -28,8 +28,8 @@ final class ExchangePriceLocalDataSourceImpl
   @override
   Future<ExchangePriceEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: ExchangePricesTable.tableName,
-      where: '${ExchangePricesTable.id} = ?',
+      table: ExchangePricesTable().tableName,
+      where: '${ExchangePricesTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -40,8 +40,8 @@ final class ExchangePriceLocalDataSourceImpl
   @override
   Future<ExchangePriceEntity> insert(ExchangePriceEntity entity) async {
     final entityId = await _db.insert(
-      table: ExchangePricesTable.tableName,
-      data: _sanitizeInsertData(toMap(entity), ExchangePricesTable.id),
+      table: ExchangePricesTable().tableName,
+      data: _sanitizeInsertData(toMap(entity), ExchangePricesTable().id),
     );
     if (entityId < 0) {
       throw Exception('Failed to insert exchange price');
@@ -53,17 +53,17 @@ final class ExchangePriceLocalDataSourceImpl
   Future<ExchangePriceEntity> update(ExchangePriceEntity entity) async {
     await _db.transaction(() async {
       await _db.update(
-        table: ExchangePricesTable.tableName,
+        table: ExchangePricesTable().tableName,
         data: toMap(entity),
-        where: {ExchangePricesTable.id: entity.id},
+        where: {ExchangePricesTable().id: entity.id},
       );
 
       await _db.update(
-        table: ExchangePricesTable.tableName,
-        data: {ExchangePricesTable.exchangePrice: 1 / entity.price},
+        table: ExchangePricesTable().tableName,
+        data: {ExchangePricesTable().exchangePrice: 1 / entity.price},
         where: {
-          ExchangePricesTable.fromCurrencyId: entity.toCurrencyId,
-          ExchangePricesTable.toCurrencyId: entity.fromCurrencyId,
+          ExchangePricesTable().fromCurrencyId: entity.toCurrencyId,
+          ExchangePricesTable().toCurrencyId: entity.fromCurrencyId,
         },
       );
     });
@@ -73,8 +73,8 @@ final class ExchangePriceLocalDataSourceImpl
   @override
   Future<bool> delete(int id) async {
     await _db.deleteWhere(
-      table: ExchangePricesTable.tableName,
-      where: {ExchangePricesTable.id: id},
+      table: ExchangePricesTable().tableName,
+      where: {ExchangePricesTable().id: id},
     );
     return true;
   }
@@ -104,28 +104,28 @@ final class ExchangePriceLocalDataSourceImpl
     }
 
     final rows = await _db.query(
-      table: ExchangePricesTable.tableName,
+      table: ExchangePricesTable().tableName,
       where:
-          '${ExchangePricesTable.fromCurrencyId} = ? AND ${ExchangePricesTable.toCurrencyId} = ?',
+          '${ExchangePricesTable().fromCurrencyId} = ? AND ${ExchangePricesTable().toCurrencyId} = ?',
       whereArgs: [fromCurrencyId, toCurrencyId],
       limit: 1,
     );
 
     if (rows.isNotEmpty) {
-      return (rows.first[ExchangePricesTable.exchangePrice] as num).toDouble();
+      return (rows.first[ExchangePricesTable().exchangePrice] as num).toDouble();
     }
 
     final reverseRows = await _db.query(
-      table: ExchangePricesTable.tableName,
+      table: ExchangePricesTable().tableName,
       where:
-          '${ExchangePricesTable.fromCurrencyId} = ? AND ${ExchangePricesTable.toCurrencyId} = ?',
+          '${ExchangePricesTable().fromCurrencyId} = ? AND ${ExchangePricesTable().toCurrencyId} = ?',
       whereArgs: [toCurrencyId, fromCurrencyId],
       limit: 1,
     );
 
     if (reverseRows.isNotEmpty) {
       final reversePrice =
-          (reverseRows.first[ExchangePricesTable.exchangePrice] as num)
+          (reverseRows.first[ExchangePricesTable().exchangePrice] as num)
               .toDouble();
       if (reversePrice == 0) {
         throw Exception(
@@ -147,9 +147,9 @@ final class ExchangePriceLocalDataSourceImpl
     if (ids.isEmpty) return [];
 
     final where =
-        '${ExchangePricesTable.fromCurrencyId} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${ExchangePricesTable().fromCurrencyId} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: ExchangePricesTable.tableName,
+      table: ExchangePricesTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );

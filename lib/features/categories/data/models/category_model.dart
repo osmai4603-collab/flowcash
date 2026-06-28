@@ -24,15 +24,15 @@ final class CategoryModel extends CategoryEntity {
 
   factory CategoryModel.fromMap(Map<String, dynamic> data) {
     return CategoryModel(
-      id: data[CategoriesTable.id] ?? 0,
-      categoryName: data[CategoriesTable.categoryName],
-      categoryNumber: data[CategoriesTable.categoryNumber],
-      barcode: data[CategoriesTable.barcode],
-      categoryType: CategoryDefineType.of(data[CategoriesTable.categoryType]),
-      categoryUnitId: data[CategoriesTable.categoryUnitId],
-      pricingUnitId: data[CategoriesTable.pricingUnitId],
-      inventoryUnitId: data[CategoriesTable.inventoryUnitId],
-      subcategoryId: data[CategoriesTable.subcategoryId],
+      id: data[CategoriesTable().id] ?? 0,
+      categoryName: data[CategoriesTable().categoryName],
+      categoryNumber: data[CategoriesTable().categoryNumber],
+      barcode: data[CategoriesTable().barcode],
+      categoryType: CategoryDefineType.of(data[CategoriesTable().categoryType]),
+      categoryUnitId: data[CategoriesTable().categoryUnitId],
+      pricingUnitId: data[CategoriesTable().pricingUnitId],
+      inventoryUnitId: data[CategoriesTable().inventoryUnitId],
+      subcategoryId: data[CategoriesTable().subcategoryId],
     );
   }
 
@@ -73,15 +73,15 @@ final class CategoryModel extends CategoryEntity {
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) CategoriesTable.id: id,
-      CategoriesTable.categoryName: categoryName,
-      CategoriesTable.categoryNumber: categoryNumber,
-      CategoriesTable.categoryType: categoryType.name,
-      CategoriesTable.barcode: barcode,
-      CategoriesTable.categoryUnitId: categoryUnitId,
-      CategoriesTable.pricingUnitId: pricingUnitId,
-      CategoriesTable.inventoryUnitId: inventoryUnitId,
-      CategoriesTable.subcategoryId: subcategoryId,
+      if (id > 0) CategoriesTable().id: id,
+      CategoriesTable().categoryName: categoryName,
+      CategoriesTable().categoryNumber: categoryNumber,
+      CategoriesTable().categoryType: categoryType.name,
+      CategoriesTable().barcode: barcode,
+      CategoriesTable().categoryUnitId: categoryUnitId,
+      CategoriesTable().pricingUnitId: pricingUnitId,
+      CategoriesTable().inventoryUnitId: inventoryUnitId,
+      CategoriesTable().subcategoryId: subcategoryId,
     };
   }
 }

@@ -1,21 +1,28 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول بنود قيود اليومية.
-class JournalItemsTable {
-  const JournalItemsTable._();
+class JournalItemsTable extends TableInfo {
+  static final JournalItemsTable _instance = JournalItemsTable.internal();
 
-  static const String tableName = 'journal_items';
+  factory JournalItemsTable() => _instance;
 
-  static const String itemId = 'item_id';
-  static const String entryId = 'entry_id';
-  static const String accountId = 'account_id';
-  static const String amount = 'amount';
-  static const String lineDescription = 'line_description';
-  static const String currencyId = 'currency_id';
-  static const String exPrice = 'ex_price';
-  static const String exPriceMain = 'exprice_main';
-  static const String journalStatus = 'journal_status';
+  JournalItemsTable.internal();
 
-  static const List<String> fields = [
-    itemId,
+  @override
+  final String tableName = 'journal_items';
+
+  final String itemId = 'item_id';
+  final String entryId = 'entry_id';
+  final String accountId = 'account_id';
+  final String amount = 'amount';
+  final String lineDescription = 'line_description';
+  final String currencyId = 'currency_id';
+  final String exPrice = 'ex_price';
+  final String exPriceMain = 'exprice_main';
+  final String journalStatus = 'journal_status';
+
+  @override
+  List<String> get columns => [itemId,
     entryId,
     accountId,
     amount,
@@ -23,6 +30,5 @@ class JournalItemsTable {
     currencyId,
     exPrice,
     exPriceMain,
-    journalStatus,
-  ];
+    journalStatus,];
 }

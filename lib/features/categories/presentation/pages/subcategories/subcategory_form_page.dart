@@ -70,7 +70,6 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                 }
 
                 if (state.status == SubcategoryFormStatus.failure) {
-                  if (kDebugMode) throw state.messageError ?? '';
                   await errorToast(
                     context: context,
                     toast: state.messageError ?? 'حدث خطأ',
@@ -590,8 +589,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
     final unitsPerProperty = <int, List<int>>{};
     for (final catalogProperty in state.catalogProperties) {
       final selectedList = catalogProperty.selectedUnits
-          .where((u) => u != null)
-          .map((u) => u!.unit.id)
+          .map((u) => u.unit.id)
           .toList();
       if (selectedList.isNotEmpty) {
         unitsPerProperty[catalogProperty.propertyId] = selectedList;

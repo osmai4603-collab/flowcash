@@ -1,20 +1,26 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول المستودعات.
-class WarehousesTable {
-  const WarehousesTable._();
+class WarehousesTable extends TableInfo {
+  static final WarehousesTable _instance = WarehousesTable.internal();
 
-  static const String tableName = 'warehouses';
+  factory WarehousesTable() => _instance;
 
-  static const String id = 'id';
-  static const String warehouseName = 'name';
-  static const String location = 'location';
-  static const String warehouseType = 'type';
-  static const String parentId = 'parent_id';
+  WarehousesTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'warehouses';
+
+  final String id = 'id';
+  final String warehouseName = 'name';
+  final String location = 'location';
+  final String warehouseType = 'type';
+  final String parentId = 'parent_id';
+
+  @override
+  List<String> get columns => [id,
     warehouseName,
     location,
     warehouseType,
-    parentId,
-  ];
+    parentId,];
 }

@@ -18,28 +18,28 @@ final class JournalEntryModel extends JournalEntryEntity {
 
   factory JournalEntryModel.fromMap(Map<String, dynamic> map, {List<JournalItemEntity> items = const []}) {
     return JournalEntryModel(
-      id: map[JournalEntriesTable.id] as int,
-      referenceNumber: (map[JournalEntriesTable.referenceNumber] as String?) ?? '',
-      description: map[JournalEntriesTable.description] as String?,
-      createdAt: DateTime.parse(map[JournalEntriesTable.createdAt] as String),
-      createdBy: map[JournalEntriesTable.userId] as int,
-      currencyId: map[JournalEntriesTable.currencyId] as String,
-      baseAmount: ((map[JournalEntriesTable.amount]) as num).toDouble(),
-      warehouseId: map[JournalEntriesTable.warehouseId] as int?,
+      id: map[JournalEntriesTable().id] as int,
+      referenceNumber: (map[JournalEntriesTable().referenceNumber] as String?) ?? '',
+      description: map[JournalEntriesTable().description] as String?,
+      createdAt: DateTime.parse(map[JournalEntriesTable().createdAt] as String),
+      createdBy: map[JournalEntriesTable().userId] as int,
+      currencyId: map[JournalEntriesTable().currencyId] as String,
+      baseAmount: ((map[JournalEntriesTable().amount]) as num).toDouble(),
+      warehouseId: map[JournalEntriesTable().warehouseId] as int?,
       items: items,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) JournalEntriesTable.id: id,
-      JournalEntriesTable.referenceNumber: referenceNumber,
-      JournalEntriesTable.description: description,
-      JournalEntriesTable.createdAt: createdAt.toIso8601String(),
-      JournalEntriesTable.userId: createdBy,
-      JournalEntriesTable.currencyId: currencyId,
-      JournalEntriesTable.amount: baseAmount,
-      JournalEntriesTable.warehouseId: warehouseId,
+      if (id > 0) JournalEntriesTable().id: id,
+      JournalEntriesTable().referenceNumber: referenceNumber,
+      JournalEntriesTable().description: description,
+      JournalEntriesTable().createdAt: createdAt.toIso8601String(),
+      JournalEntriesTable().userId: createdBy,
+      JournalEntriesTable().currencyId: currencyId,
+      JournalEntriesTable().amount: baseAmount,
+      JournalEntriesTable().warehouseId: warehouseId,
     };
   }
 

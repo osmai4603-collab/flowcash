@@ -1,19 +1,28 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول الفترات المحاسبية.
-class AccountingPeriodsTable {
-  const AccountingPeriodsTable._();
+class AccountingPeriodsTable extends TableInfo {
+  static final AccountingPeriodsTable _instance =
+      AccountingPeriodsTable.internal();
 
-  static const String tableName = 'accounting_periods';
+  factory AccountingPeriodsTable() => _instance;
 
-  static const String id = 'period_id';
-  static const String balance = 'money_head';
-  static const String currencyId = 'currency_id';
-  static const String lastPeriodId = 'last_period_id';
-  static const String periodName = 'period_name';
-  static const String dateOfStartPeriod = 'start_date';
-  static const String dateOfEndPeriod = 'end_date';
-  static const String inventoryType = 'inventory_type';
+  AccountingPeriodsTable.internal();
 
-  static const List<String> fields = [
+  @override
+  final String tableName = 'accounting_periods';
+
+  final String id = 'period_id';
+  final String balance = 'money_head';
+  final String currencyId = 'currency_id';
+  final String lastPeriodId = 'last_period_id';
+  final String periodName = 'period_name';
+  final String dateOfStartPeriod = 'start_date';
+  final String dateOfEndPeriod = 'end_date';
+  final String inventoryType = 'inventory_type';
+
+  @override
+  List<String> get columns => [
     id,
     balance,
     currencyId,

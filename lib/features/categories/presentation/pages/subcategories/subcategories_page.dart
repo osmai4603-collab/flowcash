@@ -4,6 +4,7 @@ import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategories/subcategories_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategories/subcategories_event.dart';
@@ -27,6 +28,7 @@ class SubcategoriesPage extends StatefulWidget {
 
 class _SubcategoriesPageState extends State<SubcategoriesPage> {
   bool get isDesktop => Platform.isLinux || Platform.isWindows;
+  bool _isShowingGeneratingDialog = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,52 +41,80 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
           return BlocListener<SubcategoriesBloc, SubcategoriesState>(
             listener: (context, state) async {
               if (state is SubcategoriesLoadFailure) {
+                if (_isShowingGeneratingDialog) {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  _isShowingGeneratingDialog = false;
+                }
                 error(context: context, toast: state.message);
                 return;
               }
 
-              if (state is SubcategoriesLoadSuccess &&
-                  state.generatedCategoryNames != null) {
-                final names = state.generatedCategoryNames!;
-                await showDialog<void>(
-                  context: context,
-                  builder: (ctx) => fluent.ContentDialog(
-                    title: fluent.Text(
-                      names.isEmpty ? 'نتيجة التوليد' : 'الأصناف المولدة',
-                    ),
-                    content: SizedBox(
-                      width: 400,
-                      child: names.isEmpty
-                          ? const fluent.Text('لا يوجد اصناف تم توليدها')
-                          : SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: names
-                                    .map((n) => fluent.Text('• $n'))
-                                    .toList(),
-                              ),
-                            ),
-                    ),
-                    actions: [
-                      fluent.Button(
-                        onPressed: () => Navigator.of(ctx).pop(),
-                        child: const fluent.Text('حسناً'),
+              if (state is SubcategoriesLoadSuccess) {
+                if (state.isGenerating && !_isShowingGeneratingDialog) {
+                  _isShowingGeneratingDialog = true;
+                  showDialog<void>(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (dialogCtx) => const fluent.ContentDialog(
+                      title: fluent.Text('توليد الأصناف'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          fluent.ProgressRing(),
+                          SizedBox(height: 16),
+                          fluent.Text('جاري توليد الأصناف، يرجى الانتظار...'),
+                        ],
                       ),
-                    ],
-                  ),
-                );
-                if (context.mounted) {
-                  context.read<SubcategoriesBloc>().add(
-                    const ClearGeneratedCategoriesEvent(),
-                  );
+                    ),
+                  ).then((_) {
+                    _isShowingGeneratingDialog = false;
+                  });
+                } else if (!state.isGenerating && _isShowingGeneratingDialog) {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  _isShowingGeneratingDialog = false;
                 }
-                return;
-              }
 
-              if (state is SubcategoriesLoadSuccess &&
-                  state.statusMessage != null) {
-                successToast(context: context, toast: state.statusMessage!);
+                if (state.generatedCategoryNames != null) {
+                  final names = state.generatedCategoryNames!;
+                  await showDialog<void>(
+                    context: context,
+                    builder: (ctx) => fluent.ContentDialog(
+                      title: fluent.Text(
+                        names.isEmpty ? 'نتيجة التوليد' : 'الأصناف المولدة',
+                      ),
+                      content: SizedBox(
+                        width: 400,
+                        child: names.isEmpty
+                            ? const fluent.Text('لا يوجد اصناف تم توليدها')
+                            : SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: names
+                                      .map((n) => fluent.Text('• $n'))
+                                      .toList(),
+                                ),
+                              ),
+                      ),
+                      actions: [
+                        fluent.Button(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          child: const fluent.Text('حسناً'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (context.mounted) {
+                    context.read<SubcategoriesBloc>().add(
+                      const ClearGeneratedCategoriesEvent(),
+                    );
+                  }
+                  return;
+                }
+
+                if (state.statusMessage != null) {
+                  successToast(context: context, toast: state.statusMessage!);
+                }
               }
             },
             child: fluent.ScaffoldPage(
@@ -93,9 +123,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                   spacing: Spacings.medium,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Expanded(
-                      child: fluent.Text('الأصناف الفرعية'),
-                    ),
+                    const Expanded(child: fluent.Text('الأصناف الفرعية')),
                     SizedBox(
                       width: isDesktop ? 400.0 : 250.0,
                       child: BlocBuilder<SubcategoriesBloc, SubcategoriesState>(
@@ -120,9 +148,9 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                       message: 'إعادة تحميل البيانات',
                       child: fluent.IconButton(
                         icon: const fluent.Icon(fluent.FluentIcons.refresh),
-                        onPressed: () => context
-                            .read<SubcategoriesBloc>()
-                            .add(const RefreshSubcategoriesEvent()),
+                        onPressed: () => context.read<SubcategoriesBloc>().add(
+                          const RefreshSubcategoriesEvent(),
+                        ),
                       ),
                     ),
                     fluent.FilledButton(
@@ -170,7 +198,9 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     );
 
     if (newSubcategory != null && context.mounted) {
-      context.read<SubcategoriesBloc>().add(AddSubcategoryEvent(newSubcategory));
+      context.read<SubcategoriesBloc>().add(
+        AddSubcategoryEvent(newSubcategory),
+      );
     }
   }
 
@@ -190,12 +220,9 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     return Column(
       children: [
         fluent.Table(
-          border: fluent.TableBorder.all(
-            width: 0.5,
-            color: colors.outline,
-          ),
+          border: fluent.TableBorder.all(width: 0.5, color: colors.outline),
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          columnWidths: getWidths(state.properties),
+          columnWidths: getWidths(),
           children: [
             TableRow(
               children: [
@@ -212,15 +239,24 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                   padding: const EdgeInsets.all(4),
                   style: colors.bodyStrong,
                 ),
-                ...state.properties.map(
-                  (property) => TextWidget(
-                    text: 'ال${property.propertyName}',
-                    textAlign: TextAlign.center,
-                    padding: const EdgeInsets.all(4),
-                    style: colors.bodyStrong,
-                  ),
+                TextWidget(
+                  text: 'الصنف الرئيسي',
+                  textAlign: TextAlign.center,
+                  padding: const EdgeInsets.all(4),
+                  style: colors.bodyStrong,
                 ),
-                const SizedBox(height: 1),
+                TextWidget(
+                  text: 'الخصائص والسمات',
+                  textAlign: TextAlign.center,
+                  padding: const EdgeInsets.all(4),
+                  style: colors.bodyStrong,
+                ),
+                TextWidget(
+                  text: 'العمليات',
+                  textAlign: TextAlign.center,
+                  padding: const EdgeInsets.all(4),
+                  style: colors.bodyStrong,
+                ),
               ],
             ),
           ],
@@ -230,20 +266,14 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     );
   }
 
-  Map<int, TableColumnWidth> getWidths(
-    List<CategoryPropertyEntity> properties,
-  ) {
-    final widths = <int, TableColumnWidth>{
-      0: const FixedColumnWidth(40),
-      1: const FixedColumnWidth(150),
+  Map<int, TableColumnWidth> getWidths() {
+    return const {
+      0: FixedColumnWidth(50), // No
+      1: FixedColumnWidth(150), // اسم النوع
+      2: FixedColumnWidth(150), // الصنف الرئيسي
+      3: FlexColumnWidth(), // الخصائص والسمات
+      4: FixedColumnWidth(80), // العمليات
     };
-    for (var index = 0; index < properties.length; index++) {
-      widths.addAll({
-        widths.length: FlexColumnWidth(1 / (properties.length + 1)),
-      });
-    }
-    widths.addAll({widths.length: const FixedColumnWidth(40)});
-    return widths;
   }
 
   Widget listView(BuildContext context, SubcategoriesLoadSuccess state) {
@@ -269,7 +299,14 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
           itemCount: filteredSubcategories.length,
           itemBuilder: (rowContext, index) {
             final catalog = filteredSubcategories[index];
-            final widths = getWidths(state.properties);
+            final mainCategoryName = state.mainCategories
+                .where((cat) => cat.id == catalog.mainCategoryId)
+                .map((cat) => cat.name)
+                .firstWhere(
+                  (_) => true,
+                  orElse: () => 'غير معروف (${catalog.mainCategoryId})',
+                );
+            final widths = getWidths();
             return fluent.Table(
               border: fluent.TableBorder.all(width: 0.5, color: style.outline),
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
@@ -287,29 +324,47 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                       padding: const EdgeInsets.all(4),
                       style: style.body,
                     ),
-                    fluent.GestureDetector(
-                      child: TextWidget(
-                        text: catalog.catalogName,
-                        padding: const EdgeInsets.all(4),
-                        style: style.body,
-                      ),
-                      onLongPress: () =>
-                          _onDeleteSubcategory(rowContext, catalog),
+                    TextWidget(
+                      text: catalog.catalogName,
+                      padding: const EdgeInsets.all(4),
+                      style: style.body,
                     ),
-                    ...state.properties.map(
-                      (property) =>
-                          buildPropertyData(context, property, catalog, state),
+                    TextWidget(
+                      text: mainCategoryName,
+                      padding: const EdgeInsets.all(4),
+                      style: style.body,
                     ),
-                    fluent.GestureDetector(
-                      child: Tooltip(
-                        message: 'تعريف اصناف ${catalog.catalogName}',
-                        child: fluent.Icon(
-                          fluent.FluentIcons.generate,
-                          color: style.primary,
-                          size: 20,
+                    buildPropertiesTable(context, catalog, state),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        fluent.GestureDetector(
+                          child: Tooltip(
+                            message: 'تعريف اصناف ${catalog.catalogName}',
+                            child: fluent.Icon(
+                              fluent.FluentIcons.generate,
+                              color: style.primary,
+                              size: 20,
+                            ),
+                          ),
+                          onTap: () =>
+                              _onDefineCategoriesPressed(catalog, context),
                         ),
-                      ),
-                      onTap: () => _onDefineCategoriesPressed(catalog, context),
+                        const SizedBox(width: 8),
+                        fluent.GestureDetector(
+                          child: Tooltip(
+                            message: 'حذف نوع الصنف',
+                            child: fluent.Icon(
+                              fluent.FluentIcons.delete,
+                              color: style.error,
+                              size: 20,
+                            ),
+                          ),
+                          onTap: () =>
+                              _onDeleteSubcategory(rowContext, catalog),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -318,6 +373,105 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
           },
         );
       },
+    );
+  }
+
+  Widget buildPropertiesTable(
+    BuildContext context,
+    SubcategoryEntity catalog,
+    SubcategoriesLoadSuccess state,
+  ) {
+    final colors = AppStyle.of(context);
+    final catalogProperties = state.properties
+        .where((p) => p.mainCategoryId == catalog.mainCategoryId)
+        .toList();
+
+    if (catalogProperties.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'لا توجد خصائص معرفة لهذا الصنف',
+            style: colors.caption?.copyWith(color: colors.outline),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(6.0),
+      child: fluent.Table(
+        border: fluent.TableBorder.all(
+          width: 0.5,
+          color: colors.outline.withValues(alpha: 0.3),
+        ),
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        columnWidths: const {
+          0: FixedColumnWidth(120), // اسم الخاصية
+          1: FlexColumnWidth(), // القيم / الوحدات
+          2: FixedColumnWidth(40), // إضافة
+        },
+        children: catalogProperties.map((property) {
+          final propertyInfos = state.infos
+              .where(
+                (info) =>
+                    info.subcategoryId == catalog.id &&
+                    info.propertyId == property.id,
+              )
+              .toList();
+          propertyInfos.sort(
+            (a, b) => (a.unitName ?? '').compareTo(b.unitName ?? ''),
+          );
+
+          Widget valuesWidget;
+          if (propertyInfos.isEmpty) {
+            valuesWidget = Text(
+              'لم يتم التحديد',
+              style: colors.caption.copyWith(color: colors.outline),
+              textAlign: TextAlign.center,
+            );
+          } else if (property.isSingle) {
+            valuesWidget = Text(
+              property.isCategoryUnit
+                  ? property.unitType.fullUnitName
+                  : propertyInfos.first.unitName ?? '',
+              textAlign: TextAlign.center,
+              style: colors.body,
+            );
+          } else {
+            final values = propertyInfos
+                .map((info) => info.unitName ?? '')
+                .toSet()
+                .join(', ');
+            valuesWidget = Text(
+              values,
+              textAlign: TextAlign.center,
+              style: colors.body,
+            );
+          }
+
+          return TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Text(
+                  property.propertyName,
+                  style: colors.bodyStrong,
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              Padding(padding: const EdgeInsets.all(6.0), child: valuesWidget),
+              Center(
+                child: fluent.IconButton(
+                  icon: const fluent.Icon(fluent.FluentIcons.add, size: 14),
+                  onPressed: () =>
+                      _onAddPropertyInfo(context, catalog, property),
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -334,86 +488,6 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     if (sure && context.mounted) {
       context.read<SubcategoriesBloc>().add(DeleteSubcategoryEvent(catalog.id));
     }
-  }
-
-  Widget buildPropertyData(
-    BuildContext context,
-    CategoryPropertyEntity property,
-    SubcategoryEntity catalog,
-    SubcategoriesLoadSuccess state,
-  ) {
-    final colors = AppStyle.of(context);
-    final propertyInfos = state.infos
-        .where(
-          (info) =>
-              info.subcategoryId == catalog.id &&
-              info.propertyId == property.id,
-        )
-        .toList();
-    propertyInfos.sort(
-      (a, b) => (a.unitName ?? '').compareTo(b.unitName ?? ''),
-    );
-    if (propertyInfos.isEmpty) {
-      return fluent.GestureDetector(
-        child: const fluent.Icon(fluent.FluentIcons.add),
-        onTap: () => _onAddPropertyInfo(context, catalog, property),
-      );
-    }
-
-    if (property.isSingle) {
-      return TextWidget(
-        text: property.isCategoryUnit
-            ? property.unitType.fullUnitName
-            : propertyInfos.first.unitName ?? '',
-        textAlign: TextAlign.center,
-        padding: const EdgeInsets.all(4),
-        style: colors.body,
-      );
-    }
-
-    final values = propertyInfos.reversed
-        .map((info) => info.unitName ?? '')
-        .toSet()
-        .map((value) => '($value)')
-        .join('   ');
-    return Container(
-      height: 35.0,
-      padding: const EdgeInsets.symmetric(horizontal: 5),
-      child: Row(
-        children: [
-          fluent.Tooltip(
-            message:
-                'انواع ${property.propertyName} ${catalog.catalogName}\n$values',
-            child: fluent.IconButton(
-              icon: const fluent.Icon(fluent.FluentIcons.info, size: 20),
-              onPressed: () => successMessage(
-                context: context,
-                title: '${property.propertyName} (${catalog.catalogName})',
-                toast: values,
-              ),
-            ),
-          ),
-          TextWidget(
-            text: '${propertyInfos.length} ${property.propertyName}',
-            textAlign: TextAlign.center,
-            padding: const EdgeInsets.all(4),
-            style: colors.body,
-            expanded: true,
-            overflow: TextOverflow.ellipsis,
-          ),
-          fluent.GestureDetector(
-            child: Tooltip(
-              message: 'اضافة ${property.propertyName} جديد',
-              child: fluent.Icon(
-                fluent.FluentIcons.add,
-                size: isDesktop ? 20 : 16.00,
-              ),
-            ),
-            onTap: () => _onAddPropertyInfo(context, catalog, property),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _onAddPropertyInfo(

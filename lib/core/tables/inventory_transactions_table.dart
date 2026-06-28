@@ -1,26 +1,37 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول الحركات المخزنية.
-class InventoryTransactionsTable {
-  const InventoryTransactionsTable._();
+class InventoryTransactionsTable extends TableInfo {
+  static final InventoryTransactionsTable _instance = InventoryTransactionsTable.internal();
 
-  static const String tableName = 'inventory_transactions';
+  factory InventoryTransactionsTable() => _instance;
 
-  static const String id = 'tran_id';
-  static const String createdAt = 'create_at';
-  static const String createdBy = 'created_by';
-  static const String note = 'note';
-  static const String warehouseId = 'store_id';
-  static const String personId = 'person_id';
-  static const String billNumber = 'bill_number';
-  static const String transactionType = 'tran_type';
+  InventoryTransactionsTable.internal();
 
-  static const List<String> fields = [
-    id,
-    createdAt,
-    createdBy,
-    note,
-    warehouseId,
-    personId,
-    billNumber,
-    transactionType,
-  ];
+  @override
+  final String tableName = 'inventory_transactions';
+
+  final String id = 'tran_id';
+  final String createdAt = 'create_at';
+  final String createdBy = 'created_by';
+  final String note = 'note';
+  final String warehouseId = 'store_id';
+  final String personId = 'person_id';
+  final String billNumber = 'bill_number';
+  final String transactionType = 'tran_type';
+  final String transactionNature = 'tran_nature';
+
+  @override
+  List<String> get columns => [
+        id,
+        createdAt,
+        createdBy,
+        note,
+        warehouseId,
+        personId,
+        billNumber,
+        transactionType,
+        transactionNature,
+      ];
 }
+

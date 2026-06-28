@@ -16,22 +16,22 @@ final class AccountingPeriodModel extends AccountingPeriodEntity {
 
   factory AccountingPeriodModel.fromMap(Map<String, dynamic> map) {
     return AccountingPeriodModel(
-      id: map[AccountingPeriodsTable.id] as int,
-      periodName: map[AccountingPeriodsTable.periodName] as String? ?? '',
+      id: map[AccountingPeriodsTable().id] as int,
+      periodName: map[AccountingPeriodsTable().periodName] as String? ?? '',
       dateOfStartPeriod: DateTime.parse(
-        map[AccountingPeriodsTable.dateOfStartPeriod] as String,
+        map[AccountingPeriodsTable().dateOfStartPeriod] as String,
       ),
-      dateOfEndPeriod: map[AccountingPeriodsTable.dateOfEndPeriod] != null
+      dateOfEndPeriod: map[AccountingPeriodsTable().dateOfEndPeriod] != null
           ? DateTime.tryParse(
-              map[AccountingPeriodsTable.dateOfEndPeriod] as String,
+              map[AccountingPeriodsTable().dateOfEndPeriod] as String,
             )
           : null,
-      lastPeriodId: map[AccountingPeriodsTable.lastPeriodId] as int?,
-      currencyId: map[AccountingPeriodsTable.currencyId] as String? ?? '',
-      balance: (map[AccountingPeriodsTable.balance] ?? 0.0).toDouble(),
-      inventoryType: map[AccountingPeriodsTable.inventoryType] != null
+      lastPeriodId: map[AccountingPeriodsTable().lastPeriodId] as int?,
+      currencyId: map[AccountingPeriodsTable().currencyId] as String? ?? '',
+      balance: (map[AccountingPeriodsTable().balance] ?? 0.0).toDouble(),
+      inventoryType: map[AccountingPeriodsTable().inventoryType] != null
           ? AccountingInventoryType.of(
-              map[AccountingPeriodsTable.inventoryType] as String,
+              map[AccountingPeriodsTable().inventoryType] as String,
             )
           : null,
     );
@@ -39,16 +39,16 @@ final class AccountingPeriodModel extends AccountingPeriodEntity {
 
   Map<String, dynamic> toMap() {
     return {
-      AccountingPeriodsTable.id: id,
-      AccountingPeriodsTable.periodName: periodName,
-      AccountingPeriodsTable.dateOfStartPeriod: dateOfStartPeriod
+      AccountingPeriodsTable().id: id,
+      AccountingPeriodsTable().periodName: periodName,
+      AccountingPeriodsTable().dateOfStartPeriod: dateOfStartPeriod
           .toIso8601String(),
-      AccountingPeriodsTable.dateOfEndPeriod: dateOfEndPeriod
+      AccountingPeriodsTable().dateOfEndPeriod: dateOfEndPeriod
           ?.toIso8601String(),
-      AccountingPeriodsTable.lastPeriodId: lastPeriodId,
-      AccountingPeriodsTable.currencyId: currencyId,
-      AccountingPeriodsTable.balance: balance,
-      AccountingPeriodsTable.inventoryType: inventoryType?.name,
+      AccountingPeriodsTable().lastPeriodId: lastPeriodId,
+      AccountingPeriodsTable().currencyId: currencyId,
+      AccountingPeriodsTable().balance: balance,
+      AccountingPeriodsTable().inventoryType: inventoryType?.name,
     };
   }
 

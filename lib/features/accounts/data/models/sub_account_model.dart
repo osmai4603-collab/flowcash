@@ -18,31 +18,31 @@ final class SubAccountModel extends SubAccountEntity {
 
   factory SubAccountModel.fromMap(Map<String, dynamic> map) {
     return SubAccountModel(
-      id: map[SubAccountsTable.id] as int,
-      mainAccountId: map[SubAccountsTable.mainAccountId] as int,
-      accountName: (map[SubAccountsTable.accountName] as String?) ?? "",
-      accountNumber: (map[SubAccountsTable.accountNumber] as String?) ?? "",
-      incrementBalance: ((map[SubAccountsTable.incrementBalance]) as num?)?.toDouble() ?? 0.0,
-      decrementBalance: ((map[SubAccountsTable.decrementBalance]) as num?)?.toDouble() ?? 0.0,
-      currencyId: map[SubAccountsTable.currencyId] as String,
-      balanceMax: ((map[SubAccountsTable.balanceMax]) as num?)?.toDouble(),
-      subAccountType: SubAccountType.of(map[SubAccountsTable.subAccountType]),
-      createdAt: DateTime.parse(map[SubAccountsTable.createdAt] as String),
+      id: map[SubAccountsTable().id] as int,
+      mainAccountId: map[SubAccountsTable().mainAccountId] as int,
+      accountName: (map[SubAccountsTable().accountName] as String?) ?? "",
+      accountNumber: (map[SubAccountsTable().accountNumber] as String?) ?? "",
+      incrementBalance: ((map[SubAccountsTable().incrementBalance]) as num?)?.toDouble() ?? 0.0,
+      decrementBalance: ((map[SubAccountsTable().decrementBalance]) as num?)?.toDouble() ?? 0.0,
+      currencyId: map[SubAccountsTable().currencyId] as String,
+      balanceMax: ((map[SubAccountsTable().balanceMax]) as num?)?.toDouble(),
+      subAccountType: SubAccountType.of(map[SubAccountsTable().subAccountType]),
+      createdAt: DateTime.parse(map[SubAccountsTable().createdAt] as String),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) SubAccountsTable.id: id,
-      SubAccountsTable.mainAccountId: mainAccountId,
-      SubAccountsTable.accountNumber: accountNumber,
-      SubAccountsTable.accountName: accountName,
-      SubAccountsTable.incrementBalance: incrementBalance,
-      SubAccountsTable.decrementBalance: decrementBalance,
-      SubAccountsTable.currencyId: currencyId,
-      SubAccountsTable.balanceMax: balanceMax,
-      SubAccountsTable.subAccountType: subAccountType.name,
-      SubAccountsTable.createdAt: createdAt.toIso8601String(),
+      if (id > 0) SubAccountsTable().id: id,
+      SubAccountsTable().mainAccountId: mainAccountId,
+      SubAccountsTable().accountNumber: accountNumber,
+      SubAccountsTable().accountName: accountName,
+      SubAccountsTable().incrementBalance: incrementBalance,
+      SubAccountsTable().decrementBalance: decrementBalance,
+      SubAccountsTable().currencyId: currencyId,
+      SubAccountsTable().balanceMax: balanceMax,
+      SubAccountsTable().subAccountType: subAccountType.name,
+      SubAccountsTable().createdAt: createdAt.toIso8601String(),
     };
   }
 

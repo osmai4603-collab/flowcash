@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_unit_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 
 abstract class SubcategoriesState extends Equatable {
   const SubcategoriesState();
@@ -9,6 +10,7 @@ abstract class SubcategoriesState extends Equatable {
   List<SubcategoryEntity> get catalogs => const [];
   List<SubcategoryUnitEntity> get infos => const [];
   List<CategoryPropertyEntity> get properties => const [];
+  List<MainCategoryEntity> get mainCategories => const [];
   String get searchQuery => '';
   String? get statusMessage => null;
   List<String>? get generatedCategoryNames => null;
@@ -36,11 +38,18 @@ class SubcategoriesLoadSuccess extends SubcategoriesState {
   @override
   final List<String>? generatedCategoryNames;
 
+  @override
+  final List<MainCategoryEntity> mainCategories;
+
+  final bool isGenerating;
+
   const SubcategoriesLoadSuccess({
     required this.controller,
     this.searchQuery = '',
     this.statusMessage,
     this.generatedCategoryNames,
+    this.mainCategories = const [],
+    this.isGenerating = false,
   });
 
   SubcategoriesLoadSuccess copyWith({
@@ -48,6 +57,8 @@ class SubcategoriesLoadSuccess extends SubcategoriesState {
     String? searchQuery,
     String? statusMessage,
     Object? generatedCategoryNames = _generatedCategoryNamesSentinel,
+    List<MainCategoryEntity>? mainCategories,
+    bool? isGenerating,
   }) {
     return SubcategoriesLoadSuccess(
       controller: controller ?? this.controller,
@@ -57,6 +68,8 @@ class SubcategoriesLoadSuccess extends SubcategoriesState {
           identical(generatedCategoryNames, _generatedCategoryNamesSentinel)
           ? this.generatedCategoryNames
           : generatedCategoryNames as List<String>?,
+      mainCategories: mainCategories ?? this.mainCategories,
+      isGenerating: isGenerating ?? this.isGenerating,
     );
   }
 
@@ -77,6 +90,8 @@ class SubcategoriesLoadSuccess extends SubcategoriesState {
     searchQuery,
     statusMessage,
     generatedCategoryNames,
+    mainCategories,
+    isGenerating,
   ];
 }
 

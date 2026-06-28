@@ -20,35 +20,35 @@ final class InventoryModel extends InventoryItemEntity {
 
   factory InventoryModel.fromMap(Map<String, dynamic> map) {
     return InventoryModel(
-      id: map[InventoriesTable.id] as int,
-      categoryId: map[InventoriesTable.categoryId] as int,
-      storeId: map[InventoriesTable.storeId] as int,
-      propertyAccountId: (map[InventoriesTable.propertyAccountId] ?? 0) as int,
-      revenueAccountId: map[InventoriesTable.revenueAccountId] as int,
-      expenseAccountId: map[InventoriesTable.expenseAccountId] as int,
-      incomeStockId: map[InventoriesTable.incomeStockId] as int,
-      outcomeStockId: map[InventoriesTable.outcomeStockId] as int,
-      inventoryName: (map[CategoriesTable.categoryName] as String?) ?? '',
-      costTotal: ((map[InventoriesTable.costTotal] ?? 0) as num).toDouble(),
-      countUnits: ((map[InventoriesTable.countUnits]) as num).toDouble(),
-      userId: (map[InventoriesTable.userId] ?? 1) as int,
+      id: map[InventoriesTable().id] as int,
+      categoryId: map[InventoriesTable().categoryId] as int,
+      storeId: map[InventoriesTable().storeId] as int,
+      propertyAccountId: (map[InventoriesTable().propertyAccountId] ?? 0) as int,
+      revenueAccountId: map[InventoriesTable().revenueAccountId] as int,
+      expenseAccountId: map[InventoriesTable().expenseAccountId] as int,
+      incomeStockId: map[InventoriesTable().incomeStockId] as int,
+      outcomeStockId: map[InventoriesTable().outcomeStockId] as int,
+      inventoryName: (map[CategoriesTable().categoryName] as String?) ?? '',
+      costTotal: ((map[InventoriesTable().costTotal] ?? 0) as num).toDouble(),
+      countUnits: ((map[InventoriesTable().countUnits]) as num).toDouble(),
+      userId: (map[InventoriesTable().userId] ?? 1) as int,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) InventoriesTable.id: id,
-      InventoriesTable.categoryId: categoryId,
-      InventoriesTable.storeId: storeId,
-      InventoriesTable.propertyAccountId: propertyAccountId,
-      InventoriesTable.revenueAccountId: revenueAccountId,
-      InventoriesTable.expenseAccountId: expenseAccountId,
-      InventoriesTable.incomeStockId: incomeStockId,
-      InventoriesTable.outcomeStockId: outcomeStockId,
-      // CategoriesTable.categoryName: inventoryName,
-      InventoriesTable.costTotal: costTotal,
-      InventoriesTable.countUnits: countUnits,
-      InventoriesTable.userId: userId,
+      if (id > 0) InventoriesTable().id: id,
+      InventoriesTable().categoryId: categoryId,
+      InventoriesTable().storeId: storeId,
+      InventoriesTable().propertyAccountId: propertyAccountId,
+      InventoriesTable().revenueAccountId: revenueAccountId,
+      InventoriesTable().expenseAccountId: expenseAccountId,
+      InventoriesTable().incomeStockId: incomeStockId,
+      InventoriesTable().outcomeStockId: outcomeStockId,
+      // CategoriesTable().categoryName: inventoryName,
+      InventoriesTable().costTotal: costTotal,
+      InventoriesTable().countUnits: countUnits,
+      InventoriesTable().userId: userId,
     };
   }
 

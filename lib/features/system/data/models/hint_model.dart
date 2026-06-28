@@ -10,17 +10,17 @@ final class HintModel extends HintEntity {
 
   factory HintModel.fromMap(Map<String, dynamic> map) {
     return HintModel(
-      id: map[HintsTable.id] as int,
-      hintName: map[HintsTable.hintName] as String? ?? '',
-      hintType: map[HintsTable.hintType] as String? ?? '',
+      id: map[HintsTable().id] as int,
+      hintName: map[HintsTable().hintName] as String? ?? '',
+      hintType: map[HintsTable().hintType] as String? ?? '',
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      HintsTable.id: id,
-      HintsTable.hintName: hintName,
-      HintsTable.hintType: hintType,
+      HintsTable().id: id,
+      HintsTable().hintName: hintName,
+      HintsTable().hintType: hintType,
     };
   }
 

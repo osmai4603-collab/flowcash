@@ -37,7 +37,7 @@ import 'package:flowcash/features/accounts/data/models/main_account_model.dart';
 final class DefaultDataInserter {
   const DefaultDataInserter._();
 
-  static const _currencies = [
+  static final _currencies = [
     CurrencyModel(id: 'YER', name: 'ريال يمني', symbol: 'ر.ي', isDefault: true),
     CurrencyModel(
       id: 'SAR',
@@ -53,7 +53,7 @@ final class DefaultDataInserter {
     ),
   ];
 
-  static const _warehouses = [
+  static final _warehouses = [
     WarehouseModel(
       id: 1,
       warehouseName: 'المركز الرئيسي',
@@ -62,7 +62,7 @@ final class DefaultDataInserter {
     ),
   ];
 
-  static const _programUsers = [
+  static final _programUsers = [
     ProgramUserModel(
       id: 1,
       userName: 'admin',
@@ -72,7 +72,7 @@ final class DefaultDataInserter {
     ),
   ];
 
-  static const _units = [
+  static final _units = [
     UnitModel(
       id: 1,
       unitName: 'حبة',
@@ -134,7 +134,7 @@ final class DefaultDataInserter {
     _insertAccountingPeriod(db);
     _insertValuesCounterDefaults(db);
     _insertDefaultValues(db);
-    if (kDebugMode) _insertFurnitureTestData(db);
+    // if (kDebugMode) _insertFurnitureTestData(db);
   }
 
   static void _insertModel(
@@ -152,16 +152,16 @@ final class DefaultDataInserter {
   static void _insertDefaultValues(Database db) {
     try {
       final rs = db.select(
-        'SELECT COUNT(*) AS cnt FROM ${ValuesTable.tableName}',
+        'SELECT COUNT(*) AS cnt FROM ${ValuesTable().tableName}',
       );
       final cnt = rs.isNotEmpty ? (rs.first['cnt'] as int) : 0;
       if (cnt == 0) {
         for (final vt in ValueType.values) {
           final data = {
-            ValuesTable.value: vt.defaultValue,
-            ValuesTable.valueType: vt.name,
+            ValuesTable().value: vt.defaultValue,
+            ValuesTable().valueType: vt.name,
           };
-          _insertModel(db, ValuesTable.tableName, data);
+          _insertModel(db, ValuesTable().tableName, data);
         }
       }
     } catch (e) {
@@ -172,7 +172,7 @@ final class DefaultDataInserter {
   static void _insertValuesCounterDefaults(Database db) {
     try {
       final rs = db.select(
-        'SELECT COUNT(*) AS cnt FROM ${ValuesCounterTable.tableName} WHERE ${ValuesCounterTable.counterType} = ?',
+        'SELECT COUNT(*) AS cnt FROM ${ValuesCounterTable().tableName} WHERE ${ValuesCounterTable().counterType} = ?',
         [ValueCounterType.categoryNumber.name],
       );
       final cnt = rs.isNotEmpty ? (rs.first['cnt'] as int) : 0;
@@ -185,7 +185,7 @@ final class DefaultDataInserter {
           incrementValue: 1,
           formatValue: '0000',
         );
-        _insertModel(db, ValuesCounterTable.tableName, counter.toMap());
+        _insertModel(db, ValuesCounterTable().tableName, counter.toMap());
       }
     } catch (e) {
       debugPrint('insert default category number counter failed: $e');
@@ -194,13 +194,14 @@ final class DefaultDataInserter {
 
   static void _insertProgramUsers(Database db) {
     try {
-      final sql = 'SELECT COUNT(*) AS cnt FROM ${ProgramUsersTable.tableName}';
+      final sql =
+          'SELECT COUNT(*) AS cnt FROM ${ProgramUsersTable().tableName}';
       debugPrint('Executing query: $sql');
       final rsp = db.select(sql);
       final cnt = rsp.isNotEmpty ? (rsp.first['cnt'] as int) : 0;
       if (cnt == 0) {
         for (final user in _programUsers) {
-          _insertModel(db, ProgramUsersTable.tableName, user.toMap());
+          _insertModel(db, ProgramUsersTable().tableName, user.toMap());
         }
       }
     } catch (e) {
@@ -210,13 +211,13 @@ final class DefaultDataInserter {
 
   static void _insertCurrencies(Database db) {
     try {
-      final sql = 'SELECT COUNT(*) AS cnt FROM ${CurrenciesTable.tableName}';
+      final sql = 'SELECT COUNT(*) AS cnt FROM ${CurrenciesTable().tableName}';
       debugPrint('Executing query: $sql');
       final rs = db.select(sql);
       final cnt = rs.isNotEmpty ? (rs.first['cnt'] as int) : 0;
       if (cnt == 0) {
         for (final currency in _currencies) {
-          _insertModel(db, CurrenciesTable.tableName, currency.toMap());
+          _insertModel(db, CurrenciesTable().tableName, currency.toMap());
         }
       }
     } catch (e) {
@@ -227,12 +228,12 @@ final class DefaultDataInserter {
   static void _insertWarehouses(Database db) {
     try {
       final rsw = db.select(
-        'SELECT COUNT(*) AS cnt FROM ${WarehousesTable.tableName}',
+        'SELECT COUNT(*) AS cnt FROM ${WarehousesTable().tableName}',
       );
       final cntw = rsw.isNotEmpty ? (rsw.first['cnt'] as int) : 0;
       if (cntw == 0) {
         for (final warehouse in _warehouses) {
-          _insertModel(db, WarehousesTable.tableName, warehouse.toMap());
+          _insertModel(db, WarehousesTable().tableName, warehouse.toMap());
         }
       }
     } catch (e) {
@@ -243,12 +244,12 @@ final class DefaultDataInserter {
   static void _insertUnits(Database db) {
     try {
       final rsu = db.select(
-        'SELECT COUNT(*) AS cnt FROM ${UnitsTable.tableName}',
+        'SELECT COUNT(*) AS cnt FROM ${UnitsTable().tableName}',
       );
       final cntu = rsu.isNotEmpty ? (rsu.first['cnt'] as int) : 0;
       if (cntu == 0) {
         for (final unit in _units) {
-          _insertModel(db, UnitsTable.tableName, unit.toMap());
+          _insertModel(db, UnitsTable().tableName, unit.toMap());
         }
       }
     } catch (e) {
@@ -259,12 +260,12 @@ final class DefaultDataInserter {
   static void _insertExchangePrices(Database db) {
     try {
       final rse = db.select(
-        'SELECT COUNT(*) AS cnt FROM ${ExchangePricesTable.tableName}',
+        'SELECT COUNT(*) AS cnt FROM ${ExchangePricesTable().tableName}',
       );
       final cnte = rse.isNotEmpty ? (rse.first['cnt'] as int) : 0;
       if (cnte == 0) {
         final currencies = db.select(
-          'SELECT ${CurrenciesTable.id} AS id FROM ${CurrenciesTable.tableName}',
+          'SELECT ${CurrenciesTable().id} AS id FROM ${CurrenciesTable().tableName}',
         );
         for (final fromRow in currencies) {
           for (final toRow in currencies) {
@@ -276,7 +277,7 @@ final class DefaultDataInserter {
               toCurrencyId: toId,
               price: 1.0,
             );
-            _insertModel(db, ExchangePricesTable.tableName, price.toMap());
+            _insertModel(db, ExchangePricesTable().tableName, price.toMap());
           }
         }
       }
@@ -288,21 +289,21 @@ final class DefaultDataInserter {
   static void _insertAccountingPeriod(Database db) {
     try {
       final rsp = db.select(
-        'SELECT COUNT(*) AS cnt FROM ${AccountingPeriodsTable.tableName}',
+        'SELECT COUNT(*) AS cnt FROM ${AccountingPeriodsTable().tableName}',
       );
       final cntp = rsp.isNotEmpty ? (rsp.first['cnt'] as int) : 0;
       if (cntp == 0) {
         final data = {
-          AccountingPeriodsTable.balance: 0.0,
-          AccountingPeriodsTable.currencyId: 'YER',
-          AccountingPeriodsTable.lastPeriodId: null,
-          AccountingPeriodsTable.periodName: '2026',
-          AccountingPeriodsTable.dateOfStartPeriod: DateTime.now()
+          AccountingPeriodsTable().balance: 0.0,
+          AccountingPeriodsTable().currencyId: 'YER',
+          AccountingPeriodsTable().lastPeriodId: null,
+          AccountingPeriodsTable().periodName: '2026',
+          AccountingPeriodsTable().dateOfStartPeriod: DateTime.now()
               .toIso8601String(),
-          AccountingPeriodsTable.dateOfEndPeriod: null,
-          AccountingPeriodsTable.inventoryType: null,
+          AccountingPeriodsTable().dateOfEndPeriod: null,
+          AccountingPeriodsTable().inventoryType: null,
         };
-        _insertModel(db, AccountingPeriodsTable.tableName, data);
+        _insertModel(db, AccountingPeriodsTable().tableName, data);
       }
     } catch (e) {
       debugPrint('insert default accounting period failed: $e');
@@ -313,7 +314,7 @@ final class DefaultDataInserter {
     try {
       // Check if already inserted
       final rs = db.select(
-        "SELECT COUNT(*) AS cnt FROM ${CategoriesTable.tableName} WHERE ${CategoriesTable.categoryNumber} LIKE 'FUR-%'",
+        "SELECT COUNT(*) AS cnt FROM ${CategoriesTable().tableName} WHERE ${CategoriesTable().categoryNumber} LIKE 'FUR-%'",
       );
       final cnt = rs.isNotEmpty ? (rs.first['cnt'] as int) : 0;
       if (cnt > 0) return; // Already seeded
@@ -330,7 +331,7 @@ final class DefaultDataInserter {
         creditBalance: 0.0,
         mainAccountType: MainAccountType.of('inventory'),
       );
-      _insertModel(db, MainAccountsTable.tableName, mainAccount.toMap());
+      _insertModel(db, MainAccountsTable().tableName, mainAccount.toMap());
 
       final now = DateTime.now();
 
@@ -405,7 +406,7 @@ final class DefaultDataInserter {
       ];
 
       for (final sub in subAccounts) {
-        _insertModel(db, SubAccountsTable.tableName, sub.toMap());
+        _insertModel(db, SubAccountsTable().tableName, sub.toMap());
       }
 
       // 3. Generate 100 unique categories programmatically
@@ -467,10 +468,10 @@ final class DefaultDataInserter {
 
       // Get Accounting Period ID
       final periodRow = db.select(
-        'SELECT ${AccountingPeriodsTable.id} FROM ${AccountingPeriodsTable.tableName} LIMIT 1',
+        'SELECT ${AccountingPeriodsTable().id} FROM ${AccountingPeriodsTable().tableName} LIMIT 1',
       );
       final periodId = periodRow.isNotEmpty
-          ? (periodRow.first[AccountingPeriodsTable.id] as int)
+          ? (periodRow.first[AccountingPeriodsTable().id] as int)
           : 1;
 
       // Insert categories, inventories, and opening quantities
@@ -492,7 +493,7 @@ final class DefaultDataInserter {
           pricingUnitId: 1,
           inventoryUnitId: 1,
         );
-        _insertModel(db, CategoriesTable.tableName, category.toMap());
+        _insertModel(db, CategoriesTable().tableName, category.toMap());
 
         final inventory = InventoryModel(
           id: invId,
@@ -508,7 +509,7 @@ final class DefaultDataInserter {
           countUnits: initialQty,
           userId: 1,
         );
-        _insertModel(db, InventoriesTable.tableName, inventory.toMap());
+        _insertModel(db, InventoriesTable().tableName, inventory.toMap());
 
         final openingQuantity = OpeningQuantityModel(
           id: 0,
@@ -522,7 +523,7 @@ final class DefaultDataInserter {
 
         final oqMap = openingQuantity.toMap();
         oqMap.remove('id'); // ID is likely AUTOINCREMENT, so remove it if 0
-        _insertModel(db, OpeningQuantitiesTable.tableName, oqMap);
+        _insertModel(db, OpeningQuantitiesTable().tableName, oqMap);
       }
 
       debugPrint('Seeded 100 furniture items and accounts successfully.');

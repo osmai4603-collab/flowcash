@@ -1,21 +1,28 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول الأشخاص.
-class PersonsTable {
-  const PersonsTable._();
+class PersonsTable extends TableInfo {
+  static final PersonsTable _instance = PersonsTable.internal();
 
-  static const String tableName = 'persons';
+  factory PersonsTable() => _instance;
 
-  static const String id = 'person_id';
-  static const String personName = 'person_name';
-  static const String phoneNumber = 'phone_number';
-  static const String address = 'address';
-  static const String email = 'email';
-  static const String personType = 'person_type';
-  static const String receivableAccountId = 'receivable_account_id';
-  static const String payableAccountId = 'payable_account_id';
-  static const String createdAt = 'created_at';
+  PersonsTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'persons';
+
+  final String id = 'person_id';
+  final String personName = 'person_name';
+  final String phoneNumber = 'phone_number';
+  final String address = 'address';
+  final String email = 'email';
+  final String personType = 'person_type';
+  final String receivableAccountId = 'receivable_account_id';
+  final String payableAccountId = 'payable_account_id';
+  final String createdAt = 'created_at';
+
+  @override
+  List<String> get columns => [id,
     personName,
     phoneNumber,
     address,
@@ -23,6 +30,5 @@ class PersonsTable {
     personType,
     receivableAccountId,
     payableAccountId,
-    createdAt,
-  ];
+    createdAt,];
 }

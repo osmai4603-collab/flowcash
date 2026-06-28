@@ -4,7 +4,7 @@ import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.da
 import 'package:flowcash/features/accounts/data/models/sub_account_model.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_simple_entity.dart';
 import 'package:flowcash/features/accounts/data/models/sub_account_simple_model.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/sub_accounts_table.dart';
 import 'package:flowcash/core/enums/sub_account_type_enum.dart';
 
@@ -15,13 +15,13 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   @override
   Future<List<SubAccountEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: SubAccountsTable.tableName);
+      final rows = await _db.query(table: SubAccountsTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${SubAccountsTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${SubAccountsTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: SubAccountsTable.tableName,
+      table: SubAccountsTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -31,8 +31,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   @override
   Future<SubAccountEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: SubAccountsTable.tableName,
-      where: '${SubAccountsTable.id} = ?',
+      table: SubAccountsTable().tableName,
+      where: '${SubAccountsTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -43,8 +43,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   @override
   Future<SubAccountEntity> insert(SubAccountEntity entity) async {
     final entityId = await _db.insert(
-      table: SubAccountsTable.tableName,
-      data: _sanitizeInsertData(toMap(entity), SubAccountsTable.id),
+      table: SubAccountsTable().tableName,
+      data: _sanitizeInsertData(toMap(entity), SubAccountsTable().id),
     );
     if (entityId < 0) {
       throw Exception('Failed to insert sub account');
@@ -55,9 +55,9 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   @override
   Future<SubAccountEntity> update(SubAccountEntity entity) async {
     await _db.update(
-      table: SubAccountsTable.tableName,
+      table: SubAccountsTable().tableName,
       data: toMap(entity),
-      where: {SubAccountsTable.id: entity.id},
+      where: {SubAccountsTable().id: entity.id},
     );
     return entity;
   }
@@ -65,8 +65,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   @override
   Future<bool> delete(int id) async {
     await _db.deleteWhere(
-      table: SubAccountsTable.tableName,
-      where: {SubAccountsTable.id: id},
+      table: SubAccountsTable().tableName,
+      where: {SubAccountsTable().id: id},
     );
     return true;
   }
@@ -98,8 +98,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   @override
   Future<List<SubAccountEntity>> whereMainAccount(int mainAccountId) async {
     final rows = await _db.query(
-      table: SubAccountsTable.tableName,
-      where: '${SubAccountsTable.mainAccountId} = ?',
+      table: SubAccountsTable().tableName,
+      where: '${SubAccountsTable().mainAccountId} = ?',
       whereArgs: [mainAccountId],
     );
     return rows.map(fromMap).toList();
@@ -113,8 +113,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     final names = accountsTypes.map((e) => e.name).toList();
     final placeholders = List.filled(names.length, '?').join(', ');
     final rows = await _db.query(
-      table: SubAccountsTable.tableName,
-      where: '${SubAccountsTable.subAccountType} IN ($placeholders)',
+      table: SubAccountsTable().tableName,
+      where: '${SubAccountsTable().subAccountType} IN ($placeholders)',
       whereArgs: names,
     );
     return rows.map(fromMap).toList();
@@ -123,8 +123,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   @override
   Future<List<SubAccountEntity>> whereStoresAccounts(int periodId) async {
     final rows = await _db.query(
-      table: SubAccountsTable.tableName,
-      where: '${SubAccountsTable.subAccountType} = ?',
+      table: SubAccountsTable().tableName,
+      where: '${SubAccountsTable().subAccountType} = ?',
       whereArgs: [SubAccountType.inventory.name],
     );
     return rows.map(fromMap).toList();
@@ -135,8 +135,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     if (ids.isEmpty) return [];
     final placeholders = List.filled(ids.length, '?').join(', ');
     final rows = await _db.query(
-      table: SubAccountsTable.tableName,
-      where: '${SubAccountsTable.mainAccountId} IN ($placeholders)',
+      table: SubAccountsTable().tableName,
+      where: '${SubAccountsTable().mainAccountId} IN ($placeholders)',
       whereArgs: ids.toList(),
     );
     return rows.map(fromMap).toList();
@@ -200,8 +200,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   @override
   Future<SubAccountEntity?> firstWhereMainAccount(int mainAccountId) async {
     final rows = await _db.query(
-      table: SubAccountsTable.tableName,
-      where: '${SubAccountsTable.mainAccountId} = ?',
+      table: SubAccountsTable().tableName,
+      where: '${SubAccountsTable().mainAccountId} = ?',
       whereArgs: [mainAccountId],
       limit: 1,
     );
@@ -220,14 +220,14 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     final subAcc = await getById(id);
     if (subAcc == null) return false;
     await _db.update(
-      table: SubAccountsTable.tableName,
+      table: SubAccountsTable().tableName,
       data: {
-        SubAccountsTable.incrementBalance:
+        SubAccountsTable().incrementBalance:
             subAcc.incrementBalance + incrementBalance,
-        SubAccountsTable.decrementBalance:
+        SubAccountsTable().decrementBalance:
             subAcc.decrementBalance + decrementBalance,
       },
-      where: {SubAccountsTable.id: id},
+      where: {SubAccountsTable().id: id},
     );
     return true;
   }
@@ -238,9 +238,9 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     required int mainAccountId,
   }) async {
     await _db.update(
-      table: SubAccountsTable.tableName,
-      data: {SubAccountsTable.mainAccountId: mainAccountId},
-      where: {SubAccountsTable.id: id},
+      table: SubAccountsTable().tableName,
+      data: {SubAccountsTable().mainAccountId: mainAccountId},
+      where: {SubAccountsTable().id: id},
     );
     return true;
   }
@@ -255,23 +255,23 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     if (subAcc == null) return false;
     final data = <String, dynamic>{};
     if (isIncrement) {
-      data[SubAccountsTable.incrementBalance] =
+      data[SubAccountsTable().incrementBalance] =
           subAcc.incrementBalance + amount;
     } else {
-      data[SubAccountsTable.decrementBalance] =
+      data[SubAccountsTable().decrementBalance] =
           subAcc.decrementBalance + amount;
     }
     await _db.update(
-      table: SubAccountsTable.tableName,
+      table: SubAccountsTable().tableName,
       data: data,
-      where: {SubAccountsTable.id: id},
+      where: {SubAccountsTable().id: id},
     );
     return true;
   }
 
   @override
   Future<List<SubAccountEntity>> whereWarehouse(int warehouseId) async {
-    final rows = await _db.query(table: SubAccountsTable.tableName);
+    final rows = await _db.query(table: SubAccountsTable().tableName);
     return rows.map(fromMap).toList();
   }
 
@@ -327,9 +327,9 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     if (ids.isEmpty) return null;
 
     final rows = await _db.query(
-      table: SubAccountsTable.tableName,
+      table: SubAccountsTable().tableName,
       where:
-          '${SubAccountsTable.id} IN (${ids.join(", ")}) AND ${SubAccountsTable.mainAccountId} = ?',
+          '${SubAccountsTable().id} IN (${ids.join(", ")}) AND ${SubAccountsTable().mainAccountId} = ?',
       whereArgs: [mainAccountId],
       limit: 1,
     );
@@ -344,18 +344,18 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   }) async {
     final whereClauses = <String>[];
     final whereArgs = <Object>[];
-    whereClauses.add('${SubAccountsTable.accountName} LIKE ?');
+    whereClauses.add('${SubAccountsTable().accountName} LIKE ?');
     whereArgs.add('%$contains%');
 
     if (types.isNotEmpty) {
       final typeNames = types.map((e) => e.name).toList();
       final placeholders = List.filled(typeNames.length, '?').join(', ');
-      whereClauses.add('${SubAccountsTable.subAccountType} IN ($placeholders)');
+      whereClauses.add('${SubAccountsTable().subAccountType} IN ($placeholders)');
       whereArgs.addAll(typeNames);
     }
 
     final rows = await _db.query(
-      table: SubAccountsTable.tableName,
+      table: SubAccountsTable().tableName,
       where: whereClauses.join(' AND '),
       whereArgs: whereArgs,
     );
@@ -363,8 +363,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     return rows
         .map(
           (row) => DataRecord(
-            id: row[SubAccountsTable.id] as int,
-            data: row[SubAccountsTable.accountName] as String,
+            id: row[SubAccountsTable().id] as int,
+            data: row[SubAccountsTable().accountName] as String,
           ),
         )
         .toList();
@@ -375,8 +375,8 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     int mainAccountId,
   ) async {
     final rows = await _db.query(
-      table: SubAccountsTable.tableName,
-      where: '${SubAccountsTable.mainAccountId} = ?',
+      table: SubAccountsTable().tableName,
+      where: '${SubAccountsTable().mainAccountId} = ?',
       whereArgs: [mainAccountId],
     );
     return rows.map(SubAccountSimpleModel.fromMap).toList();
@@ -387,9 +387,9 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     required String query,
   }) async {
     final rows = await _db.query(
-      table: SubAccountsTable.tableName,
+      table: SubAccountsTable().tableName,
       where:
-          '${SubAccountsTable.accountName} LIKE ? OR ${SubAccountsTable.accountNumber} LIKE ?',
+          '${SubAccountsTable().accountName} LIKE ? OR ${SubAccountsTable().accountNumber} LIKE ?',
       whereArgs: ['%$query%', '%$query%'],
     );
     return rows.map(SubAccountSimpleModel.fromMap).toList();
@@ -398,9 +398,9 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
   @override
   Future<List<SubAccountEntity>> search(String query) async {
     final rows = await _db.query(
-      table: SubAccountsTable.tableName,
+      table: SubAccountsTable().tableName,
       where:
-          '${SubAccountsTable.accountName} LIKE ? OR ${SubAccountsTable.accountNumber} LIKE ?',
+          '${SubAccountsTable().accountName} LIKE ? OR ${SubAccountsTable().accountNumber} LIKE ?',
       whereArgs: ['%$query%', '%$query%'],
     );
     return rows.map(fromMap).toList();

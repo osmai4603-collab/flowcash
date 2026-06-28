@@ -1,4 +1,4 @@
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/program_users_table.dart';
 import 'package:flowcash/core/enums/user_permission_enum.dart';
 import 'package:flowcash/core/enums/user_status_enum.dart';
@@ -15,14 +15,14 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
   @override
   Future<List<ProgramUserEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: ProgramUsersTable.tableName);
+      final rows = await _db.query(table: ProgramUsersTable().tableName);
       return rows.map(ProgramUserModel.fromMap).toList();
     }
 
     final placeholders = List.filled(ids.length, '?').join(', ');
-    final where = '${ProgramUsersTable.id} IN ($placeholders)';
+    final where = '${ProgramUsersTable().id} IN ($placeholders)';
     final rows = await _db.query(
-      table: ProgramUsersTable.tableName,
+      table: ProgramUsersTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -32,8 +32,8 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
   @override
   Future<ProgramUserEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: ProgramUsersTable.tableName,
-      where: '${ProgramUsersTable.id} = ?',
+      table: ProgramUsersTable().tableName,
+      where: '${ProgramUsersTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -44,7 +44,7 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
   @override
   Future<ProgramUserEntity> insert(ProgramUserEntity entity) async {
     final entityId = await _db.insert(
-      table: ProgramUsersTable.tableName,
+      table: ProgramUsersTable().tableName,
       data: toMap(entity),
     );
     if (entityId < 0) {
@@ -57,9 +57,9 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
   Future<ProgramUserEntity> update(ProgramUserEntity entity) async {
     final data = toMap(entity);
     await _db.update(
-      table: ProgramUsersTable.tableName,
+      table: ProgramUsersTable().tableName,
       data: data,
-      where: {ProgramUsersTable.id: entity.id},
+      where: {ProgramUsersTable().id: entity.id},
     );
     return entity;
   }
@@ -67,8 +67,8 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
   @override
   Future<bool> delete(int id) async {
     await _db.deleteWhere(
-      table: ProgramUsersTable.tableName,
-      where: {ProgramUsersTable.id: id},
+      table: ProgramUsersTable().tableName,
+      where: {ProgramUsersTable().id: id},
     );
     return true;
   }
@@ -81,11 +81,11 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
   @override
   Map<String, dynamic> toMap(ProgramUserEntity entity) {
     return {
-      ProgramUsersTable.id: entity.id,
-      ProgramUsersTable.userName: entity.userName,
-      ProgramUsersTable.password: entity.password,
-      ProgramUsersTable.userType: entity.userType.name,
-      ProgramUsersTable.warehouseId: entity.warehouseId,
+      ProgramUsersTable().id: entity.id,
+      ProgramUsersTable().userName: entity.userName,
+      ProgramUsersTable().password: entity.password,
+      ProgramUsersTable().userType: entity.userType.name,
+      ProgramUsersTable().warehouseId: entity.warehouseId,
     };
   }
 
@@ -97,9 +97,9 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
     required UserPermission permission,
   }) async {
     final rows = await _db.query(
-      table: ProgramUsersTable.tableName,
+      table: ProgramUsersTable().tableName,
       where:
-          '${ProgramUsersTable.userName} = ? AND ${ProgramUsersTable.password} = ?',
+          '${ProgramUsersTable().userName} = ? AND ${ProgramUsersTable().password} = ?',
       whereArgs: [userName, password],
       limit: 1,
     );
@@ -110,8 +110,8 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
   @override
   Future<List<ProgramUserEntity>> whereIsNotAdmin() async {
     final rows = await _db.query(
-      table: ProgramUsersTable.tableName,
-      where: '${ProgramUsersTable.userType} != ?',
+      table: ProgramUsersTable().tableName,
+      where: '${ProgramUsersTable().userType} != ?',
       whereArgs: [UserType.admin.name],
     );
     return rows.map(ProgramUserModel.fromMap).toList();
@@ -123,9 +123,9 @@ class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
     String password,
   ) async {
     final rows = await _db.query(
-      table: ProgramUsersTable.tableName,
+      table: ProgramUsersTable().tableName,
       where:
-          '${ProgramUsersTable.userName} = ? AND ${ProgramUsersTable.password} = ?',
+          '${ProgramUsersTable().userName} = ? AND ${ProgramUsersTable().password} = ?',
       whereArgs: [userName, password],
       limit: 1,
     );

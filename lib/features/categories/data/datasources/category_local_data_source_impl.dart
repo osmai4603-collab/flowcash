@@ -1,6 +1,6 @@
 import 'package:flowcash/core/enums/unit_type_enum.dart';
 import 'package:flowcash/core/enums/value_counter_type_enum.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/categories_attributes_table.dart';
 import 'package:flowcash/core/tables/categories_table.dart';
 import 'package:flowcash/core/tables/units_table.dart';
@@ -19,13 +19,13 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
   @override
   Future<List<CategoryEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: CategoriesTable.tableName);
+      final rows = await _db.query(table: CategoriesTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${CategoriesTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${CategoriesTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: CategoriesTable.tableName,
+      table: CategoriesTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -35,8 +35,8 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
   @override
   Future<CategoryEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: CategoriesTable.tableName,
-      where: '${CategoriesTable.id} = ?',
+      table: CategoriesTable().tableName,
+      where: '${CategoriesTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -48,8 +48,8 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
   Future<CategoryEntity> insert(CategoryEntity entity) async {
     return await _db.transaction(() async {
       final categoryId = await _db.insert(
-        table: CategoriesTable.tableName,
-        data: _sanitizeInsertData(toMap(entity), CategoriesTable.id),
+        table: CategoriesTable().tableName,
+        data: _sanitizeInsertData(toMap(entity), CategoriesTable().id),
       );
       if (categoryId <= 0) {
         throw Exception('Failed to insert category');
@@ -65,10 +65,10 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
           categoryId: categoryId,
         );
         final attributeId = await _db.insert(
-          table: CategoriesAttributesTable.tableName,
+          table: CategoriesAttributesTable().tableName,
           data: _sanitizeInsertData(
             attributeToMap(attribute),
-            CategoriesAttributesTable.id,
+            CategoriesAttributesTable().id,
           ),
         );
         if (attributeId <= 0) {
@@ -87,9 +87,9 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
   Future<CategoryEntity> update(CategoryEntity entity) async {
     return await _db.transaction(() async {
       await _db.update(
-        table: CategoriesTable.tableName,
+        table: CategoriesTable().tableName,
         data: toMap(entity),
-        where: {CategoriesTable.id: entity.id},
+        where: {CategoriesTable().id: entity.id},
       );
 
       final updatedAttributes = <CategoryAttributeEntity>[];
@@ -100,17 +100,17 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
 
         if (attribute.id > 0) {
           await _db.update(
-            table: CategoriesAttributesTable.tableName,
+            table: CategoriesAttributesTable().tableName,
             data: attributeToMap(attribute),
-            where: {CategoriesAttributesTable.id: attribute.id},
+            where: {CategoriesAttributesTable().id: attribute.id},
           );
           updatedAttributes.add(attribute);
         } else {
           final attributeId = await _db.insert(
-            table: CategoriesAttributesTable.tableName,
+            table: CategoriesAttributesTable().tableName,
             data: _sanitizeInsertData(
               attributeToMap(attribute),
-              CategoriesAttributesTable.id,
+              CategoriesAttributesTable().id,
             ),
           );
           if (attributeId <= 0) {
@@ -130,12 +130,12 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
   Future<bool> delete(int id) async {
     return await _db.transaction(() async {
       await _db.deleteWhere(
-        table: CategoriesAttributesTable.tableName,
-        where: {CategoriesAttributesTable.categoryId: id},
+        table: CategoriesAttributesTable().tableName,
+        where: {CategoriesAttributesTable().categoryId: id},
       );
       await _db.deleteWhere(
-        table: CategoriesTable.tableName,
-        where: {CategoriesTable.id: id},
+        table: CategoriesTable().tableName,
+        where: {CategoriesTable().id: id},
       );
       return true;
     });
@@ -144,32 +144,32 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
   @override
   CategoryEntity fromMap(Map<String, dynamic> map) {
     return CategoryEntity(
-      id: map[CategoriesTable.id] as int,
+      id: map[CategoriesTable().id] as int,
       categoryType: CategoryDefineType.values.firstWhere(
-        (e) => e.name == map[CategoriesTable.categoryType] as String,
+        (e) => e.name == map[CategoriesTable().categoryType] as String,
       ),
-      categoryName: (map[CategoriesTable.categoryName] as String?) ?? "",
-      categoryNumber: (map[CategoriesTable.categoryNumber] as String?) ?? "",
-      barcode: map[CategoriesTable.barcode] as String?,
-      categoryUnitId: map[CategoriesTable.categoryUnitId] as int,
-      pricingUnitId: map[CategoriesTable.pricingUnitId] as int,
-      inventoryUnitId: map[CategoriesTable.inventoryUnitId] as int,
-      subcategoryId: map[CategoriesTable.subcategoryId] as int?,
+      categoryName: (map[CategoriesTable().categoryName] as String?) ?? "",
+      categoryNumber: (map[CategoriesTable().categoryNumber] as String?) ?? "",
+      barcode: map[CategoriesTable().barcode] as String?,
+      categoryUnitId: map[CategoriesTable().categoryUnitId] as int,
+      pricingUnitId: map[CategoriesTable().pricingUnitId] as int,
+      inventoryUnitId: map[CategoriesTable().inventoryUnitId] as int,
+      subcategoryId: map[CategoriesTable().subcategoryId] as int?,
     );
   }
 
   @override
   Map<String, dynamic> toMap(CategoryEntity entity) {
     final data = {
-      if (entity.id > 0) CategoriesTable.id: entity.id,
-      CategoriesTable.categoryType: entity.categoryType.name,
-      CategoriesTable.categoryName: entity.categoryName,
-      CategoriesTable.categoryNumber: entity.categoryNumber,
-      CategoriesTable.barcode: entity.barcode,
-      CategoriesTable.categoryUnitId: entity.categoryUnitId,
-      CategoriesTable.pricingUnitId: entity.pricingUnitId,
-      CategoriesTable.inventoryUnitId: entity.inventoryUnitId,
-      CategoriesTable.subcategoryId: entity.subcategoryId,
+      if (entity.id > 0) CategoriesTable().id: entity.id,
+      CategoriesTable().categoryType: entity.categoryType.name,
+      CategoriesTable().categoryName: entity.categoryName,
+      CategoriesTable().categoryNumber: entity.categoryNumber,
+      CategoriesTable().barcode: entity.barcode,
+      CategoriesTable().categoryUnitId: entity.categoryUnitId,
+      CategoriesTable().pricingUnitId: entity.pricingUnitId,
+      CategoriesTable().inventoryUnitId: entity.inventoryUnitId,
+      CategoriesTable().subcategoryId: entity.subcategoryId,
     };
 
     return data;
@@ -193,8 +193,8 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
     bool printQuery = true,
   }) async {
     final rows = await _db.query(
-      table: CategoriesTable.tableName,
-      where: '${CategoriesTable.categoryName} = ?',
+      table: CategoriesTable().tableName,
+      where: '${CategoriesTable().categoryName} = ?',
       whereArgs: [categoryName],
       limit: 1,
     );
@@ -202,17 +202,17 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
     final category = fromMap(rows.first);
     // load attributes
     final attrs = await _db.query(
-      table: CategoriesAttributesTable.tableName,
-      where: '${CategoriesAttributesTable.categoryId} = ?',
+      table: CategoriesAttributesTable().tableName,
+      where: '${CategoriesAttributesTable().categoryId} = ?',
       whereArgs: [category.id],
     );
     final attributes = attrs
         .map(
           (row) => CategoryAttributeEntity(
-            id: row[CategoriesAttributesTable.id] as int,
+            id: row[CategoriesAttributesTable().id] as int,
             subcategoryUnitId:
-                row[CategoriesAttributesTable.subcategoryUnitId] as int,
-            categoryId: row[CategoriesAttributesTable.categoryId] as int,
+                row[CategoriesAttributesTable().subcategoryUnitId] as int,
+            categoryId: row[CategoriesAttributesTable().categoryId] as int,
           ),
         )
         .toList();
@@ -225,8 +225,8 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
     bool printQuery = true,
   }) async {
     final rows = await _db.query(
-      table: CategoriesTable.tableName,
-      where: '${CategoriesTable.categoryName} = ?',
+      table: CategoriesTable().tableName,
+      where: '${CategoriesTable().categoryName} = ?',
       whereArgs: [categoryName],
       limit: 1,
     );
@@ -249,32 +249,32 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
   }) async {
     final like = '%$categoryName%';
     final rows = await _db.query(
-      table: CategoriesTable.tableName,
-      where: '${CategoriesTable.categoryName} LIKE ?',
+      table: CategoriesTable().tableName,
+      where: '${CategoriesTable().categoryName} LIKE ?',
       whereArgs: [like],
       limit: limit,
     );
     final results = <SimpleCategoryEntity>[];
     for (final row in rows) {
-      final unitId = row[CategoriesTable.categoryUnitId] as int;
+      final unitId = row[CategoriesTable().categoryUnitId] as int;
       final unitRows = await _db.query(
-        table: UnitsTable.tableName,
-        where: '${UnitsTable.id} = ?',
+        table: UnitsTable().tableName,
+        where: '${UnitsTable().id} = ?',
         whereArgs: [unitId],
         limit: 1,
       );
       String unitName = '';
       UnitType unitType = UnitType.piece;
       if (unitRows.isNotEmpty) {
-        unitName = (unitRows.first[UnitsTable.unitName] as String?) ?? '';
+        unitName = (unitRows.first[UnitsTable().unitName] as String?) ?? '';
         unitType = UnitType.values.firstWhere(
-          (e) => e.name == unitRows.first[UnitsTable.unitType] as String,
+          (e) => e.name == unitRows.first[UnitsTable().unitType] as String,
         );
       }
       results.add(
         SimpleCategoryEntity(
-          id: row[CategoriesTable.id] as int,
-          categoryName: (row[CategoriesTable.categoryName] as String?) ?? '',
+          id: row[CategoriesTable().id] as int,
+          categoryName: (row[CategoriesTable().categoryName] as String?) ?? '',
           unitName: unitName,
           unitType: unitType,
         ),
@@ -286,8 +286,8 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
   @override
   Future<String> getNewCategoryNumber() async {
     final rows = await _db.query(
-      table: ValuesCounterTable.tableName,
-      where: '${ValuesCounterTable.counterType} = ?',
+      table: ValuesCounterTable().tableName,
+      where: '${ValuesCounterTable().counterType} = ?',
       whereArgs: [ValueCounterType.categoryNumber.name],
       limit: 1,
     );
@@ -298,29 +298,29 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
 
     if (rows.isEmpty) {
       await _db.insert(
-        table: ValuesCounterTable.tableName,
+        table: ValuesCounterTable().tableName,
         data: {
-          ValuesCounterTable.counterType: ValueCounterType.categoryNumber.name,
-          ValuesCounterTable.count: initialCount,
-          ValuesCounterTable.counterMax: maxValue,
-          ValuesCounterTable.incrementValue: increment,
-          ValuesCounterTable.formatValue: '0000',
+          ValuesCounterTable().counterType: ValueCounterType.categoryNumber.name,
+          ValuesCounterTable().count: initialCount,
+          ValuesCounterTable().counterMax: maxValue,
+          ValuesCounterTable().incrementValue: increment,
+          ValuesCounterTable().formatValue: '0000',
         },
       );
       return initialCount.toString();
     }
 
     final row = rows.first;
-    final currentCount = row[ValuesCounterTable.count] as int? ?? initialCount;
+    final currentCount = row[ValuesCounterTable().count] as int? ?? initialCount;
     var nextCount = currentCount + increment;
     if (nextCount > maxValue) {
       nextCount = initialCount;
     }
 
     await _db.update(
-      table: ValuesCounterTable.tableName,
-      data: {ValuesCounterTable.count: nextCount},
-      where: {ValuesCounterTable.id: row[ValuesCounterTable.id]},
+      table: ValuesCounterTable().tableName,
+      data: {ValuesCounterTable().count: nextCount},
+      where: {ValuesCounterTable().id: row[ValuesCounterTable().id]},
     );
 
     return currentCount.toString();

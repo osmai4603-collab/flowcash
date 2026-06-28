@@ -1,27 +1,32 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول خصائص الأصناف.
-class CategoryPropertiesTable {
-  const CategoryPropertiesTable._();
+class CategoryPropertiesTable extends TableInfo {
+  static final CategoryPropertiesTable _instance = CategoryPropertiesTable.internal();
 
-  static const String tableName = 'categories_properties';
+  factory CategoryPropertiesTable() => _instance;
 
-  static const String id = 'property_id';
+  CategoryPropertiesTable.internal();
 
-  static const String mainCategoryId = 'main_category_id';
-  static const String propertyName = 'property_name';
-  static const String unitType = 'unit_type';
-  static const String isSingle = 'is_single';
-  static const String isCategoryUnit = 'is_category_unit';
-  static const String isPricingUnit = 'is_pricing_unit';
-  static const String isInventoryUnit = 'is_inventory_unit';
+  @override
+  final String tableName = 'categories_properties';
 
-  static const List<String> fields = [
-    id,
+  final String id = 'property_id';
+  final String mainCategoryId = 'main_category_id';
+  final String propertyName = 'property_name';
+  final String unitType = 'unit_type';
+  final String isSingle = 'is_single';
+  final String isCategoryUnit = 'is_category_unit';
+  final String isPricingUnit = 'is_pricing_unit';
+  final String isInventoryUnit = 'is_inventory_unit';
+
+  @override
+  List<String> get columns => [id,
     mainCategoryId,
     propertyName,
     unitType,
     isSingle,
     isCategoryUnit,
     isPricingUnit,
-    isInventoryUnit,
-  ];
+    isInventoryUnit,];
 }

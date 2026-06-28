@@ -186,7 +186,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
               },
               builder: (context, state) {
                 // Show shimmer during initial load and while saving; freeze screen when saving.
-          
+
                 if (state.status == MainCategoryFormStatus.initial ||
                     state.status == MainCategoryFormStatus.saving) {
                   return MainCategoryFormShimmer(
@@ -215,7 +215,10 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
               fluent.Tooltip(
                 message: 'رجوع',
                 child: fluent.IconButton(
-                  icon: const fluent.Icon(fluent.FluentIcons.back_to_window, size: 20),
+                  icon: const fluent.Icon(
+                    fluent.FluentIcons.back_to_window,
+                    size: 20,
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -307,26 +310,26 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                     validator: (value) {
                       return null;
                     },
-                    items: UnitType.values.where((type) => type.isBasic).map(
-                      (unit) {
-                        return fluent.ComboBoxItem<UnitType>(
-                          value: unit,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              fluent.Text(unit.fullUnitName),
-                              const SizedBox(width: 10),
-                              fluent.Text(
-                                unit.symbolUnit,
-                                style: colors.body.copyWith(
-                                  color: colors.onSurfaceVariant,
-                                ),
+                    items: UnitType.values.where((type) => type.isBasic).map((
+                      unit,
+                    ) {
+                      return fluent.ComboBoxItem<UnitType>(
+                        value: unit,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            fluent.Text(unit.fullUnitName),
+                            const SizedBox(width: 10),
+                            fluent.Text(
+                              unit.symbolUnit,
+                              style: colors.body.copyWith(
+                                color: colors.onSurfaceVariant,
                               ),
-                            ],
-                          ),
-                        );
-                      },
-                    ).toList(),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                     onChanged: (value) {
                       if (value != null) {
                         _markChanged();
@@ -558,20 +561,24 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
       }
     }
 
-    final categoryProperties = properties.map(_toCategoryPropertyEntity).toList();
+    final categoryProperties = properties
+        .map(_toCategoryPropertyEntity)
+        .toList();
 
     // Add default category unit property if it doesn't exist
     if (!categoryProperties.any((p) => p.isCategoryUnit)) {
-      categoryProperties.add(CategoryPropertyEntity(
-        id: 0,
-        mainCategoryId: _bloc.state.id ?? 0,
-        propertyName: unitNameController.text.trim(),
-        unitType: unitSelected,
-        isSingle: true,
-        isCategoryUnit: true,
-        isInventoryUnit: true,
-        isPricingUnit: true,
-      ));
+      categoryProperties.add(
+        CategoryPropertyEntity(
+          id: 0,
+          mainCategoryId: _bloc.state.id,
+          propertyName: 'الوحدة',
+          unitType: unitSelected,
+          isSingle: true,
+          isCategoryUnit: true,
+          isInventoryUnit: true,
+          isPricingUnit: true,
+        ),
+      );
     }
 
     final category = MainCategoryEntity(

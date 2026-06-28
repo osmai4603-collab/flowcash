@@ -5,16 +5,18 @@ import 'package:flowcash/features/transactions/presentation/blocs/financial_bond
 import 'package:flowcash/features/transactions/presentation/blocs/financial_transactions/financial_transactions_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-// Data sources
 import 'package:flowcash/features/transactions/data/datasources/interfaces/bill_data_source.dart';
 import 'package:flowcash/features/transactions/data/datasources/interfaces/bill_order_data_source.dart';
 import 'package:flowcash/features/transactions/data/datasources/interfaces/financial_transaction_data_source.dart';
 import 'package:flowcash/features/transactions/data/datasources/interfaces/financial_bond_data_source.dart';
+import 'package:flowcash/features/transactions/data/datasources/interfaces/cost_good_bill_data_source.dart';
 import 'package:flowcash/features/transactions/data/datasources/implementations/bill_local_data_source_impl.dart';
 import 'package:flowcash/features/transactions/data/datasources/implementations/bill_order_local_data_source_impl.dart';
 import 'package:flowcash/features/transactions/data/datasources/implementations/financial_transaction_local_data_source_impl.dart';
 import 'package:flowcash/features/transactions/data/datasources/implementations/financial_bond_local_data_source_impl.dart';
+import 'package:flowcash/features/transactions/data/datasources/implementations/cost_good_bill_local_data_source_impl.dart';
 import 'package:flowcash/core/tables/bill_orders_table.dart';
+import 'package:flowcash/core/tables/cost_good_bill_orders_table.dart';
 
 // Repositories
 import 'package:flowcash/features/transactions/domain/repositories/bill_repository.dart';
@@ -43,11 +45,11 @@ void initTransactionsFeature(GetIt sl) {
     () => BillLocalDataSourceImpl(
       sl(),
       (order) => {
-        if (order.id > 0) BillOrdersTable.id: order.id,
-        BillOrdersTable.billId: order.billId,
-        BillOrdersTable.categoryId: order.categoryId,
-        BillOrdersTable.countUnits: order.countUnits,
-        BillOrdersTable.totalPrice: order.totalPrice,
+        if (order.id > 0) BillOrdersTable().id: order.id,
+        BillOrdersTable().billId: order.billId,
+        BillOrdersTable().categoryId: order.categoryId,
+        BillOrdersTable().countUnits: order.countUnits,
+        BillOrdersTable().totalPrice: order.totalPrice,
       },
     ),
   );
@@ -60,10 +62,24 @@ void initTransactionsFeature(GetIt sl) {
   sl.registerLazySingleton<FinancialBondDataSource>(
     () => FinancialBondLocalDataSourceImpl(sl()),
   );
+  sl.registerLazySingleton<CostGoodBillDataSource>(
+    () => CostGoodBillLocalDataSourceImpl(
+      sl(),
+      (order) => {
+        if (order.id > 0) CostGoodBillOrdersTable().id: order.id,
+        CostGoodBillOrdersTable().billId: order.costGoodBillId,
+        CostGoodBillOrdersTable().categoryId: order.categoryId,
+        CostGoodBillOrdersTable().countUnits: order.countUnits,
+        CostGoodBillOrdersTable().totalPrice: order.totalPrice,
+      },
+    ),
+  );
 
   // Repositories
   sl.registerLazySingleton<BillRepository>(
     () => BillRepositoryImpl(
+      sl(),
+      sl(),
       sl(),
       sl(),
       sl(),

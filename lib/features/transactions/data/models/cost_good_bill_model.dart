@@ -22,34 +22,34 @@ final class CostGoodBillModel extends CostGoodBillEntity {
 
   factory CostGoodBillModel.fromMap(Map<String, dynamic> map, {List<CostGoodBillOrderModel> orders = const []}) {
     return CostGoodBillModel(
-      id: map[CostGoodBillsTable.id] as int,
-      createdAt: DateTime.parse(map[CostGoodBillsTable.createdAt] as String),
-      createdBy: map[CostGoodBillsTable.createdBy] as int,
-      note: map[CostGoodBillsTable.note] as String?,
-      offerAmount: (map[CostGoodBillsTable.offerAmount] as num).toDouble(),
-      currencyId: map[CostGoodBillsTable.currencyId] as String,
-      billNumber: map[CostGoodBillsTable.billNumber] as int,
-      warehouseId: map[CostGoodBillsTable.warehouseId] as int,
-      journalEntryId: map[CostGoodBillsTable.journalEntryId] as int?,
-      personId: map[CostGoodBillsTable.personId] as int,
-      billId: map[CostGoodBillsTable.billId] as int,
+      id: map[CostGoodBillsTable().id] as int,
+      createdAt: DateTime.parse(map[CostGoodBillsTable().createdAt] as String),
+      createdBy: map[CostGoodBillsTable().createdBy] as int,
+      note: map[CostGoodBillsTable().note] as String?,
+      offerAmount: (map[CostGoodBillsTable().offerAmount] as num).toDouble(),
+      currencyId: map[CostGoodBillsTable().currencyId] as String,
+      billNumber: map[CostGoodBillsTable().billNumber] as int,
+      warehouseId: map[CostGoodBillsTable().warehouseId] as int,
+      journalEntryId: map[CostGoodBillsTable().journalEntryId] as int?,
+      personId: map[CostGoodBillsTable().personId] as int,
+      billId: map[CostGoodBillsTable().billId] as int,
       orders: orders,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) CostGoodBillsTable.id: id,
-      CostGoodBillsTable.createdAt: createdAt.toIso8601String(),
-      CostGoodBillsTable.createdBy: createdBy,
-      CostGoodBillsTable.note: note,
-      CostGoodBillsTable.offerAmount: offerAmount,
-      CostGoodBillsTable.currencyId: currencyId,
-      CostGoodBillsTable.billNumber: billNumber,
-      CostGoodBillsTable.warehouseId: warehouseId,
-      CostGoodBillsTable.journalEntryId: journalEntryId,
-      CostGoodBillsTable.personId: personId,
-      CostGoodBillsTable.billId: billId,
+      if (id > 0) CostGoodBillsTable().id: id,
+      CostGoodBillsTable().createdAt: createdAt.toIso8601String(),
+      CostGoodBillsTable().createdBy: createdBy,
+      CostGoodBillsTable().note: note,
+      CostGoodBillsTable().offerAmount: offerAmount,
+      CostGoodBillsTable().currencyId: currencyId,
+      CostGoodBillsTable().billNumber: billNumber,
+      CostGoodBillsTable().warehouseId: warehouseId,
+      CostGoodBillsTable().journalEntryId: journalEntryId,
+      CostGoodBillsTable().personId: personId,
+      CostGoodBillsTable().billId: billId,
     };
   }
 

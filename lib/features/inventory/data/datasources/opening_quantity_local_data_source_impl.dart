@@ -21,7 +21,7 @@ import 'package:flowcash/features/inventory/data/datasources/opening_quantity_da
 import 'package:flowcash/features/inventory/data/models/inventory_model.dart';
 import 'package:flowcash/features/inventory/domain/entities/opening_quantity_entity.dart';
 import 'package:flowcash/features/inventory/data/models/opening_quantity_model.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/opening_quantities_table.dart';
 import 'package:flowcash/core/tables/inventories_table.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
@@ -47,13 +47,13 @@ final class OpeningQuantityLocalDataSourceImpl
   @override
   Future<List<OpeningQuantityEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: OpeningQuantitiesTable.tableName);
+      final rows = await _db.query(table: OpeningQuantitiesTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${OpeningQuantitiesTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${OpeningQuantitiesTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: OpeningQuantitiesTable.tableName,
+      table: OpeningQuantitiesTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -63,8 +63,8 @@ final class OpeningQuantityLocalDataSourceImpl
   @override
   Future<OpeningQuantityEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: OpeningQuantitiesTable.tableName,
-      where: '${OpeningQuantitiesTable.id} = ?',
+      table: OpeningQuantitiesTable().tableName,
+      where: '${OpeningQuantitiesTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -163,10 +163,10 @@ final class OpeningQuantityLocalDataSourceImpl
       // 4. Insert opening quantity with journal entry ID
       final entityToInsert = entity.copyWith(journalEntryId: journalEntry.id);
       final entityId = await _db.insert(
-        table: OpeningQuantitiesTable.tableName,
+        table: OpeningQuantitiesTable().tableName,
         data: _sanitizeInsertData(
           toMap(entityToInsert),
-          OpeningQuantitiesTable.id,
+          OpeningQuantitiesTable().id,
         ),
       );
       if (entityId < 0) {
@@ -177,12 +177,12 @@ final class OpeningQuantityLocalDataSourceImpl
       final updatedCountUnits = inventoryEntity.countUnits + entity.countUnits;
       final updatedCostTotal = inventoryEntity.costTotal + entity.costTotal;
       await _db.update(
-        table: InventoriesTable.tableName,
+        table: InventoriesTable().tableName,
         data: {
-          InventoriesTable.countUnits: updatedCountUnits,
-          InventoriesTable.costTotal: updatedCostTotal,
+          InventoriesTable().countUnits: updatedCountUnits,
+          InventoriesTable().costTotal: updatedCostTotal,
         },
-        where: {InventoriesTable.id: entity.inventoryId},
+        where: {InventoriesTable().id: entity.inventoryId},
       );
 
       return entityToInsert.copyWith(id: entityId);
@@ -312,9 +312,9 @@ final class OpeningQuantityLocalDataSourceImpl
         ).copyWith(id: journalEntryId);
 
         await _db.update(
-          table: JournalEntriesTable.tableName,
+          table: JournalEntriesTable().tableName,
           data: journalEntryToMap(journalEntry),
-          where: {JournalEntriesTable.id: journalEntryId},
+          where: {JournalEntriesTable().id: journalEntryId},
         );
 
         // Update increment journal item
@@ -335,11 +335,11 @@ final class OpeningQuantityLocalDataSourceImpl
           ),
         );
         await _db.update(
-          table: JournalItemsTable.tableName,
+          table: JournalItemsTable().tableName,
           data: journalItemToMap(incomeItem),
           where: {
-            JournalItemsTable.entryId: journalEntryId,
-            JournalItemsTable.journalStatus: JournalStatus.increment.name,
+            JournalItemsTable().entryId: journalEntryId,
+            JournalItemsTable().journalStatus: JournalStatus.increment.name,
           },
         );
 
@@ -360,11 +360,11 @@ final class OpeningQuantityLocalDataSourceImpl
           ),
         );
         await _db.update(
-          table: JournalItemsTable.tableName,
+          table: JournalItemsTable().tableName,
           data: journalItemToMap(propertyItem),
           where: {
-            JournalItemsTable.entryId: journalEntryId,
-            JournalItemsTable.journalStatus: JournalStatus.decrement.name,
+            JournalItemsTable().entryId: journalEntryId,
+            JournalItemsTable().journalStatus: JournalStatus.decrement.name,
           },
         );
       }
@@ -376,37 +376,37 @@ final class OpeningQuantityLocalDataSourceImpl
           final updatedCountUnits = inventoryEntity.countUnits + diffCountUnits;
           final updatedCostTotal = inventoryEntity.costTotal + diffCostTotal;
           await _db.update(
-            table: InventoriesTable.tableName,
+            table: InventoriesTable().tableName,
             data: {
-              InventoriesTable.countUnits: updatedCountUnits,
-              InventoriesTable.costTotal: updatedCostTotal,
+              InventoriesTable().countUnits: updatedCountUnits,
+              InventoriesTable().costTotal: updatedCostTotal,
             },
-            where: {InventoriesTable.id: entity.inventoryId},
+            where: {InventoriesTable().id: entity.inventoryId},
           );
         } else {
           final oldInventory = await _getInventory(oldEntity.inventoryId);
           if (oldInventory != null) {
             await _db.update(
-              table: InventoriesTable.tableName,
+              table: InventoriesTable().tableName,
               data: {
-                InventoriesTable.countUnits:
+                InventoriesTable().countUnits:
                     oldInventory.countUnits - oldEntity.countUnits,
-                InventoriesTable.costTotal:
+                InventoriesTable().costTotal:
                     oldInventory.costTotal - oldEntity.costTotal,
               },
-              where: {InventoriesTable.id: oldEntity.inventoryId},
+              where: {InventoriesTable().id: oldEntity.inventoryId},
             );
           }
           final updatedCountUnits =
               inventoryEntity.countUnits + entity.countUnits;
           final updatedCostTotal = inventoryEntity.costTotal + entity.costTotal;
           await _db.update(
-            table: InventoriesTable.tableName,
+            table: InventoriesTable().tableName,
             data: {
-              InventoriesTable.countUnits: updatedCountUnits,
-              InventoriesTable.costTotal: updatedCostTotal,
+              InventoriesTable().countUnits: updatedCountUnits,
+              InventoriesTable().costTotal: updatedCostTotal,
             },
-            where: {InventoriesTable.id: entity.inventoryId},
+            where: {InventoriesTable().id: entity.inventoryId},
           );
         }
       } else {
@@ -414,20 +414,20 @@ final class OpeningQuantityLocalDataSourceImpl
             inventoryEntity.countUnits + entity.countUnits;
         final updatedCostTotal = inventoryEntity.costTotal + entity.costTotal;
         await _db.update(
-          table: InventoriesTable.tableName,
+          table: InventoriesTable().tableName,
           data: {
-            InventoriesTable.countUnits: updatedCountUnits,
-            InventoriesTable.costTotal: updatedCostTotal,
+            InventoriesTable().countUnits: updatedCountUnits,
+            InventoriesTable().costTotal: updatedCostTotal,
           },
-          where: {InventoriesTable.id: entity.inventoryId},
+          where: {InventoriesTable().id: entity.inventoryId},
         );
       }
 
       final entityToUpdate = entity.copyWith(journalEntryId: journalEntryId);
       await _db.update(
-        table: OpeningQuantitiesTable.tableName,
+        table: OpeningQuantitiesTable().tableName,
         data: toMap(entityToUpdate),
-        where: {OpeningQuantitiesTable.id: entity.id},
+        where: {OpeningQuantitiesTable().id: entity.id},
       );
       return entityToUpdate;
     });
@@ -445,12 +445,12 @@ final class OpeningQuantityLocalDataSourceImpl
           final updatedCostTotal =
               inventoryEntity.costTotal - oldEntity.costTotal;
           await _db.update(
-            table: InventoriesTable.tableName,
+            table: InventoriesTable().tableName,
             data: {
-              InventoriesTable.countUnits: updatedCountUnits,
-              InventoriesTable.costTotal: updatedCostTotal,
+              InventoriesTable().countUnits: updatedCountUnits,
+              InventoriesTable().costTotal: updatedCostTotal,
             },
-            where: {InventoriesTable.id: oldEntity.inventoryId},
+            where: {InventoriesTable().id: oldEntity.inventoryId},
           );
         }
 
@@ -458,21 +458,21 @@ final class OpeningQuantityLocalDataSourceImpl
         if (journalEntryId != null && journalEntryId > 0) {
           // Delete journal items first
           await _db.deleteWhere(
-            table: JournalItemsTable.tableName,
-            where: {JournalItemsTable.entryId: journalEntryId},
+            table: JournalItemsTable().tableName,
+            where: {JournalItemsTable().entryId: journalEntryId},
           );
 
           // Delete journal entry
           await _db.deleteWhere(
-            table: JournalEntriesTable.tableName,
-            where: {JournalEntriesTable.id: journalEntryId},
+            table: JournalEntriesTable().tableName,
+            where: {JournalEntriesTable().id: journalEntryId},
           );
         }
       }
 
       await _db.deleteWhere(
-        table: OpeningQuantitiesTable.tableName,
-        where: {OpeningQuantitiesTable.id: id},
+        table: OpeningQuantitiesTable().tableName,
+        where: {OpeningQuantitiesTable().id: id},
       );
       return true;
     });
@@ -507,8 +507,8 @@ final class OpeningQuantityLocalDataSourceImpl
     bool printQuery = true,
   }) async {
     final rows = await _db.query(
-      table: OpeningQuantitiesTable.tableName,
-      where: '${OpeningQuantitiesTable.inventoryId} = ?',
+      table: OpeningQuantitiesTable().tableName,
+      where: '${OpeningQuantitiesTable().inventoryId} = ?',
       whereArgs: [inventoryId],
       limit: 1,
     );
@@ -522,13 +522,13 @@ final class OpeningQuantityLocalDataSourceImpl
     bool printQuery = true,
   }) async {
     final rows = await _db.query(
-      table: OpeningQuantitiesTable.tableName,
-      where: '${OpeningQuantitiesTable.inventoryId} = ?',
+      table: OpeningQuantitiesTable().tableName,
+      where: '${OpeningQuantitiesTable().inventoryId} = ?',
       whereArgs: [inventoryId],
     );
 
     return rows.fold<double>(0.0, (sum, row) {
-      return sum + ((row[OpeningQuantitiesTable.countUnits] as num).toDouble());
+      return sum + ((row[OpeningQuantitiesTable().countUnits] as num).toDouble());
     });
   }
 
@@ -539,8 +539,8 @@ final class OpeningQuantityLocalDataSourceImpl
     bool printQuery = true,
   }) async {
     final rows = await _db.query(
-      table: OpeningQuantitiesTable.tableName,
-      where: '${OpeningQuantitiesTable.inventoryId} = ?',
+      table: OpeningQuantitiesTable().tableName,
+      where: '${OpeningQuantitiesTable().inventoryId} = ?',
       whereArgs: [commodity.id],
     );
     return rows.map(fromMap).toList();
@@ -553,9 +553,9 @@ final class OpeningQuantityLocalDataSourceImpl
     bool printQuery = true,
   }) async {
     final rows = await _db.query(
-      table: OpeningQuantitiesTable.tableName,
+      table: OpeningQuantitiesTable().tableName,
       where:
-          '${OpeningQuantitiesTable.inventoryId} IN (SELECT ${InventoriesTable.id} FROM ${InventoriesTable.tableName} WHERE ${InventoriesTable.storeId} = ?)',
+          '${OpeningQuantitiesTable().inventoryId} IN (SELECT ${InventoriesTable().id} FROM ${InventoriesTable().tableName} WHERE ${InventoriesTable().storeId} = ?)',
       whereArgs: [storeId],
     );
     return rows.map(fromMap).toList();
@@ -575,8 +575,8 @@ final class OpeningQuantityLocalDataSourceImpl
 
   Future<SubAccountEntity?> _getSubaccount(int accountId) async {
     final result = await _db.query(
-      table: SubAccountsTable.tableName,
-      where: '${SubAccountsTable.id} = ?',
+      table: SubAccountsTable().tableName,
+      where: '${SubAccountsTable().id} = ?',
       whereArgs: [accountId],
       limit: 1,
     );
@@ -586,8 +586,8 @@ final class OpeningQuantityLocalDataSourceImpl
 
   Future<MainAccountModel?> _getMainAccount(int accountId) async {
     final result = await _db.query(
-      table: MainAccountsTable.tableName,
-      where: '${MainAccountsTable.id} = ?',
+      table: MainAccountsTable().tableName,
+      where: '${MainAccountsTable().id} = ?',
       whereArgs: [accountId],
       limit: 1,
     );
@@ -597,8 +597,8 @@ final class OpeningQuantityLocalDataSourceImpl
 
   Future<CategoryEntity?> _getCategory(int categoryId) async {
     final result = await _db.query(
-      table: CategoriesTable.tableName,
-      where: '${CategoriesTable.id} = ?',
+      table: CategoriesTable().tableName,
+      where: '${CategoriesTable().id} = ?',
       whereArgs: [categoryId],
       limit: 1,
     );
@@ -608,8 +608,8 @@ final class OpeningQuantityLocalDataSourceImpl
 
   Future<InventoryEntity?> _getInventory(int inventoryId) async {
     final result = await _db.query(
-      table: InventoriesTable.tableName,
-      where: '${InventoriesTable.id} = ?',
+      table: InventoriesTable().tableName,
+      where: '${InventoriesTable().id} = ?',
       whereArgs: [inventoryId],
       limit: 1,
     );
@@ -619,8 +619,8 @@ final class OpeningQuantityLocalDataSourceImpl
 
   Future<UnitEntity?> _getUnit(int categoryId) async {
     final result = await _db.query(
-      table: UnitsTable.tableName,
-      where: '${UnitsTable.id} = ?',
+      table: UnitsTable().tableName,
+      where: '${UnitsTable().id} = ?',
       whereArgs: [categoryId],
       limit: 1,
     );
@@ -630,9 +630,9 @@ final class OpeningQuantityLocalDataSourceImpl
 
   Future<double> _getExPrice(String fromCurrencyId, String toCurrencyId) async {
     final result = await _db.query(
-      table: ExchangePricesTable.tableName,
+      table: ExchangePricesTable().tableName,
       where:
-          '${ExchangePricesTable.fromCurrencyId} = ? AND ${ExchangePricesTable.toCurrencyId} = ?',
+          '${ExchangePricesTable().fromCurrencyId} = ? AND ${ExchangePricesTable().toCurrencyId} = ?',
       whereArgs: [fromCurrencyId, toCurrencyId],
       limit: 1,
     );
@@ -644,7 +644,7 @@ final class OpeningQuantityLocalDataSourceImpl
     JournalEntryEntity entity,
   ) async {
     final result = await _db.insert(
-      table: JournalEntriesTable.tableName,
+      table: JournalEntriesTable().tableName,
       data: journalEntryToMap(entity),
     );
     if (result <= 0) {
@@ -655,7 +655,7 @@ final class OpeningQuantityLocalDataSourceImpl
 
   Future<JournalItemEntity> _insertJournalItem(JournalItemEntity entity) async {
     final result = await _db.insert(
-      table: JournalItemsTable.tableName,
+      table: JournalItemsTable().tableName,
       data: journalItemToMap(entity),
     );
     if (result <= 0) {

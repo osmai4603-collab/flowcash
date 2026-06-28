@@ -36,11 +36,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
   Map<int, TableColumnWidth> getWidths() {
     return {
       0: const FlexColumnWidth(0.06), // No
-      1: const FlexColumnWidth(0.12), // الرقم
-      2: const FlexColumnWidth(0.24), // الصنف
-      3: const FlexColumnWidth(0.22), // الصنف الفرعي
+      1: const FlexColumnWidth(0.08), // الرقم
+      2: const FlexColumnWidth(0.40), // الصنف
+      3: const FlexColumnWidth(0.14), // الصنف الفرعي
       4: const FlexColumnWidth(0.10), // الوحدة
-      5: const FlexColumnWidth(0.14), // نوع تعريف الصنف
+      5: const FlexColumnWidth(0.10), // نوع تعريف الصنف
       6: const FlexColumnWidth(0.12), // الباركود
     };
   }
@@ -83,6 +83,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
         }
 
         return Column(
+          mainAxisAlignment: .start,
+          crossAxisAlignment: .stretch,
           children: [
             Table(
               columnWidths: getWidths(),
@@ -105,7 +107,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     _buildHeaderCell('الصنف', style),
                     _buildHeaderCell('الصنف الفرعي', style),
                     _buildHeaderCell('الوحدة', style),
-                    _buildHeaderCell('نوع تعريف الصنف', style),
+                    _buildHeaderCell('نوع الصنف', style),
                     _buildHeaderCell('الباركود', style),
                   ],
                 ),

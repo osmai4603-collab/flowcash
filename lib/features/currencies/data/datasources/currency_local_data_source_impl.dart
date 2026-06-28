@@ -1,7 +1,7 @@
 import 'package:flowcash/features/currencies/data/datasources/currency_data_source.dart';
 import 'package:flowcash/features/currencies/data/models/currency_model.dart';
 import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/currencies_table.dart';
 import 'package:flowcash/core/tables/exchange_prices_table.dart';
 
@@ -12,13 +12,13 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
   @override
   Future<List<CurrencyEntity>> get({Iterable<String>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: CurrenciesTable.tableName);
+      final rows = await _db.query(table: CurrenciesTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${CurrenciesTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${CurrenciesTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: CurrenciesTable.tableName,
+      table: CurrenciesTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -28,8 +28,8 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
   @override
   Future<CurrencyEntity?> getById(String id) async {
     final rows = await _db.query(
-      table: CurrenciesTable.tableName,
-      where: '${CurrenciesTable.id} = ?',
+      table: CurrenciesTable().tableName,
+      where: '${CurrenciesTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -41,43 +41,43 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
   Future<CurrencyEntity> insert(CurrencyEntity entity) async {
     return await _db.transaction(() async {
       final entityId = await _db.insert(
-        table: CurrenciesTable.tableName,
-        data: _sanitizeInsertData(toMap(entity), CurrenciesTable.id),
+        table: CurrenciesTable().tableName,
+        data: _sanitizeInsertData(toMap(entity), CurrenciesTable().id),
       );
       if (entityId < 0) {
         throw Exception('Failed to insert currency');
       }
 
-      final currencyRows = await _db.query(table: CurrenciesTable.tableName);
+      final currencyRows = await _db.query(table: CurrenciesTable().tableName);
       final currencyIds = currencyRows
-          .map((row) => row[CurrenciesTable.id] as String)
+          .map((row) => row[CurrenciesTable().id] as String)
           .toList();
 
       final exchangePrices = <Map<String, dynamic>>[];
       for (final currencyId in currencyIds) {
         if (currencyId == entity.id) {
           exchangePrices.add({
-            ExchangePricesTable.fromCurrencyId: entity.id,
-            ExchangePricesTable.toCurrencyId: entity.id,
-            ExchangePricesTable.exchangePrice: 1.0,
+            ExchangePricesTable().fromCurrencyId: entity.id,
+            ExchangePricesTable().toCurrencyId: entity.id,
+            ExchangePricesTable().exchangePrice: 1.0,
           });
           continue;
         }
 
         exchangePrices.add({
-          ExchangePricesTable.fromCurrencyId: entity.id,
-          ExchangePricesTable.toCurrencyId: currencyId,
-          ExchangePricesTable.exchangePrice: 1.0,
+          ExchangePricesTable().fromCurrencyId: entity.id,
+          ExchangePricesTable().toCurrencyId: currencyId,
+          ExchangePricesTable().exchangePrice: 1.0,
         });
         exchangePrices.add({
-          ExchangePricesTable.fromCurrencyId: currencyId,
-          ExchangePricesTable.toCurrencyId: entity.id,
-          ExchangePricesTable.exchangePrice: 1.0,
+          ExchangePricesTable().fromCurrencyId: currencyId,
+          ExchangePricesTable().toCurrencyId: entity.id,
+          ExchangePricesTable().exchangePrice: 1.0,
         });
       }
 
       await _db.insertAll(
-        table: ExchangePricesTable.tableName,
+        table: ExchangePricesTable().tableName,
         dataList: exchangePrices,
       );
 
@@ -88,9 +88,9 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
   @override
   Future<CurrencyEntity> update(CurrencyEntity entity) async {
     await _db.update(
-      table: CurrenciesTable.tableName,
+      table: CurrenciesTable().tableName,
       data: toMap(entity),
-      where: {CurrenciesTable.id: entity.id},
+      where: {CurrenciesTable().id: entity.id},
     );
     return entity;
   }
@@ -99,18 +99,18 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
   Future<bool> delete(String id) async {
     await _db.transaction(() async {
       await _db.deleteWhere(
-        table: ExchangePricesTable.tableName,
-        where: {ExchangePricesTable.fromCurrencyId: id},
+        table: ExchangePricesTable().tableName,
+        where: {ExchangePricesTable().fromCurrencyId: id},
       );
 
       await _db.deleteWhere(
-        table: ExchangePricesTable.tableName,
-        where: {ExchangePricesTable.toCurrencyId: id},
+        table: ExchangePricesTable().tableName,
+        where: {ExchangePricesTable().toCurrencyId: id},
       );
 
       await _db.deleteWhere(
-        table: CurrenciesTable.tableName,
-        where: {CurrenciesTable.id: id},
+        table: CurrenciesTable().tableName,
+        where: {CurrenciesTable().id: id},
       );
     });
     return true;
@@ -140,8 +140,8 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
     bool printQuery = true,
   }) async {
     final rows = await _db.query(
-      table: CurrenciesTable.tableName,
-      where: '${CurrenciesTable.isDefault} = ?',
+      table: CurrenciesTable().tableName,
+      where: '${CurrenciesTable().isDefault} = ?',
       whereArgs: [1],
     );
     return rows.map(fromMap).toList();
@@ -153,8 +153,8 @@ final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
     bool printQuery = true,
   }) async {
     final rows = await _db.query(
-      table: CurrenciesTable.tableName,
-      where: '${CurrenciesTable.isDefault} = ?',
+      table: CurrenciesTable().tableName,
+      where: '${CurrenciesTable().isDefault} = ?',
       whereArgs: [0],
     );
     return rows.map(fromMap).toList();

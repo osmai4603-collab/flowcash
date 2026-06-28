@@ -12,21 +12,21 @@ final class BillOrderModel extends BillOrderEntity {
 
   factory BillOrderModel.fromMap(Map<String, dynamic> map) {
     return BillOrderModel(
-      id: map[BillOrdersTable.id] as int,
-      billId: map[BillOrdersTable.billId] as int,
-      categoryId: map[BillOrdersTable.categoryId] as int,
-      countUnits: (map[BillOrdersTable.countUnits] ?? 0.0).toDouble(),
-      totalPrice: (map[BillOrdersTable.totalPrice] ?? 0.0).toDouble(),
+      id: map[BillOrdersTable().id] as int,
+      billId: map[BillOrdersTable().billId] as int,
+      categoryId: map[BillOrdersTable().categoryId] as int,
+      countUnits: (map[BillOrdersTable().countUnits] ?? 0.0).toDouble(),
+      totalPrice: (map[BillOrdersTable().totalPrice] ?? 0.0).toDouble(),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      BillOrdersTable.id: id,
-      BillOrdersTable.billId: billId,
-      BillOrdersTable.categoryId: categoryId,
-      BillOrdersTable.countUnits: countUnits,
-      BillOrdersTable.totalPrice: totalPrice,
+      BillOrdersTable().id: id,
+      BillOrdersTable().billId: billId,
+      BillOrdersTable().categoryId: categoryId,
+      BillOrdersTable().countUnits: countUnits,
+      BillOrdersTable().totalPrice: totalPrice,
     };
   }
 

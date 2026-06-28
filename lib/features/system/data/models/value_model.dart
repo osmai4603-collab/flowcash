@@ -7,19 +7,19 @@ final class ValueModel extends ValueEntity {
 
   factory ValueModel.fromMap(Map<String, dynamic> map) {
     return ValueModel(
-      id: map[ValuesTable.id] as int,
-      value: map[ValuesTable.value],
+      id: map[ValuesTable().id] as int,
+      value: map[ValuesTable().value],
       valueType: ValueType.of(
-        map[ValuesTable.valueType] as String? ?? 'app_name',
+        map[ValuesTable().valueType] as String? ?? 'app_name',
       ),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      ValuesTable.id: id,
-      ValuesTable.value: value,
-      ValuesTable.valueType: valueType.name,
+      ValuesTable().id: id,
+      ValuesTable().value: value,
+      ValuesTable().valueType: valueType.name,
     };
   }
 

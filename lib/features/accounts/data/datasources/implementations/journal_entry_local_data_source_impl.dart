@@ -3,9 +3,8 @@ import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
 import 'package:flowcash/features/accounts/data/models/journal_entry_model.dart';
 import 'package:flowcash/features/accounts/data/models/journal_item_model.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/journal_entries_table.dart';
-import 'package:flowcash/core/enums/journal_status_enum.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
 
 final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
@@ -19,11 +18,11 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
     bool getItems = false,
   }) async {
     final rows = ids == null
-        ? await _db.query(table: JournalEntriesTable.tableName)
+        ? await _db.query(table: JournalEntriesTable().tableName)
         : await _db.query(
-            table: JournalEntriesTable.tableName,
+            table: JournalEntriesTable().tableName,
             where:
-                '${JournalEntriesTable.id} IN (${List.filled(ids.length, '?').join(', ')})',
+                '${JournalEntriesTable().id} IN (${List.filled(ids.length, '?').join(', ')})',
             whereArgs: ids.toList(),
           );
 
@@ -40,8 +39,8 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
   @override
   Future<JournalEntryEntity?> getById(int id, {bool getItems = false}) async {
     final rows = await _db.query(
-      table: JournalEntriesTable.tableName,
-      where: '${JournalEntriesTable.id} = ?',
+      table: JournalEntriesTable().tableName,
+      where: '${JournalEntriesTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -57,7 +56,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
   Future<JournalEntryEntity> insert(JournalEntryEntity entity) async {
     return await _db.transaction(() async {
       final entryId = await _db.insert(
-        table: JournalEntriesTable.tableName,
+        table: JournalEntriesTable().tableName,
         data: toMap(entity),
       );
 
@@ -68,7 +67,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
       for (var index = 0; index < entity.items.length; index++) {
         final item = entity.items[index].copyWith(entryId: entryId);
         final itemId = await _db.insert(
-          table: JournalItemsTable.tableName,
+          table: JournalItemsTable().tableName,
           data: journalItemToMap(item),
         );
 
@@ -94,16 +93,16 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
 
       if (entry.id > 0) {
         final updateData = Map<String, dynamic>.from(toMap(entry))
-          ..remove(JournalEntriesTable.id);
+          ..remove(JournalEntriesTable().id);
         final setClause = updateData.keys.map((key) => '$key = ?').join(', ');
         final updateStmt = db.prepare(
-          'UPDATE ${JournalEntriesTable.tableName} SET $setClause WHERE ${JournalEntriesTable.id} = ?',
+          'UPDATE ${JournalEntriesTable().tableName} SET $setClause WHERE ${JournalEntriesTable().id} = ?',
         );
         updateStmt.execute([...updateData.values, entry.id]);
         updateStmt.dispose();
 
         final deleteStmt = db.prepare(
-          'DELETE FROM ${JournalItemsTable.tableName} WHERE ${JournalItemsTable.entryId} = ?',
+          'DELETE FROM ${JournalItemsTable().tableName} WHERE ${JournalItemsTable().entryId} = ?',
         );
         deleteStmt.execute([entry.id]);
         deleteStmt.dispose();
@@ -112,7 +111,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
         final columns = insertData.keys.join(', ');
         final placeholders = List.filled(insertData.length, '?').join(', ');
         final insertStmt = db.prepare(
-          'INSERT INTO ${JournalEntriesTable.tableName} ($columns) VALUES ($placeholders)',
+          'INSERT INTO ${JournalEntriesTable().tableName} ($columns) VALUES ($placeholders)',
         );
         insertStmt.execute(insertData.values.toList());
         final id = db.lastInsertRowId;
@@ -127,7 +126,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
         final columns = sanitizedItem.keys.join(', ');
         final placeholders = List.filled(sanitizedItem.length, '?').join(', ');
         final itemInsertStmt = db.prepare(
-          'INSERT INTO ${JournalItemsTable.tableName} ($columns) VALUES ($placeholders)',
+          'INSERT INTO ${JournalItemsTable().tableName} ($columns) VALUES ($placeholders)',
         );
         itemInsertStmt.execute(sanitizedItem.values.toList());
         itemInsertStmt.dispose();
@@ -143,8 +142,8 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
 
   Future<List<JournalItemEntity>> _getJournalItemsByEntryId(int entryId) async {
     final rows = await _db.query(
-      table: JournalItemsTable.tableName,
-      where: '${JournalItemsTable.entryId} = ?',
+      table: JournalItemsTable().tableName,
+      where: '${JournalItemsTable().entryId} = ?',
       whereArgs: [entryId],
     );
     return rows.map(_journalItemFromMap).toList();
@@ -156,9 +155,9 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
     if (entryIds.isEmpty) return {};
 
     final where =
-        '${JournalItemsTable.entryId} IN (${List.filled(entryIds.length, '?').join(', ')})';
+        '${JournalItemsTable().entryId} IN (${List.filled(entryIds.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: JournalItemsTable.tableName,
+      table: JournalItemsTable().tableName,
       where: where,
       whereArgs: entryIds,
     );
@@ -175,9 +174,9 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
   Future<JournalEntryEntity> update(JournalEntryEntity entity) async {
     return await _db.transaction(() async {
       await _db.update(
-        table: JournalEntriesTable.tableName,
+        table: JournalEntriesTable().tableName,
         data: toMap(entity),
-        where: {JournalEntriesTable.id: entity.id},
+        where: {JournalEntriesTable().id: entity.id},
       );
 
       final updatedItems = <JournalItemEntity>[];
@@ -185,17 +184,17 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
         final item = entity.items[index].copyWith(entryId: entity.id);
         if (item.id > 0) {
           await _db.update(
-            table: JournalItemsTable.tableName,
+            table: JournalItemsTable().tableName,
             data: journalItemToMap(item),
-            where: {JournalItemsTable.itemId: item.id},
+            where: {JournalItemsTable().itemId: item.id},
           );
           updatedItems.add(item);
         } else {
           final itemId = await _db.insert(
-            table: JournalItemsTable.tableName,
+            table: JournalItemsTable().tableName,
             data: _sanitizeInsertData(
               journalItemToMap(item),
-              JournalItemsTable.itemId,
+              JournalItemsTable().itemId,
             ),
           );
           if (itemId <= 0) {
@@ -213,12 +212,12 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
   Future<bool> delete(int id) async {
     return await _db.transaction(() async {
       await _db.deleteWhere(
-        table: JournalItemsTable.tableName,
-        where: {JournalItemsTable.entryId: id},
+        table: JournalItemsTable().tableName,
+        where: {JournalItemsTable().entryId: id},
       );
       await _db.deleteWhere(
-        table: JournalEntriesTable.tableName,
-        where: {JournalEntriesTable.id: id},
+        table: JournalEntriesTable().tableName,
+        where: {JournalEntriesTable().id: id},
       );
       return true;
     });
@@ -254,8 +253,8 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
   @override
   Future<List<JournalEntryEntity>> whereWarehouse(int warehouseId) async {
     final rows = await _db.query(
-      table: JournalEntriesTable.tableName,
-      where: '${JournalEntriesTable.warehouseId} = ?',
+      table: JournalEntriesTable().tableName,
+      where: '${JournalEntriesTable().warehouseId} = ?',
       whereArgs: [warehouseId],
     );
     return rows.map(fromMap).toList();
@@ -264,8 +263,8 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
   @override
   Future<List<JournalEntryEntity>> whereCreatedBy(int userId) async {
     final rows = await _db.query(
-      table: JournalEntriesTable.tableName,
-      where: '${JournalEntriesTable.userId} = ?',
+      table: JournalEntriesTable().tableName,
+      where: '${JournalEntriesTable().userId} = ?',
       whereArgs: [userId],
     );
     return rows.map(fromMap).toList();
@@ -276,8 +275,8 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
     String referenceNumber,
   ) async {
     final rows = await _db.query(
-      table: JournalEntriesTable.tableName,
-      where: '${JournalEntriesTable.referenceNumber} = ?',
+      table: JournalEntriesTable().tableName,
+      where: '${JournalEntriesTable().referenceNumber} = ?',
       whereArgs: [referenceNumber],
       limit: 1,
     );

@@ -1,26 +1,32 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول الكميات الإفتتاحية.
-class OpeningQuantitiesTable {
-  const OpeningQuantitiesTable._();
+class OpeningQuantitiesTable extends TableInfo {
+  static final OpeningQuantitiesTable _instance = OpeningQuantitiesTable.internal();
 
-  static const String tableName = 'opening_quantities';
+  factory OpeningQuantitiesTable() => _instance;
 
-  static const String id = 'opening_id';
-  static const String inventoryId = 'inventory_id';
-  static const String countUnits = 'count_units';
-  static const String createdAt = 'create_at';
-  static const String costTotal = 'cost_total';
-  static const String periodId = 'period_id';
-  static const String currencyId = 'currency_id';
-  static const String journalEntryId = 'journal_entry_id';
+  OpeningQuantitiesTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'opening_quantities';
+
+  final String id = 'opening_id';
+  final String inventoryId = 'inventory_id';
+  final String countUnits = 'count_units';
+  final String createdAt = 'create_at';
+  final String costTotal = 'cost_total';
+  final String periodId = 'period_id';
+  final String currencyId = 'currency_id';
+  final String journalEntryId = 'journal_entry_id';
+
+  @override
+  List<String> get columns => [id,
     inventoryId,
     countUnits,
     createdAt,
     costTotal,
     periodId,
     currencyId,
-    journalEntryId,
-  ];
+    journalEntryId,];
 }

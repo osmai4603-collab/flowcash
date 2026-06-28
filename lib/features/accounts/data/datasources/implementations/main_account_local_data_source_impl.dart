@@ -1,7 +1,7 @@
 import 'package:flowcash/features/accounts/data/datasources/interfaces/main_account_data_source.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
 import 'package:flowcash/features/accounts/data/models/main_account_model.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/main_accounts_table.dart';
 import 'package:flowcash/core/enums/main_account_type_enum.dart';
 import 'package:flowcash/core/enums/main_account_group_enum.dart';
@@ -13,13 +13,13 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
   @override
   Future<List<MainAccountEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: MainAccountsTable.tableName);
+      final rows = await _db.query(table: MainAccountsTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${MainAccountsTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${MainAccountsTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: MainAccountsTable.tableName,
+      table: MainAccountsTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -29,8 +29,8 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
   @override
   Future<MainAccountEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: MainAccountsTable.tableName,
-      where: '${MainAccountsTable.id} = ?',
+      table: MainAccountsTable().tableName,
+      where: '${MainAccountsTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -41,7 +41,7 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
   @override
   Future<MainAccountEntity> insert(MainAccountEntity entity) async {
     final entityId = await _db.insert(
-      table: MainAccountsTable.tableName,
+      table: MainAccountsTable().tableName,
       data: toMap(entity),
     );
     if (entityId < 0) {
@@ -53,9 +53,9 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
   @override
   Future<MainAccountEntity> update(MainAccountEntity entity) async {
     await _db.update(
-      table: MainAccountsTable.tableName,
+      table: MainAccountsTable().tableName,
       data: toMap(entity),
-      where: {MainAccountsTable.id: entity.id},
+      where: {MainAccountsTable().id: entity.id},
     );
     return entity;
   }
@@ -63,8 +63,8 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
   @override
   Future<bool> delete(int id) async {
     await _db.deleteWhere(
-      table: MainAccountsTable.tableName,
-      where: {MainAccountsTable.id: id},
+      table: MainAccountsTable().tableName,
+      where: {MainAccountsTable().id: id},
     );
     return true;
   }
@@ -102,8 +102,8 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     if (types.isEmpty) return [];
     final typePlaceholders = List.filled(types.length, '?').join(', ');
     final rows = await _db.query(
-      table: MainAccountsTable.tableName,
-      where: '${MainAccountsTable.mainAccountType} IN ($typePlaceholders)',
+      table: MainAccountsTable().tableName,
+      where: '${MainAccountsTable().mainAccountType} IN ($typePlaceholders)',
       whereArgs: types,
     );
     return rows.map(fromMap).toList();
@@ -115,8 +115,8 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     int warehouseId,
   ) async {
     final rows = await _db.query(
-      table: MainAccountsTable.tableName,
-      where: '${MainAccountsTable.mainAccountType} = ?',
+      table: MainAccountsTable().tableName,
+      where: '${MainAccountsTable().mainAccountType} = ?',
       whereArgs: [belongGroup.name],
     );
     return rows.map(fromMap).toList();
@@ -131,8 +131,8 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     final names = belongGroup.map((e) => e.name).toList();
     final placeholders = List.filled(names.length, '?').join(', ');
     final rows = await _db.query(
-      table: MainAccountsTable.tableName,
-      where: '${MainAccountsTable.mainAccountType} IN ($placeholders)',
+      table: MainAccountsTable().tableName,
+      where: '${MainAccountsTable().mainAccountType} IN ($placeholders)',
       whereArgs: names,
     );
     return rows.map(fromMap).toList();
@@ -150,8 +150,8 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     if (mainTypes.isEmpty) return [];
     final placeholders = List.filled(mainTypes.length, '?').join(', ');
     final rows = await _db.query(
-      table: MainAccountsTable.tableName,
-      where: '${MainAccountsTable.mainAccountType} IN ($placeholders)',
+      table: MainAccountsTable().tableName,
+      where: '${MainAccountsTable().mainAccountType} IN ($placeholders)',
       whereArgs: mainTypes,
     );
     return rows.map(fromMap).toList();
@@ -166,7 +166,7 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     final placeholders = List.filled(types.length, '?').join(', ');
     final db = await _db.database;
     final sql =
-        'SELECT MAX(CAST(${MainAccountsTable.accountNumber} AS INTEGER)) AS max_num FROM ${MainAccountsTable.tableName} WHERE ${MainAccountsTable.mainAccountType} IN ($placeholders)';
+        'SELECT MAX(CAST(${MainAccountsTable().accountNumber} AS INTEGER)) AS max_num FROM ${MainAccountsTable().tableName} WHERE ${MainAccountsTable().mainAccountType} IN ($placeholders)';
     final stmt = db.prepare(sql);
     final rs = stmt.select(types);
     final maxNum = rs.isNotEmpty ? rs.first['max_num'] as int? : null;
@@ -176,16 +176,16 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
 
   @override
   Future<List<MainAccountEntity>> whereWarehouse(int warehouseId) async {
-    final rows = await _db.query(table: MainAccountsTable.tableName);
+    final rows = await _db.query(table: MainAccountsTable().tableName);
     return rows.map(fromMap).toList();
   }
 
   @override
   Future<bool> updateCounter({required int counter, required int id}) async {
     await _db.update(
-      table: MainAccountsTable.tableName,
-      data: {MainAccountsTable.numbersCounter: counter},
-      where: {MainAccountsTable.id: id},
+      table: MainAccountsTable().tableName,
+      data: {MainAccountsTable().numbersCounter: counter},
+      where: {MainAccountsTable().id: id},
     );
     return true;
   }
@@ -199,12 +199,12 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     final mainAcc = await getById(id);
     if (mainAcc == null) return false;
     await _db.update(
-      table: MainAccountsTable.tableName,
+      table: MainAccountsTable().tableName,
       data: {
-        MainAccountsTable.debitBalance: mainAcc.debitBalance + debitBalance,
-        MainAccountsTable.creditBalance: mainAcc.creditBalance + creditBalance,
+        MainAccountsTable().debitBalance: mainAcc.debitBalance + debitBalance,
+        MainAccountsTable().creditBalance: mainAcc.creditBalance + creditBalance,
       },
-      where: {MainAccountsTable.id: id},
+      where: {MainAccountsTable().id: id},
     );
     return true;
   }
@@ -218,14 +218,14 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     final mainAcc = await firstWhereSubAccountId(subAccountId);
     final data = <String, dynamic>{};
     if (isIncrement) {
-      data[MainAccountsTable.debitBalance] = mainAcc.debitBalance + amount;
+      data[MainAccountsTable().debitBalance] = mainAcc.debitBalance + amount;
     } else {
-      data[MainAccountsTable.creditBalance] = mainAcc.creditBalance + amount;
+      data[MainAccountsTable().creditBalance] = mainAcc.creditBalance + amount;
     }
     await _db.update(
-      table: MainAccountsTable.tableName,
+      table: MainAccountsTable().tableName,
       data: data,
-      where: {MainAccountsTable.id: mainAcc.id},
+      where: {MainAccountsTable().id: mainAcc.id},
     );
     return true;
   }
@@ -235,8 +235,8 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     final db = await _db.database;
     final sql =
         '''
-      SELECT m.* FROM ${MainAccountsTable.tableName} m
-      INNER JOIN sub_accounts s ON s.main_account_id = m.${MainAccountsTable.id}
+      SELECT m.* FROM ${MainAccountsTable().tableName} m
+      INNER JOIN sub_accounts s ON s.main_account_id = m.${MainAccountsTable().id}
       WHERE s.account_id = ?
     ''';
     final stmt = db.prepare(sql);

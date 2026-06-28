@@ -1,27 +1,34 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول الفواتير.
-class BillsTable {
-  const BillsTable._();
+class BillsTable extends TableInfo {
+  static final BillsTable _instance = BillsTable.internal();
 
-  static const String tableName = 'bills';
+  factory BillsTable() => _instance;
 
-  static const String id = 'bill_id';
-  static const String createdAt = 'create_at';
-  static const String createdBy = 'create_by';
-  static const String note = 'note';
-  static const String offerAmount = 'amount';
-  static const String currencyId = 'currency_id';
-  static const String billNumber = 'bill_number';
-  static const String warehouseId = 'warehouse_id';
-  static const String journalEntryId = 'journal_entry_id';
-  static const String personId = 'person_id';
-  static const String inventoryTransactionId = 'inventory_transaction_id';
-  static const String isCash = 'is_cash';
-  static const String billType = 'bill_type';
-  static const String costGoodId = 'cost_good_id';
-  static const String treasuryId = 'treasury_id';
+  BillsTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'bills';
+
+  final String id = 'bill_id';
+  final String createdAt = 'create_at';
+  final String createdBy = 'create_by';
+  final String note = 'note';
+  final String offerAmount = 'amount';
+  final String currencyId = 'currency_id';
+  final String billNumber = 'bill_number';
+  final String warehouseId = 'warehouse_id';
+  final String journalEntryId = 'journal_entry_id';
+  final String personId = 'person_id';
+  final String inventoryTransactionId = 'inventory_transaction_id';
+  final String isCash = 'is_cash';
+  final String billType = 'bill_type';
+  final String costGoodId = 'cost_good_id';
+  final String treasuryId = 'treasury_id';
+
+  @override
+  List<String> get columns => [id,
     createdAt,
     createdBy,
     note,
@@ -35,6 +42,5 @@ class BillsTable {
     isCash,
     billType,
     costGoodId,
-    treasuryId,
-  ];
+    treasuryId,];
 }

@@ -1,20 +1,26 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول مستخدمي البرنامج.
-class ProgramUsersTable {
-  const ProgramUsersTable._();
+class ProgramUsersTable extends TableInfo {
+  static final ProgramUsersTable _instance = ProgramUsersTable.internal();
 
-  static const String tableName = 'program_users';
+  factory ProgramUsersTable() => _instance;
 
-  static const String id = 'user_id';
-  static const String userName = 'user_name';
-  static const String password = 'password';
-  static const String userType = 'user_type';
-  static const String warehouseId = 'warehouse_id';
+  ProgramUsersTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'program_users';
+
+  final String id = 'user_id';
+  final String userName = 'user_name';
+  final String password = 'password';
+  final String userType = 'user_type';
+  final String warehouseId = 'warehouse_id';
+
+  @override
+  List<String> get columns => [id,
     userName,
     password,
     userType,
-    warehouseId,
-  ];
+    warehouseId,];
 }

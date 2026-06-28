@@ -12,21 +12,21 @@ final class WarehouseValueModel extends WarehouseValueEntity {
 
   factory WarehouseValueModel.fromMap(Map<String, dynamic> map) {
     return WarehouseValueModel(
-      id: map[WarehouseValuesTable.id] as int,
-      warehouseId: map[WarehouseValuesTable.warehouseId] as int,
+      id: map[WarehouseValuesTable().id] as int,
+      warehouseId: map[WarehouseValuesTable().warehouseId] as int,
       valueType: WarehouseValueType.of(
-        map[WarehouseValuesTable.valueType] as String,
+        map[WarehouseValuesTable().valueType] as String,
       ),
-      value: map[WarehouseValuesTable.value],
+      value: map[WarehouseValuesTable().value],
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) WarehouseValuesTable.id: id,
-      WarehouseValuesTable.warehouseId: warehouseId,
-      WarehouseValuesTable.valueType: valueType.name,
-      WarehouseValuesTable.value: value,
+      if (id > 0) WarehouseValuesTable().id: id,
+      WarehouseValuesTable().warehouseId: warehouseId,
+      WarehouseValuesTable().valueType: valueType.name,
+      WarehouseValuesTable().value: value,
     };
   }
 

@@ -12,21 +12,21 @@ final class CostGoodBillOrderModel extends CostGoodBillOrderEntity {
 
   factory CostGoodBillOrderModel.fromMap(Map<String, dynamic> map) {
     return CostGoodBillOrderModel(
-      id: map[CostGoodBillOrdersTable.id] as int,
-      costGoodBillId: map[CostGoodBillOrdersTable.billId] as int,
-      categoryId: map[CostGoodBillOrdersTable.categoryId] as int,
-      countUnits: (map[CostGoodBillOrdersTable.countUnits] as num).toDouble(),
-      totalPrice: (map[CostGoodBillOrdersTable.totalPrice] as num).toDouble(),
+      id: map[CostGoodBillOrdersTable().id] as int,
+      costGoodBillId: map[CostGoodBillOrdersTable().billId] as int,
+      categoryId: map[CostGoodBillOrdersTable().categoryId] as int,
+      countUnits: (map[CostGoodBillOrdersTable().countUnits] as num).toDouble(),
+      totalPrice: (map[CostGoodBillOrdersTable().totalPrice] as num).toDouble(),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) CostGoodBillOrdersTable.id: id,
-      CostGoodBillOrdersTable.billId: costGoodBillId,
-      CostGoodBillOrdersTable.categoryId: categoryId,
-      CostGoodBillOrdersTable.countUnits: countUnits,
-      CostGoodBillOrdersTable.totalPrice: totalPrice,
+      if (id > 0) CostGoodBillOrdersTable().id: id,
+      CostGoodBillOrdersTable().billId: costGoodBillId,
+      CostGoodBillOrdersTable().categoryId: categoryId,
+      CostGoodBillOrdersTable().countUnits: countUnits,
+      CostGoodBillOrdersTable().totalPrice: totalPrice,
     };
   }
 

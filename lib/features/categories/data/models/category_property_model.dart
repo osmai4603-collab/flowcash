@@ -16,37 +16,38 @@ final class CategoryPropertyModel extends CategoryPropertyEntity {
 
   factory CategoryPropertyModel.fromMap(Map<String, dynamic> map) {
     return CategoryPropertyModel(
-      id: map[CategoryPropertiesTable.id] as int,
-      mainCategoryId: map[CategoryPropertiesTable.mainCategoryId] as int,
-      propertyName: map[CategoryPropertiesTable.propertyName] as String? ?? '',
+      id: map[CategoryPropertiesTable().id] as int,
+      mainCategoryId: map[CategoryPropertiesTable().mainCategoryId] as int,
+      propertyName:
+          map[CategoryPropertiesTable().propertyName] as String? ?? '',
       unitType: UnitType.of(
-        map[CategoryPropertiesTable.unitType] as String? ?? 'piece',
+        map[CategoryPropertiesTable().unitType] as String? ?? 'piece',
       ),
       isSingle:
-          map[CategoryPropertiesTable.isSingle] == 1 ||
-          map[CategoryPropertiesTable.isSingle] == true,
+          map[CategoryPropertiesTable().isSingle] == 1 ||
+          map[CategoryPropertiesTable().isSingle] == true,
       isCategoryUnit:
-          map[CategoryPropertiesTable.isCategoryUnit] == 1 ||
-          map[CategoryPropertiesTable.isCategoryUnit] == true,
+          map[CategoryPropertiesTable().isCategoryUnit] == 1 ||
+          map[CategoryPropertiesTable().isCategoryUnit] == true,
       isPricingUnit:
-          map[CategoryPropertiesTable.isPricingUnit] == 1 ||
-          map[CategoryPropertiesTable.isPricingUnit] == true,
+          map[CategoryPropertiesTable().isPricingUnit] == 1 ||
+          map[CategoryPropertiesTable().isPricingUnit] == true,
       isInventoryUnit:
-          map[CategoryPropertiesTable.isInventoryUnit] == 1 ||
-          map[CategoryPropertiesTable.isInventoryUnit] == true,
+          map[CategoryPropertiesTable().isInventoryUnit] == 1 ||
+          map[CategoryPropertiesTable().isInventoryUnit] == true,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      CategoryPropertiesTable.id: id,
-      CategoryPropertiesTable.mainCategoryId: mainCategoryId,
-      CategoryPropertiesTable.propertyName: propertyName,
-      CategoryPropertiesTable.unitType: unitType.name,
-      CategoryPropertiesTable.isSingle: isSingle ? 1 : 0,
-      CategoryPropertiesTable.isCategoryUnit: isCategoryUnit ? 1 : 0,
-      CategoryPropertiesTable.isPricingUnit: isPricingUnit ? 1 : 0,
-      CategoryPropertiesTable.isInventoryUnit: isInventoryUnit ? 1 : 0,
+      CategoryPropertiesTable().id: id,
+      CategoryPropertiesTable().mainCategoryId: mainCategoryId,
+      CategoryPropertiesTable().propertyName: propertyName,
+      CategoryPropertiesTable().unitType: unitType.name,
+      CategoryPropertiesTable().isSingle: isSingle ? 1 : 0,
+      CategoryPropertiesTable().isCategoryUnit: isCategoryUnit ? 1 : 0,
+      CategoryPropertiesTable().isPricingUnit: isPricingUnit ? 1 : 0,
+      CategoryPropertiesTable().isInventoryUnit: isInventoryUnit ? 1 : 0,
     };
   }
 
@@ -70,6 +71,19 @@ final class CategoryPropertyModel extends CategoryPropertyEntity {
       isCategoryUnit: isCategoryUnit ?? this.isCategoryUnit,
       isPricingUnit: isPricingUnit ?? this.isPricingUnit,
       isInventoryUnit: isInventoryUnit ?? this.isInventoryUnit,
+    );
+  }
+
+  static CategoryPropertyModel fromEntity(CategoryPropertyEntity entity) {
+    return CategoryPropertyModel(
+      id: entity.id,
+      mainCategoryId: entity.mainCategoryId,
+      propertyName: entity.propertyName,
+      unitType: entity.unitType,
+      isSingle: entity.isSingle,
+      isCategoryUnit: entity.isCategoryUnit,
+      isPricingUnit: entity.isPricingUnit,
+      isInventoryUnit: entity.isInventoryUnit,
     );
   }
 }

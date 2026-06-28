@@ -1,21 +1,26 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول الأصناف الرئيسية.
-class MainCategoriesTable {
-  const MainCategoriesTable._();
+class MainCategoriesTable extends TableInfo {
+  static final MainCategoriesTable _instance = MainCategoriesTable.internal();
 
-  static const String tableName = 'main_categories';
+  factory MainCategoriesTable() => _instance;
 
-  static const String id = 'category_id';
+  MainCategoriesTable.internal();
 
-  static const String categoryName = 'category_name';
-  static const String unitType = 'unit_type';
-  static const String categoryType = 'category_type';
-  static const String unitName = 'unit_name';
+  @override
+  final String tableName = 'main_categories';
 
-  static const List<String> fields = [
-    id,
+  final String id = 'category_id';
+  final String categoryName = 'category_name';
+  final String unitType = 'unit_type';
+  final String categoryType = 'category_type';
+  final String unitName = 'unit_name';
+
+  @override
+  List<String> get columns => [id,
     categoryName,
     unitType,
     categoryType,
-    unitName,
-  ];
+    unitName,];
 }

@@ -1,7 +1,7 @@
 import 'package:flowcash/features/inventory/data/datasources/inventory_transaction_order_data_source.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
 import 'package:flowcash/features/inventory/data/models/inventory_transaction_order_model.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/inventory_transactions_orders_table.dart';
 import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 
@@ -16,14 +16,14 @@ final class InventoryTransactionOrderLocalDataSourceImpl
   }) async {
     if (ids == null) {
       final rows = await _db.query(
-        table: InventoryTransactionsOrdersTable.tableName,
+        table: InventoryTransactionsOrdersTable().tableName,
       );
       return rows.map(fromMap).toList();
     }
     final where =
-        '${InventoryTransactionsOrdersTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${InventoryTransactionsOrdersTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: InventoryTransactionsOrdersTable.tableName,
+      table: InventoryTransactionsOrdersTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -33,8 +33,8 @@ final class InventoryTransactionOrderLocalDataSourceImpl
   @override
   Future<InventoryTransactionOrderEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: InventoryTransactionsOrdersTable.tableName,
-      where: '${InventoryTransactionsOrdersTable.id} = ?',
+      table: InventoryTransactionsOrdersTable().tableName,
+      where: '${InventoryTransactionsOrdersTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -47,7 +47,7 @@ final class InventoryTransactionOrderLocalDataSourceImpl
     InventoryTransactionOrderEntity entity,
   ) async {
     final entityId = await _db.insert(
-      table: InventoryTransactionsOrdersTable.tableName,
+      table: InventoryTransactionsOrdersTable().tableName,
       data: toMap(entity),
     );
     if (entityId < 0) {
@@ -61,9 +61,9 @@ final class InventoryTransactionOrderLocalDataSourceImpl
     InventoryTransactionOrderEntity entity,
   ) async {
     await _db.update(
-      table: InventoryTransactionsOrdersTable.tableName,
+      table: InventoryTransactionsOrdersTable().tableName,
       data: toMap(entity),
-      where: {InventoryTransactionsOrdersTable.id: entity.id},
+      where: {InventoryTransactionsOrdersTable().id: entity.id},
     );
     return entity;
   }
@@ -71,8 +71,8 @@ final class InventoryTransactionOrderLocalDataSourceImpl
   @override
   Future<bool> delete(int id) async {
     await _db.deleteWhere(
-      table: InventoryTransactionsOrdersTable.tableName,
-      where: {InventoryTransactionsOrdersTable.id: id},
+      table: InventoryTransactionsOrdersTable().tableName,
+      where: {InventoryTransactionsOrdersTable().id: id},
     );
     return true;
   }

@@ -1,6 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/features/categories/data/datasources/category_property_data_source.dart';
 import 'package:flowcash/features/categories/data/datasources/main_category_data_source.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
@@ -85,7 +85,7 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
     try {
       final category = await _db.transaction<MainCategoryEntity>(() async {
         final insertedId = await _db.insert(
-          table: MainCategoriesTable.tableName,
+          table: MainCategoriesTable().tableName,
           data: _dataSource.toMap(entity),
         );
 

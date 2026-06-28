@@ -2,7 +2,7 @@ import 'package:flowcash/features/inventory/data/datasources/warehouse_value_dat
 import 'package:flowcash/features/inventory/domain/entities/warehouse_value_entity.dart';
 import 'package:flowcash/features/inventory/data/models/warehouse_value_model.dart';
 import 'package:flowcash/core/enums/warehouse_value_type_enum.dart';
-import 'package:flowcash/core/services/sqlite_service.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/warehouse_values_table.dart';
 
 final class WarehouseValueLocalDataSourceImpl
@@ -13,13 +13,13 @@ final class WarehouseValueLocalDataSourceImpl
   @override
   Future<List<WarehouseValueEntity>> get({Iterable<int>? ids}) async {
     if (ids == null) {
-      final rows = await _db.query(table: WarehouseValuesTable.tableName);
+      final rows = await _db.query(table: WarehouseValuesTable().tableName);
       return rows.map(fromMap).toList();
     }
     final where =
-        '${WarehouseValuesTable.id} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${WarehouseValuesTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
-      table: WarehouseValuesTable.tableName,
+      table: WarehouseValuesTable().tableName,
       where: where,
       whereArgs: ids.toList(),
     );
@@ -29,8 +29,8 @@ final class WarehouseValueLocalDataSourceImpl
   @override
   Future<WarehouseValueEntity?> getById(int id) async {
     final rows = await _db.query(
-      table: WarehouseValuesTable.tableName,
-      where: '${WarehouseValuesTable.id} = ?',
+      table: WarehouseValuesTable().tableName,
+      where: '${WarehouseValuesTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -41,8 +41,8 @@ final class WarehouseValueLocalDataSourceImpl
   @override
   Future<WarehouseValueEntity> insert(WarehouseValueEntity entity) async {
     final entityId = await _db.insert(
-      table: WarehouseValuesTable.tableName,
-      data: _sanitizeInsertData(toMap(entity), WarehouseValuesTable.id),
+      table: WarehouseValuesTable().tableName,
+      data: _sanitizeInsertData(toMap(entity), WarehouseValuesTable().id),
     );
     if (entityId < 0) {
       throw Exception('Failed to insert warehouse value');
@@ -53,9 +53,9 @@ final class WarehouseValueLocalDataSourceImpl
   @override
   Future<WarehouseValueEntity> update(WarehouseValueEntity entity) async {
     await _db.update(
-      table: WarehouseValuesTable.tableName,
+      table: WarehouseValuesTable().tableName,
       data: toMap(entity),
-      where: {WarehouseValuesTable.id: entity.id},
+      where: {WarehouseValuesTable().id: entity.id},
     );
     return entity;
   }
@@ -63,8 +63,8 @@ final class WarehouseValueLocalDataSourceImpl
   @override
   Future<bool> delete(int id) async {
     await _db.deleteWhere(
-      table: WarehouseValuesTable.tableName,
-      where: {WarehouseValuesTable.id: id},
+      table: WarehouseValuesTable().tableName,
+      where: {WarehouseValuesTable().id: id},
     );
     return true;
   }
@@ -93,9 +93,9 @@ final class WarehouseValueLocalDataSourceImpl
     required WarehouseValueType valueType,
   }) async {
     final rows = await _db.query(
-      table: WarehouseValuesTable.tableName,
+      table: WarehouseValuesTable().tableName,
       where:
-          '${WarehouseValuesTable.warehouseId} = ? AND ${WarehouseValuesTable.valueType} = ?',
+          '${WarehouseValuesTable().warehouseId} = ? AND ${WarehouseValuesTable().valueType} = ?',
       whereArgs: [warehouseId, valueType.name],
       limit: 1,
     );
@@ -173,9 +173,9 @@ final class WarehouseValueLocalDataSourceImpl
   Future<bool> updateValue({required String? value, required int id}) async {
     try {
       await _db.update(
-        table: WarehouseValuesTable.tableName,
-        data: {WarehouseValuesTable.value: value},
-        where: {WarehouseValuesTable.id: id},
+        table: WarehouseValuesTable().tableName,
+        data: {WarehouseValuesTable().value: value},
+        where: {WarehouseValuesTable().id: id},
       );
       return true;
     } catch (_) {

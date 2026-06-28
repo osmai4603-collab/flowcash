@@ -2,6 +2,7 @@ import 'package:flowcash/core/datasources/interfaces/person_data_source.dart';
 import 'package:flowcash/core/enums/category_type_enum.dart';
 import 'package:flowcash/core/enums/inventory_account_field_enum.dart';
 import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
+import 'package:flowcash/core/enums/inventory_transaction_nature_enum.dart';
 import 'package:flowcash/core/enums/invoice_type_enum.dart';
 import 'package:flowcash/core/enums/journal_status_enum.dart';
 import 'package:flowcash/core/formatters/money_formatter.dart';
@@ -11,6 +12,7 @@ import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
 import 'package:flowcash/features/categories/data/datasources/category_data_source.dart';
+import 'package:flowcash/features/categories/data/datasources/unit_data_source.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/currencies/data/datasources/exchange_price_data_source.dart';
 import 'package:flowcash/features/currencies/domain/entities/exchange_price_entity.dart';
@@ -21,11 +23,13 @@ import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dar
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
 import 'package:flowcash/features/transactions/data/datasources/interfaces/bill_order_data_source.dart';
+import 'package:flowcash/features/transactions/data/datasources/interfaces/cost_good_bill_data_source.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 import 'package:flowcash/features/transactions/domain/repositories/bill_repository.dart';
 import 'package:flowcash/features/transactions/data/datasources/interfaces/bill_data_source.dart';
+import 'package:flowcash/features/transactions/data/models/cost_good_bill_model.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_order_entity.dart';
 
 import '../../domain/entities/cost_good_bill_order_entity.dart';
@@ -41,6 +45,8 @@ class BillRepositoryImpl implements BillRepository {
   final InventoryTransactionDataSource _inventoryTransactionDataSource;
   final ExchangePriceDataSource _exPriceDataSource;
   final BillOrderDataSource _orderDataSource;
+  final UnitLocalDataSource _unitLocalDataSource;
+  final CostGoodBillDataSource _costGoodBillDataSource;
 
   const BillRepositoryImpl(
     this._dataSource,
@@ -53,6 +59,8 @@ class BillRepositoryImpl implements BillRepository {
     this._inventoryTransactionDataSource,
     this._exPriceDataSource,
     this._orderDataSource,
+    this._unitLocalDataSource,
+    this._costGoodBillDataSource,
   );
 
   @override
@@ -122,7 +130,8 @@ class BillRepositoryImpl implements BillRepository {
   }
 
   @override
-  Future<Either<Failure, List<Map<String, dynamic>>>> getBillsWithCustomer() async {
+  Future<Either<Failure, List<Map<String, dynamic>>>>
+  getBillsWithCustomer() async {
     try {
       final result = await _dataSource.getBillsWithCustomer();
       return right(result);
@@ -140,7 +149,12 @@ class BillRepositoryImpl implements BillRepository {
   }) async {
     try {
       final result = await (switch (bill.billType) {
-        SalesInvoiceType() => _postSalesBill(bill, userId, currencyId, exPrices),
+        SalesInvoiceType() => _postSalesBill(
+          bill,
+          userId,
+          currencyId,
+          exPrices,
+        ),
         PurchaseInvoiceType() => _postPurchaseBill(
           bill,
           userId,
@@ -176,8 +190,7 @@ class BillRepositoryImpl implements BillRepository {
         SalesInvoiceType() => InventoryTransactionType.exportInventory,
         PurchaseInvoiceType() => InventoryTransactionType.importInventory,
         SalesReturnInvoiceType() => InventoryTransactionType.importInventory,
-        PurchaseReturnInvoiceType() =>
-          InventoryTransactionType.exportInventory,
+        PurchaseReturnInvoiceType() => InventoryTransactionType.exportInventory,
       });
 
       final transactionOrders = <InventoryTransactionOrderEntity>[];
@@ -212,6 +225,14 @@ class BillRepositoryImpl implements BillRepository {
         return right(bill);
       }
 
+      final transactionNature = (switch (bill.billType) {
+        SalesInvoiceType() => InventoryTransactionNature.sales,
+        PurchaseInvoiceType() => InventoryTransactionNature.purchases,
+        SalesReturnInvoiceType() => InventoryTransactionNature.salesReturn,
+        PurchaseReturnInvoiceType() =>
+          InventoryTransactionNature.purchasesReturn,
+      });
+
       final transaction = InventoryTransactionEntity(
         id: 0,
         createdAt: bill.createdAt,
@@ -221,6 +242,7 @@ class BillRepositoryImpl implements BillRepository {
         personId: bill.personId ?? bill.treasuryId ?? 0,
         billNumber: bill.billNumber,
         transactionType: transactionType,
+        transactionNature: transactionNature,
         orders: transactionOrders,
       );
 
@@ -228,11 +250,14 @@ class BillRepositoryImpl implements BillRepository {
         transaction,
       );
 
-      final updatedBill = bill.copyWith(
+      await _dataSource.updateInventoryTransaction(
+        id: bill.id,
         inventoryTransactionId: insertedTransaction.id,
       );
 
-      await _dataSource.update(updatedBill);
+      final updatedBill = bill.copyWith(
+        inventoryTransactionId: insertedTransaction.id,
+      );
 
       return right(updatedBill);
     } catch (e) {
@@ -246,10 +271,12 @@ class BillRepositoryImpl implements BillRepository {
     required int userId,
   }) async {
     try {
-      if (bill.billType is! SalesInvoiceType) {
+      if (bill.billType is! SalesInvoiceType &&
+          bill.billType is! SalesReturnInvoiceType) {
         return right(bill);
       }
 
+      final exPrices = await _exPriceDataSource.get();
       final costOrders = <CostGoodBillOrderEntity>[];
       final billOrders = await _orderDataSource.whereBillId([bill.id]);
       double totalCostAmount = 0.0;
@@ -269,17 +296,15 @@ class BillRepositoryImpl implements BillRepository {
             category.categoryType == CategoryDefineType.services) {
           continue;
         }
-
         final inventory = inventoryCache[order.categoryId] ??=
             await _inventoryDataSource.getInventory(
               categoryId: order.categoryId,
               warehouseId: bill.warehouseId,
             );
 
-        final unitCost =
-            inventory.countUnits > 0
-                ? inventory.costTotal / inventory.countUnits
-                : 0.0;
+        final unitCost = inventory.countUnits > 0
+            ? inventory.costTotal / inventory.countUnits
+            : 0.0;
 
         final orderCost = unitCost * order.countUnits;
         totalCostAmount += orderCost;
@@ -300,17 +325,28 @@ class BillRepositoryImpl implements BillRepository {
       }
 
       // 1. Create Journal Entry for COGS
-      // Debit: COGS (Expense), Credit: Inventory (Stock Outcome)
+      // For Sales: Debit: COGS (Expense - increment), Credit: Inventory (Stock Outcome - decrement)
+      // For Sales Return: Debit: Inventory (Stock Outcome - increment), Credit: COGS (Expense - decrement)
       final journalItems = <JournalItemEntity>[];
+      final isSales = bill.billType is SalesInvoiceType;
+      final expenseStatus = isSales
+          ? JournalStatus.increment
+          : JournalStatus.decrement;
+      final stockStatus = isSales
+          ? JournalStatus.decrement
+          : JournalStatus.increment;
 
       for (final order in costOrders) {
         final category = categories.firstWhere(
           (category) => category.id == order.categoryId,
         );
+        final categoryUnit = await _unitLocalDataSource.getById(
+          category.categoryUnitId,
+        );
 
         final inventory = inventoryCache[order.categoryId]!;
 
-        // Debit COGS (Expense Account)
+        // Expense Account (COGS)
         final expenseAccount = await _subAccountDataSource.getById(
           inventory.expenseAccountId,
         );
@@ -327,7 +363,7 @@ class BillRepositoryImpl implements BillRepository {
         final (exPriceExpense, exPriceMainExpense) = _resolveExchangeRate(
           expenseAccount.currencyId,
           bill.currencyId,
-          [], // We need exPrices here, but they aren't passed to postToCosting
+          exPrices,
         );
 
         journalItems.add(
@@ -337,15 +373,15 @@ class BillRepositoryImpl implements BillRepository {
             accountId: inventory.expenseAccountId,
             amount: order.totalPrice,
             lineDescription:
-                'تكلفة ${AppMoneyFormatter.formatDouble(order.countUnits)}${category.categoryUnit?.unitName} ${category.categoryName}',
+                'تكلفة ${AppMoneyFormatter.formatDouble(order.countUnits)}${categoryUnit?.unitName} ${category.categoryName}',
             currencyId: expenseAccount.currencyId,
             exPrice: exPriceExpense,
             exPriceMain: exPriceMainExpense,
-            journalStatus: JournalStatus.increment,
+            journalStatus: expenseStatus,
           ),
         );
 
-        // Credit Inventory (Stock Outcome Account)
+        // Inventory (Stock Outcome Account)
         final stockAccount = await _subAccountDataSource.getById(
           inventory.outcomeStockId,
         );
@@ -362,7 +398,7 @@ class BillRepositoryImpl implements BillRepository {
         final (exPriceStock, exPriceMainStock) = _resolveExchangeRate(
           stockAccount.currencyId,
           bill.currencyId,
-          [],
+          exPrices,
         );
 
         journalItems.add(
@@ -372,11 +408,11 @@ class BillRepositoryImpl implements BillRepository {
             accountId: inventory.outcomeStockId,
             amount: order.totalPrice,
             lineDescription:
-                'تكلفة ${bill.billType.invoiceTypeName} ${AppMoneyFormatter.formatDouble(order.countUnits)}${category.categoryUnit?.unitName} ${category.categoryName}',
+                'تكلفة ${bill.billType.invoiceTypeName} ${AppMoneyFormatter.formatDouble(order.countUnits)} ${category.categoryUnit?.unitName} ${category.categoryName}',
             currencyId: stockAccount.currencyId,
             exPrice: exPriceStock,
             exPriceMain: exPriceMainStock,
-            journalStatus: JournalStatus.decrement,
+            journalStatus: stockStatus,
           ),
         );
       }
@@ -396,15 +432,32 @@ class BillRepositoryImpl implements BillRepository {
 
       final savedEntry = await _journalEntryDataSource.insert(entry);
 
-      // 2. Create CostGoodBill (Header and Orders)
-      // Note: We need a data source for this. For now, I'll use raw SQL via _dataSource if possible,
-      // but it's better to add the data source.
-      // Since I don't have the data source yet, I'll just return the bill with the entry linked 
-      // as a placeholder or implement the insertion here if I have access to DB.
-      
-      // Assume we update the bill with the costGoodId later or just link via journalEntryId for now.
-      final updatedBill = bill.copyWith(costGoodId: savedEntry.id); // Placeholder link
-      await _dataSource.update(updatedBill);
+      // 2. Create CostGoodBill (Header and Orders) via CostGoodBillDataSource
+      final costGoodBill = CostGoodBillModel(
+        id: 0,
+        createdAt: bill.createdAt,
+        createdBy: userId,
+        note: 'تكلفة ${bill.billHistory}',
+        offerAmount: totalCostAmount,
+        currencyId: bill.currencyId,
+        billNumber: bill.billNumber,
+        warehouseId: bill.warehouseId,
+        journalEntryId: savedEntry.id,
+        personId: bill.personId ?? 0,
+        billId: bill.id,
+        orders: costOrders,
+      );
+
+      final savedCostGoodBill = await _costGoodBillDataSource.insert(
+        costGoodBill,
+      );
+
+      await _dataSource.updateBillCosting(
+        id: bill.id,
+        costId: savedCostGoodBill.id,
+      );
+
+      final updatedBill = bill.copyWith(costGoodId: savedCostGoodBill.id);
 
       return right(updatedBill);
     } catch (e) {
@@ -422,18 +475,22 @@ class BillRepositoryImpl implements BillRepository {
     List<ExchangePriceEntity> exPrices,
   ) async {
     final subaccount = await _resolvePersonAccount(bill, isDebit: true);
+    final orders = await _orderDataSource.whereBillId([bill.id]);
     final orderItems = await _buildOrderItems(
-      orders: bill.orders,
+      orders: orders,
       warehouseId: bill.warehouseId,
       inventoryField: InventoryAccountField.revenue,
       status: JournalStatus.increment,
       billCurrencyId: currencyId,
       exPrices: exPrices,
+      billType: bill.billType,
     );
     final debitItem = await _buildPersonItem(
       accountId: subaccount.id,
       amount: bill.offerAmount,
-      status: subaccount.accountStatus.isCreditor ? JournalStatus.decrement : JournalStatus.increment,
+      status: subaccount.accountStatus.isCreditor
+          ? JournalStatus.decrement
+          : JournalStatus.increment,
       billCurrencyId: currencyId,
       exPrices: exPrices,
       description: bill.billHistory,
@@ -454,18 +511,22 @@ class BillRepositoryImpl implements BillRepository {
     List<ExchangePriceEntity> exPrices,
   ) async {
     final subaccount = await _resolvePersonAccount(bill, isDebit: false);
+    final orders = await _orderDataSource.whereBillId([bill.id]);
     final orderItems = await _buildOrderItems(
-      orders: bill.orders,
+      orders: orders,
       warehouseId: bill.warehouseId,
       inventoryField: InventoryAccountField.expense,
       status: JournalStatus.increment,
       billCurrencyId: currencyId,
       exPrices: exPrices,
+      billType: bill.billType,
     );
     final creditItem = await _buildPersonItem(
       accountId: subaccount.id,
       amount: bill.offerAmount,
-      status: subaccount.accountStatus.isDebtor ? JournalStatus.decrement : JournalStatus.increment,
+      status: subaccount.accountStatus.isDebtor
+          ? JournalStatus.decrement
+          : JournalStatus.increment,
       billCurrencyId: currencyId,
       exPrices: exPrices,
       description: bill.billHistory,
@@ -486,21 +547,25 @@ class BillRepositoryImpl implements BillRepository {
     List<ExchangePriceEntity> exPrices,
   ) async {
     final subaccount = await _resolvePersonAccount(bill, isDebit: false);
+    final orders = await _orderDataSource.whereBillId([bill.id]);
     final orderItems = await _buildOrderItems(
-      orders: bill.orders,
+      orders: orders,
       warehouseId: bill.warehouseId,
       inventoryField: InventoryAccountField.expense,
       status: JournalStatus.increment,
       billCurrencyId: currencyId,
       exPrices: exPrices,
+      billType: bill.billType,
     );
     final creditItem = await _buildPersonItem(
       accountId: subaccount.id,
       amount: bill.offerAmount,
-      status: subaccount.accountStatus.isDebtor ? JournalStatus.decrement : JournalStatus.increment,
+      status: subaccount.accountStatus.isDebtor
+          ? JournalStatus.decrement
+          : JournalStatus.increment,
       billCurrencyId: currencyId,
       exPrices: exPrices,
-      description:  bill.billHistory,
+      description: bill.billHistory,
     );
     return await _saveAndLink(bill, userId, currencyId, [
       ...orderItems,
@@ -518,22 +583,26 @@ class BillRepositoryImpl implements BillRepository {
     List<ExchangePriceEntity> exPrices,
   ) async {
     final subaccount = await _resolvePersonAccount(bill, isDebit: true);
+    final orders = await _orderDataSource.whereBillId([bill.id]);
     final orderItems = await _buildOrderItems(
-      orders: bill.orders,
+      orders: orders,
       warehouseId: bill.warehouseId,
       inventoryField: InventoryAccountField.revenue,
       status: JournalStatus.increment,
       billCurrencyId: currencyId,
       exPrices: exPrices,
+      billType: bill.billType,
     );
 
     final debitItem = await _buildPersonItem(
       accountId: subaccount.id,
       amount: bill.offerAmount,
-      status: subaccount.accountStatus.isCreditor ? JournalStatus.decrement : JournalStatus.increment,
+      status: subaccount.accountStatus.isCreditor
+          ? JournalStatus.decrement
+          : JournalStatus.increment,
       billCurrencyId: currencyId,
       exPrices: exPrices,
-      description: bill.billHistory
+      description: bill.billHistory,
     );
     return await _saveAndLink(bill, userId, currencyId, [
       debitItem,
@@ -546,15 +615,19 @@ class BillRepositoryImpl implements BillRepository {
     required bool isDebit,
   }) async {
     if (bill.isCash) {
-      if(bill.treasuryId == null) {
+      if (bill.treasuryId == null) {
         throw Exception('Treasury Can not be null and bill is cash.');
       }
       final treasury = await _personDataSource.getById(bill.treasuryId!);
-      final subAccount = await _subAccountDataSource.getById(treasury!.receivableAccountId!);
+      final subAccount = await _subAccountDataSource.getById(
+        treasury!.receivableAccountId!,
+      );
       return subAccount!;
     } else {
       final person = await _personDataSource.getById(bill.personId!);
-      final subAccount = await _subAccountDataSource.getById(isDebit ? person!.receivableAccountId! : person!.payableAccountId!);
+      final subAccount = await _subAccountDataSource.getById(
+        isDebit ? person!.receivableAccountId! : person!.payableAccountId!,
+      );
       return subAccount!;
     }
   }
@@ -593,33 +666,52 @@ class BillRepositoryImpl implements BillRepository {
     required JournalStatus status,
     required String billCurrencyId,
     required List<ExchangePriceEntity> exPrices,
+    required InvoiceType billType,
   }) async {
     final items = <JournalItemEntity>[];
+    if (orders.isEmpty) {
+      throw Exception('Bill Orders Can Not Be EMPTY');
+    }
     for (final order in orders) {
       final inventory = await _inventoryDataSource.getInventory(
         categoryId: order.categoryId,
         warehouseId: warehouseId,
       );
-      final accountId =
-          inventoryField == InventoryAccountField.revenue
-              ? inventory.revenueAccountId
-              : inventory.expenseAccountId;
+      final accountId = inventoryField == InventoryAccountField.revenue
+          ? inventory.revenueAccountId
+          : inventory.expenseAccountId;
 
       final subAccount = await _subAccountDataSource.getById(accountId);
+
+      if (subAccount == null) {
+        throw Exception('SubAccount Of Inventory Can Not Be NULL');
+      }
       final (exPrice, exPriceMain) = _resolveExchangeRate(
-        subAccount!.currencyId,
+        subAccount.currencyId,
         billCurrencyId,
         exPrices,
       );
+
       final category = await _categoryLocalDataSource.getById(order.categoryId);
+      if (category == null) {
+        throw Exception('Category Can Not Be NULL');
+      }
+
+      final categoryUnit = await _unitLocalDataSource.getById(
+        category.categoryUnitId,
+      );
+      if (categoryUnit == null) {
+        throw Exception('Category Unit Can Not Be NULL');
+      }
 
       items.add(
         JournalItemEntity(
           id: 0,
           entryId: 0,
-          accountId: accountId,
+          accountId: subAccount.id,
           amount: order.totalPrice,
-          lineDescription: '${AppMoneyFormatter.formatDouble(order.countUnits)}${category?.categoryUnit?.unitName} ${category?.categoryName}',
+          lineDescription:
+              '${billType.invoiceTypeName} ${AppMoneyFormatter.formatDouble(order.countUnits)} ${categoryUnit.unitName} ${category.categoryName}',
           currencyId: billCurrencyId,
           exPrice: exPrice,
           exPriceMain: exPriceMain,
@@ -638,7 +730,8 @@ class BillRepositoryImpl implements BillRepository {
   ) async {
     final entry = JournalEntryEntity(
       id: 0,
-      referenceNumber: 'BILL-${bill.billType.name.toUpperCase().replaceAll('_', '-')}-${bill.billnumberFormat}',
+      referenceNumber:
+          'BILL-${bill.billType.name.toUpperCase().replaceAll('_', '-')}-${bill.billnumberFormat}',
       description: bill.billHistory,
       createdAt: bill.createdAt,
       createdBy: userId,
@@ -648,12 +741,13 @@ class BillRepositoryImpl implements BillRepository {
       items: items,
     );
 
-    final savedEntry = await _journalEntryDataSource.insert(
-      entry
-    );
+    final savedEntry = await _journalEntryDataSource.insert(entry);
 
+    await _dataSource.updateJournalEntry(
+      id: bill.id,
+      journalEntryId: savedEntry.id,
+    );
     final updatedBill = bill.copyWith(journalEntryId: savedEntry.id);
-    await _dataSource.update(updatedBill);
     return updatedBill;
   }
 

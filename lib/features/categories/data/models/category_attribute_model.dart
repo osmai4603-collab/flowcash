@@ -10,18 +10,18 @@ final class CategoryAttributeModel extends CategoryAttributeEntity {
 
   factory CategoryAttributeModel.fromMap(Map<String, dynamic> map) {
     return CategoryAttributeModel(
-      id: map[CategoriesAttributesTable.id] as int,
+      id: map[CategoriesAttributesTable().id] as int,
       subcategoryUnitId:
-          map[CategoriesAttributesTable.subcategoryUnitId] as int,
-      categoryId: map[CategoriesAttributesTable.categoryId] as int,
+          map[CategoriesAttributesTable().subcategoryUnitId] as int,
+      categoryId: map[CategoriesAttributesTable().categoryId] as int,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      CategoriesAttributesTable.id: id,
-      CategoriesAttributesTable.subcategoryUnitId: subcategoryUnitId,
-      CategoriesAttributesTable.categoryId: categoryId,
+      CategoriesAttributesTable().id: id,
+      CategoriesAttributesTable().subcategoryUnitId: subcategoryUnitId,
+      CategoriesAttributesTable().categoryId: categoryId,
     };
   }
 

@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_unit_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/core/repositories/repository.dart';
 
 abstract interface class SubcategoryRepository
@@ -30,5 +31,11 @@ abstract interface class SubcategoryRepository
   Future<Either<Failure, SubcategoryEntity>> saveWithUnits(
     SubcategoryEntity entity,
     List<SubcategoryUnitEntity> units,
+  );
+  Future<Either<Failure, SubcategoryUnitEntity>> insertSubcategoryUnit(
+    SubcategoryUnitEntity entity,
+  );
+  Future<Either<Failure, List<CategoryEntity>>> generateCategories(
+    int subcategoryId,
   );
 }

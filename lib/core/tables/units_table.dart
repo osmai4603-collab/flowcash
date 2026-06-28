@@ -1,21 +1,28 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول الوحدات.
-class UnitsTable {
-  const UnitsTable._();
+class UnitsTable extends TableInfo {
+  static final UnitsTable _instance = UnitsTable.internal();
 
-  static const String tableName = 'units';
-  static const String id = 'unit_id';
-  static const String unitType = 'unit_type';
-  static const String unitName = 'unit_name';
-  static const String length = 'length';
-  static const String width = 'width';
-  static const String thickness = 'thickness';
+  factory UnitsTable() => _instance;
 
-  static const List<String> fields = [
-    id,
+  UnitsTable.internal();
+
+  @override
+  final String tableName = 'units';
+
+  final String id = 'unit_id';
+  final String unitType = 'unit_type';
+  final String unitName = 'unit_name';
+  final String length = 'length';
+  final String width = 'width';
+  final String thickness = 'thickness';
+
+  @override
+  List<String> get columns => [id,
     unitType,
     unitName,
     length,
     width,
-    thickness,
-  ];
+    thickness,];
 }

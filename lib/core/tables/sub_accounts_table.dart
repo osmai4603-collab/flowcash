@@ -1,22 +1,29 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول الحسابات الفرعية.
-class SubAccountsTable {
-  const SubAccountsTable._();
+class SubAccountsTable extends TableInfo {
+  static final SubAccountsTable _instance = SubAccountsTable.internal();
 
-  static const String tableName = 'sub_accounts';
+  factory SubAccountsTable() => _instance;
 
-  static const String id = 'account_id';
-  static const String accountName = 'account_name';
-  static const String mainAccountId = 'main_account_id';
-  static const String accountNumber = 'number';
-  static const String incrementBalance = 'increment_balance';
-  static const String decrementBalance = 'decrement_balance';
-  static const String currencyId = 'currency_id';
-  static const String balanceMax = 'balance_max';
-  static const String subAccountType = 'sub_account_type';
-  static const String createdAt = 'account_date';
+  SubAccountsTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'sub_accounts';
+
+  final String id = 'account_id';
+  final String accountName = 'account_name';
+  final String mainAccountId = 'main_account_id';
+  final String accountNumber = 'number';
+  final String incrementBalance = 'increment_balance';
+  final String decrementBalance = 'decrement_balance';
+  final String currencyId = 'currency_id';
+  final String balanceMax = 'balance_max';
+  final String subAccountType = 'sub_account_type';
+  final String createdAt = 'account_date';
+
+  @override
+  List<String> get columns => [id,
     accountName,
     accountNumber,
     mainAccountId,
@@ -25,6 +32,5 @@ class SubAccountsTable {
     decrementBalance,
     balanceMax,
     subAccountType,
-    createdAt,
-  ];
+    createdAt,];
 }

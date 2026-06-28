@@ -17,33 +17,33 @@ final class PersonModel extends PersonEntity {
 
   factory PersonModel.fromMap(Map<String, dynamic> map) {
     return PersonModel(
-      id: map[PersonsTable.id] as int,
-      personName: map[PersonsTable.personName] as String? ?? '',
-      phoneNumber: map[PersonsTable.phoneNumber] as String? ?? '',
-      address: map[PersonsTable.address] as String? ?? '',
-      email: map[PersonsTable.email] as String?,
-      receivableAccountId: map[PersonsTable.receivableAccountId] as int?,
-      payableAccountId: map[PersonsTable.payableAccountId] as int?,
+      id: map[PersonsTable().id] as int,
+      personName: map[PersonsTable().personName] as String? ?? '',
+      phoneNumber: map[PersonsTable().phoneNumber] as String? ?? '',
+      address: map[PersonsTable().address] as String? ?? '',
+      email: map[PersonsTable().email] as String?,
+      receivableAccountId: map[PersonsTable().receivableAccountId] as int?,
+      payableAccountId: map[PersonsTable().payableAccountId] as int?,
       personType: PersonType.of(
-        map[PersonsTable.personType] as String? ?? 'customer',
+        map[PersonsTable().personType] as String? ?? 'customer',
       ),
-      createdAt: map[PersonsTable.createdAt] != null
-          ? DateTime.tryParse(map[PersonsTable.createdAt] as String)
+      createdAt: map[PersonsTable().createdAt] != null
+          ? DateTime.tryParse(map[PersonsTable().createdAt] as String)
           : null,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      PersonsTable.id: id,
-      PersonsTable.personName: personName,
-      PersonsTable.phoneNumber: phoneNumber,
-      PersonsTable.address: address,
-      PersonsTable.email: email,
-      PersonsTable.receivableAccountId: receivableAccountId,
-      PersonsTable.payableAccountId: payableAccountId,
-      PersonsTable.personType: personType.name,
-      PersonsTable.createdAt: createdAt?.toIso8601String(),
+      PersonsTable().id: id,
+      PersonsTable().personName: personName,
+      PersonsTable().phoneNumber: phoneNumber,
+      PersonsTable().address: address,
+      PersonsTable().email: email,
+      PersonsTable().receivableAccountId: receivableAccountId,
+      PersonsTable().payableAccountId: payableAccountId,
+      PersonsTable().personType: personType.name,
+      PersonsTable().createdAt: createdAt?.toIso8601String(),
     };
   }
 

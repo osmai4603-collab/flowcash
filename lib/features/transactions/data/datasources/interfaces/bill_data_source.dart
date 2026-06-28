@@ -9,4 +9,10 @@ abstract interface class BillDataSource
   });
 
   Future<List<Map<String, dynamic>>> getBillsWithCustomer();
+
+  Future<bool> updateJournalEntry({required int id, required int journalEntryId});
+
+  Future<bool> updateInventoryTransaction({required int id, required int inventoryTransactionId});
+
+  Future<bool> updateBillCosting({required int id, required int costId});
 }

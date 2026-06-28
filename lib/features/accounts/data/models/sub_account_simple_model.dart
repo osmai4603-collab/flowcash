@@ -15,25 +15,25 @@ final class SubAccountSimpleModel extends SubAccountSimpleEntity {
 
   factory SubAccountSimpleModel.fromMap(Map<String, dynamic> map) {
     return SubAccountSimpleModel(
-      id: map[SubAccountsTable.id] as int,
-      accountName: (map[SubAccountsTable.accountName] as String?) ?? "",
-      accountNumber: (map[SubAccountsTable.accountNumber] as String?) ?? "",
-      accountType: SubAccountType.of(map[SubAccountsTable.subAccountType]),
-      mainAccountId: map[SubAccountsTable.mainAccountId] as int,
-      balance: ((map[SubAccountsTable.incrementBalance] ?? 0.0) as num).toDouble() -
-          ((map[SubAccountsTable.decrementBalance] ?? 0.0) as num).toDouble(),
-      currencyName: (map[SubAccountsTable.currencyId] as String?) ?? "",
+      id: map[SubAccountsTable().id] as int,
+      accountName: (map[SubAccountsTable().accountName] as String?) ?? "",
+      accountNumber: (map[SubAccountsTable().accountNumber] as String?) ?? "",
+      accountType: SubAccountType.of(map[SubAccountsTable().subAccountType]),
+      mainAccountId: map[SubAccountsTable().mainAccountId] as int,
+      balance: ((map[SubAccountsTable().incrementBalance] ?? 0.0) as num).toDouble() -
+          ((map[SubAccountsTable().decrementBalance] ?? 0.0) as num).toDouble(),
+      currencyName: (map[SubAccountsTable().currencyId] as String?) ?? "",
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) SubAccountsTable.id: id,
-      SubAccountsTable.accountName: accountName,
-      SubAccountsTable.accountNumber: accountNumber,
-      SubAccountsTable.subAccountType: accountType.name,
-      SubAccountsTable.mainAccountId: mainAccountId,
-      SubAccountsTable.currencyId: currencyName,
+      if (id > 0) SubAccountsTable().id: id,
+      SubAccountsTable().accountName: accountName,
+      SubAccountsTable().accountNumber: accountNumber,
+      SubAccountsTable().subAccountType: accountType.name,
+      SubAccountsTable().mainAccountId: mainAccountId,
+      SubAccountsTable().currencyId: currencyName,
     };
   }
 

@@ -1,26 +1,32 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول الحسابات الرئيسية.
-class MainAccountsTable {
-  const MainAccountsTable._();
+class MainAccountsTable extends TableInfo {
+  static final MainAccountsTable _instance = MainAccountsTable.internal();
 
-  static const String tableName = 'main_accounts';
+  factory MainAccountsTable() => _instance;
 
-  static const String id = 'account_id';
-  static const String accountName = 'account_name';
-  static const String accountNumber = 'account_number';
-  static const String currencyId = 'currency_id';
-  static const String debitBalance = 'debit_balance';
-  static const String creditBalance = 'credit_balance';
-  static const String mainAccountType = 'type';
-  static const String numbersCounter = 'counter_acc';
+  MainAccountsTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'main_accounts';
+
+  final String id = 'account_id';
+  final String accountName = 'account_name';
+  final String accountNumber = 'account_number';
+  final String currencyId = 'currency_id';
+  final String debitBalance = 'debit_balance';
+  final String creditBalance = 'credit_balance';
+  final String mainAccountType = 'type';
+  final String numbersCounter = 'counter_acc';
+
+  @override
+  List<String> get columns => [id,
     accountName,
     accountNumber,
     currencyId,
     debitBalance,
     creditBalance,
     numbersCounter,
-    mainAccountType,
-  ];
+    mainAccountType,];
 }

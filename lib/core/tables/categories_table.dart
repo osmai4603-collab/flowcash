@@ -1,21 +1,28 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول الأصناف.
-class CategoriesTable {
-  const CategoriesTable._();
+class CategoriesTable extends TableInfo {
+  static final CategoriesTable _instance = CategoriesTable.internal();
 
-  static const String tableName = 'categories';
+  factory CategoriesTable() => _instance;
 
-  static const String id = 'category_id';
-  static const String categoryType = 'category_type';
-  static const String categoryName = 'category_name';
-  static const String categoryNumber = 'category_number';
-  static const String barcode = 'barcode';
-  static const String categoryUnitId = 'category_unit_id';
-  static const String pricingUnitId = 'pricing_unit_id';
-  static const String inventoryUnitId = 'inventory_unit_id';
-  static const String subcategoryId = 'subcategory_id';
+  CategoriesTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'categories';
+
+  final String id = 'category_id';
+  final String categoryType = 'category_type';
+  final String categoryName = 'category_name';
+  final String categoryNumber = 'category_number';
+  final String barcode = 'barcode';
+  final String categoryUnitId = 'category_unit_id';
+  final String pricingUnitId = 'pricing_unit_id';
+  final String inventoryUnitId = 'inventory_unit_id';
+  final String subcategoryId = 'subcategory_id';
+
+  @override
+  List<String> get columns => [id,
     categoryType,
     categoryNumber,
     categoryName,
@@ -23,6 +30,5 @@ class CategoriesTable {
     categoryUnitId,
     pricingUnitId,
     inventoryUnitId,
-    subcategoryId,
-  ];
+    subcategoryId,];
 }

@@ -1,14 +1,21 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول معلومات الكتالوج.
-class SubcategoriesUnitsTable {
-  const SubcategoriesUnitsTable._();
+class SubcategoriesUnitsTable extends TableInfo {
+  static final SubcategoriesUnitsTable _instance = SubcategoriesUnitsTable.internal();
 
-  static const String tableName = 'subcategories_units';
+  factory SubcategoriesUnitsTable() => _instance;
 
-  static const String id = 'info_id';
-  static const String subcategoryId = 'subcategory_id';
-  static const String unitId = 'unit_id';
+  SubcategoriesUnitsTable.internal();
 
-  static const List<String> fields = [id, subcategoryId, unitId, propertyId];
+  @override
+  final String tableName = 'subcategories_units';
 
-  static const propertyId = 'property_id';
+  final String id = 'info_id';
+  final String subcategoryId = 'subcategory_id';
+  final String unitId = 'unit_id';
+  final String propertyId = 'property_id';
+
+  @override
+  List<String> get columns => [id, subcategoryId, unitId, propertyId];
 }

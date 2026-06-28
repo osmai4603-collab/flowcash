@@ -1,18 +1,24 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول طلبيات حركة المخزون.
-class InventoryTransactionsOrdersTable {
-  const InventoryTransactionsOrdersTable._();
+class InventoryTransactionsOrdersTable extends TableInfo {
+  static final InventoryTransactionsOrdersTable _instance = InventoryTransactionsOrdersTable.internal();
 
-  static const String tableName = 'inventory_transactions_orders';
+  factory InventoryTransactionsOrdersTable() => _instance;
 
-  static const String id = 'order_id';
-  static const String inventoryId = 'inventory_id';
-  static const String countUnits = 'count_units';
-  static const String tranId = 'tran_id';
+  InventoryTransactionsOrdersTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'inventory_transactions_orders';
+
+  final String id = 'order_id';
+  final String inventoryId = 'inventory_id';
+  final String countUnits = 'count_units';
+  final String tranId = 'tran_id';
+
+  @override
+  List<String> get columns => [id,
     inventoryId,
     countUnits,
-    tranId,
-  ];
+    tranId,];
 }

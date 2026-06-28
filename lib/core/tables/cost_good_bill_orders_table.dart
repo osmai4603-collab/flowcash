@@ -1,20 +1,26 @@
+import 'package:flowcash/core/services/sqlite/table_info.dart';
+
 /// ثوابت جدول طلبيات تكلفة الفواتير المباعة.
-class CostGoodBillOrdersTable {
-  const CostGoodBillOrdersTable._();
+class CostGoodBillOrdersTable extends TableInfo {
+  static final CostGoodBillOrdersTable _instance = CostGoodBillOrdersTable.internal();
 
-  static const String tableName = 'cost_good_bill_orders';
+  factory CostGoodBillOrdersTable() => _instance;
 
-  static const String id = 'order_id';
-  static const String billId = 'bill_id';
-  static const String categoryId = 'category_id';
-  static const String countUnits = 'count_units';
-  static const String totalPrice = 'total_price';
+  CostGoodBillOrdersTable.internal();
 
-  static const List<String> fields = [
-    id,
+  @override
+  final String tableName = 'cost_good_bill_orders';
+
+  final String id = 'order_id';
+  final String billId = 'bill_id';
+  final String categoryId = 'category_id';
+  final String countUnits = 'count_units';
+  final String totalPrice = 'total_price';
+
+  @override
+  List<String> get columns => [id,
     categoryId,
     countUnits,
     billId,
-    totalPrice,
-  ];
+    totalPrice,];
 }

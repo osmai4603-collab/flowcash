@@ -13,28 +13,28 @@ final class UnitModel extends UnitEntity {
   });
 
   factory UnitModel.fromMap(Map<String, dynamic> map) {
-    final unitType = UnitType.of(map[UnitsTable.unitType] as String);
+    final unitType = UnitType.of(map[UnitsTable().unitType] as String);
     return UnitModel(
-      id: map[UnitsTable.id] as int,
-      unitName: (map[UnitsTable.unitName] as String?) ?? "",
+      id: map[UnitsTable().id] as int,
+      unitName: (map[UnitsTable().unitName] as String?) ?? "",
       unitType: unitType,
       measurement: MeasurableUnit.fromValues(
         unitType: unitType,
-        length: ((map[UnitsTable.length]) as num).toDouble(),
-        width: ((map[UnitsTable.width]) as num).toDouble(),
-        thickness: ((map[UnitsTable.thickness]) as num).toDouble(),
+        length: ((map[UnitsTable().length]) as num).toDouble(),
+        width: ((map[UnitsTable().width]) as num).toDouble(),
+        thickness: ((map[UnitsTable().thickness]) as num).toDouble(),
       ),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) UnitsTable.id: id,
-      UnitsTable.unitName: unitName,
-      UnitsTable.length: length,
-      UnitsTable.width: width,
-      UnitsTable.thickness: thickness,
-      UnitsTable.unitType: unitType.name,
+      if (id > 0) UnitsTable().id: id,
+      UnitsTable().unitName: unitName,
+      UnitsTable().length: length,
+      UnitsTable().width: width,
+      UnitsTable().thickness: thickness,
+      UnitsTable().unitType: unitType.name,
     };
   }
 

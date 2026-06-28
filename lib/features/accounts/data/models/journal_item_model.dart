@@ -17,29 +17,29 @@ final class JournalItemModel extends JournalItemEntity {
 
   factory JournalItemModel.fromMap(Map<String, dynamic> map) {
     return JournalItemModel(
-      id: map[JournalItemsTable.itemId] as int,
-      entryId: map[JournalItemsTable.entryId] as int,
-      accountId: map[JournalItemsTable.accountId] as int,
-      amount: ((map[JournalItemsTable.amount]) as num).toDouble(),
-      lineDescription: map[JournalItemsTable.lineDescription] as String?,
-      currencyId: map[JournalItemsTable.currencyId] as String,
-      exPrice: ((map[JournalItemsTable.exPrice]) as num).toDouble(),
-      exPriceMain: ((map[JournalItemsTable.exPriceMain]) as num).toDouble(),
-      journalStatus: JournalStatus.of(map[JournalItemsTable.journalStatus] as String),
+      id: map[JournalItemsTable().itemId] as int,
+      entryId: map[JournalItemsTable().entryId] as int,
+      accountId: map[JournalItemsTable().accountId] as int,
+      amount: ((map[JournalItemsTable().amount]) as num).toDouble(),
+      lineDescription: map[JournalItemsTable().lineDescription] as String?,
+      currencyId: map[JournalItemsTable().currencyId] as String,
+      exPrice: ((map[JournalItemsTable().exPrice]) as num).toDouble(),
+      exPriceMain: ((map[JournalItemsTable().exPriceMain]) as num).toDouble(),
+      journalStatus: JournalStatus.of(map[JournalItemsTable().journalStatus] as String),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) JournalItemsTable.itemId: id,
-      JournalItemsTable.entryId: entryId,
-      JournalItemsTable.accountId: accountId,
-      JournalItemsTable.amount: amount,
-      JournalItemsTable.lineDescription: lineDescription,
-      JournalItemsTable.currencyId: currencyId,
-      JournalItemsTable.exPrice: exPrice,
-      JournalItemsTable.exPriceMain: exPriceMain,
-      JournalItemsTable.journalStatus: journalStatus.name,
+      if (id > 0) JournalItemsTable().itemId: id,
+      JournalItemsTable().entryId: entryId,
+      JournalItemsTable().accountId: accountId,
+      JournalItemsTable().amount: amount,
+      JournalItemsTable().lineDescription: lineDescription,
+      JournalItemsTable().currencyId: currencyId,
+      JournalItemsTable().exPrice: exPrice,
+      JournalItemsTable().exPriceMain: exPriceMain,
+      JournalItemsTable().journalStatus: journalStatus.name,
     };
   }
 
