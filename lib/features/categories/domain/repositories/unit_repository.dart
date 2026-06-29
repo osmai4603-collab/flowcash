@@ -17,4 +17,8 @@ abstract interface class UnitRepository implements RepositoryDB<UnitEntity> {
   Future<Either<Failure, List<UnitEntity>>> getByMainCategory(
     int mainCategoryId,
   );
+  Future<Either<Failure, List<UnitEntity>>> getAvailableForSubcategoryProperty({
+    required int subcategoryId,
+    required int propertyId,
+  });
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flowcash/core/theme/spacings.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/presentation/pages/main_categories/main_category_form_page.dart';
 import 'package:flowcash/features/categories/presentation/pages/units/main_category_unit_data_page.dart';
@@ -45,102 +46,47 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
     super.dispose();
   }
 
-  Map<int, TableColumnWidth> getWidths() {
+  Map<int, TableWidgetColumnWidth> getWidths() {
     return {
-      0: const FlexColumnWidth(0.05),
-      1: const FlexColumnWidth(0.30),
-      2: const FlexColumnWidth(0.15),
-      3: const FlexColumnWidth(0.15),
-      4: const FlexColumnWidth(0.15),
-      5: const FlexColumnWidth(0.15),
-      6: const FlexColumnWidth(0.15),
+      0: const FlexTableWidgetColumnWidth(0.05, alignment: Alignment.center),
+      1: const FlexTableWidgetColumnWidth(0.30, alignment: Alignment.center),
+      2: const FlexTableWidgetColumnWidth(0.15, alignment: Alignment.center),
+      3: const FlexTableWidgetColumnWidth(0.15, alignment: Alignment.center),
+      4: const FlexTableWidgetColumnWidth(0.15, alignment: Alignment.center),
+      5: const FlexTableWidgetColumnWidth(0.15, alignment: Alignment.center),
+      6: const FlexTableWidgetColumnWidth(0.15, alignment: Alignment.center),
     };
   }
 
-  Widget _buildHeaderCell(String text, AppStyle colors) {
-    return Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: colors.surfaceContainerHigh),
-      child: fluent.Text(
-        text,
-        textAlign: TextAlign.center,
-        style: colors.body.copyWith(
-          color: colors.onSurface,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
 
   Widget buildColumn(
-    BuildContext context,
-    List<MainCategoryEntity> mainCategories,
-  ) {
+      BuildContext context,
+      List<MainCategoryEntity> mainCategories,
+      ) {
     final colors = AppStyle.of(context);
     if (mainCategories.isEmpty) {
       return const Center(
         child: TextWidget(text: 'لا يوجد اصاناف رئيسية معرفة'),
       );
     }
-    return SingleChildScrollView(
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: colors.outlineVariant, width: 0.5),
-        ),
-        child: Table(
-          columnWidths: getWidths(),
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          border: TableBorder.all(color: colors.outlineVariant, width: 0.5),
-          children: [
-            TableRow(
-              children: [
-                _buildHeaderCell('No', colors),
-                _buildHeaderCell('اسم الصنف', colors),
-                _buildHeaderCell('وحدة الصنف', colors),
-                _buildHeaderCell('وحدة السعر', colors),
-                _buildHeaderCell('وحدة الجرد', colors),
-                _buildHeaderCell('نوع الصنف', colors),
-                _buildHeaderCell('اسم الحاوية', colors),
-              ],
-            ),
-            ...mainCategories.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              return TableRow(
-                decoration: BoxDecoration(
-                  color: index.isEven
-                      ? null
-                      : colors.surfaceContainerHighest.withValues(alpha: 0.12),
-                ),
-                children: [
-                  _buildCell('${index + 1}', colors, item),
-                  _buildCell(item.name, colors, item),
-                  _buildCell(item.unitName, colors, item),
-                  _buildCell(item.unitType.fullUnitName, colors, item),
-                  _buildCell(item.unitType.fullUnitName, colors, item),
-                  _buildCell(item.type.displayName(), colors, item),
-                  _buildCell(item.unitName, colors, item),
-                ],
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCell(
-    String text,
-    AppStyle colors,
-    MainCategoryEntity category,
-  ) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () async {
+    return TableWidget<MainCategoryEntity>(
+      columns: getWidths(),
+      items: mainCategories,
+      header: const [
+        'No',
+        'اسم الصنف',
+        'وحدة الصنف',
+        'وحدة السعر',
+        'وحدة الجرد',
+        'نوع الصنف',
+        'اسم الحاوية'
+      ],
+      paintRowColorWhen: (item, index) => index.isEven,
+      rowColor: colors.surfaceContainer,
+      onTapRow: (category) async {
         final result = await showDialog<MainCategoryEntity?>(
           context: context,
-          builder: (_) => MainCategoryFormPage(id: category.id),
+          builder: (_) => MainCategoryFormPage(category: category),
         );
         if (result != null && context.mounted) {
           context.read<MainCategoriesBloc>().add(
@@ -148,7 +94,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
           );
         }
       },
-      onDoubleTap: () async {
+      onDoubleTap: (category) async {
         final result = await showDialog<MainCategoryEntity?>(
           context: context,
           builder: (_) => MainCategoryUnitDataPage(mainCategory: category),
@@ -159,41 +105,37 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
           );
         }
       },
-      onLongPress: () => _onCategoryLongPressed(context, category),
-      child: Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(4.0),
-        child: fluent.Text(
-          text,
-          overflow: TextOverflow.ellipsis,
-          style: colors.body,
-        ),
-      ),
+      onLongPressed: (category) => _onCategoryLongPressed(context, category),
+      builder: (context, item, index) {
+        return [
+          fluent.Text('${index + 1}', style: colors.body),
+          fluent.Text(item.name, style: colors.body),
+          fluent.Text(item.unitName, style: colors.body),
+          fluent.Text(item.unitType.fullUnitName, style: colors.body),
+          fluent.Text(item.unitType.fullUnitName, style: colors.body),
+          fluent.Text(item.type.displayName(), style: colors.body),
+          fluent.Text(item.unitName, style: colors.body),
+        ];
+      },
     );
   }
 
-  Widget buildListViewOfTable(
-    BuildContext context,
-    List<MainCategoryEntity> categories,
-  ) {
-    return const SizedBox.shrink();
-  }
 
   Widget listView(
-    BuildContext context,
-    List<MainCategoryEntity> mainCategories,
-  ) {
+      BuildContext context,
+      List<MainCategoryEntity> mainCategories,
+      ) {
     return ValueListenableBuilder(
       valueListenable: searchBarController,
       builder: (_, value, child) {
         final categories = searchBarController.text.isEmpty
             ? mainCategories
             : mainCategories
-                  .where(
-                    (category) =>
-                        category.name.contains(searchBarController.text),
-                  )
-                  .toList();
+            .where(
+              (category) =>
+              category.name.contains(searchBarController.text),
+        )
+            .toList();
         return buildColumn(context, categories);
       },
     );
@@ -278,9 +220,9 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
   }
 
   void _onCategoryLongPressed(
-    BuildContext context,
-    MainCategoryEntity category,
-  ) async {
+      BuildContext context,
+      MainCategoryEntity category,
+      ) async {
     final sure = await makeSure(
       title: 'حذف صنف رئيسي',
       content: 'هل تريد حذف هذا الصنف ${category.name}',

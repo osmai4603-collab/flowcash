@@ -14,4 +14,8 @@ abstract interface class UnitLocalDataSource
     String? unitName,
   });
   Future<List<UnitEntity>> getByMainCategory(int mainCategoryId);
+  Future<List<UnitEntity>> getAvailableForSubcategoryProperty({
+    required int subcategoryId,
+    required int propertyId,
+  });
 }

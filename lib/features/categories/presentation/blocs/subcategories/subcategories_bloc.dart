@@ -9,6 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_property_usecases.dart';
 import 'package:flowcash/features/categories/domain/usecases/subcategory_usecases.dart';
 import 'package:flowcash/features/categories/domain/usecases/main_category_usecases.dart';
+import 'package:flowcash/features/categories/domain/usecases/unit_usecases.dart';
+import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_event.dart';
@@ -79,6 +81,18 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
         await infosResult.fold(
           (failure) async => emit(SubcategoriesLoadFailure(failure.message)),
           (infos) async {
+            final unitIds = infos.map((info) => info.unitId).toSet();
+            final unitsResult = await sl<GetUnitsUseCase>()(ids: unitIds);
+            final unitsMap = unitsResult.fold(
+              (failure) => <int, UnitEntity>{},
+              (units) => {for (var unit in units) unit.id: unit},
+            );
+
+            final populatedInfos = infos.map((info) {
+              final unit = unitsMap[info.unitId];
+              return info.copyWith(unitName: unit?.getCategoryName());
+            }).toList();
+
             final propertiesResult = await _loadPropertiesForSubcategories(
               catalogs,
             );
@@ -88,7 +102,7 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
               (properties) {
                 _controller = SubcategoriesController(
                   catalogs,
-                  infos,
+                  populatedInfos,
                   properties,
                 );
                 emit(
@@ -119,7 +133,7 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
         mainCategoryId,
       );
 
-      final addResult = propertiesResult.fold(
+      propertiesResult.fold(
         (failure) {
           // ignore: invalid_use_of_visible_for_testing_member
           emit(
@@ -127,11 +141,9 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
               'Failed to load properties for main category $mainCategoryId: \n  ${failure.message}',
             ),
           );
-          return [];
         },
         (foundProperties) {
           properties.addAll(foundProperties);
-          return Right<void, List<CategoryPropertyEntity>>(foundProperties);
         },
       );
     }

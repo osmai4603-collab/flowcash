@@ -1,14 +1,11 @@
 import 'dart:io';
-import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flowcash/core/theme/spacings.dart';
-import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/widgets/message.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flowcash/core/theme/styles.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_bloc.dart';
@@ -16,6 +13,8 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
+import '../../../../../core/theme_fluent/app_colors.dart';
 
 class TextUnitDataPage extends StatefulWidget {
   final CategoryPropertyEntity property;
@@ -81,7 +80,7 @@ class _TextUnitDataPageState extends State<TextUnitDataPage> {
         .split(' ')
         .where((e) => e.isNotEmpty && e != ' ')
         .join(' ');
-    final propertyId = widget.unit?.propertyId ?? widget.property.id;
+    // final propertyId = widget.unit?.propertyId ?? widget.property.id;
 
     context.read<UnitFormBloc>().add(
       SaveUnitFormEvent(
@@ -95,14 +94,12 @@ class _TextUnitDataPageState extends State<TextUnitDataPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = ColorScheme.of(context);
+    final colors = AppStyle.of(context);
     return BlocBuilder<UnitFormBloc, UnitFormState>(
       builder: (context, state) {
-        final isLoading =
-            state.status == UnitFormStatus.initial ||
-            state.status == UnitFormStatus.loading ||
-            state.status == UnitFormStatus.saving;
         final isSaving = state.status == UnitFormStatus.saving;
+        final isEditing = widget.unit?.id != null && widget.unit?.id != 0;
+
         return PopScope(
           canPop: !_isDataChanged,
           onPopInvokedWithResult: (didPop, result) {
@@ -111,67 +108,79 @@ class _TextUnitDataPageState extends State<TextUnitDataPage> {
           },
           child: fluent.ContentDialog(
             constraints: const BoxConstraints(maxWidth: 400.0),
-            content: ShimmerLoadingWidget(
-              canShimmer: isLoading,
-              freezeScreen: isSaving,
-              period: const Duration(milliseconds: 900),
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  child: Column(
-                    spacing: Spacings.medium,
-                    children: [
-                      Row(
-                        children: [
-                          fluent.Tooltip(
-                            message: 'رجوع',
-                            child: fluent.IconButton(
-                              icon: fluent.Icon(fluent.FluentIcons.back_to_window, size: 20,),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                          ),
-                          TextWidget(
-                            text:
-                                'ادخال ${widget.property.propertyName} ${category?.unitName ?? 'حبة'}',
-                            expanded: true,
-                            textAlign: TextAlign.center,
-                          ),
-                          fluent.Tooltip(
-                            message: 'حفظ البيانات',
-                            child: fluent.IconButton(
-                              icon: fluent.Icon(fluent.FluentIcons.save, size: 20,),
-                              onPressed: _onSaveButtonClicked,
-                            ),
-                          ),
-                        ],
-                      ),
-                      fluent.TextFormBox(
-                        controller: textUnitNameController,
-                        onChanged: (_) => _markChanged(),
-                        autofocus: true,
-                        onFieldSubmitted: (_) => _onSaveButtonClicked(),
-                        cursorHeight: 20.0,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'اسم ال${widget.property.propertyName} فارغ';
-                          }
-                          return null;
-                        },
-                        placeholder: 'ادخل اسم ال${widget.property.propertyName}',
-                        prefix: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: fluent.Icon(
-                            fluent.FluentIcons.modeling_view,
-                            color: ColorScheme.of(context).primary,
-                          ),
+            title: Row(
+              children: [
+                fluent.Icon(
+                  isEditing
+                      ? fluent.FluentIcons.edit_note
+                      : fluent.FluentIcons.add_work,
+                  color: colors.primary,
+                ),
+                const SizedBox(width: 10),
+                fluent.Text(
+                  isEditing
+                      ? 'تعديل ${widget.property.propertyName}'
+                      : 'إضافة ${widget.property.propertyName} جديدة',
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  spacing: Spacings.medium,
+                  children: [
+                    TextWidget(
+                      text:
+                          'ادخال ${widget.property.propertyName} ${category?.unitName ?? 'حبة'}',
+                      textAlign: TextAlign.center,
+                    ),
+                    fluent.TextFormBox(
+                      controller: textUnitNameController,
+                      onChanged: (_) => _markChanged(),
+                      autofocus: true,
+                      enabled: !isSaving,
+                      onFieldSubmitted: (_) => _onSaveButtonClicked(),
+                      cursorHeight: 20.0,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'اسم ال${widget.property.propertyName} فارغ';
+                        }
+                        return null;
+                      },
+                      placeholder: 'ادخل اسم ال${widget.property.propertyName}',
+                      prefix: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: fluent.Icon(
+                          fluent.FluentIcons.modeling_view,
+                          color: colors.primary,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
+            actions: [
+              fluent.Button(
+                onPressed: _onBackPressed,
+                child: const fluent.Text('إلغاء'),
+              ),
+              fluent.FilledButton(
+                onPressed: isSaving ? null : _onSaveButtonClicked,
+                child: isSaving
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: fluent.ProgressRing(
+                          strokeWidth: 2,
+                          activeColor: Colors.white,
+                        ),
+                      )
+                    : const fluent.Text('حفظ'),
+              ),
+            ],
           ),
         );
       },

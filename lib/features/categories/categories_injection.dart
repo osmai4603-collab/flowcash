@@ -45,6 +45,7 @@ import 'package:flowcash/features/categories/presentation/blocs/main_categories/
 import 'package:flowcash/features/categories/presentation/blocs/main_category_form/main_category_form_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategories/subcategories_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategory_form/catalog_form_bloc.dart';
+import 'package:flowcash/features/categories/presentation/blocs/subcategories/subcategory_unit_form_cubit.dart';
 
 void initCategoriesFeature(GetIt sl) {
   //============================================================
@@ -54,13 +55,7 @@ void initCategoriesFeature(GetIt sl) {
   // Data Sources
   sl.registerLazySingleton<CategoryLocalDataSource>(
     () => CategoryLocalDataSourceImpl(
-      sl(),
-      (attribute) => {
-        if (attribute.id > 0) CategoriesAttributesTable().id: attribute.id,
-        CategoriesAttributesTable().subcategoryUnitId:
-            attribute.subcategoryUnitId,
-        CategoriesAttributesTable().categoryId: attribute.categoryId,
-      },
+      sl()
     ),
   );
   sl.registerLazySingleton<MainCategoryLocalDataSource>(
@@ -146,6 +141,9 @@ void initCategoriesFeature(GetIt sl) {
   sl.registerLazySingleton(() => GetUnitsByUnitTypes(sl()));
   sl.registerLazySingleton(() => GetUnitsByMainCategoryUseCase(sl()));
   sl.registerLazySingleton(() => GetUnitsForPropertyUseCase(sl()));
+  sl.registerLazySingleton(
+    () => GetAvailableUnitsForSubcategoryPropertyUseCase(sl()),
+  );
   sl.registerLazySingleton(() => SaveUnitSelectionUseCase(sl()));
   sl.registerLazySingleton(() => GetBasicUnits(sl()));
 
@@ -193,6 +191,11 @@ void initCategoriesFeature(GetIt sl) {
       getSubcategoriesUseCase: sl(),
       insertSubcategoryUseCase: sl(),
       updateSubcategoryUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => SubcategoryUnitFormCubit(
+      getAvailableUnitsForSubcategoryPropertyUseCase: sl(),
     ),
   );
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/core/theme_fluent/app_colors.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/categories/categories_event.dart';
@@ -33,28 +34,16 @@ class _CategoriesPageState extends State<CategoriesPage> {
     });
   }
 
-  Map<int, TableColumnWidth> getWidths() {
+  Map<int, TableWidgetColumnWidth> getWidths() {
     return {
-      0: const FlexColumnWidth(0.06), // No
-      1: const FlexColumnWidth(0.08), // الرقم
-      2: const FlexColumnWidth(0.40), // الصنف
-      3: const FlexColumnWidth(0.14), // الصنف الفرعي
-      4: const FlexColumnWidth(0.10), // الوحدة
-      5: const FlexColumnWidth(0.10), // نوع تعريف الصنف
-      6: const FlexColumnWidth(0.12), // الباركود
+      0: const FlexTableWidgetColumnWidth(0.06, alignment: Alignment.centerRight), // No
+      1: const FlexTableWidgetColumnWidth(0.08, alignment: Alignment.centerRight), // الرقم
+      2: const FlexTableWidgetColumnWidth(0.40, alignment: Alignment.centerRight), // الصنف
+      3: const FlexTableWidgetColumnWidth(0.14, alignment: Alignment.centerRight), // الصنف الفرعي
+      4: const FlexTableWidgetColumnWidth(0.10, alignment: Alignment.center), // الوحدة
+      5: const FlexTableWidgetColumnWidth(0.10, alignment: Alignment.center), // نوع تعريف الصنف
+      6: const FlexTableWidgetColumnWidth(0.12, alignment: Alignment.center), // الباركود
     };
-  }
-
-  Widget _buildCell(String text, AppStyle style, Alignment alignment) {
-    return Container(
-      alignment: alignment,
-      padding: const EdgeInsets.all(6.0),
-      child: fluent.Text(
-        text,
-        overflow: TextOverflow.ellipsis,
-        style: style.body,
-      ),
-    );
   }
 
   Widget listView(List<CategoryEntity> categories) {
@@ -82,147 +71,41 @@ class _CategoriesPageState extends State<CategoriesPage> {
           );
         }
 
-        return Column(
-          mainAxisAlignment: .start,
-          crossAxisAlignment: .stretch,
-          children: [
-            Table(
-              columnWidths: getWidths(),
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              border: TableBorder(
-                top: BorderSide(color: style.outlineVariant, width: 0.5),
-                left: BorderSide(color: style.outlineVariant, width: 0.5),
-                right: BorderSide(color: style.outlineVariant, width: 0.5),
-                bottom: BorderSide(color: style.outlineVariant, width: 0.5),
-                verticalInside: BorderSide(
-                  color: style.outlineVariant,
-                  width: 0.5,
-                ),
-              ),
-              children: [
-                TableRow(
-                  children: [
-                    _buildHeaderCell('No', style),
-                    _buildHeaderCell('الرقم', style),
-                    _buildHeaderCell('الصنف', style),
-                    _buildHeaderCell('الصنف الفرعي', style),
-                    _buildHeaderCell('الوحدة', style),
-                    _buildHeaderCell('نوع الصنف', style),
-                    _buildHeaderCell('الباركود', style),
-                  ],
-                ),
-              ],
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: filtered.length,
-                itemBuilder: (context, index) {
-                  final category = filtered[index];
-                  return fluent.HoverButton(
-                    onPressed: () => _onUpdateCategoryPressed(category),
-                    builder: (context, states) {
-                      final isHovered = states.contains(
-                        fluent.WidgetState.hovered,
-                      );
-                      return GestureDetector(
-                        onLongPress: () => _onDeleteCategoryPressed(category),
-                        child: Table(
-                          columnWidths: getWidths(),
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          border: TableBorder(
-                            left: BorderSide(
-                              color: style.outlineVariant,
-                              width: 0.5,
-                            ),
-                            right: BorderSide(
-                              color: style.outlineVariant,
-                              width: 0.5,
-                            ),
-                            bottom: BorderSide(
-                              color: style.outlineVariant,
-                              width: 0.5,
-                            ),
-                            verticalInside: BorderSide(
-                              color: style.outlineVariant,
-                              width: 0.5,
-                            ),
-                          ),
-                          children: [
-                            TableRow(
-                              decoration: BoxDecoration(
-                                color: isHovered
-                                    ? style.surfaceContainerHighest.withValues(
-                                        alpha: 0.24,
-                                      )
-                                    : (index.isEven
-                                          ? null
-                                          : style.surfaceContainerHighest
-                                                .withValues(alpha: 0.12)),
-                              ),
-                              children: [
-                                _buildCell(
-                                  '${index + 1}',
-                                  style,
-                                  Alignment.center,
-                                ),
-                                _buildCell(
-                                  category.categoryNumber,
-                                  style,
-                                  Alignment.centerRight,
-                                ),
-                                _buildCell(
-                                  category.categoryName,
-                                  style,
-                                  Alignment.centerRight,
-                                ),
-                                _buildCell(
-                                  category.subcategory?.catalogName ??
-                                      'بدون صنف فرعي',
-                                  style,
-                                  Alignment.centerRight,
-                                ),
-                                _buildCell(
-                                  category.categoryUnit?.unitName ?? 'غير معرف',
-                                  style,
-                                  Alignment.center,
-                                ),
-                                _buildCell(
-                                  category.categoryType.displayName(),
-                                  style,
-                                  Alignment.center,
-                                ),
-                                _buildCell(
-                                  category.barcode ?? 'غير معرف',
-                                  style,
-                                  Alignment.center,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
+        return TableWidget<CategoryEntity>(
+          items: filtered,
+          header: const [
+            'No',
+            'الرقم',
+            'الصنف',
+            'الصنف الفرعي',
+            'الوحدة',
+            'نوع الصنف',
+            'الباركود',
           ],
+          columns: getWidths(),
+          onTapRow: (category) => _onUpdateCategoryPressed(category),
+          onLongPressed: (category) => _onDeleteCategoryPressed(category),
+          paintRowColorWhen: (category, index) => index.isOdd,
+          rowColor: style.surfaceContainerLowest,
+          builder: (context, category, index) {
+            return [
+              fluent.Text('${index + 1}', style: style.body),
+              fluent.Text(category.categoryNumber, style: style.body),
+              fluent.Text(category.categoryName, style: style.body),
+              fluent.Text(
+                category.subcategory?.catalogName ?? 'بدون صنف فرعي',
+                style: style.body,
+              ),
+              fluent.Text(
+                category.categoryUnit?.unitName ?? 'غير معرف',
+                style: style.body,
+              ),
+              fluent.Text(category.categoryType.displayName(), style: style.body),
+              fluent.Text(category.barcode ?? 'غير معرف', style: style.body),
+            ];
+          },
         );
       },
-    );
-  }
-
-  Widget _buildHeaderCell(String text, AppStyle style) {
-    return fluent.Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(4),
-      decoration: fluent.BoxDecoration(color: style.surfaceContainerHighest),
-      child: fluent.Text(
-        text,
-        textAlign: TextAlign.center,
-        style: style.bodyStrong,
-      ),
     );
   }
 

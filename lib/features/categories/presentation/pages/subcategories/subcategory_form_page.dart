@@ -5,7 +5,6 @@ import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
-import 'package:flowcash/features/categories/presentation/blocs/category_form/category_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategory_form/catalog_form_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategory_form/catalog_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/subcategory_form/catalog_form_state.dart';
@@ -13,8 +12,6 @@ import 'package:flowcash/features/categories/presentation/pages/units/unit_form_
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/message.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
-import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -34,6 +31,9 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
 
   late final SubcategoryFormBloc _catalogFormBloc;
 
+  bool _initialized = false;
+  bool _isDataChanged = false;
+
   bool get isDesktop => Platform.isLinux || Platform.isWindows;
 
   @override
@@ -41,6 +41,30 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
     super.initState();
     _catalogFormBloc = sl<SubcategoryFormBloc>()
       ..add(InitSubcategoryFormEvent(catalog: widget.subcategory));
+  }
+
+  void _markChanged() {
+    if (!_isDataChanged) {
+      setState(() => _isDataChanged = true);
+    }
+  }
+
+  void _onBackPressed() async {
+    if (!_isDataChanged) {
+      if (context.mounted) Navigator.pop(context);
+      return;
+    }
+    final sure = await makeSure(
+      context: context,
+      title: 'تأكيد الخروج',
+      content: 'هل تريد الخروج؟ سيتم فقدان البيانات غير المحفوظة',
+    );
+    if (sure && mounted) {
+      setState(() => _isDataChanged = false);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) Navigator.pop(context);
+      });
+    }
   }
 
   @override
@@ -52,152 +76,184 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppStyle.of(context);
     final textTheme = TextTheme.of(context);
     final isReadOnlyMainCategory = widget.subcategory != null;
-    return fluent.ContentDialog(
-      constraints: const BoxConstraints(maxWidth: 500),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: BlocProvider.value(
-            value: _catalogFormBloc,
-            child: BlocConsumer<SubcategoryFormBloc, SubcategoryFormState>(
-              listener: (context, state) async {
-                if (state.status == SubcategoryFormStatus.saved) {
-                  if (context.mounted) {
-                    Navigator.of(context).pop(state.savedSubcategory);
-                  }
-                }
+    return BlocProvider.value(
+      value: _catalogFormBloc,
+      child: BlocConsumer<SubcategoryFormBloc, SubcategoryFormState>(
+        listener: (context, state) async {
+          if (state.status == SubcategoryFormStatus.ready) {
+            if (!_initialized && state.catalogName != null) {
+              catalogNameController.text = state.catalogName!;
+              _initialized = true;
+            }
+          }
+          if (state.status == SubcategoryFormStatus.saved) {
+            if (context.mounted) {
+              Navigator.of(context).pop(state.savedSubcategory);
+            }
+          }
 
-                if (state.status == SubcategoryFormStatus.failure) {
-                  await errorToast(
-                    context: context,
-                    toast: state.messageError ?? 'حدث خطأ',
-                  );
-                  if (!context.mounted) return;
-                }
-              },
-              builder: (context, state) {
-                if (state.status == SubcategoryFormStatus.initial ||
-                    state.status == SubcategoryFormStatus.saving) {
-                  return const SubcategoryFormShimmer();
-                }
-                return Column(
-                  spacing: Spacings.small,
-                  children: [
-                    Row(
-                      children: [
-                        fluent.Tooltip(
-                          message: 'رجوع',
-                          child: fluent.IconButton(
-                            icon: fluent.Icon(
-                              fluent.FluentIcons.back_to_window,
-                            ),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ),
-                        TextWidget(
-                          text: 'بيانات نوع ${state.mainCategory?.name ?? ''}',
-                          padding: EdgeInsets.only(right: 10),
-                          expanded: true,
-                          textAlign: TextAlign.center,
-                        ),
-                        fluent.Tooltip(
-                          message: 'حفظ البيانات',
-                          child: fluent.IconButton(
-                            icon: const fluent.Icon(fluent.FluentIcons.save),
-                            onPressed: _onSaveButtonClicked,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      spacing: Spacings.small,
-                      children: [
-                        Expanded(
-                          child: fluent.InfoLabel(
-                            label: 'اسم النوع',
-                            child: fluent.TextFormBox(
-                              controller: catalogNameController,
-                              placeholder: 'ادخل اسم النوع',
-                              prefix: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: const fluent.Icon(
-                                  fluent.FluentIcons.category_classification,
-                                ),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'يرجى إدخال اسم النوع';
-                                }
-                                return null;
-                              },
-                              onChanged: (value) => _catalogFormBloc.add(
-                                SubcategoryNameChangedEvent(value),
-                              ),
-                              style: textTheme.labelMedium,
-                              autofocus: true,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: fluent.InfoLabel(
-                            label: 'الصنف الرئيسي',
-                            child: fluent.ComboboxFormField<MainCategoryEntity>(
-                              value: state.mainCategory,
-                              items: state.mainCategories
-                                  .map(
-                                    (category) => fluent.ComboBoxItem(
-                                      value: category,
-                                      child: fluent.Text(category.name),
-                                    ),
-                                  )
-                                  .toList(),
-                              onChanged: isReadOnlyMainCategory
-                                  ? null
-                                  : (selected) {
-                                      if (selected != null) {
-                                        context.read<SubcategoryFormBloc>().add(
-                                          MainCategorySelectedEvent(selected),
-                                        );
-                                      }
-                                    },
-                              placeholder: const fluent.Text(
-                                'اختر الصنف الرئيسي',
-                              ),
-                              isExpanded: true,
-                              validator: (value) {
-                                if (value == null) {
-                                  return 'يرجى تحديد الصنف الرئيسي';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (state.catalogProperties.isNotEmpty)
-                      ListView(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
+          if (state.status == SubcategoryFormStatus.failure) {
+            await errorToast(
+              context: context,
+              toast: state.messageError ?? 'حدث خطأ',
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state.status == SubcategoryFormStatus.initial) {
+            return Center(
+              child: fluent.ProgressRing(),
+            );
+          }
+          final isEditing =
+              widget.subcategory?.id != null && widget.subcategory?.id != 0;
+          return PopScope(
+            canPop: !_isDataChanged,
+            onPopInvokedWithResult: (didPop, result) {
+              if (didPop) return;
+              _onBackPressed();
+            },
+            child: fluent.ContentDialog(
+              constraints: const BoxConstraints(maxWidth: 500),
+              title: Row(
+                children: [
+                  fluent.Icon(
+                    isEditing
+                        ? fluent.FluentIcons.edit_note
+                        : fluent.FluentIcons.add_work,
+                    color: colors.primary,
+                  ),
+                  const SizedBox(width: 10),
+                  fluent.Text(
+                    isEditing ? 'تعديل صنف فرعي' : 'إضافة صنف فرعي جديد',
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    spacing: Spacings.small,
+                    children: [
+                      Row(
+                        spacing: Spacings.small,
                         children: [
-                          ...state.catalogProperties
-                              .where((p) => !p.property.isCategoryUnit)
-                              .map((catalogProperty) {
-                                if (catalogProperty.property.isSingle) {
-                                  return buildSingleProperty(catalogProperty);
-                                }
-                                return buildPropertyStruct(catalogProperty);
-                              }),
+                          Expanded(
+                            child: fluent.InfoLabel(
+                              label: 'اسم النوع',
+                              child: fluent.TextFormBox(
+                                controller: catalogNameController,
+                                placeholder: 'ادخل اسم النوع',
+                                enabled:
+                                    state.status != SubcategoryFormStatus.saving,
+                                prefix: Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: const fluent.Icon(
+                                    fluent.FluentIcons.category_classification,
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'يرجى إدخال اسم النوع';
+                                  }
+                                  return null;
+                                },
+                                onChanged: (value) {
+                                  _markChanged();
+                                  _catalogFormBloc.add(
+                                    SubcategoryNameChangedEvent(value),
+                                  );
+                                },
+                                style: textTheme.labelMedium,
+                                autofocus: true,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: fluent.InfoLabel(
+                              label: 'الصنف الرئيسي',
+                              child: fluent.ComboboxFormField<MainCategoryEntity>(
+                                value: state.mainCategory,
+                                // enabled:
+                                //     state.status != SubcategoryFormStatus.saving,
+                                items: state.mainCategories
+                                    .map(
+                                      (category) => fluent.ComboBoxItem(
+                                        value: category,
+                                        child: fluent.Text(category.name),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: isReadOnlyMainCategory
+                                    ? null
+                                    : (selected) {
+                                        if (selected != null) {
+                                          _markChanged();
+                                          context.read<SubcategoryFormBloc>().add(
+                                            MainCategorySelectedEvent(selected),
+                                          );
+                                        }
+                                      },
+                                placeholder: const fluent.Text(
+                                  'اختر الصنف الرئيسي',
+                                ),
+                                isExpanded: true,
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'يرجى تحديد الصنف الرئيسي';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                  ],
-                );
-              },
+                      if (state.catalogProperties.isNotEmpty)
+                        ListView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: [
+                            ...state.catalogProperties
+                                .map((catalogProperty) {
+                                  if (catalogProperty.property.isSingle || catalogProperty.property.isCategoryUnit) {
+                                    return buildSingleProperty(catalogProperty);
+                                  }
+                                  return buildPropertyStruct(catalogProperty);
+                                }),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                fluent.Button(
+                  onPressed: _onBackPressed,
+                  child: const fluent.Text('إلغاء'),
+                ),
+                fluent.FilledButton(
+                  onPressed: state.status == SubcategoryFormStatus.saving
+                      ? null
+                      : _onSaveButtonClicked,
+                  child: state.status == SubcategoryFormStatus.saving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: fluent.ProgressRing(
+                            strokeWidth: 2,
+                            activeColor: Colors.white,
+                          ),
+                        )
+                      : const fluent.Text('حفظ'),
+                ),
+              ],
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -265,6 +321,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                     onPressed: () {
                                       final selected = catalogUnit.unit;
                                       field.didChange(selected);
+                                      _markChanged();
                                       _catalogFormBloc.add(
                                         UpdateSelectedUnitEvent(
                                           property: property,
@@ -301,8 +358,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
             ),
           ),
         ),
-        if (!property.property.unitType.isPiece)
-          Padding(
+        Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
             child: fluent.Tooltip(
               message: 'إضافة ${property.property.propertyName} جديد',
@@ -372,6 +428,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                               );
                               if (!mounted) return;
                               if (unitEntity == null) return;
+                              _markChanged();
                               final newSubcategoryUnit = SubcategoryUnit(
                                 property: property.property,
                                 unit: unitEntity,
@@ -385,10 +442,11 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                             },
                           ),
                         ),
-                        TextWidget(
-                          text: 'انواع ${property.property.propertyName}',
-                          alignment: Alignment.center,
-                          expanded: true,
+                        Expanded(
+                          child: TextWidget(
+                            text: 'انواع ${property.property.propertyName}',
+                            alignment: Alignment.center,
+                          ),
                         ),
                         const SizedBox(width: 10),
                       ],
@@ -411,7 +469,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                               children: [
                                 FormField<UnitEntity?>(
                                   key: ValueKey(
-                                    '${property.property.id}_${subcategoryUnit.id ?? 0}_${selectedList.hashCode}',
+                                    '${property.property.id}_${subcategoryUnit.id}_${selectedList.hashCode}',
                                   ),
                                   initialValue: subcategoryUnit.unit,
                                   builder: (field) {
@@ -453,6 +511,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                               property.availableUnits[idx];
                                           return MenuItemButton(
                                             onPressed: () {
+                                              _markChanged();
                                               _catalogFormBloc.add(
                                                 UpdateSelectedUnitEvent(
                                                   property: property,
@@ -491,6 +550,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                           updated.removeAt(idx);
                                           formState.didChange(updated);
                                         }
+                                        _markChanged();
                                         _catalogFormBloc.add(
                                           UpdateSelectedUnitEvent(
                                             property: property,
@@ -513,13 +573,6 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                         'تحديد ${property.property.propertyName} جديد',
                       ),
                       onPressed: () async {
-                        // final selectedUnitIds = selectedList
-                        //     .whereType<SubcategoryUnit>()
-                        //     .map((u) => u.unit.id)
-                        //     .toSet();
-                        // final availableUnits = property.subcatgoriesUnits
-                        //     .where((u) => !selectedUnitIds.contains(u.unit.id))
-                        //     .toList();
                         if (property.availableUnits.isEmpty) {
                           final unitEntity = await showDialog<UnitEntity>(
                             barrierDismissible: false,
@@ -529,6 +582,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                           );
                           if (!mounted) return;
                           if (unitEntity == null) return;
+                          _markChanged();
                           final newSubcategoryUnit = SubcategoryUnit(
                             property: property.property,
                             unit: unitEntity,
@@ -539,13 +593,10 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                               catalogUnit: newSubcategoryUnit,
                             ),
                           );
-                          // formState.didChange([
-                          //   ...selectedList,
-                          //   newSubcategoryUnit,
-                          // ]);
                           return;
                         }
 
+                        _markChanged();
                         _catalogFormBloc.add(AddSelectedSlotEvent(property));
                       },
                     ),
@@ -612,6 +663,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
     );
     if (!mounted) return;
     if (unitEntity != null) {
+      _markChanged();
       _catalogFormBloc.add(
         AddUnitToPropertyEvent(
           catalogProperty: property,
@@ -619,33 +671,5 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
         ),
       );
     }
-  }
-}
-
-class SubcategoryFormShimmer extends StatelessWidget {
-  const SubcategoryFormShimmer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return AppShimmer(
-      child: Column(
-        spacing: Spacings.medium,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            spacing: Spacings.medium,
-            children: [
-              const ShimmerPlaceholder(height: 35, width: 50),
-              const ShimmerPlaceholder(height: 40, width: 250),
-              const ShimmerPlaceholder(height: 35, width: 50),
-            ],
-          ),
-          const ShimmerPlaceholder(height: 2),
-          const ShimmerPlaceholder(),
-          const ShimmerPlaceholder(),
-          const ShimmerPlaceholder(height: 100),
-        ],
-      ),
-    );
   }
 }

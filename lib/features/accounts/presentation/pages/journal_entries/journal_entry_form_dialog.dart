@@ -138,319 +138,314 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
             );
           }
 
-          return ShimmerLoadingWidget(
-            canShimmer: state.status == JournalEntryFormStatus.loading,
-            freezeScreen: state.status == JournalEntryFormStatus.loading,
-            period: const Duration(milliseconds: 900),
-            child: fluent.ContentDialog(
-              constraints: BoxConstraints(maxWidth: 800, minWidth: 800),
-              title: Row(
+          return fluent.ContentDialog(
+            constraints: BoxConstraints(maxWidth: 800, minWidth: 800),
+            title: Row(
+              children: [
+                fluent.Icon(
+                  isEditing
+                      ? fluent.FluentIcons.edit_note
+                      : fluent.FluentIcons.task_add,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 10),
+                fluent.Text(
+                  isEditing ? 'تعديل قيد يومية' : 'إنشاء قيد يومية جديد',
+                ),
+              ],
+            ),
+            content: Form(
+              key: _formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              child: Column(
                 children: [
-                  fluent.Icon(
-                    isEditing
-                        ? fluent.FluentIcons.edit_note
-                        : fluent.FluentIcons.task_add,
-                    color: theme.colorScheme.primary,
+                  // 1. Header inputs (Description, Date, Currency, Exchange Rate)
+                  _buildJournalEntryHeader(
+                    bloc,
+                    state,
+                    context,
+                    selectedCurrency,
                   ),
-                  const SizedBox(width: 10),
-                  fluent.Text(
-                    isEditing ? 'تعديل قيد يومية' : 'إنشاء قيد يومية جديد',
-                  ),
-                ],
-              ),
-              content: Form(
-                key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: Column(
-                  children: [
-                    // 1. Header inputs (Description, Date, Currency, Exchange Rate)
-                    _buildJournalEntryHeader(
-                      bloc,
-                      state,
-                      context,
-                      selectedCurrency,
-                    ),
-                    const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                    // Debit Section
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withAlpha(40),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const fluent.Text(
-                            'المدينون',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                  // Debit Section
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer.withAlpha(40),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const fluent.Text(
+                          'المدينون',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        fluent.FilledButton(
+                          onPressed: () => bloc.add(
+                            const AddJournalItemField(AccountStatus.debtor),
                           ),
-                          fluent.FilledButton(
-                            onPressed: () => bloc.add(
-                              const AddJournalItemField(AccountStatus.debtor),
+                          child: const fluent.Text('إضافة بند مدين'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Items grouped by side
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          // Debit items list
+                          Builder(
+                            builder: (ctx) {
+                              final debitItems = state.items
+                                  .where(
+                                    (it) => it.side == AccountStatus.debtor,
+                                  )
+                                  .toList();
+                              return Column(
+                                children: List.generate(debitItems.length, (
+                                  sideIdx,
+                                ) {
+                                  final item = debitItems[sideIdx];
+                                  return JournalItemRowForm(
+                                    index: sideIdx,
+                                    draft: item,
+                                    side: AccountStatus.debtor,
+                                    subAccounts: _subAccounts,
+                                    canDelete: debitItems.length > 1,
+                                    onChanged:
+                                        ({
+                                          accountId,
+                                          accountName,
+                                          amount,
+                                          lineDescription,
+                                        }) {
+                                          bloc.add(
+                                            JournalItemFieldChanged(
+                                              side: AccountStatus.debtor,
+                                              index: sideIdx,
+                                              accountId: accountId,
+                                              accountName: accountName,
+                                              amount: amount,
+                                              lineDescription:
+                                                  lineDescription,
+                                            ),
+                                          );
+                                        },
+                                    onDelete: () => bloc.add(
+                                      RemoveJournalItemField(
+                                        AccountStatus.debtor,
+                                        sideIdx,
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              );
+                            },
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // Credit section header and add button
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 12,
                             ),
-                            child: const fluent.Text('إضافة بند مدين'),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer
+                                  .withAlpha(40),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                const fluent.Text(
+                                  'الدائنون',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                fluent.FilledButton(
+                                  onPressed: () => bloc.add(
+                                    const AddJournalItemField(
+                                      AccountStatus.creditor,
+                                    ),
+                                  ),
+                                  // icon: const fluent.Icon(fluent.FluentIcons.add,
+                                  // ),
+                                  child: const fluent.Text('إضافة بند دائن'),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // Credit items list
+                          Builder(
+                            builder: (ctx) {
+                              final creditItems = state.items
+                                  .where(
+                                    (it) => it.side == AccountStatus.creditor,
+                                  )
+                                  .toList();
+                              return Column(
+                                children: List.generate(creditItems.length, (
+                                  sideIdx,
+                                ) {
+                                  final item = creditItems[sideIdx];
+                                  return JournalItemRowForm(
+                                    index: sideIdx,
+                                    draft: item,
+                                    side: AccountStatus.creditor,
+                                    subAccounts: _subAccounts,
+                                    canDelete: creditItems.length > 1,
+                                    onChanged:
+                                        ({
+                                          accountId,
+                                          accountName,
+                                          amount,
+                                          lineDescription,
+                                        }) {
+                                          bloc.add(
+                                            JournalItemFieldChanged(
+                                              side: AccountStatus.creditor,
+                                              index: sideIdx,
+                                              accountId: accountId,
+                                              accountName: accountName,
+                                              amount: amount,
+                                              lineDescription:
+                                                  lineDescription,
+                                            ),
+                                          );
+                                        },
+                                    onDelete: () => bloc.add(
+                                      RemoveJournalItemField(
+                                        AccountStatus.creditor,
+                                        sideIdx,
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              );
+                            },
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
+                  ),
+                  const Divider(),
 
-                    // Items grouped by side
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            // Debit items list
-                            Builder(
-                              builder: (ctx) {
-                                final debitItems = state.items
-                                    .where(
-                                      (it) => it.side == AccountStatus.debtor,
-                                    )
-                                    .toList();
-                                return Column(
-                                  children: List.generate(debitItems.length, (
-                                    sideIdx,
-                                  ) {
-                                    final item = debitItems[sideIdx];
-                                    return JournalItemRowForm(
-                                      index: sideIdx,
-                                      draft: item,
-                                      side: AccountStatus.debtor,
-                                      subAccounts: _subAccounts,
-                                      canDelete: debitItems.length > 1,
-                                      onChanged:
-                                          ({
-                                            accountId,
-                                            accountName,
-                                            amount,
-                                            lineDescription,
-                                          }) {
-                                            bloc.add(
-                                              JournalItemFieldChanged(
-                                                side: AccountStatus.debtor,
-                                                index: sideIdx,
-                                                accountId: accountId,
-                                                accountName: accountName,
-                                                amount: amount,
-                                                lineDescription:
-                                                    lineDescription,
-                                              ),
-                                            );
-                                          },
-                                      onDelete: () => bloc.add(
-                                        RemoveJournalItemField(
-                                          AccountStatus.debtor,
-                                          sideIdx,
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                );
-                              },
-                            ),
-
-                            const SizedBox(height: 12),
-
-                            // Credit section header and add button
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 8,
-                                horizontal: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.primaryContainer
-                                    .withAlpha(40),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const fluent.Text(
-                                    'الدائنون',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  fluent.FilledButton(
-                                    onPressed: () => bloc.add(
-                                      const AddJournalItemField(
-                                        AccountStatus.creditor,
-                                      ),
-                                    ),
-                                    // icon: const fluent.Icon(fluent.FluentIcons.add,
-                                    // ),
-                                    child: const fluent.Text('إضافة بند دائن'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-
-                            // Credit items list
-                            Builder(
-                              builder: (ctx) {
-                                final creditItems = state.items
-                                    .where(
-                                      (it) => it.side == AccountStatus.creditor,
-                                    )
-                                    .toList();
-                                return Column(
-                                  children: List.generate(creditItems.length, (
-                                    sideIdx,
-                                  ) {
-                                    final item = creditItems[sideIdx];
-                                    return JournalItemRowForm(
-                                      index: sideIdx,
-                                      draft: item,
-                                      side: AccountStatus.creditor,
-                                      subAccounts: _subAccounts,
-                                      canDelete: creditItems.length > 1,
-                                      onChanged:
-                                          ({
-                                            accountId,
-                                            accountName,
-                                            amount,
-                                            lineDescription,
-                                          }) {
-                                            bloc.add(
-                                              JournalItemFieldChanged(
-                                                side: AccountStatus.creditor,
-                                                index: sideIdx,
-                                                accountId: accountId,
-                                                accountName: accountName,
-                                                amount: amount,
-                                                lineDescription:
-                                                    lineDescription,
-                                              ),
-                                            );
-                                          },
-                                      onDelete: () => bloc.add(
-                                        RemoveJournalItemField(
-                                          AccountStatus.creditor,
-                                          sideIdx,
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
+                  // 3. Footer totals summary
+                  Container(
+                    padding: Paddings.mediumAll,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHighest
+                          .withAlpha(50),
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                    const Divider(),
-
-                    // 3. Footer totals summary
-                    Container(
-                      padding: Paddings.mediumAll,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest
-                            .withAlpha(50),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Balanced indicator status
-                          Row(
-                            children: [
-                              fluent.Icon(
-                                state.isBalanced
-                                    ? fluent.FluentIcons.skype_circle_check
-                                    : fluent.FluentIcons.warning,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Balanced indicator status
+                        Row(
+                          children: [
+                            fluent.Icon(
+                              state.isBalanced
+                                  ? fluent.FluentIcons.skype_circle_check
+                                  : fluent.FluentIcons.warning,
+                              color: state.isBalanced
+                                  ? Colors.green
+                                  : Colors.orange,
+                            ),
+                            const SizedBox(width: 8),
+                            fluent.Text(
+                              state.isBalanced
+                                  ? 'القيد متزن'
+                                  : 'القيد غير متزن',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
                                 color: state.isBalanced
                                     ? Colors.green
                                     : Colors.orange,
                               ),
-                              const SizedBox(width: 8),
-                              fluent.Text(
-                                state.isBalanced
-                                    ? 'القيد متزن'
-                                    : 'القيد غير متزن',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: state.isBalanced
-                                      ? Colors.green
-                                      : Colors.orange,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
 
-                          // Totals summary display
-                          Row(
-                            children: [
-                              fluent.Text(
-                                'إجمالي المدين: ${AppMoneyFormatter.formatDouble(state.totalDebit)}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
+                        // Totals summary display
+                        Row(
+                          children: [
+                            fluent.Text(
+                              'إجمالي المدين: ${AppMoneyFormatter.formatDouble(state.totalDebit)}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
                               ),
+                            ),
+                            const SizedBox(width: 24),
+                            fluent.Text(
+                              'إجمالي الدائن: ${AppMoneyFormatter.formatDouble(state.totalCredit)}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red,
+                              ),
+                            ),
+                            if (!state.isBalanced) ...[
                               const SizedBox(width: 24),
                               fluent.Text(
-                                'إجمالي الدائن: ${AppMoneyFormatter.formatDouble(state.totalCredit)}',
+                                'الفرق: ${AppMoneyFormatter.formatDouble(state.difference)}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.red,
+                                  color: Colors.orange,
                                 ),
                               ),
-                              if (!state.isBalanced) ...[
-                                const SizedBox(width: 24),
-                                fluent.Text(
-                                  'الفرق: ${AppMoneyFormatter.formatDouble(state.difference)}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange,
-                                  ),
-                                ),
-                              ],
                             ],
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-
-              actions: [
-                fluent.Button(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const fluent.Text('إلغاء'),
-                ),
-                fluent.FilledButton(
-                  onPressed:
-                      state.status == JournalEntryFormStatus.loading ||
-                          !state.isBalanced
-                      ? null
-                      : () {
-                          final isValid =
-                              _formKey.currentState?.validate() ?? true;
-                          if (!isValid) return;
-                          bloc.add(const SubmitJournalEntryForm());
-                        },
-                  child: state.status == JournalEntryFormStatus.loading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: fluent.ProgressRing(
-                            strokeWidth: 2,
-                            activeColor: Colors.white,
-                          ),
-                        )
-                      : const fluent.Text('حفظ القيد'),
-                ),
-              ],
             ),
+
+            actions: [
+              fluent.Button(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const fluent.Text('إلغاء'),
+              ),
+              fluent.FilledButton(
+                onPressed:
+                    state.status == JournalEntryFormStatus.loading ||
+                        !state.isBalanced
+                    ? null
+                    : () {
+                        final isValid =
+                            _formKey.currentState?.validate() ?? true;
+                        if (!isValid) return;
+                        bloc.add(const SubmitJournalEntryForm());
+                      },
+                child: state.status == JournalEntryFormStatus.loading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: fluent.ProgressRing(
+                          strokeWidth: 2,
+                          activeColor: Colors.white,
+                        ),
+                      )
+                    : const fluent.Text('حفظ القيد'),
+              ),
+            ],
           );
         },
       ),
@@ -464,6 +459,7 @@ class _JournalEntryFormDialogState extends State<JournalEntryFormDialog> {
     CurrencyEntity? selectedCurrency,
   ) {
     return Row(
+      crossAxisAlignment: .start,
       children: [
         // Description
         Expanded(

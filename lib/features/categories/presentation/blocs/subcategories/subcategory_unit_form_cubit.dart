@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/features/categories/domain/usecases/unit_usecases.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,15 +38,22 @@ class SubcategoryUnitFormState extends Equatable {
 }
 
 class SubcategoryUnitFormCubit extends Cubit<SubcategoryUnitFormState> {
-  final GetUnitsForPropertyUseCase getUnitsForPropertyUseCase;
+  final GetAvailableUnitsForSubcategoryPropertyUseCase
+  getAvailableUnitsForSubcategoryPropertyUseCase;
 
   SubcategoryUnitFormCubit({
-    required this.getUnitsForPropertyUseCase,
+    required this.getAvailableUnitsForSubcategoryPropertyUseCase,
   }) : super(const SubcategoryUnitFormState());
 
-  Future<void> loadUnits(int propertyId) async {
+  Future<void> loadUnits({
+    required CategoryPropertyEntity property,
+    required int subcategoryId,
+  }) async {
     emit(state.copyWith(status: SubcategoryUnitFormStatus.loading));
-    final result = await getUnitsForPropertyUseCase(propertyId);
+    final result = await getAvailableUnitsForSubcategoryPropertyUseCase(
+      propertyId: property.id,
+      subcategoryId: subcategoryId,
+    );
     result.fold(
       (failure) => emit(state.copyWith(
         status: SubcategoryUnitFormStatus.failure,

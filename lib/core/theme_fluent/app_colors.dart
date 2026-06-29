@@ -360,8 +360,8 @@ class AppStyle extends ThemeExtension<AppStyle> {
         fontFamily: 'Noto_Naskh_Arabic',
       ),
       body: TextStyle(
-        fontSize: 14,
-        height: 20 / 14,
+        fontSize: 12,
+        height: 18 / 12,
         color: onSurface,
         fontWeight: FontWeight.normal,
         fontFamily: 'Noto_Naskh_Arabic',

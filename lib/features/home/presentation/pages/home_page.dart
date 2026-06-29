@@ -11,7 +11,12 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return fluent.NavigationView(
+
       pane: fluent.NavigationPane(
+        size: const fluent.NavigationPaneSize(
+          openWidth: 200.0,    // تغيير العرض عند الفتح إلى 260 بكسل
+          compactWidth: 60.0,  // تغيير العرض المدمج إلى 60 بكسل
+        ),
         selected: navigationShell.currentIndex,
         onChanged: (index) => navigationShell.goBranch(index),
         displayMode: fluent.PaneDisplayMode.auto,

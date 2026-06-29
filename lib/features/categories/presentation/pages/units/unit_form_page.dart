@@ -4,11 +4,12 @@ import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_bloc.dart';
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
+import 'package:flowcash/features/categories/presentation/pages/units/basic_unit_form_page.dart';
 import 'package:flowcash/features/categories/presentation/pages/units/linear_meter_unit_data_page.dart';
-import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
 import 'package:flowcash/features/categories/presentation/pages/units/meter_unit_data_page.dart';
 import 'package:flowcash/features/categories/presentation/pages/units/weight_data_page.dart';
 import 'package:flowcash/features/categories/presentation/pages/units/text_unit_data_page.dart';
+import 'package:flowcash/features/categories/presentation/pages/units/basic_unit_form_page.dart';
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,12 +69,7 @@ class _UnitFormPageState extends State<UnitFormPage> {
             if (state.status == UnitFormStatus.initial ||
                 state.status == UnitFormStatus.saving ||
                 state.status == UnitFormStatus.loading) {
-              return ShimmerLoadingWidget(
-                canShimmer: true,
-                freezeScreen: state.status == UnitFormStatus.saving,
-                period: const Duration(milliseconds: 900),
-                child: _buildUnitForm(state),
-              );
+              return const Center(child: fluent.ProgressRing());
             }
             return _buildUnitForm(state);
           },
@@ -87,7 +83,7 @@ class _UnitFormPageState extends State<UnitFormPage> {
       case ModelUnitType():
         return TextUnitDataPage(property: widget.property, unit: widget.unit);
       case PieceUnitType():
-        return Container();
+        return BasicUnitFormPage(property: widget.property, unit: widget.unit);
       case WeightUnitType():
         return WeightUnitDataPage(property: widget.property, unit: widget.unit);
       case LinearMeterUnitType():

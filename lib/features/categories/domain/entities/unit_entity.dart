@@ -22,17 +22,16 @@ class UnitEntity extends Entity {
   double get width => measurement.width;
   double get thickness => measurement.thickness;
 
-  UnitEntity.piece({required int id, int count = 0, String unitName = 'حبة'})
+  UnitEntity.piece({required int id, required int count, String unitName = 'حبة'})
     : this(
         id: id,
-        unitName: count <= 0 ? unitName : '$count$unitName',
+        unitName: '$count$unitName',
         unitType: UnitType.piece,
         measurement: PieceMeasurableUnit(count: count.toDouble()),
       );
 
   UnitEntity.squareMeter({
     required int id,
-    int? propertyId,
     required double length,
     required double width,
   }) : this(
@@ -44,7 +43,6 @@ class UnitEntity extends Entity {
 
   UnitEntity.squareMeterWidthStatic({
     required int id,
-    int? propertyId,
     required double width,
   }) : this(
          id: id,
@@ -55,7 +53,6 @@ class UnitEntity extends Entity {
 
   UnitEntity.squareMeterStatic({
     required int id,
-    int? propertyId,
     required double length,
     required double width,
   }) : this(
@@ -68,7 +65,6 @@ class UnitEntity extends Entity {
 
   UnitEntity.cubitMeter({
     required int id,
-    int? propertyId,
     required double length,
     required double width,
     required double thickness,
@@ -107,13 +103,21 @@ class UnitEntity extends Entity {
          measurement: WeightMeasurableUnit(weight),
        );
 
-  UnitEntity.text({required int id, required String textName})
+  const UnitEntity.text({required int id, required String textName})
     : this(
         id: id,
         unitName: textName,
         unitType: UnitType.model,
-        measurement: const ModelMeasurableUnit(),
+        measurement: const VolumeMeasurableUnit(length: 0.0, width: 0.0, thickness: 0.0),
       );
+
+  const UnitEntity.basicUnit({required int id, required String unitName, required UnitType unitType})
+      : this(
+    id: id,
+    unitName: unitName,
+    unitType: unitType,
+    measurement: const VolumeMeasurableUnit(length: 0.0, width: 0.0, thickness: 0.0),
+  );
 
   @override
   List<Object?> get props => [id, unitName, measurement, unitType];
@@ -143,8 +147,9 @@ class UnitEntity extends Entity {
   }
 
   bool get isMeasurable => unitType.isMeasurable;
+
   bool get isBasicUnit {
-    return unitType.isBasic && id < 6;
+    return unitType.isBasic && length == 0.0 && width == 0.0 && thickness == 0.0;
   }
 
   double get countUnits => measurement.countUnits;
@@ -360,4 +365,5 @@ class UnitEntity extends Entity {
         return unitType.unitName;
     }
   }
+
 }

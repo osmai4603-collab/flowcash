@@ -1,11 +1,13 @@
+import 'package:flowcash/core/formatters/money_formatter.dart';
 import 'package:flowcash/core/theme/spacings.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/features/categories/domain/usecases/unit_usecases.dart';
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
 
 class CategoriesDashboardUnitsTab extends StatefulWidget {
   const CategoriesDashboardUnitsTab({super.key});
@@ -14,7 +16,6 @@ class CategoriesDashboardUnitsTab extends StatefulWidget {
   State<CategoriesDashboardUnitsTab> createState() =>
       _CategoriesDashboardUnitsTabState();
 }
-
 
 class _CategoriesDashboardUnitsTabState
     extends State<CategoriesDashboardUnitsTab> {
@@ -44,9 +45,20 @@ class _CategoriesDashboardUnitsTabState
     return unitsResult.getOrElse((_) => const []);
   }
 
+  Map<int, TableWidgetColumnWidth> getWidths() {
+    return {
+      0: const FixedTableWidgetColumnWidth(60, alignment: AlignmentDirectional.centerStart),
+      1: const FlexTableWidgetColumnWidth(1, alignment: AlignmentDirectional.centerStart),
+      2: const FlexTableWidgetColumnWidth(1, alignment: AlignmentDirectional.centerStart),
+      3: const FlexTableWidgetColumnWidth(1, alignment: AlignmentDirectional.centerStart),
+      4: const FlexTableWidgetColumnWidth(1, alignment: AlignmentDirectional.centerStart),
+      5: const FlexTableWidgetColumnWidth(1, alignment: AlignmentDirectional.centerStart),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final colors = AppStyle.of(context);
     return fluent.ScaffoldPage(
       header: fluent.PageHeader(
         title: Row(
@@ -104,119 +116,33 @@ class _CategoriesDashboardUnitsTabState
                 child: TextWidget(text: 'لا يوجد وحدات مطابقة'),
               );
             }
-            final dataSource = UnitsDataGridSource(items: filtered);
-            return SfDataGrid(
-              source: dataSource,
-              headerRowHeight: 40,
-              rowHeight: 36,
-              gridLinesVisibility: GridLinesVisibility.both,
-              headerGridLinesVisibility: GridLinesVisibility.both,
-              columnWidthMode: ColumnWidthMode.fill,
-              columns: [
-                GridColumn(
-                  columnName: 'no',
-                  width: 60,
-                  label: Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(4),
-                    child: fluent.Text('No'),
-                  ),
-                ),
-                GridColumn(
-                  columnName: 'unitName',
-                  label: Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(4),
-                    child: fluent.Text('اسم الوحدة'),
-                  ),
-                ),
-                GridColumn(
-                  columnName: 'unitType',
-                  label: Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(4),
-                    child: fluent.Text('نوع الوحدة'),
-                  ),
-                ),
-                GridColumn(
-                  columnName: 'length',
-                  label: Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(4),
-                    child: fluent.Text('الطول'),
-                  ),
-                ),
-                GridColumn(
-                  columnName: 'width',
-                  label: Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(4),
-                    child: fluent.Text('العرض'),
-                  ),
-                ),
-                GridColumn(
-                  columnName: 'thickness',
-                  label: Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(4),
-                    child: fluent.Text('السُمك'),
-                  ),
-                ),
+            return TableWidget<UnitEntity>(
+              columns: getWidths(),
+              items: filtered,
+              header: const [
+                'No',
+                'اسم الوحدة',
+                'نوع الوحدة',
+                'الطول',
+                'العرض',
+                'السُمك'
               ],
+              paintRowColorWhen: (item, index) => index.isEven,
+              rowColor: colors.surfaceContainer,
+              builder: (context, unit, index) {
+                return [
+                  fluent.Text('${index + 1}', style: colors.body),
+                  fluent.Text(unit.unitName, style: colors.body),
+                  fluent.Text(unit.unitType.fullUnitName, style: colors.body),
+                  fluent.Text(AppMoneyFormatter.formatDouble(unit.length), style: colors.body),
+                  fluent.Text(AppMoneyFormatter.formatDouble(unit.width), style: colors.body),
+                  fluent.Text(AppMoneyFormatter.formatDouble(unit.thickness), style: colors.body),
+                ];
+              },
             );
           },
         ),
       ),
-    );
-  }
-}
-
-
-class UnitsDataGridSource extends DataGridSource {
-  UnitsDataGridSource({required List<UnitEntity> items}) {
-    _rows = items.asMap().entries.map<DataGridRow>((entry) {
-      final index = entry.key;
-      final unit = entry.value;
-      return DataGridRow(
-        cells: [
-          DataGridCell<String>(columnName: 'no', value: '${index + 1}'),
-          DataGridCell<String>(columnName: 'unitName', value: unit.unitName),
-          DataGridCell<String>(
-            columnName: 'unitType',
-            value: unit.unitType.fullUnitName,
-          ),
-          DataGridCell<String>(
-            columnName: 'length',
-            value: unit.length.toString(),
-          ),
-          DataGridCell<String>(
-            columnName: 'width',
-            value: unit.width.toString(),
-          ),
-          DataGridCell<String>(
-            columnName: 'thickness',
-            value: unit.thickness.toString(),
-          ),
-        ],
-      );
-    }).toList();
-  }
-
-  List<DataGridRow> _rows = [];
-
-  @override
-  List<DataGridRow> get rows => _rows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    return DataGridRowAdapter(
-      cells: row.getCells().map<Widget>((cell) {
-        return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-          child: fluent.Text(cell.value.toString()),
-        );
-      }).toList(),
     );
   }
 }

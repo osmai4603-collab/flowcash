@@ -184,6 +184,22 @@ class SaveUnitSelectionUseCase {
   }
 }
 
+class GetAvailableUnitsForSubcategoryPropertyUseCase {
+  final UnitRepository _unitRepository;
+
+  const GetAvailableUnitsForSubcategoryPropertyUseCase(this._unitRepository);
+
+  Future<Either<Failure, List<UnitEntity>>> call({
+    required int propertyId,
+    required int subcategoryId,
+  }) async {
+    return await _unitRepository.getAvailableForSubcategoryProperty(
+      subcategoryId: subcategoryId,
+      propertyId: propertyId,
+    );
+  }
+}
+
 class GetAvailableUnitsForPropertyUseCase {
   final UnitRepository _repository;
   const GetAvailableUnitsForPropertyUseCase(this._repository);

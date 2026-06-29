@@ -26,6 +26,7 @@ final class ValueCounterModel extends ValueCounterEntity {
 
   Map<String, dynamic> toMap() {
     return {
+      if(id > 0) ValuesCounterTable().id: id,
       ValuesCounterTable().counterType: counterType.name,
       ValuesCounterTable().count: count,
       ValuesCounterTable().counterMax: counterMax,

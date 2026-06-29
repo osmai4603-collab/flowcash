@@ -43,7 +43,7 @@ abstract class MeasurableUnit extends Equatable {
 }
 
 class PieceMeasurableUnit extends MeasurableUnit {
-  const PieceMeasurableUnit({double count = 0.0})
+  const PieceMeasurableUnit({required double count})
     : super(length: count, width: 1.0, thickness: 1.0);
 
   @override
@@ -123,7 +123,7 @@ class VolumeMeasurableUnit extends MeasurableUnit {
 }
 
 class ModelMeasurableUnit extends MeasurableUnit {
-  const ModelMeasurableUnit() : super(length: 1.0, width: 1.0, thickness: 1.0);
+  const ModelMeasurableUnit() : super(length: 0.0, width: 0.0, thickness: 0.0);
 
   @override
   ModelMeasurableUnit copyWith({

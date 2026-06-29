@@ -13,28 +13,30 @@ final class UnitModel extends UnitEntity {
   });
 
   factory UnitModel.fromMap(Map<String, dynamic> map) {
-    final unitType = UnitType.of(map[UnitsTable().unitType] as String);
+    final table = UnitsTable();
+    final unitType = UnitType.of(map[table.unitType] as String);
     return UnitModel(
-      id: map[UnitsTable().id] as int,
-      unitName: (map[UnitsTable().unitName] as String?) ?? "",
+      id: map[table.id] as int,
+      unitName: map[table.unitName],
       unitType: unitType,
       measurement: MeasurableUnit.fromValues(
         unitType: unitType,
-        length: ((map[UnitsTable().length]) as num).toDouble(),
-        width: ((map[UnitsTable().width]) as num).toDouble(),
-        thickness: ((map[UnitsTable().thickness]) as num).toDouble(),
+        length: ((map[table.length]) as num).toDouble(),
+        width: ((map[table.width]) as num).toDouble(),
+        thickness: ((map[table.thickness]) as num).toDouble(),
       ),
     );
   }
 
   Map<String, dynamic> toMap() {
+    final table = UnitsTable();
     return {
-      if (id > 0) UnitsTable().id: id,
-      UnitsTable().unitName: unitName,
-      UnitsTable().length: length,
-      UnitsTable().width: width,
-      UnitsTable().thickness: thickness,
-      UnitsTable().unitType: unitType.name,
+      if (id > 0) table.id: id,
+      table.unitName: unitName,
+      table.length: length,
+      table.width: width,
+      table.thickness: thickness,
+      table.unitType: unitType.name,
     };
   }
 

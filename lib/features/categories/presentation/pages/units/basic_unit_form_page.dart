@@ -83,9 +83,10 @@ class _BasicUnitFormPageState extends State<BasicUnitFormPage> {
 
     context.read<UnitFormBloc>().add(
       SaveUnitFormEvent(
-        UnitEntity.piece(
+        UnitEntity.basicUnit(
           id: widget.unit?.id ?? 0,
           unitName: name,
+          unitType: widget.property.unitType,
         ),
       ),
     );

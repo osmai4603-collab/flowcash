@@ -15,6 +15,7 @@ class MainCategoryFormBloc
     on<MainCategoryNameChangedEvent>(_onNameChanged);
     on<UnitNameChangedEvent>(_onUnitNameChanged);
     on<MainCategoryTypeChangedEvent>(_onTypeChanged);
+    on<MainCategoryUnitTypeChangedEvent>(_onUnitTypeChanged);
     on<AddPropertyEvent>(_onAddProperty);
     on<RemovePropertyEvent>(_onRemoveProperty);
     on<SaveMainCategoryEvent>(_onSave);
@@ -24,9 +25,24 @@ class MainCategoryFormBloc
     InitMainCategoryFormEvent event,
     Emitter<MainCategoryFormState> emit,
   ) async {
-    await Future.delayed(const Duration(seconds: 1));
-    if (event.id != null) {
-      final result = await initUseCase(event.id);
+    if (event.category != null) {
+      final entity = event.category!;
+      emit(
+        state.copyWith(
+          status: MainCategoryFormStatus.ready,
+          id: entity.id,
+          name: entity.name,
+          type: entity.type,
+          unitName: entity.unitName,
+          properties: entity.properties,
+          unitType: entity.unitType,
+        ),
+      );
+      return;
+    }
+
+    if (event.id != null && event.id != 0) {
+      final result = await initUseCase(event.id!);
       result.fold(
         (failure) => emit(
           state.copyWith(
@@ -84,6 +100,14 @@ class MainCategoryFormBloc
   ) {
     if (state.status != MainCategoryFormStatus.ready) return;
     emit(state.copyWith(type: event.type));
+  }
+
+  void _onUnitTypeChanged(
+    MainCategoryUnitTypeChangedEvent event,
+    Emitter<MainCategoryFormState> emit,
+  ) {
+    if (state.status != MainCategoryFormStatus.ready) return;
+    emit(state.copyWith(unitType: event.unitType));
   }
 
   void _onAddProperty(

@@ -1,4 +1,5 @@
 import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
+import 'package:flowcash/formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flowcash/widgets/combo_box_form.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_simple_entity.dart';
@@ -78,7 +79,7 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: .start,
         children: [
           // 1. Account Search Autocomplete ComboBox
           Expanded(
@@ -147,6 +148,9 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
               ),
               textDirection: TextDirection.ltr,
               placeholder: '0.00',
+              inputFormatters: [
+                ThousandsFormatter(allowFraction: true)
+              ],
               prefix: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: fluent.Icon(

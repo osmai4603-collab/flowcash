@@ -324,12 +324,6 @@ Future<Either<Failure, List<CategoryEntity>>> _generateCategoriesInIsolate(
 
     final categoryLocalDataSource = CategoryLocalDataSourceImpl(
       sqliteService,
-      (attribute) => {
-        if (attribute.id > 0) CategoriesAttributesTable().id: attribute.id,
-        CategoriesAttributesTable().subcategoryUnitId:
-            attribute.subcategoryUnitId,
-        CategoriesAttributesTable().categoryId: attribute.categoryId,
-      },
     );
 
     final mainCategoryLocalDataSource = MainCategoryLocalDataSourceImpl(
@@ -430,6 +424,16 @@ class _IsolateCategoryRepository implements CategoryRepository {
       return Left(DatabaseFailure(e.toString()));
     }
   }
+  
+  @override
+  Future<Either<Failure, bool>> hasCategoryName(String categoryName) async {
+    try {
+      final res = await db.hasCategoryName(categoryName);
+      return Right(res);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -457,6 +461,7 @@ class _IsolateMainCategoryRepository implements MainCategoryRepository {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+  
 }
 
 class _IsolateSubcategoryRepository implements SubcategoryRepository {

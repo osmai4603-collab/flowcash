@@ -1,3 +1,4 @@
+import 'package:flowcash/core/tables/category_properties_table.dart';
 import 'package:flowcash/features/categories/data/datasources/unit_data_source.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/features/categories/data/models/unit_model.dart';
@@ -161,6 +162,31 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
     ''';
 
     final rows = await _db.rawQuery(query, [mainCategoryId]);
+    return rows.map(fromMap).toList();
+  }
+
+  @override
+  Future<List<UnitEntity>> getAvailableForSubcategoryProperty({
+    required int subcategoryId,
+    required int propertyId,
+  }) async {
+    final query = '''
+      SELECT * FROM ${UnitsTable().tableName}
+      WHERE ${UnitsTable().unitType} = (
+        SELECT ${CategoryPropertiesTable().unitType} 
+        FROM ${CategoryPropertiesTable().tableName} 
+        WHERE ${CategoryPropertiesTable().id} = ? 
+        LIMIT 1
+      )
+      AND ${UnitsTable().id} NOT IN (
+        SELECT ${SubcategoriesUnitsTable().unitId} 
+        FROM ${SubcategoriesUnitsTable().tableName} 
+        WHERE ${SubcategoriesUnitsTable().subcategoryId} = ? 
+        AND ${SubcategoriesUnitsTable().propertyId} = ?
+      )
+    ''';
+
+    final rows = await _db.rawQuery(query, [propertyId, subcategoryId, propertyId]);
     return rows.map(fromMap).toList();
   }
 }

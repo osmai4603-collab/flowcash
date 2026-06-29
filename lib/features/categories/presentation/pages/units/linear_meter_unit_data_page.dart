@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'package:flowcash/core/formatters/money_formatter.dart';
 import 'package:flowcash/core/theme/spacings.dart';
-import 'package:flowcash/core/widgets/shimmer_loading_widget.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
-import 'package:flowcash/core/theme/paddings.dart';
 
 import 'package:flowcash/widgets/message.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
@@ -18,6 +16,8 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_form_state.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
+import '../../../../../core/theme_fluent/app_colors.dart';
 
 class LinearMeterUnitDataPage extends StatefulWidget {
   final CategoryPropertyEntity property;
@@ -106,14 +106,12 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = ColorScheme.of(context);
+    final colors = AppStyle.of(context);
     return BlocBuilder<UnitFormBloc, UnitFormState>(
       builder: (context, state) {
-        final isLoading =
-            state.status == UnitFormStatus.initial ||
-            state.status == UnitFormStatus.loading ||
-            state.status == UnitFormStatus.saving;
         final isSaving = state.status == UnitFormStatus.saving;
+        final isEditing = widget.unit?.id != null && widget.unit?.id != 0;
+
         return PopScope(
           canPop: !_isDataChanged,
           onPopInvokedWithResult: (didPop, result) {
@@ -122,122 +120,129 @@ class _LinearMeterUnitDataPageState extends State<LinearMeterUnitDataPage> {
           },
           child: fluent.ContentDialog(
             constraints: const BoxConstraints(maxWidth: 400),
-            content: Padding(
-              padding: Paddings.mediumAll,
-              child: ShimmerLoadingWidget(
-                canShimmer: isLoading,
-                freezeScreen: isSaving,
-                period: const Duration(milliseconds: 900),
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    child: Column(
-                      spacing: Spacings.medium,
+            title: Row(
+              children: [
+                fluent.Icon(
+                  isEditing
+                      ? fluent.FluentIcons.edit_note
+                      : fluent.FluentIcons.add_work,
+                  color: colors.primary,
+                ),
+                const SizedBox(width: 10),
+                fluent.Text(
+                  isEditing
+                      ? 'تعديل ${widget.property.propertyName}'
+                      : 'إضافة ${widget.property.propertyName} جديدة',
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  spacing: Spacings.medium,
+                  children: [
+                    TextWidget(
+                      text:
+                          'ادخال ${widget.property.propertyName} ${category?.unitName ?? 'حبة'}',
+                      alignment: Alignment.center,
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            fluent.Tooltip(
-                              message: 'رجوع',
-                              child: fluent.IconButton(
-                                icon: const fluent.Icon(Icons.arrow_back),
-                                onPressed: () => Navigator.pop(context),
+                        Expanded(
+                          flex: 2,
+                          child: fluent.TextFormBox(
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _onSaveButtonClicked(),
+                            controller: lengthController,
+                            // enabled: !isSaving,
+                            textDirection: TextDirection.ltr,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'\d+\.?\d*'),
                               ),
+                            ],
+                            onChanged: (_) => _markChanged(),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'يرجى إدخال ال${widget.property.propertyName}';
+                              }
+                              final parsed =
+                                  double.tryParse(
+                                    value.replaceAll(',', ''),
+                                  ) ??
+                                  0.0;
+                              if (parsed <= 0) {
+                                return 'يجب أن يكون ال${widget.property.propertyName} أكبر من صفر';
+                              }
+                              return null;
+                            },
+                            placeholder: 'ادخل ال${widget.property.propertyName}',
+                            prefix: fluent.Icon(
+                              Icons.fitness_center,
+                              color: colors.primary,
                             ),
-                            TextWidget(
-                              text:
-                                  'ادخال ${widget.property.propertyName} ${category?.unitName ?? 'حبة'}',
-                              alignment: Alignment.center,
-                              expanded: true,
-                            ),
-                            fluent.Tooltip(
-                              message: 'حفظ البيانات',
-                              child: fluent.IconButton(
-                                icon: const fluent.Icon(Icons.save),
-                                onPressed: _onSaveButtonClicked,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: fluent.TextFormBox(
-                                textInputAction: TextInputAction.done,
-                                onFieldSubmitted: (_) => _onSaveButtonClicked(),
-                                controller: lengthController,
-                                textDirection: TextDirection.ltr,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                    RegExp(r'\d+\.?\d*'),
-                                  ),
-                                ],
-                                onChanged: (_) => _markChanged(),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'يرجى إدخال ال${widget.property.propertyName}';
-                                  }
-                                  final parsed =
-                                      double.tryParse(
-                                        value.replaceAll(',', ''),
-                                      ) ??
-                                      0.0;
-                                  if (parsed <= 0) {
-                                    return 'يجب أن يكون ال${widget.property.propertyName} أكبر من صفر';
-                                  }
-                                  return null;
-                                },
-                                placeholder: 'ادخل ال${widget.property.propertyName}',
-                                placeholderStyle: Styles.labelMedium.copyWith(
-                                  color: colors.onSurfaceVariant,
+                        Expanded(
+                          child: fluent.ComboboxFormField<String>(
+                            value: measureUnitSelected,
+                            placeholder: const fluent.Text('حدد الوحدة'),
+                            // enabled: !isSaving,
+                            items: isSaving ? [] : measuresUnits.map((String value) {
+                              return fluent.ComboBoxItem<String>(
+                                value: value,
+                                child: fluent.Text(
+                                  value,
+                                  style: Styles.titleMedium,
                                 ),
-                                prefix: fluent.Icon(
-                                  Icons.fitness_center,
-                                  color: colors.primary,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: fluent.ComboboxFormField<String>(
-                                value: measureUnitSelected,
-                                placeholder: const fluent.Text('حدد الوحدة'),
-                                items: measuresUnits.map((String value) {
-                                  return fluent.ComboBoxItem<String>(
-                                    value: value,
-                                    child: fluent.Text(
-                                      value,
-                                      style: Styles.titleMedium,
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (newValue) {
-                                  if (newValue != null) {
-                                    setState(() {
-                                      measureUnitSelected = newValue;
-                                      _markChanged();
-                                    });
-                                  }
-                                },
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'يرجى اختيار الوحدة';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                          ],
+                              );
+                            }).toList(),
+                            onChanged: (newValue) {
+                              if (newValue != null) {
+                                setState(() {
+                                  measureUnitSelected = newValue;
+                                  _markChanged();
+                                });
+                              }
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'يرجى اختيار الوحدة';
+                              }
+                              return null;
+                            },
+                          ),
                         ),
                       ],
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
+            actions: [
+              fluent.Button(
+                onPressed: _onBackPressed,
+                child: const fluent.Text('إلغاء'),
+              ),
+              fluent.FilledButton(
+                onPressed: isSaving ? null : _onSaveButtonClicked,
+                child: isSaving
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: fluent.ProgressRing(
+                          strokeWidth: 2,
+                          activeColor: Colors.white,
+                        ),
+                      )
+                    : const fluent.Text('حفظ'),
+              ),
+            ],
           ),
         );
       },

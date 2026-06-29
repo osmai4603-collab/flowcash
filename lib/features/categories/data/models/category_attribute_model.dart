@@ -19,7 +19,7 @@ final class CategoryAttributeModel extends CategoryAttributeEntity {
 
   Map<String, dynamic> toMap() {
     return {
-      CategoriesAttributesTable().id: id,
+      if(id > 0) CategoriesAttributesTable().id: id,
       CategoriesAttributesTable().subcategoryUnitId: subcategoryUnitId,
       CategoriesAttributesTable().categoryId: categoryId,
     };
@@ -35,6 +35,14 @@ final class CategoryAttributeModel extends CategoryAttributeEntity {
       id: id ?? this.id,
       subcategoryUnitId: subcategoryUnitId ?? this.subcategoryUnitId,
       categoryId: categoryId ?? this.categoryId,
+    );
+  }
+
+  static CategoryAttributeModel fromEntity(CategoryAttributeEntity entity) {
+    return CategoryAttributeModel(
+      id: entity.id,
+      categoryId: entity.categoryId,
+      subcategoryUnitId: entity.subcategoryUnitId,
     );
   }
 }

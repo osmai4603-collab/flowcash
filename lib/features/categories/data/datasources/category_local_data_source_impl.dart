@@ -10,11 +10,13 @@ import 'package:flowcash/features/categories/domain/entities/category_attribute_
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/core/enums/category_type_enum.dart';
 import 'package:flowcash/features/categories/domain/entities/simple_category_entity.dart';
+import 'package:flowcash/features/settings/data/models/value_counter_model.dart';
+
+import '../models/category_attribute_model.dart';
 
 final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
   final SqliteService _db;
-  final Map<String, dynamic> Function(CategoryAttributeEntity) attributeToMap;
-  const CategoryLocalDataSourceImpl(this._db, this.attributeToMap);
+  const CategoryLocalDataSourceImpl(this._db);
 
   @override
   Future<List<CategoryEntity>> get({Iterable<int>? ids}) async {
@@ -66,10 +68,9 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
         );
         final attributeId = await _db.insert(
           table: CategoriesAttributesTable().tableName,
-          data: _sanitizeInsertData(
-            attributeToMap(attribute),
-            CategoriesAttributesTable().id,
-          ),
+          data: CategoryAttributeModel.fromEntity(
+            attribute
+          ).toMap(),
         );
         if (attributeId <= 0) {
           throw Exception(
@@ -101,17 +102,14 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
         if (attribute.id > 0) {
           await _db.update(
             table: CategoriesAttributesTable().tableName,
-            data: attributeToMap(attribute),
+            data: CategoryAttributeModel.fromEntity(attribute).toMap(),
             where: {CategoriesAttributesTable().id: attribute.id},
           );
           updatedAttributes.add(attribute);
         } else {
           final attributeId = await _db.insert(
             table: CategoriesAttributesTable().tableName,
-            data: _sanitizeInsertData(
-              attributeToMap(attribute),
-              CategoriesAttributesTable().id,
-            ),
+            data: CategoryAttributeModel.fromEntity(attribute).toMap(),
           );
           if (attributeId <= 0) {
             throw Exception(
@@ -299,13 +297,14 @@ final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
     if (rows.isEmpty) {
       await _db.insert(
         table: ValuesCounterTable().tableName,
-        data: {
-          ValuesCounterTable().counterType: ValueCounterType.categoryNumber.name,
-          ValuesCounterTable().count: initialCount,
-          ValuesCounterTable().counterMax: maxValue,
-          ValuesCounterTable().incrementValue: increment,
-          ValuesCounterTable().formatValue: '0000',
-        },
+        data: ValueCounterModel(
+          id: 0,
+          count: initialCount,
+          counterMax: maxValue,
+          incrementValue: increment,
+          formatValue: '0000',
+          counterType: ValueCounterType.categoryNumber,
+        ).toMap(),
       );
       return initialCount.toString();
     }

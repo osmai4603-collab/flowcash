@@ -1,8 +1,10 @@
 import 'package:flowcash/core/theme/radiuses.dart';
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:flowcash/user_session.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/material.dart' as material;
 
 class HomeNavigationView extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -11,6 +13,7 @@ class HomeNavigationView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = AppStyle.of(context);
     return NavigationView(
       // titleBar: const TitleBar(
       //   title: Text('نظام التدفق المالي'),
@@ -18,6 +21,11 @@ class HomeNavigationView extends StatelessWidget {
       // ),
       contentShape: RoundedRectangleBorder(borderRadius: Radiuses.none),
       pane: NavigationPane(
+        size: const NavigationPaneSize(
+          openWidth: 200.0,    // تغيير العرض عند الفتح إلى 260 بكسل
+          compactWidth: 45.0,  // تغيير العرض المدمج إلى 60 بكسل
+        ),
+        // indicator: material.VerticalDivider(width: 0.0, color: style.primary),
         selected: navigationShell.currentIndex,
         onChanged: (index) {
           navigationShell.goBranch(

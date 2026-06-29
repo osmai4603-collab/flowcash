@@ -93,7 +93,7 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
       initialLength = event.unit?.length ?? 0.0;
       initialWidth = event.unit?.width ?? 0.0;
       initialThickness = event.unit?.thickness ?? 1.0;
-    } else if (unitType is ModelUnitType) {
+    } else if (unitType is ModelUnitType || unitType is PieceUnitType) {
       initialName = event.unit?.unitName ?? '';
     }
 
