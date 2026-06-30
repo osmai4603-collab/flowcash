@@ -494,7 +494,7 @@ class _CategoriesDashboardMainCategoriesTabState
                         final category = categories[index];
                         return ListTile(
                           title: fluent.Text(category.name),
-                          subtitle: fluent.Text(category.unitType.fullUnitName),
+                          subtitle: fluent.Text('${category.categoryUnitId}'),
                           trailing: fluent.Text(category.type.displayName()),
                           onTap: () {
                             Navigator.push(

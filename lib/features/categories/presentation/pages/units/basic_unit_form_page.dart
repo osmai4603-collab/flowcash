@@ -133,7 +133,7 @@ class _BasicUnitFormPageState extends State<BasicUnitFormPage> {
                   children: [
                     TextWidget(
                       text:
-                          'ادخال ${widget.property.propertyName} ${category?.unitName ?? 'حبة'}',
+                          'ادخال ${widget.property.propertyName} حبة',
                       textAlign: TextAlign.center,
                     ),
                     fluent.TextFormBox(

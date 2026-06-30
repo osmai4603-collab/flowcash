@@ -110,11 +110,11 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
         return [
           fluent.Text('${index + 1}', style: colors.body),
           fluent.Text(item.name, style: colors.body),
-          fluent.Text(item.unitName, style: colors.body),
-          fluent.Text(item.unitType.fullUnitName, style: colors.body),
-          fluent.Text(item.unitType.fullUnitName, style: colors.body),
+          fluent.Text(item.categoryUnit?.unitType.displayName() ?? '-', style: colors.body),
+          fluent.Text('-', style: colors.body),
+          fluent.Text('-', style: colors.body),
           fluent.Text(item.type.displayName(), style: colors.body),
-          fluent.Text(item.unitName, style: colors.body),
+          fluent.Text('-', style: colors.body),
         ];
       },
     );

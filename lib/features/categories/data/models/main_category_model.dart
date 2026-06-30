@@ -2,6 +2,7 @@ import 'package:flowcash/core/enums/category_type_enum.dart';
 import 'package:flowcash/core/enums/unit_type_enum.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/core/tables/main_categories_table.dart';
 
 final class MainCategoryModel extends MainCategoryEntity {
@@ -9,8 +10,8 @@ final class MainCategoryModel extends MainCategoryEntity {
     required super.id,
     required super.name,
     required super.type,
-    required super.unitName,
-    required super.unitType,
+    required super.categoryUnitId,
+    super.categoryUnit,
     super.properties = const [],
   });
 
@@ -21,10 +22,7 @@ final class MainCategoryModel extends MainCategoryEntity {
       type: CategoryDefineType.of(
         map[MainCategoriesTable().categoryType] as String? ?? 'commodities',
       ),
-      unitName: map[MainCategoriesTable().unitName] as String? ?? '',
-      unitType: UnitType.of(
-        map[MainCategoriesTable().unitType] as String? ?? 'piece',
-      ),
+      categoryUnitId: map[MainCategoriesTable().categoryUnitId] as int? ?? 1,
     );
   }
 
@@ -33,8 +31,7 @@ final class MainCategoryModel extends MainCategoryEntity {
       MainCategoriesTable().id: id,
       MainCategoriesTable().categoryName: name,
       MainCategoriesTable().categoryType: type.name,
-      MainCategoriesTable().unitName: unitName,
-      MainCategoriesTable().unitType: unitType.name,
+      MainCategoriesTable().categoryUnitId: categoryUnitId,
     };
   }
 
@@ -44,16 +41,16 @@ final class MainCategoryModel extends MainCategoryEntity {
     String? name,
     CategoryDefineType? type,
     List<CategoryPropertyEntity>? properties,
-    String? unitName,
-    UnitType? unitType,
+    int? categoryUnitId,
+    UnitEntity? categoryUnit,
   }) {
     return MainCategoryModel(
       id: id ?? this.id,
       name: name ?? this.name,
       type: type ?? this.type,
       properties: properties ?? this.properties,
-      unitName: unitName ?? this.unitName,
-      unitType: unitType ?? this.unitType,
+      categoryUnitId: categoryUnitId ?? this.categoryUnitId,
+      categoryUnit: categoryUnit ?? this.categoryUnit,
     );
   }
 }

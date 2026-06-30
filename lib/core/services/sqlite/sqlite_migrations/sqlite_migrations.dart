@@ -10,6 +10,7 @@ import 'package:flowcash/core/services/sqlite/sqlite_migrations/v9_migration.dar
 import 'package:flowcash/core/services/sqlite/sqlite_migrations/v10_migration.dart';
 import 'package:flowcash/core/services/sqlite/sqlite_migrations/v11_migration.dart';
 import 'package:flowcash/core/services/sqlite/sqlite_migrations/v12_migration.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_migrations/v13_migration.dart';
 
 final List<SqliteMigration> sqliteMigrations = [
   V2Migration(),
@@ -23,4 +24,5 @@ final List<SqliteMigration> sqliteMigrations = [
   V10Migration(),
   V11Migration(),
   V12Migration(),
+  V13Migration(),
 ];

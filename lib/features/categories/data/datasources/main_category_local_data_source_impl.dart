@@ -139,10 +139,7 @@ final class MainCategoryLocalDataSourceImpl
       type: CategoryDefineType.values.firstWhere(
         (e) => e.name == map[MainCategoriesTable().categoryType] as String,
       ),
-      unitName: (map[MainCategoriesTable().unitName] as String?) ?? "",
-      unitType: UnitType.values.firstWhere(
-        (e) => e.name == map[MainCategoriesTable().unitType] as String,
-      ),
+      categoryUnitId: map[MainCategoriesTable().categoryUnitId] as int? ?? 1,
     );
   }
 
@@ -152,8 +149,7 @@ final class MainCategoryLocalDataSourceImpl
       if (entity.id > 0) MainCategoriesTable().id: entity.id,
       MainCategoriesTable().categoryName: entity.name,
       MainCategoriesTable().categoryType: entity.type.name,
-      MainCategoriesTable().unitName: entity.unitName,
-      MainCategoriesTable().unitType: entity.unitType.name,
+      MainCategoriesTable().categoryUnitId: entity.categoryUnitId,
     };
   }
 

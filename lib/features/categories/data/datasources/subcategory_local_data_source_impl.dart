@@ -215,7 +215,11 @@ final class SubcategoryLocalDataSourceImpl
       var persistedEntity = entity;
 
       if (entity.id > 0) {
-        await update(entity);
+        await _db.update(
+          table: SubcategoriesTable().tableName,
+          data: toMap(entity),
+          where: {SubcategoriesTable().id: entity.id},
+        );
 
         final existingRows = await _db.query(
           table: SubcategoriesUnitsTable().tableName,

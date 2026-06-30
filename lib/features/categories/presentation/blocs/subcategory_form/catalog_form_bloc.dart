@@ -10,12 +10,14 @@ import 'package:flowcash/features/categories/domain/usecases/unit_usecases.dart'
 import 'package:flowcash/features/categories/domain/usecases/subcategory_usecases.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_unit_entity.dart';
 
+
 class SubcategoryFormBloc
     extends Bloc<SubcategoryFormEvent, SubcategoryFormState> {
   final GetAllMainCategoriesUseCase _getAllMainCategoriesUseCase;
   final GetCategoryPropertiesByMainCategoryUseCase _getPropertiesUseCase;
   final GetUnitsByUnitTypes _getUnitsByUnitType;
   final GetUnitsByMainCategoryUseCase _getUnitsByMainCategoryUseCase;
+  final GetBasicUnits _getBasicUnits;
   final GetSubcategoryUnitsByMainCategoryUseCase _getSubcategoryUnitsUseCase;
   final InsertSubcategoryUseCase _insertSubcategoryWithUnitsUseCase;
   final UpdateSubcategoryUseCase _updateSubcategoryUseCase;
@@ -25,6 +27,7 @@ class SubcategoryFormBloc
     required GetCategoryPropertiesByMainCategoryUseCase getPropertiesUseCase,
     required GetUnitsByUnitTypes getUnitsUseCase,
     required GetUnitsByMainCategoryUseCase getUnitsByMainCategoryUseCase,
+    required GetBasicUnits getBasicUnitsUseCase,
     required GetSubcategoryUnitsByMainCategoryUseCase
     getSubcategoryUnitsUseCase,
     required GetSubcategoriesByMainCategoryUseCase getSubcategoriesUseCase,
@@ -34,6 +37,7 @@ class SubcategoryFormBloc
        _getPropertiesUseCase = getPropertiesUseCase,
        _getUnitsByUnitType = getUnitsUseCase,
        _getUnitsByMainCategoryUseCase = getUnitsByMainCategoryUseCase,
+       _getBasicUnits = getBasicUnitsUseCase,
        _getSubcategoryUnitsUseCase = getSubcategoryUnitsUseCase,
        _insertSubcategoryWithUnitsUseCase = insertSubcategoryUseCase,
        _updateSubcategoryUseCase = updateSubcategoryUseCase,
@@ -159,6 +163,17 @@ class SubcategoryFormBloc
     }, (uts) => uts);
     if (units == null) return;
 
+    // تحميل الوحدات الأساسية ودمجها مع وحدات الصنف الرئيسي
+    final basicUnitsResult = await _getBasicUnits();
+    final basicUnits = basicUnitsResult.getOrElse((_) => const <UnitEntity>[]);
+    if (basicUnits.isNotEmpty) {
+      final existingIds = units.map((u) => u.id).toSet();
+      final newBasicUnits = basicUnits.where(
+        (basicUnit) => !existingIds.contains(basicUnit.id),
+      );
+      units.addAll(newBasicUnits);
+    }
+
     List<SubcategoryUnitEntity> catalogInfos = [];
     if (catalogId > 0) {
       final infoResult = await _getSubcategoryUnitsUseCase([catalogId]);
@@ -182,10 +197,19 @@ class SubcategoryFormBloc
           })
           .toList();
       final selectedUnits = catalogUnits.where((unit) => unit.id > 0).toList();
+
+      // في حالة إدخال بيانات جديدة: إذا كانت الخاصية isSingle ولديها وحدة واحدة فقط، يتم تحديدها تلقائياً
+      final autoSelected = (catalogId == 0 &&
+              property.isSingle &&
+              selectedUnits.isEmpty &&
+              catalogUnits.length == 1)
+          ? [catalogUnits.first]
+          : selectedUnits;
+
       return SubcategoryProperty(
         property: property,
         subcatgoriesUnits: catalogUnits,
-        selectedUnits: selectedUnits.isEmpty ? [] : selectedUnits,
+        selectedUnits: autoSelected.isEmpty ? [] : autoSelected,
       );
     }).toList();
 
@@ -208,18 +232,19 @@ class SubcategoryFormBloc
     }
   }
 
-  Future<UnitEntity?> _getBasicUnit(UnitType type) async {
-    final result = await _getUnitsByUnitType([type]);
-    return result.fold((_) => null, (units) {
-      if (units.isEmpty) return null;
-      try {
-        return units.firstWhere(
-          (u) => u.length == 1.0 && u.width == 1.0 && u.thickness == 1.0,
-        );
-      } catch (_) {
-        return units.first;
-      }
-    });
+  Future<UnitEntity?> _getBasicUnit(int unitId) async {
+    final basicUnitsResult = await _getBasicUnits();
+    return basicUnitsResult.fold(
+      (_) => null,
+      (units) {
+        if (units.isEmpty) return null;
+        try {
+          return units.firstWhere((u) => u.id == unitId);
+        } catch (_) {
+          return units.first;
+        }
+      },
+    );
   }
 
   Future<void> _onSave(
@@ -236,7 +261,7 @@ class SubcategoryFormBloc
     for (int i = 0; i < updatedProperties.length; i++) {
       final prop = updatedProperties[i];
       if (!prop.property.isCategoryUnit && prop.selectedUnits.isEmpty) {
-        final basicUnit = await _getBasicUnit(state.mainCategory!.unitType);
+        final basicUnit = await _getBasicUnit(state.mainCategory!.categoryUnitId);
         if (basicUnit != null) {
           final catalogUnit = prop.createSubcategoryUnit(unit: basicUnit);
           updatedProperties[i] = prop.copyWith(selectedUnits: [catalogUnit]);
@@ -324,9 +349,22 @@ class SubcategoryFormBloc
     if (indexOfProperty == -1) return;
 
     var catalogProperty = state.catalogProperties[indexOfProperty];
+
+    // التحقق من عدم تكرار الوحدة في مصفوفة الوحدات
+    final isDuplicateInUnits = catalogProperty.subcatgoriesUnits.any(
+      (existing) => existing.unitId == event.catalogUnit.unitId,
+    );
+    final isDuplicateInSelected = catalogProperty.selectedUnits.any(
+      (existing) => existing.unitId == event.catalogUnit.unitId,
+    );
+
     catalogProperty = catalogProperty.copyWith(
-      catalogUnits: [...catalogProperty.subcatgoriesUnits, event.catalogUnit],
-      selectedUnits: [...catalogProperty.selectedUnits, event.catalogUnit],
+      catalogUnits: isDuplicateInUnits
+          ? catalogProperty.subcatgoriesUnits
+          : [...catalogProperty.subcatgoriesUnits, event.catalogUnit],
+      selectedUnits: isDuplicateInSelected
+          ? catalogProperty.selectedUnits
+          : [...catalogProperty.selectedUnits, event.catalogUnit],
     );
 
     final newProperties = List<SubcategoryProperty>.from(

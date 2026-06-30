@@ -80,3 +80,19 @@ class GenerateCategoryNumberEvent extends CategoryFormEvent {
   @override
   List<Object?> get props => [];
 }
+
+class ChangeCategoryPricingUnitEvent extends CategoryFormEvent {
+  final UnitEntity unit;
+  const ChangeCategoryPricingUnitEvent(this.unit);
+
+  @override
+  List<Object?> get props => [unit];
+}
+
+class ChangeCategoryInventoryUnitEvent extends CategoryFormEvent {
+  final UnitEntity unit;
+  const ChangeCategoryInventoryUnitEvent(this.unit);
+
+  @override
+  List<Object?> get props => [unit];
+}

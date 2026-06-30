@@ -17,10 +17,7 @@ import 'package:flowcash/features/settings/data/datasources/implementations/valu
 import 'package:flowcash/features/settings/data/repositories/app_value_repository_impl.dart';
 import 'package:flowcash/features/settings/data/repositories/value_counter_repository_impl.dart';
 import 'package:flowcash/features/settings/domain/repositories/app_value_repository.dart';
-import 'package:flowcash/features/settings/domain/repositories/value_counter_repository.dart'
-    as settings_repo;
-import 'package:flowcash/core/repositories/interfaces/value_counter_repository.dart'
-    as core_repo;
+import 'package:flowcash/core/repositories/interfaces/value_counter_repository.dart';
 
 // Use cases
 import 'package:flowcash/core/usecases/value_counter_repository_usecases.dart';
@@ -48,11 +45,8 @@ void initSettingsFeature(GetIt sl) {
   sl.registerLazySingleton<AppValueRepository>(
     () => AppValueRepositoryImpl(sl()),
   );
-  sl.registerLazySingleton<core_repo.ValueCounterRepository>(
+  sl.registerLazySingleton<ValueCounterRepository>(
     () => ValueCounterRepositoryImpl(sl()),
-  );
-  sl.registerLazySingleton<settings_repo.ValueCounterRepository>(
-    () => sl<core_repo.ValueCounterRepository>() as settings_repo.ValueCounterRepository,
   );
   sl.registerLazySingleton<DatabaseRepository>(
     () => DatabaseRepositoryImpl(sl()),

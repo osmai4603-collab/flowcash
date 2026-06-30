@@ -4,6 +4,8 @@ import 'package:flowcash/features/categories/domain/entities/main_category_entit
 
 import '../../../../../core/enums/unit_type_enum.dart';
 
+import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
+
 abstract class MainCategoryFormEvent {}
 
 class InitMainCategoryFormEvent extends MainCategoryFormEvent {
@@ -17,19 +19,14 @@ class MainCategoryNameChangedEvent extends MainCategoryFormEvent {
   MainCategoryNameChangedEvent(this.name);
 }
 
-class UnitNameChangedEvent extends MainCategoryFormEvent {
-  final String unitName;
-  UnitNameChangedEvent(this.unitName);
+class MainCategoryUnitChangedEvent extends MainCategoryFormEvent {
+  final UnitEntity unit;
+  MainCategoryUnitChangedEvent(this.unit);
 }
 
 class MainCategoryTypeChangedEvent extends MainCategoryFormEvent {
   final CategoryDefineType type;
   MainCategoryTypeChangedEvent(this.type);
-}
-
-class MainCategoryUnitTypeChangedEvent extends MainCategoryFormEvent {
-  final UnitType unitType;
-  MainCategoryUnitTypeChangedEvent(this.unitType);
 }
 
 class AddPropertyEvent extends MainCategoryFormEvent {

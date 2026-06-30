@@ -2,20 +2,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'main_category_form_event.dart';
 import 'main_category_form_state.dart';
 import 'package:flowcash/features/categories/domain/usecases/main_category_usecases.dart';
+import 'package:flowcash/features/categories/domain/usecases/unit_usecases.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 
 class MainCategoryFormBloc
     extends Bloc<MainCategoryFormEvent, MainCategoryFormState> {
   final InitMainCategoryFormUseCase initUseCase;
   final SaveMainCategoryUseCase saveUseCase;
+  final GetBasicUnits getBasicUnits;
 
-  MainCategoryFormBloc({required this.initUseCase, required this.saveUseCase})
-    : super(const MainCategoryFormState()) {
+  List<CategoryPropertyEntity> properties = const [];
+  List<UnitEntity> units = const [];
+
+  MainCategoryFormBloc({
+    required this.initUseCase,
+    required this.saveUseCase,
+    required this.getBasicUnits,
+  }) : super(const MainCategoryFormState()) {
     on<InitMainCategoryFormEvent>(_onInit);
     on<MainCategoryNameChangedEvent>(_onNameChanged);
-    on<UnitNameChangedEvent>(_onUnitNameChanged);
     on<MainCategoryTypeChangedEvent>(_onTypeChanged);
-    on<MainCategoryUnitTypeChangedEvent>(_onUnitTypeChanged);
+    on<MainCategoryUnitChangedEvent>(_onUnitChanged);
     on<AddPropertyEvent>(_onAddProperty);
     on<RemovePropertyEvent>(_onRemoveProperty);
     on<SaveMainCategoryEvent>(_onSave);
@@ -25,17 +33,25 @@ class MainCategoryFormBloc
     InitMainCategoryFormEvent event,
     Emitter<MainCategoryFormState> emit,
   ) async {
+    emit(state.copyWith(status: MainCategoryFormStatus.initial));
+
+    final basicUnitsResult = await getBasicUnits();
+    units = basicUnitsResult.getOrElse((_) => const <UnitEntity>[]);
+
     if (event.category != null) {
       final entity = event.category!;
+      final selectedUnit = units
+          .where((u) => u.id == entity.categoryUnitId)
+          .firstOrNull;
+      properties = entity.properties;
       emit(
         state.copyWith(
           status: MainCategoryFormStatus.ready,
           id: entity.id,
           name: entity.name,
           type: entity.type,
-          unitName: entity.unitName,
-          properties: entity.properties,
-          unitType: entity.unitType,
+          categoryUnitId: entity.categoryUnitId,
+          selectedUnit: selectedUnit,
         ),
       );
       return;
@@ -52,15 +68,18 @@ class MainCategoryFormBloc
         ),
         (entity) {
           if (entity != null) {
+            final selectedUnit = units
+                .where((u) => u.id == entity.categoryUnitId)
+                .firstOrNull;
+            properties = entity.properties;
             emit(
               state.copyWith(
                 status: MainCategoryFormStatus.ready,
                 id: entity.id,
                 name: entity.name,
                 type: entity.type,
-                unitName: entity.unitName,
-                properties: entity.properties,
-                unitType: entity.unitType,
+                categoryUnitId: entity.categoryUnitId,
+                selectedUnit: selectedUnit,
               ),
             );
           } else {
@@ -74,7 +93,13 @@ class MainCategoryFormBloc
         },
       );
     } else {
-      emit(state.copyWith(status: MainCategoryFormStatus.ready));
+      final selectedUnit = units.isNotEmpty ? units.first : null;
+      emit(
+        state.copyWith(
+          status: MainCategoryFormStatus.ready,
+          selectedUnit: selectedUnit,
+        ),
+      );
     }
   }
 
@@ -86,14 +111,6 @@ class MainCategoryFormBloc
     emit(state.copyWith(name: event.name));
   }
 
-  void _onUnitNameChanged(
-    UnitNameChangedEvent event,
-    Emitter<MainCategoryFormState> emit,
-  ) {
-    if (state.status != MainCategoryFormStatus.ready) return;
-    emit(state.copyWith(unitName: event.unitName));
-  }
-
   void _onTypeChanged(
     MainCategoryTypeChangedEvent event,
     Emitter<MainCategoryFormState> emit,
@@ -102,12 +119,14 @@ class MainCategoryFormBloc
     emit(state.copyWith(type: event.type));
   }
 
-  void _onUnitTypeChanged(
-    MainCategoryUnitTypeChangedEvent event,
+  void _onUnitChanged(
+    MainCategoryUnitChangedEvent event,
     Emitter<MainCategoryFormState> emit,
   ) {
     if (state.status != MainCategoryFormStatus.ready) return;
-    emit(state.copyWith(unitType: event.unitType));
+    emit(
+      state.copyWith(selectedUnit: event.unit, categoryUnitId: event.unit.id),
+    );
   }
 
   void _onAddProperty(
@@ -115,9 +134,8 @@ class MainCategoryFormBloc
     Emitter<MainCategoryFormState> emit,
   ) {
     if (state.status != MainCategoryFormStatus.ready) return;
-    final properties = List<CategoryPropertyEntity>.from(state.properties)
+    properties = List<CategoryPropertyEntity>.from(properties)
       ..add(event.property);
-    emit(state.copyWith(properties: properties));
   }
 
   void _onRemoveProperty(
@@ -125,13 +143,11 @@ class MainCategoryFormBloc
     Emitter<MainCategoryFormState> emit,
   ) {
     if (state.status != MainCategoryFormStatus.ready) return;
-    if (event.propertyIndex < 0 ||
-        event.propertyIndex >= state.properties.length) {
+    if (event.propertyIndex < 0 || event.propertyIndex >= properties.length) {
       return;
     }
-    final properties = List<CategoryPropertyEntity>.from(state.properties)
+    properties = List<CategoryPropertyEntity>.from(properties)
       ..removeAt(event.propertyIndex);
-    emit(state.copyWith(properties: properties));
   }
 
   Future<void> _onSave(

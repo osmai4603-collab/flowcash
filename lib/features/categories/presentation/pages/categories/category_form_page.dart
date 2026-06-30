@@ -12,7 +12,6 @@ import 'package:flowcash/features/categories/presentation/blocs/category_form/ca
 import 'package:flowcash/features/categories/presentation/blocs/category_form/category_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/category_form/category_form_state.dart';
 import 'package:flowcash/widgets/message.dart';
-
 import 'package:flowcash/core/theme_fluent/app_colors.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
@@ -30,6 +29,8 @@ class CategoryFormPage extends StatelessWidget {
         getSubcategories: sl(),
         checkHasRequestsUseCase: sl(),
         getNewCategoryNumberUseCase: sl(),
+        getPropertiesUseCase: sl(),
+        getUnits: sl(),
       )..add(InitCategoryForm(category)),
       child: _CategoryForm(),
     );
@@ -141,6 +142,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
         },
         child: BlocBuilder<CategoryFormBloc, CategoryFormState>(
           builder: (context, state) {
+            final bloc = context.read<CategoryFormBloc>();
             final isEditing = state.id != 0;
             return fluent.ContentDialog(
               constraints: BoxConstraints(
@@ -179,7 +181,9 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                           validator: categoryNameValidator,
                           placeholder: 'ادخل اسم الصنف',
                           prefix: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                            ),
                             child: fluent.Icon(
                               fluent.FluentIcons.category_classification,
                             ),
@@ -206,12 +210,14 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                 suffix: fluent.GestureDetector(
                                   onTap:
                                       state.status == CategoryFormStatus.saving
-                                          ? null
-                                          : _generateCategoryNumber,
+                                      ? null
+                                      : _generateCategoryNumber,
                                   child: fluent.Tooltip(
                                     message: 'تحديث رقم الصنف',
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                      ),
                                       child: fluent.Icon(
                                         fluent.FluentIcons.refresh,
                                         color: colors.onSurfaceVariant,
@@ -236,9 +242,10 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                       fluent.FluentIcons.q_r_code,
                                     ),
                                     onPressed:
-                                        state.status == CategoryFormStatus.saving
-                                            ? null
-                                            : _scanBarcode,
+                                        state.status ==
+                                            CategoryFormStatus.saving
+                                        ? null
+                                        : _scanBarcode,
                                   ),
                                 ),
                                 textInputAction: TextInputAction.next,
@@ -270,11 +277,9 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   disabledPlaceholder: fluent.Text(
                                     'لا يوجد وحدات معرفة',
                                   ),
-                                  placeholder: fluent.Text(
-                                    'حدد وحدة الصنف',
-                                  ),
+                                  placeholder: fluent.Text('حدد وحدة الصنف'),
                                   isExpanded: true,
-                                  items: state.units.map((unit) {
+                                  items: bloc.units.map((unit) {
                                     return fluent.ComboBoxItem<UnitEntity>(
                                       value: unit,
                                       child: fluent.Text(
@@ -284,10 +289,10 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   }).toList(),
                                   onChanged:
                                       state.status == CategoryFormStatus.saving
-                                          ? null
-                                          : _onSelectedCategoryUnit,
+                                      ? null
+                                      : _onSelectedCategoryUnit,
                                   selectedItemBuilder: (context) =>
-                                      state.units.map((unit) {
+                                      bloc.units.map((unit) {
                                         return Padding(
                                           padding: const EdgeInsets.all(4.0),
                                           child: Row(
@@ -298,7 +303,6 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                               fluent.Icon(
                                                 fluent.FluentIcons.unite_shape,
                                                 color: colors.onSurfaceVariant,
-
                                               ),
                                               fluent.Text(
                                                 unit.unitType.fullUnitName,
@@ -338,12 +342,14 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                             mainAxisAlignment: .start,
                                             children: [
                                               fluent.Icon(
-                                                fluent.FluentIcons.category_classification,
+                                                fluent
+                                                    .FluentIcons
+                                                    .category_classification,
                                                 color: colors.onSurfaceVariant,
-
                                               ),
                                               fluent.Text(
-                                                state.selectedCategoryType.displayName(),
+                                                state.selectedCategoryType
+                                                    .displayName(),
                                               ),
                                             ],
                                           ),
@@ -351,16 +357,16 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                       }).toList(),
                                   onChanged:
                                       state.status == CategoryFormStatus.saving
-                                          ? null
-                                          : (belongGroup) {
-                                              if (belongGroup == null) return;
-                                              context.read<CategoryFormBloc>().add(
-                                                ChangeCategoryTypeEvent(
-                                                  belongGroup,
-                                                ),
-                                              );
-                                              _markChanged();
-                                            },
+                                      ? null
+                                      : (belongGroup) {
+                                          if (belongGroup == null) return;
+                                          context.read<CategoryFormBloc>().add(
+                                            ChangeCategoryTypeEvent(
+                                              belongGroup,
+                                            ),
+                                          );
+                                          _markChanged();
+                                        },
                                 ),
                               ),
                             ),
@@ -374,9 +380,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                               label: 'الصنف الفرعي',
                               child: fluent.ComboBox<SubcategoryEntity?>(
                                 value: state.selectedSubcategory,
-                                placeholder: fluent.Text(
-                                  'حدد الصنف الفرعي',
-                                ),
+                                placeholder: fluent.Text('حدد الصنف الفرعي'),
                                 isExpanded: true,
                                 icon: fluent.Icon(
                                   fluent.FluentIcons.chevron_down,
@@ -385,11 +389,9 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                 items: [
                                   fluent.ComboBoxItem<SubcategoryEntity?>(
                                     value: null,
-                                    child: fluent.Text(
-                                      'بدون صنف فرعي',
-                                    ),
+                                    child: fluent.Text('بدون صنف فرعي'),
                                   ),
-                                  ...state.subcategories.map((subcategory) {
+                                  ...bloc.subcategories.map((subcategory) {
                                     return fluent.ComboBoxItem<
                                       SubcategoryEntity?
                                     >(
@@ -402,20 +404,127 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                 ],
                                 onChanged:
                                     state.status == CategoryFormStatus.saving
-                                        ? null
-                                        : (selected) {
-                                            context.read<CategoryFormBloc>().add(
-                                              ChangeCategorySubcategoryEvent(
-                                                selected,
-                                              ),
-                                            );
-                                            _markChanged();
-                                          },
+                                    ? null
+                                    : (selected) {
+                                        context.read<CategoryFormBloc>().add(
+                                          ChangeCategorySubcategoryEvent(
+                                            selected,
+                                          ),
+                                        );
+                                        _markChanged();
+                                      },
                               ),
                             ),
                           ),
                         ],
                       ),
+                      if (!state.hasRequests &&
+                          state.selectedSubcategory != null)
+                        Row(
+                          spacing: Spacings.medium,
+                          children: [
+                            Expanded(
+                              child: fluent.InfoLabel(
+                                label: 'وحدة السعر',
+                                child: fluent.ComboBox<UnitEntity>(
+                                  value: state.selectedPricingUnit,
+                                  placeholder: const fluent.Text(
+                                    'حدد وحدة السعر',
+                                  ),
+                                  isExpanded: true,
+                                  items: bloc.pricingsUnits.map((unit) {
+                                    return fluent.ComboBoxItem<UnitEntity>(
+                                      value: unit,
+                                      child: fluent.Text(
+                                        unit.unitType.fullUnitName,
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged:
+                                      state.status == CategoryFormStatus.saving
+                                      ? null
+                                      : (selected) {
+                                          if (selected == null) return;
+                                          context.read<CategoryFormBloc>().add(
+                                            ChangeCategoryPricingUnitEvent(
+                                              selected,
+                                            ),
+                                          );
+                                          _markChanged();
+                                        },
+                                  selectedItemBuilder: (context) =>
+                                      bloc.pricingsUnits.map((unit) {
+                                        return Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Row(
+                                            spacing: Spacings.medium,
+                                            children: [
+                                              fluent.Icon(
+                                                fluent.FluentIcons.unite_shape,
+                                                color: colors.onSurfaceVariant,
+                                              ),
+                                              fluent.Text(
+                                                unit.unitType.fullUnitName,
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: fluent.InfoLabel(
+                                label: 'وحدة المخزون',
+                                child: fluent.ComboBox<UnitEntity>(
+                                  value: state.selectedInventoryUnit,
+                                  placeholder: const fluent.Text(
+                                    'حدد وحدة المخزون',
+                                  ),
+                                  isExpanded: true,
+                                  items: bloc.inventoriesUnits.map((unit) {
+                                    return fluent.ComboBoxItem<UnitEntity>(
+                                      value: unit,
+                                      child: fluent.Text(
+                                        unit.unitType.fullUnitName,
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged:
+                                      state.status == CategoryFormStatus.saving
+                                      ? null
+                                      : (selected) {
+                                          if (selected == null) return;
+                                          context.read<CategoryFormBloc>().add(
+                                            ChangeCategoryInventoryUnitEvent(
+                                              selected,
+                                            ),
+                                          );
+                                          _markChanged();
+                                        },
+                                  selectedItemBuilder: (context) =>
+                                      bloc.inventoriesUnits.map((unit) {
+                                        return Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Row(
+                                            spacing: Spacings.medium,
+                                            children: [
+                                              fluent.Icon(
+                                                fluent.FluentIcons.unite_shape,
+                                                color: colors.onSurfaceVariant,
+                                              ),
+                                              fluent.Text(
+                                                unit.unitType.fullUnitName,
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),

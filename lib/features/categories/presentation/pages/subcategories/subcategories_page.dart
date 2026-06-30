@@ -231,7 +231,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
       columns: getWidths(),
       items: filteredSubcategories,
       header: const ['No', 'اسم النوع', 'الخصائص والسمات', 'العمليات'],
-      paintRowColorWhen: (item, index) => index.isEven,
+      // paintRowColorWhen: (item, index) => index.isEven,
       rowColor: AppStyle.of(context).surfaceContainerLow,
       onTapRow: (catalog) async {
         final result = await showDialog<SubcategoryEntity>(
@@ -246,7 +246,8 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
         }
       },
       builder: (context, catalog, index) {
-        final state = context.read<SubcategoriesBloc>().state as SubcategoriesLoadSuccess;
+        final state =
+            context.read<SubcategoriesBloc>().state as SubcategoriesLoadSuccess;
         final mainCategoryName = state.mainCategories
             .where((cat) => cat.id == catalog.mainCategoryId)
             .map((cat) => cat.name)
@@ -304,14 +305,21 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
   Map<int, TableWidgetColumnWidth> getWidths() {
     return const {
       0: FixedTableWidgetColumnWidth(50, alignment: Alignment.center), // No
-      1: FixedTableWidgetColumnWidth(150, alignment: .centerStart, padding: Paddings.smallHorizontal), // اسم النوع
-       2: FlexTableWidgetColumnWidth(1, alignment: .centerStart), // الخصائص والسمات
+      1: FixedTableWidgetColumnWidth(
+        150,
+        alignment: .centerStart,
+        padding: Paddings.smallHorizontal,
+      ), // اسم النوع
+      2: FlexTableWidgetColumnWidth(
+        1,
+        alignment: .centerStart,
+      ), // الخصائص والسمات
       3: FixedTableWidgetColumnWidth(80, alignment: .center), // العمليات
     };
   }
 
   Widget buildPropertiesTable(
-      int index,
+    int index,
     BuildContext context,
     SubcategoryEntity catalog,
     SubcategoriesLoadSuccess state,
@@ -336,10 +344,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     return Padding(
       padding: const EdgeInsets.all(6.0),
       child: fluent.Table(
-        border: fluent.TableBorder.all(
-          width: 0.5,
-          color: colors.outline,
-        ),
+        border: fluent.TableBorder.all(width: 0.5, color: colors.outline),
         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
         columnWidths: const {
           0: FixedColumnWidth(120), // اسم الخاصية
@@ -374,36 +379,39 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
               style: colors.body,
             );
           } else {
-            valuesWidget = Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Wrap(
-                spacing: Spacings.medium,
-                runSpacing: Spacings.xsmall,
-                children: List.generate(propertyInfos.length, (indexOfUnit) {
-                  return Container(
-                    height: 20,
-                    alignment: .center,
-                    color: index.isEven ? colors.surfaceContainerHigh : colors.surfaceContainerLow,
-                    width: 75,
-                    child: Text(
-                      propertyInfos[indexOfUnit].unitName ?? '',
-                      textAlign: TextAlign.start,
-                      style: colors.body,
-                    ),
-                  );
-                }),
-              ),
+            valuesWidget = Wrap(
+              spacing: Spacings.xsmall,
+              runSpacing: Spacings.xsmall,
+              children: List.generate(propertyInfos.length, (indexOfUnit) {
+                return Container(
+                  height: 20,
+                  alignment: .center,
+                  color: colors.surfaceContainerHighest,
+                  width: 85,
+                  child: Text(
+                    propertyInfos[indexOfUnit].unitName ?? '',
+                    textAlign: TextAlign.start,
+                    style: colors.body,
+                  ),
+                );
+              }),
             );
           }
 
           return TableRow(
+            decoration: BoxDecoration(color: colors.surfaceContainerLowest),
             children: [
-              Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: Text(
-                  'ال${property.propertyName}',
-                  style: colors.bodyStrong,
-                  textAlign: TextAlign.start,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Paddings.small,
+                  vertical: Paddings.xsmall,
+                ),
+                child: Align(
+                  child: Text(
+                    'ال${property.propertyName}',
+                    style: colors.bodyStrong,
+                    textAlign: TextAlign.start,
+                  ),
                 ),
               ),
               Padding(padding: const EdgeInsets.all(6.0), child: valuesWidget),
@@ -442,17 +450,17 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     CategoryPropertyEntity property,
   ) async {
     final bloc = context.read<SubcategoriesBloc>();
-    if(property.isSingle && bloc.state.infos.indexWhere((unit) => unit.propertyId == property.id) > -1) {
+    if (property.isSingle &&
+        bloc.state.infos.indexWhere((unit) => unit.propertyId == property.id) >
+            -1) {
       return;
     }
     if (context.mounted) {
       final subcategoryUnit = await showDialog<SubcategoryUnitEntity>(
         barrierDismissible: false,
         context: context,
-        builder: (_) => SubcategoryUnitFormPage(
-          subcategory: catalog,
-          property: property,
-        ),
+        builder: (_) =>
+            SubcategoryUnitFormPage(subcategory: catalog, property: property),
       );
       if (subcategoryUnit != null && context.mounted) {
         bloc.add(

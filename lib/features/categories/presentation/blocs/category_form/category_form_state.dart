@@ -9,11 +9,10 @@ enum CategoryFormStatus { initial, saving, saved, failure, ready }
 
 class CategoryFormState extends Equatable {
   final int id;
-
   final CategoryFormStatus status;
-  final List<UnitEntity> units;
   final UnitEntity? selectedUnit;
-  final List<SubcategoryEntity> subcategories;
+  final UnitEntity? selectedPricingUnit;
+  final UnitEntity? selectedInventoryUnit;
   final SubcategoryEntity? selectedSubcategory;
   final CategoryDefineType selectedCategoryType;
   final bool hasRequests;
@@ -25,9 +24,9 @@ class CategoryFormState extends Equatable {
   const CategoryFormState({
     this.id = 0,
     this.status = CategoryFormStatus.initial,
-    this.units = const [],
     this.selectedUnit,
-    this.subcategories = const [],
+    this.selectedPricingUnit,
+    this.selectedInventoryUnit,
     this.selectedSubcategory,
     this.selectedCategoryType = CategoryDefineType.commodities,
     this.hasRequests = false,
@@ -41,9 +40,9 @@ class CategoryFormState extends Equatable {
     int? id,
     CategoryFormStatus? status,
     CategoryEntity? initialCategory,
-    List<UnitEntity>? units,
     UnitEntity? selectedUnit,
-    List<SubcategoryEntity>? subcategories,
+    UnitEntity? selectedPricingUnit,
+    UnitEntity? selectedInventoryUnit,
     SubcategoryEntity? selectedSubcategory,
     CategoryDefineType? selectedCategoryType,
     bool? hasRequests,
@@ -58,12 +57,12 @@ class CategoryFormState extends Equatable {
     return CategoryFormState(
       id: id ?? this.id,
       status: status ?? this.status,
-      units: units ?? this.units,
       categoryName: categoryName ?? this.categoryName,
       categoryNumber: categoryNumber ?? this.categoryNumber,
       barcode: barcode ?? this.barcode,
       selectedUnit: selectedUnit ?? this.selectedUnit,
-      subcategories: subcategories ?? this.subcategories,
+      selectedPricingUnit: selectedPricingUnit ?? this.selectedPricingUnit,
+      selectedInventoryUnit: selectedInventoryUnit ?? this.selectedInventoryUnit,
       selectedSubcategory: selectedSubcategory ?? this.selectedSubcategory,
       selectedCategoryType: selectedCategoryType ?? this.selectedCategoryType,
       hasRequests: hasRequests ?? this.hasRequests,
@@ -75,12 +74,12 @@ class CategoryFormState extends Equatable {
     return CategoryFormState(
       id: id,
       status: status,
-      units: units,
       categoryName: categoryName,
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
-      subcategories: subcategories,
+      selectedPricingUnit: selectedPricingUnit,
+      selectedInventoryUnit: selectedInventoryUnit,
       selectedSubcategory: selectedSubcategory,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
@@ -92,12 +91,12 @@ class CategoryFormState extends Equatable {
     return CategoryFormState(
       id: id,
       status: status,
-      units: units,
       categoryName: categoryName,
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
-      subcategories: subcategories,
+      selectedPricingUnit: selectedPricingUnit,
+      selectedInventoryUnit: selectedInventoryUnit,
       selectedSubcategory: selectedSubcategory,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
@@ -109,12 +108,12 @@ class CategoryFormState extends Equatable {
     return CategoryFormState(
       id: id,
       status: status,
-      units: units,
       categoryName: categoryName,
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
-      subcategories: subcategories,
+      selectedPricingUnit: selectedPricingUnit,
+      selectedInventoryUnit: selectedInventoryUnit,
       selectedSubcategory: selectedSubcategory,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
@@ -126,12 +125,12 @@ class CategoryFormState extends Equatable {
     return CategoryFormState(
       id: id,
       status: status,
-      units: units,
       categoryName: categoryName,
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
-      subcategories: subcategories,
+      selectedPricingUnit: selectedPricingUnit,
+      selectedInventoryUnit: selectedInventoryUnit,
       selectedSubcategory: selectedSubcategory,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
@@ -143,12 +142,12 @@ class CategoryFormState extends Equatable {
     return CategoryFormState(
       id: id,
       status: status,
-      units: units,
       categoryName: categoryName,
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: unit,
-      subcategories: subcategories,
+      selectedPricingUnit: selectedPricingUnit,
+      selectedInventoryUnit: selectedInventoryUnit,
       selectedSubcategory: selectedSubcategory,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
@@ -156,16 +155,18 @@ class CategoryFormState extends Equatable {
     );
   }
 
-  CategoryFormState copyWithSubcategory({required SubcategoryEntity? subcategory}) {
+  CategoryFormState copyWithSubcategory({
+    required SubcategoryEntity? subcategory,
+  }) {
     return CategoryFormState(
       id: id,
       status: status,
-      units: units,
       categoryName: categoryName,
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
-      subcategories: subcategories,
+      selectedPricingUnit: selectedPricingUnit,
+      selectedInventoryUnit: selectedInventoryUnit,
       selectedSubcategory: subcategory,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
@@ -179,12 +180,12 @@ class CategoryFormState extends Equatable {
     return CategoryFormState(
       id: id,
       status: status,
-      units: units,
       categoryName: categoryName,
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
-      subcategories: subcategories,
+      selectedPricingUnit: selectedPricingUnit,
+      selectedInventoryUnit: selectedInventoryUnit,
       selectedSubcategory: selectedSubcategory,
       selectedCategoryType: categoryType,
       hasRequests: hasRequests,
@@ -196,11 +197,12 @@ class CategoryFormState extends Equatable {
     return CategoryFormState(
       id: id,
       status: status,
-      units: units,
       categoryName: categoryName,
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
+      selectedPricingUnit: selectedPricingUnit,
+      selectedInventoryUnit: selectedInventoryUnit,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
       messageError: messageError,
@@ -215,7 +217,8 @@ class CategoryFormState extends Equatable {
     barcode,
     status,
     selectedUnit,
-    subcategories,
+    selectedPricingUnit,
+    selectedInventoryUnit,
     selectedSubcategory,
     selectedCategoryType,
     hasRequests,
@@ -230,12 +233,12 @@ class CategoryFormState extends Equatable {
       categoryNumber: categoryNumber,
       barcode: barcode,
       categoryUnitId: selectedUnit?.id ?? 0,
-      pricingUnitId: selectedUnit?.id ?? 0,
-      inventoryUnitId: selectedUnit?.id ?? 0,
+      pricingUnitId: (selectedSubcategory != null ? selectedPricingUnit?.id : selectedUnit?.id) ?? 0,
+      inventoryUnitId: (selectedSubcategory != null ? selectedInventoryUnit?.id : selectedUnit?.id) ?? 0,
       subcategoryId: selectedSubcategory?.id,
       categoryUnit: selectedUnit,
-      pricingUnit: selectedUnit,
-      inventoryUnit: selectedUnit,
+      pricingUnit: selectedSubcategory != null ? selectedPricingUnit : selectedUnit,
+      inventoryUnit: selectedSubcategory != null ? selectedInventoryUnit : selectedUnit,
     );
     debugPrint(
       'Converted CategoryFormState to CategoryEntity: ${entity.toString()}',
@@ -248,11 +251,12 @@ class CategoryFormState extends Equatable {
     return CategoryFormState(
       id: id,
       status: status,
-      units: units,
       categoryName: categoryName,
       categoryNumber: categoryNumber,
       barcode: barcode ?? barcode,
       selectedUnit: selectedUnit,
+      selectedPricingUnit: selectedPricingUnit,
+      selectedInventoryUnit: selectedInventoryUnit,
       selectedCategoryType: selectedCategoryType,
       hasRequests: hasRequests,
       messageError: messageError,

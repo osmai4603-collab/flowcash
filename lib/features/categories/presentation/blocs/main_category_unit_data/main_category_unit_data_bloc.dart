@@ -106,8 +106,7 @@ class MainCategoryUnitDataBloc
       name: event.categoryName,
       type: state.category.type,
       properties: state.category.properties,
-      unitName: state.category.unitName,
-      unitType: state.category.unitType,
+      categoryUnitId: state.category.categoryUnitId,
     );
     final result = await saveMain(updated);
     result.fold(

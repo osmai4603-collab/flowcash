@@ -13,5 +13,15 @@ abstract interface class ValueCounterRepository
     HistoriesGroup historyGroup,
   );
 
-  Future<Either<Failure, ValueCounterEntity>> getValueCounterByCounterType(ValueCounterType counterType);
+  Future<Either<Failure, ValueCounterEntity>> getValueCounterByCounterType(
+    ValueCounterType counterType,
+  );
+
+  Future<Either<Failure, ValueCounterEntity>> getCounter(ValueCounterType type);
+
+  Future<Either<Failure, int>> incrementCounter(ValueCounterType type);
+
+  Future<Either<Failure, ValueCounterEntity>> setCounter(
+    ValueCounterEntity counter,
+  );
 }

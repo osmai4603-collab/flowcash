@@ -174,7 +174,7 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
                   children: [
                     TextWidget(
                       text:
-                          'ادخال ${widget.property.propertyName} ${category?.unitName ?? 'حبة'} بالمتر',
+                          'ادخال ${widget.property.propertyName} حبة بالمتر',
                       alignment: Alignment.center,
                     ),
                     const SizedBox(height: 10),

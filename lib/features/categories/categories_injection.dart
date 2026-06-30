@@ -163,10 +163,11 @@ void initCategoriesFeature(GetIt sl) {
       getAllUseCase: sl(),
       addUseCase: sl(),
       deleteUseCase: sl(),
+      getBasicUnits: sl(),
     ),
   );
   sl.registerFactory(
-    () => MainCategoryFormBloc(initUseCase: sl(), saveUseCase: sl()),
+    () => MainCategoryFormBloc(initUseCase: sl(), saveUseCase: sl(), getBasicUnits: sl()),
   );
   sl.registerFactory(
     () => SubcategoriesBloc(
@@ -187,6 +188,7 @@ void initCategoriesFeature(GetIt sl) {
       getPropertiesUseCase: sl(),
       getUnitsUseCase: sl(),
       getUnitsByMainCategoryUseCase: sl(),
+      getBasicUnitsUseCase: sl(),
       getSubcategoryUnitsUseCase: sl(),
       getSubcategoriesUseCase: sl(),
       insertSubcategoryUseCase: sl(),

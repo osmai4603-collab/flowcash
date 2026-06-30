@@ -373,7 +373,7 @@ class BillRepositoryImpl implements BillRepository {
             accountId: inventory.expenseAccountId,
             amount: order.totalPrice,
             lineDescription:
-                'تكلفة ${AppMoneyFormatter.formatDouble(order.countUnits)}${categoryUnit?.unitName} ${category.categoryName}',
+                'تكلفة ${AppMoneyFormatter.formatDouble(order.countUnits)} ${categoryUnit?.unitName} ${category.categoryName}',
             currencyId: expenseAccount.currencyId,
             exPrice: exPriceExpense,
             exPriceMain: exPriceMainExpense,
@@ -408,7 +408,7 @@ class BillRepositoryImpl implements BillRepository {
             accountId: inventory.outcomeStockId,
             amount: order.totalPrice,
             lineDescription:
-                'تكلفة ${bill.billType.invoiceTypeName} ${AppMoneyFormatter.formatDouble(order.countUnits)} ${category.categoryUnit?.unitName} ${category.categoryName}',
+                'تكلفة ${bill.billType.invoiceTypeName} ${AppMoneyFormatter.formatDouble(order.countUnits)} ${categoryUnit?.unitName} ${category.categoryName}',
             currencyId: stockAccount.currencyId,
             exPrice: exPriceStock,
             exPriceMain: exPriceMainStock,

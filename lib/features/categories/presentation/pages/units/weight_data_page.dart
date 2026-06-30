@@ -142,7 +142,7 @@ class _WeightUnitDataPageState extends State<WeightUnitDataPage> {
                   children: [
                     TextWidget(
                       text:
-                          'ادخال ${widget.property.propertyName} ${category?.unitName ?? 'حبة'}',
+                          'ادخال ${widget.property.propertyName} حبة',
                       alignment: Alignment.center,
                     ),
                     const SizedBox(height: 10),

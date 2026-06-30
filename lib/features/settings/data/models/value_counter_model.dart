@@ -6,11 +6,11 @@ final class ValueCounterModel extends ValueCounterEntity {
   const ValueCounterModel({
     required super.id,
     required super.counterType,
-    required int count,
+    required super.count,
     required super.counterMax,
     required super.incrementValue,
     required super.formatValue,
-  }) : super(count: count);
+  });
 
   factory ValueCounterModel.fromMap(Map<String, dynamic> map) {
     final typeName = map[ValuesCounterTable().counterType] as String? ?? '';
@@ -26,7 +26,7 @@ final class ValueCounterModel extends ValueCounterEntity {
 
   Map<String, dynamic> toMap() {
     return {
-      if(id > 0) ValuesCounterTable().id: id,
+      if (id > 0) ValuesCounterTable().id: id,
       ValuesCounterTable().counterType: counterType.name,
       ValuesCounterTable().count: count,
       ValuesCounterTable().counterMax: counterMax,

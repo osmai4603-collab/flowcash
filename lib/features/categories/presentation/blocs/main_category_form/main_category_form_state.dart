@@ -1,7 +1,7 @@
 import 'package:flowcash/core/enums/category_type_enum.dart';
-import 'package:flowcash/core/enums/unit_type_enum.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/main_category_entity.dart';
+import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:equatable/equatable.dart';
 
 enum MainCategoryFormStatus { initial, ready, saving, saved, failure }
@@ -10,51 +10,48 @@ class MainCategoryFormState extends Equatable {
   final MainCategoryFormStatus status;
   final int id;
   final String name;
-  final String unitName;
+  final int categoryUnitId;
   final CategoryDefineType type;
-  final List<CategoryPropertyEntity> properties;
-  final UnitType unitType;
-
+  final UnitEntity? selectedUnit;
   final String? messageError;
 
   const MainCategoryFormState({
     this.status = MainCategoryFormStatus.initial,
     this.id = 0,
     this.name = '',
-    this.unitName = '',
+    this.categoryUnitId = 1,
     this.type = CategoryDefineType.commodities,
-    this.properties = const [],
-    this.unitType = UnitType.piece,
+    this.selectedUnit,
     this.messageError,
   });
 
-  MainCategoryEntity get entity => MainCategoryEntity(
+  MainCategoryEntity toEntity({
+    required List<CategoryPropertyEntity> properties,
+  }) => MainCategoryEntity(
     id: id,
     name: name,
     type: type,
     properties: properties,
-    unitName: unitName,
-    unitType: unitType,
+    categoryUnitId: selectedUnit?.id ?? categoryUnitId,
+    categoryUnit: selectedUnit,
   );
 
   MainCategoryFormState copyWith({
     MainCategoryFormStatus? status,
     int? id,
     String? name,
-    String? unitName,
+    int? categoryUnitId,
     CategoryDefineType? type,
-    List<CategoryPropertyEntity>? properties,
+    UnitEntity? selectedUnit,
     String? messageError,
-    UnitType? unitType,
   }) {
     return MainCategoryFormState(
       status: status ?? this.status,
       id: id ?? this.id,
       name: name ?? this.name,
-      unitName: unitName ?? this.unitName,
+      categoryUnitId: categoryUnitId ?? this.categoryUnitId,
       type: type ?? this.type,
-      properties: properties ?? this.properties,
-      unitType: unitType ?? this.unitType,
+      selectedUnit: selectedUnit ?? this.selectedUnit,
       messageError: messageError ?? this.messageError,
     );
   }
@@ -64,10 +61,9 @@ class MainCategoryFormState extends Equatable {
     status,
     id,
     name,
-    unitName,
+    categoryUnitId,
     type,
-    properties,
-    unitType,
+    selectedUnit,
     messageError,
   ];
 }

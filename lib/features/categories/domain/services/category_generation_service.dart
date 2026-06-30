@@ -148,7 +148,7 @@ class CategoryGenerationService {
 
         // Determine units
         final categoryUnit = basicUnits.firstWhere(
-          (u) => u.unitType == mainCategory.unitType,
+          (u) => u.id == mainCategory.categoryUnitId,
           orElse: () =>
               throw 'No basic unit found for the main category unit type.',
         );
@@ -221,7 +221,8 @@ class CategoryGenerationService {
     required List<CategoryPropertyEntity> activeProperties,
     required List<UnitEntity> units,
   }) {
-    List<String> names = [mainCategory.name, catalog.catalogName];
+    final List<String> mainUnits = [];
+    final List<String> subUnits = [];
 
     for (int i = 0; i < combination.length; i++) {
       final info = combination[i];
@@ -232,9 +233,21 @@ class CategoryGenerationService {
 
       final unitIndex = units.indexWhere((u) => u.id == info.unitId);
       if (unitIndex >= 0 && units[unitIndex].unitType.canWriteUnitOnCategory) {
-        names.add(units[unitIndex].getCategoryName());
+        final unitName = units[unitIndex].getCategoryName();
+        if (property.unitType.isMainCategory) {
+          mainUnits.add(unitName);
+        } else {
+          subUnits.add(unitName);
+        }
       }
     }
+
+    final List<String> names = [
+      mainCategory.name,
+      ...mainUnits,
+      catalog.catalogName,
+      ...subUnits,
+    ];
 
     names.removeWhere((e) => e.isEmpty || e == ' ');
     return names.join(' ');
@@ -252,7 +265,7 @@ class CategoryGenerationService {
     // Fallback: match mainCategory unitType
     if (index < 0) {
       index = activeProperties.indexWhere(
-        (p) => p.unitType == mainCategory.unitType,
+        (p) => p.isCategoryUnit,
       );
     }
 

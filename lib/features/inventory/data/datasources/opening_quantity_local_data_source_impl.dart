@@ -30,7 +30,6 @@ import 'package:flowcash/core/tables/journal_items_table.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
 import 'package:flowcash/core/enums/journal_status_enum.dart';
-import 'package:flowcash/features/system/domain/usecases/exchange_price_usecases.dart';
 
 final class OpeningQuantityLocalDataSourceImpl
     implements OpeningQuantityDataSource {
@@ -133,7 +132,7 @@ final class OpeningQuantityLocalDataSourceImpl
 
         journalEntryId: journalEntry.id,
         lineDescription:
-            'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)}${categoryUnit.getCategoryName()} ${category.categoryName}',
+            'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)} ${categoryUnit.unitName} ${category.categoryName}',
         exPrice: await _getExPrice(entity.currencyId, incomeAccount.currencyId),
         expriceMain: await _getExPrice(
           entity.currencyId,
@@ -146,7 +145,7 @@ final class OpeningQuantityLocalDataSourceImpl
       var propertyItem = JournalItemEntity.fromOpeningQuantity(
         openingQuantity: entity,
         lineDescription:
-            'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)}${categoryUnit.getCategoryName()} ${category.categoryName}',
+            'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)} ${categoryUnit.unitName} ${category.categoryName}',
         accountId: propertyAccount.id,
         journalEntryId: journalEntry.id,
         exPrice: await _getExPrice(
@@ -528,7 +527,8 @@ final class OpeningQuantityLocalDataSourceImpl
     );
 
     return rows.fold<double>(0.0, (sum, row) {
-      return sum + ((row[OpeningQuantitiesTable().countUnits] as num).toDouble());
+      return sum +
+          ((row[OpeningQuantitiesTable().countUnits] as num).toDouble());
     });
   }
 

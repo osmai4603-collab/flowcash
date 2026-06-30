@@ -10,7 +10,7 @@ import 'package:flowcash/core/services/sqlite/sqlite_tables/sqlite_tables.dart';
 final class SqliteSchemaManager {
   const SqliteSchemaManager._();
 
-  static const int currentVersion = 12;
+  static const int currentVersion = 13;
 
   /// Create the full schema for a new database.
   static void createAll(Database db) {

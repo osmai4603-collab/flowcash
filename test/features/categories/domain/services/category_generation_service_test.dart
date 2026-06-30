@@ -148,8 +148,7 @@ void main() {
     final mainCategory = MainCategoryEntity(
       id: 1,
       name: 'Main 1',
-      unitType: UnitType.piece,
-      unitName: 'Piece',
+      categoryUnitId: 1,
       type: CategoryDefineType.commodities,
       properties: [],
     );

@@ -7,6 +7,7 @@ import 'package:flowcash/features/categories/domain/entities/subcategory_entity.
 import 'package:flowcash/features/categories/domain/usecases/subcategory_usecases.dart';
 import 'package:flowcash/features/categories/domain/usecases/unit_usecases.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
+import 'package:flowcash/features/categories/domain/usecases/category_property_usecases.dart';
 import 'category_form_event.dart';
 import 'category_form_state.dart';
 
@@ -17,6 +18,20 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
   final GetAllSubcategoriesUseCase _getSubcategories;
   final CheckCategoryHasRequestsUseCase _checkHasRequestsUseCase;
   final GetNewCategoryNumberUseCase _getNewCategoryNumberUseCase;
+  final GetCategoryPropertiesByMainCategoryUseCase _getPropertiesUseCase;
+  final GetUnitsUseCase _getUnitsUseCase;
+
+  /// البيانات المرجعية - محفوظة في الـ BLoC وليس في الحالة
+  List<UnitEntity> _units = [];
+  List<SubcategoryEntity> _subcategories = [];
+  List<UnitEntity> _inventoriesUnits = [];
+  List<UnitEntity> _pricingsUnits = [];
+
+  /// Getters للوصول من الـ UI
+  List<UnitEntity> get units => _units;
+  List<SubcategoryEntity> get subcategories => _subcategories;
+  List<UnitEntity> get inventoriesUnits => _inventoriesUnits;
+  List<UnitEntity> get pricingsUnits => _pricingsUnits;
 
   CategoryFormBloc({
     required AddCategoryUseCase addCategory,
@@ -25,12 +40,16 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
     required GetAllSubcategoriesUseCase getSubcategories,
     required CheckCategoryHasRequestsUseCase checkHasRequestsUseCase,
     required GetNewCategoryNumberUseCase getNewCategoryNumberUseCase,
+    required GetCategoryPropertiesByMainCategoryUseCase getPropertiesUseCase,
+    required GetUnitsUseCase getUnits,
   }) : _addCategory = addCategory,
        _updateCategory = updateCategory,
        _getBasicUnits = getUnitsUseCase,
        _getSubcategories = getSubcategories,
        _checkHasRequestsUseCase = checkHasRequestsUseCase,
        _getNewCategoryNumberUseCase = getNewCategoryNumberUseCase,
+       _getPropertiesUseCase = getPropertiesUseCase,
+       _getUnitsUseCase = getUnits,
        super(const CategoryFormState()) {
     on<InitCategoryForm>(_onInit);
     on<SaveCategoryEvent>(_onSave);
@@ -49,6 +68,12 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
       ),
     );
     on<GenerateCategoryNumberEvent>(_onGenerateCategoryNumber);
+    on<ChangeCategoryPricingUnitEvent>(
+      (event, emit) => emit(state.copyWith(selectedPricingUnit: event.unit)),
+    );
+    on<ChangeCategoryInventoryUnitEvent>(
+      (event, emit) => emit(state.copyWith(selectedInventoryUnit: event.unit)),
+    );
   }
 
   FutureOr<void> _onChangeCattegoryName(
@@ -62,14 +87,96 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
     ChangeCategoryUnitEvent event,
     Emitter<CategoryFormState> emit,
   ) async {
-    return emit(state.copyWithCategoryUnit(unit: event.unit));
+    final updatedState = state.copyWithCategoryUnit(unit: event.unit);
+    if (state.selectedSubcategory == null) {
+      _inventoriesUnits = [event.unit];
+      _pricingsUnits = [event.unit];
+      return emit(
+        updatedState.copyWith(
+          selectedPricingUnit: event.unit,
+          selectedInventoryUnit: event.unit,
+        ),
+      );
+    }
+    return emit(updatedState);
   }
 
   FutureOr<void> _onChangeCategorySubcategory(
     ChangeCategorySubcategoryEvent event,
     Emitter<CategoryFormState> emit,
   ) async {
-    return emit(state.copyWithSubcategory(subcategory: event.subcategory));
+    final subcategory = event.subcategory;
+    if (subcategory == null) {
+      final unit = state.selectedUnit;
+      _inventoriesUnits = unit != null ? [unit] : [];
+      _pricingsUnits = unit != null ? [unit] : [];
+      return emit(
+        state
+            .copyWithSubcategory(subcategory: null)
+            .copyWith(selectedPricingUnit: unit, selectedInventoryUnit: unit),
+      );
+    }
+
+    emit(state.copyWith(status: CategoryFormStatus.initial));
+
+    // 1. Get properties for the subcategory's main category
+    final propertiesResult = await _getPropertiesUseCase(
+      subcategory.mainCategoryId,
+    );
+    final properties = propertiesResult.getOrElse((_) => []);
+
+    // 2. Get all units from the database
+    final unitsResult = await _getUnitsUseCase();
+    final allUnits = unitsResult.getOrElse((_) => []);
+
+    // 3. Filter units to find those that match the properties and subcategory
+    // For pricing units: properties where isPricingUnit is true
+    final pricingProps = properties.where((p) => p.isPricingUnit).toList();
+    final pricingPropIds = pricingProps.map((p) => p.id).toSet();
+
+    // For inventory units: properties where isInventoryUnit is true
+    final inventoryProps = properties.where((p) => p.isInventoryUnit).toList();
+    final inventoryPropIds = inventoryProps.map((p) => p.id).toSet();
+
+    final List<UnitEntity> filteredPricingUnits = [];
+    final List<UnitEntity> filteredInventoryUnits = [];
+
+    for (final subcatUnit in subcategory.units) {
+      if (pricingPropIds.contains(subcatUnit.propertyId)) {
+        final unit = allUnits
+            .where((u) => u.id == subcatUnit.unitId)
+            .firstOrNull;
+        if (unit != null) {
+          filteredPricingUnits.add(unit);
+        }
+      }
+      if (inventoryPropIds.contains(subcatUnit.propertyId)) {
+        final unit = allUnits
+            .where((u) => u.id == subcatUnit.unitId)
+            .firstOrNull;
+        if (unit != null) {
+          filteredInventoryUnits.add(unit);
+        }
+      }
+    }
+
+    _pricingsUnits = filteredPricingUnits;
+    _inventoriesUnits = filteredInventoryUnits;
+
+    UnitEntity? newPricingUnit =
+        filteredPricingUnits.firstOrNull ?? state.selectedUnit;
+    UnitEntity? newInventoryUnit =
+        filteredInventoryUnits.firstOrNull ?? state.selectedUnit;
+
+    emit(
+      state
+          .copyWithSubcategory(subcategory: subcategory)
+          .copyWith(
+            status: CategoryFormStatus.ready,
+            selectedPricingUnit: newPricingUnit,
+            selectedInventoryUnit: newInventoryUnit,
+          ),
+    );
   }
 
   Future<void> _onChangeCategoryType(
@@ -97,6 +204,8 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
         );
       },
       (units) async {
+        _units = units;
+
         UnitEntity? selectedUnit;
         if (units.isNotEmpty) {
           selectedUnit = units.firstWhere(
@@ -108,11 +217,10 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
         }
 
         final subcategoriesResult = await _getSubcategories();
-        List<SubcategoryEntity> subcategories = [];
         SubcategoryEntity? selectedSubcategory;
 
         subcategoriesResult.fold((failure) => null, (list) {
-          subcategories = list;
+          _subcategories = list;
           if (event.category?.subcategoryId != null) {
             selectedSubcategory = list
                 .where((s) => s.id == event.category!.subcategoryId)
@@ -140,6 +248,23 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
           }
         }
 
+        UnitEntity? selectedPricingUnit;
+        UnitEntity? selectedInventoryUnit;
+        if (units.isNotEmpty) {
+          selectedPricingUnit = units.firstWhere(
+            (unit) => event.category != null
+                ? unit.id == event.category!.pricingUnitId
+                : unit.unitType.isPiece,
+            orElse: () => selectedUnit ?? units.first,
+          );
+          selectedInventoryUnit = units.firstWhere(
+            (unit) => event.category != null
+                ? unit.id == event.category!.inventoryUnitId
+                : unit.unitType.isPiece,
+            orElse: () => selectedUnit ?? units.first,
+          );
+        }
+
         var categoryNumber = event.category?.categoryNumber ?? '';
         if (categoryNumber.isEmpty) {
           final counterResult = await _getNewCategoryNumberUseCase();
@@ -165,10 +290,10 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
             barcode: event.category?.barcode,
             status: CategoryFormStatus.ready,
             initialCategory: event.category,
-            units: units,
             selectedUnit: selectedUnit,
-            subcategories: subcategories,
             selectedSubcategory: selectedSubcategory,
+            selectedPricingUnit: selectedPricingUnit,
+            selectedInventoryUnit: selectedInventoryUnit,
             selectedCategoryType:
                 event.category?.categoryType ?? CategoryDefineType.commodities,
             hasRequests: hasRequests,

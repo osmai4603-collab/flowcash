@@ -14,10 +14,8 @@ final class SimpleCategoryModel extends SimpleCategoryEntity {
     return SimpleCategoryModel(
       id: map[MainCategoriesTable().id] as int,
       categoryName: map[MainCategoriesTable().categoryName] as String? ?? '',
-      unitName: map[MainCategoriesTable().unitName] as String? ?? '',
-      unitType: UnitType.of(
-        map[MainCategoriesTable().unitType] as String? ?? 'piece',
-      ),
+      unitName: map['unit_name'] as String? ?? '',
+      unitType: UnitType.of(map['unit_type'] as String? ?? 'piece'),
     );
   }
 
@@ -25,8 +23,8 @@ final class SimpleCategoryModel extends SimpleCategoryEntity {
     return {
       MainCategoriesTable().id: id,
       MainCategoriesTable().categoryName: categoryName,
-      MainCategoriesTable().unitName: unitName,
-      MainCategoriesTable().unitType: unitType.name,
+      'unit_name': unitName,
+      'unit_type': unitType.name,
     };
   }
 

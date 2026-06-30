@@ -33,6 +33,9 @@ sealed class UnitType extends AppEnum {
   static const squareMeterStatic = SquareMeterStaticUnitType._();
   static const squareMeterWidthStatic = SquareMeterWidthStaticUnitType._();
   static const cubitMeter = CubitMeterUnitType._();
+  static const mainCategory = MainCategoryUnitType._();
+  static const subCategory = SubCategoryUnitType._();
+  static const modelColor = ModelColorUnitType._();
 
   static const List<UnitType> values = [
     model,
@@ -43,6 +46,9 @@ sealed class UnitType extends AppEnum {
     squareMeterStatic,
     squareMeterWidthStatic,
     cubitMeter,
+    mainCategory,
+    subCategory,
+    modelColor,
   ];
 
   static UnitType of(String name) {
@@ -60,6 +66,9 @@ sealed class UnitType extends AppEnum {
   bool get isCubitMeter => false;
   bool get isLinearMeter => false;
   bool get isWeight => false;
+  bool get isMainCategory => false;
+  bool get isSubCategory => false;
+  bool get isModelColor => false;
   bool get isMeasurable => isWeight || isMeterMeasurable;
   bool get hasSquareMeter =>
       isSquareMeter || isSquareMeterStatic || isSquareMeterWidthStatic;
@@ -68,7 +77,7 @@ sealed class UnitType extends AppEnum {
       isLinearMeter ||
       isCubitMeter ||
       isSquareMeterWidthStatic;
-  bool get canWriteUnitOnCategory => isMeterMeasurable || isText || isWeight;
+  bool get canWriteUnitOnCategory => isMeterMeasurable || isText || isWeight || isMainCategory || isSubCategory || isModelColor;
 }
 
 final class ModelUnitType extends UnitType {
@@ -103,7 +112,7 @@ final class PieceUnitType extends UnitType {
         unitName: 'حبة',
         fullUnitName: 'حبة',
         symbolUnit: 'حبة',
-        isVisible: false,
+        isVisible: true,
         isBasic: true,
         isDefault: true,
       );
@@ -246,4 +255,79 @@ final class CubitMeterUnitType extends UnitType {
   int get index => 7;
   @override
   bool get isCubitMeter => true;
+}
+
+final class MainCategoryUnitType extends UnitType {
+  const MainCategoryUnitType._()
+    : super(
+        typeName: 'صنف رئيسي',
+        propertyName: 'صنف رئيسي',
+        propertyData: 'صنف رئيسي',
+        serial: 9,
+        unitName: 'صنف رئيسي',
+        fullUnitName: 'صنف رئيسي',
+        symbolUnit: 'صنف رئيسي',
+      );
+
+  @override
+  String get name => 'main_category';
+
+  @override
+  int get index => 8;
+
+  @override
+  bool get isMainCategory => true;
+
+  @override
+  bool get isText => true;
+}
+
+final class SubCategoryUnitType extends UnitType {
+  const SubCategoryUnitType._()
+    : super(
+        typeName: 'صنف فرعي',
+        propertyName: 'صنف فرعي',
+        propertyData: 'صنف فرعي',
+        serial: 10,
+        unitName: 'صنف فرعي',
+        fullUnitName: 'صنف فرعي',
+        symbolUnit: 'صنف فرعي',
+      );
+
+  @override
+  String get name => 'sub_category';
+
+  @override
+  int get index => 9;
+
+  @override
+  bool get isSubCategory => true;
+
+  @override
+  bool get isText => true;
+}
+
+final class ModelColorUnitType extends UnitType {
+  const ModelColorUnitType._()
+    : super(
+        typeName: 'لون الموديل',
+        propertyName: 'لون الموديل',
+        propertyData: 'لون الموديل',
+        serial: 11,
+        unitName: 'لون الموديل',
+        fullUnitName: 'لون الموديل',
+        symbolUnit: 'لون الموديل',
+      );
+
+  @override
+  String get name => 'model_color';
+
+  @override
+  int get index => 10;
+
+  @override
+  bool get isModelColor => true;
+
+  @override
+  bool get isText => true;
 }

@@ -104,9 +104,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
         },
         builder: (context, state) {
           if (state.status == SubcategoryFormStatus.initial) {
-            return Center(
-              child: fluent.ProgressRing(),
-            );
+            return Center(child: fluent.ProgressRing());
           }
           final isEditing =
               widget.subcategory?.id != null && widget.subcategory?.id != 0;
@@ -148,7 +146,8 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                 controller: catalogNameController,
                                 placeholder: 'ادخل اسم النوع',
                                 enabled:
-                                    state.status != SubcategoryFormStatus.saving,
+                                    state.status !=
+                                    SubcategoryFormStatus.saving,
                                 prefix: Padding(
                                   padding: const EdgeInsets.all(4.0),
                                   child: const fluent.Icon(
@@ -192,9 +191,13 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                     : (selected) {
                                         if (selected != null) {
                                           _markChanged();
-                                          context.read<SubcategoryFormBloc>().add(
-                                            MainCategorySelectedEvent(selected),
-                                          );
+                                          context
+                                              .read<SubcategoryFormBloc>()
+                                              .add(
+                                                MainCategorySelectedEvent(
+                                                  selected,
+                                                ),
+                                              );
                                         }
                                       },
                                 placeholder: const fluent.Text(
@@ -218,10 +221,18 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                           physics: const NeverScrollableScrollPhysics(),
                           children: [
                             ...state.catalogProperties
+                                .where(
+                                  (catalogProperty) => catalogProperty.isSingle,
+                                )
                                 .map((catalogProperty) {
-                                  if (catalogProperty.property.isSingle || catalogProperty.property.isCategoryUnit) {
-                                    return buildSingleProperty(catalogProperty);
-                                  }
+                                  return buildSingleProperty(catalogProperty);
+                                }),
+                            ...state.catalogProperties
+                                .where(
+                                  (catalogProperty) =>
+                                      !catalogProperty.isSingle,
+                                )
+                                .map((catalogProperty) {
                                   return buildPropertyStruct(catalogProperty);
                                 }),
                           ],
@@ -270,7 +281,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
       children: [
         Expanded(
           child: fluent.InfoLabel(
-            label: property.property.propertyName,
+            label: 'ال${property.property.propertyName}',
             child: FormField<UnitEntity?>(
               key: ValueKey(
                 '${property.property.id}_${property.selectedUnits.hashCode}',
@@ -287,6 +298,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Row(
+                      crossAxisAlignment: .end,
                       children: [
                         Expanded(
                           child: MenuAnchor(
@@ -359,18 +371,18 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
           ),
         ),
         Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: fluent.Tooltip(
-              message: 'إضافة ${property.property.propertyName} جديد',
-              child: fluent.IconButton(
-                icon: fluent.Icon(
-                  fluent.FluentIcons.add,
-                  color: colors.onSurface,
-                ),
-                onPressed: () => _onAddNewSubcategoryUnit(property),
+          padding: const EdgeInsets.only(bottom: 3.0),
+          child: fluent.Tooltip(
+            message: 'إضافة ${property.property.propertyName} جديد',
+            child: fluent.IconButton(
+              icon: fluent.Icon(
+                fluent.FluentIcons.add,
+                color: colors.onSurface,
               ),
+              onPressed: () => _onAddNewSubcategoryUnit(property),
             ),
           ),
+        ),
       ],
     );
   }
@@ -444,7 +456,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                         ),
                         Expanded(
                           child: TextWidget(
-                            text: 'انواع ${property.property.propertyName}',
+                            text: 'انواع ال${property.property.propertyName}',
                             alignment: Alignment.center,
                           ),
                         ),

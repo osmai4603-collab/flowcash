@@ -81,6 +81,9 @@ class _UnitFormPageState extends State<UnitFormPage> {
   Widget _buildUnitForm(UnitFormState state) {
     switch (widget.property.unitType) {
       case ModelUnitType():
+      case MainCategoryUnitType():
+      case SubCategoryUnitType():
+      case ModelColorUnitType():
         return TextUnitDataPage(property: widget.property, unit: widget.unit);
       case PieceUnitType():
         return BasicUnitFormPage(property: widget.property, unit: widget.unit);
