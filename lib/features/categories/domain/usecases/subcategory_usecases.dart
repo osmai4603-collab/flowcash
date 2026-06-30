@@ -72,6 +72,16 @@ class DeleteSubcategoryUseCase {
   }
 }
 
+class DeleteSubcategoryUnitUseCase {
+  final SubcategoryRepository _repository;
+
+  const DeleteSubcategoryUnitUseCase(this._repository);
+
+  Future<Either<Failure, bool>> call(int id) async {
+    return await _repository.deleteSubcategoryUnit(id);
+  }
+}
+
 class GetSubcategoryUnitsByMainCategoryUseCase {
   final SubcategoryRepository _repository;
   const GetSubcategoryUnitsByMainCategoryUseCase(this._repository);

@@ -139,4 +139,36 @@ class UnitRepositoryImpl implements UnitRepository {
       return Left(DatabaseFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, List<UnitEntity>>> getUnitsBySubcategoryAndPropertyIds({
+    required int subcategoryId,
+    required List<int> propertyIds,
+  }) async {
+    try {
+      final res = await _dataSource.getUnitsBySubcategoryAndPropertyIds(
+        subcategoryId: subcategoryId,
+        propertyIds: propertyIds,
+      );
+      return Right(res);
+    } on Failure catch (f) {
+      return Left(f);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<UnitEntity>>> getUnitsBySubcategoryIds(
+    List<int> subcategoryIds,
+  ) async {
+    try {
+      final res = await _dataSource.getUnitsBySubcategoryIds(subcategoryIds);
+      return Right(res);
+    } on Failure catch (f) {
+      return Left(f);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
 }

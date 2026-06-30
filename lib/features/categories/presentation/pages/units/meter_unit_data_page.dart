@@ -18,6 +18,7 @@ import 'package:flowcash/features/categories/presentation/blocs/unit_form/unit_f
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
+import '../../../../../core/theme/paddings.dart';
 import '../../../../../core/theme_fluent/app_colors.dart';
 
 class MeterUnitDataPage extends StatefulWidget {
@@ -229,9 +230,10 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
                       ],
                     ),
                     if (widget.property.unitType.isCubitMeter)
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
                     if (widget.property.unitType.isCubitMeter)
                       Row(
+                        spacing: Spacings.small,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
@@ -308,6 +310,7 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
       },
       controller: controller,
       enabled: enabled,
+      padding: Paddings.mediumHorizontal,
       onChanged: (_) => _markChanged(),
       autofocus: autoFocus,
       textDirection: TextDirection.ltr,
@@ -317,6 +320,7 @@ class _MeterUnitDataPageState extends State<MeterUnitDataPage> {
       ],
       validator: validator,
       placeholder: 'ادخل ال$title',
+      style: colors.bodyStrong,
       prefix: Padding(
         padding: const EdgeInsets.all(8.0),
         child: fluent.Icon(

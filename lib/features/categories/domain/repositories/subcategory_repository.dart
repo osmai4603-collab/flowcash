@@ -7,6 +7,7 @@ import 'package:flowcash/core/repositories/repository.dart';
 
 abstract interface class SubcategoryRepository
     implements RepositoryDB<SubcategoryEntity> {
+
   @override
   Future<Either<Failure, List<SubcategoryEntity>>> get({
     Iterable<int>? ids,
@@ -38,4 +39,6 @@ abstract interface class SubcategoryRepository
   Future<Either<Failure, List<CategoryEntity>>> generateCategories(
     int subcategoryId,
   );
+
+  Future<Either<Failure, bool>> deleteSubcategoryUnit(int id);
 }

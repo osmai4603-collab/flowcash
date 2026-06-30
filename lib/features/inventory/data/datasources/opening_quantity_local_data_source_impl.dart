@@ -272,7 +272,7 @@ final class OpeningQuantityLocalDataSourceImpl
 
           journalEntryId: journalEntry.id,
           lineDescription:
-              'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)}${categoryUnit.getCategoryName()} ${category.categoryName}',
+              'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)}${categoryUnit.unitName} ${category.categoryName}',
           exPrice: await _getExPrice(
             entity.currencyId,
             incomeAccount.currencyId,
@@ -288,7 +288,7 @@ final class OpeningQuantityLocalDataSourceImpl
         var propertyItem = JournalItemEntity.fromOpeningQuantity(
           openingQuantity: entity,
           lineDescription:
-              'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)}${categoryUnit.getCategoryName()} ${category.categoryName}',
+              'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)}${categoryUnit.unitName} ${category.categoryName}',
           accountId: propertyAccount.id,
           journalEntryId: journalEntry.id,
           exPrice: await _getExPrice(
@@ -323,7 +323,7 @@ final class OpeningQuantityLocalDataSourceImpl
 
           journalEntryId: journalEntry.id,
           lineDescription:
-              'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)}${categoryUnit.getCategoryName()} ${category.categoryName}',
+              'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)}${categoryUnit.unitName} ${category.categoryName}',
           exPrice: await _getExPrice(
             entity.currencyId,
             incomeAccount.currencyId,
@@ -346,7 +346,7 @@ final class OpeningQuantityLocalDataSourceImpl
         final propertyItem = JournalItemEntity.fromOpeningQuantity(
           openingQuantity: entity,
           lineDescription:
-              'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)}${categoryUnit.getCategoryName()} ${category.categoryName}',
+              'كيمة افتتاحية: ${AppMoneyFormatter.formatDouble(entity.countUnits)}${categoryUnit.unitName} ${category.categoryName}',
           accountId: propertyAccount.id,
           journalEntryId: journalEntry.id,
           exPrice: await _getExPrice(

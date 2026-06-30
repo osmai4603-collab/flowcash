@@ -29,9 +29,13 @@ class MainCategoriesBloc
     Emitter<MainCategoriesState> emit,
   ) async {
     emit(MainCategoriesLoadInProgress());
-    final result = await getAllUseCase();
-    result.fold(
-      (failure) => emit(MainCategoriesOperationFailure(failure.message)),
+    await _loadAndEmit(emit);
+  }
+
+  Future<void> _loadAndEmit(Emitter<MainCategoriesState> emit) async {
+    final result = await getAllUseCase(getItems: true);
+    await result.fold(
+      (failure) async => emit(MainCategoriesOperationFailure(failure.message)),
       (list) async {
         final unitsResult = await getBasicUnits();
         final unitMap = <int, UnitEntity>{};
@@ -62,13 +66,7 @@ class MainCategoriesBloc
     final addResult = await addUseCase(event.category);
     await addResult.fold(
       (failure) async => emit(MainCategoriesOperationFailure(failure.message)),
-      (resultEntity) async {
-        final listResult = await getAllUseCase();
-        listResult.fold(
-          (failure) => emit(MainCategoriesOperationFailure(failure.message)),
-          (list) => emit(MainCategoriesLoadSuccess(list)),
-        );
-      },
+      (_) => _loadAndEmit(emit),
     );
   }
 
@@ -79,13 +77,7 @@ class MainCategoriesBloc
     final deleteResult = await deleteUseCase(event.id);
     await deleteResult.fold(
       (failure) async => emit(MainCategoriesOperationFailure(failure.message)),
-      (success) async {
-        final listResult = await getAllUseCase();
-        listResult.fold(
-          (failure) => emit(MainCategoriesOperationFailure(failure.message)),
-          (list) => emit(MainCategoriesLoadSuccess(list)),
-        );
-      },
+      (_) => _loadAndEmit(emit),
     );
   }
 }

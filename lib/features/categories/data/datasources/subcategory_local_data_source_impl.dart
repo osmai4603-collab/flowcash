@@ -303,6 +303,16 @@ final class SubcategoryLocalDataSourceImpl
     }
     return data;
   }
+
+  @override
+  Future<bool> deleteSubcategoryUnit(int subcategoryId) async {
+    await _db.deleteWhere(
+      table: SubcategoriesUnitsTable().tableName,
+      where: {SubcategoriesUnitsTable().id: subcategoryId},
+    );
+    return true;
+  }
+
 }
 
 class _GenerationIsolateInput {

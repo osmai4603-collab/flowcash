@@ -51,24 +51,25 @@ final class MainCategoryLocalDataSourceImpl
       if (entityId <= 0) {
         throw Exception('Failed to insert main category');
       }
+
       final insertedEntity = entity.copyWith(id: entityId);
-      final properties = entity.properties
-          .map(
-            (property) => property.copyWith(mainCategoryId: insertedEntity.id),
-          )
-          .toList();
-      for (var index = 0; index < properties.length; index++) {
-        final property = properties[index];
+      final updatedProperties = <CategoryPropertyEntity>[];
+
+      for (var index = 0; index < entity.properties.length; index++) {
+        final property = entity.properties[index].copyWith(
+          mainCategoryId: insertedEntity.id,
+        );
+
         final propertyId = await _db.insert(
           table: CategoryPropertiesTable().tableName,
-          data: CategoryPropertyModel.fromEntity(property).toMap(), //
+          data: CategoryPropertyModel.fromEntity(property).toMap(),
         );
         if (propertyId <= 0) {
           throw Exception('Failed to insert category property at index $index');
         }
-        properties[index] = property.copyWith(id: propertyId);
+        updatedProperties.add(property.copyWith(id: propertyId));
       }
-      return insertedEntity.copyWith(properties: properties);
+      return insertedEntity.copyWith(properties: updatedProperties);
     });
   }
 
@@ -90,18 +91,14 @@ final class MainCategoryLocalDataSourceImpl
         if (property.id > 0) {
           await _db.update(
             table: CategoryPropertiesTable().tableName,
-            data: CategoryPropertyModel.fromEntity(
-              property,
-            ).toMap(), // _propertyToMap(property),
+            data: CategoryPropertyModel.fromEntity(property).toMap(),
             where: {CategoryPropertiesTable().id: property.id},
           );
           updatedProperties.add(property);
         } else {
           final propertyId = await _db.insert(
             table: CategoryPropertiesTable().tableName,
-            data: CategoryPropertyModel.fromEntity(
-              property,
-            ).toMap(), // _propertyToMap(property),
+            data: CategoryPropertyModel.fromEntity(property).toMap(),
           );
           if (propertyId <= 0) {
             throw Exception(

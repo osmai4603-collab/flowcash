@@ -25,9 +25,8 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
     bool getItems = false,
   }) async {
     try {
-      // `getItem` is available for callers; datasource currently ignores it.
       final categories = await _dataSource.get(ids: ids);
-      if (categories.isEmpty) {
+      if (categories.isEmpty || !getItems) {
         return Right(categories);
       }
 
@@ -63,9 +62,8 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
     bool getItems = false,
   }) async {
     try {
-      // `getItem` is available for callers; datasource currently ignores it.
       final category = await _dataSource.getById(id);
-      if (category == null) return const Right(null);
+      if (category == null || !getItems) return Right(category);
 
       final properties = await _propertyDataSource.whereMainCategoryId([
         category.id,
@@ -83,24 +81,7 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
     MainCategoryEntity entity,
   ) async {
     try {
-      final category = await _db.transaction<MainCategoryEntity>(() async {
-        final insertedId = await _db.insert(
-          table: MainCategoriesTable().tableName,
-          data: _dataSource.toMap(entity),
-        );
-
-        final savedCategory = entity.copyWith(id: insertedId);
-        for (final property in entity.properties) {
-          final propertyToSave = property.copyWith(mainCategoryId: insertedId);
-          if (propertyToSave.id > 0) {
-            await _propertyDataSource.update(propertyToSave);
-          } else {
-            await _propertyDataSource.insert(propertyToSave);
-          }
-        }
-
-        return savedCategory;
-      });
+      final category = await _dataSource.insert(entity);
       return Right(category);
     } on Failure catch (f) {
       return Left(f);
@@ -114,38 +95,7 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
     MainCategoryEntity entity,
   ) async {
     try {
-      final category = await _db.transaction<MainCategoryEntity>(() async {
-        await _dataSource.update(entity);
-
-        final existingProps = await _propertyDataSource.whereMainCategoryId([
-          entity.id,
-        ]);
-        final existingIds = existingProps
-            .map((property) => property.id)
-            .toSet();
-        final currentIds = entity.properties
-            .where((property) => property.id > 0)
-            .map((property) => property.id)
-            .toSet();
-
-        for (final removedId in existingIds.difference(currentIds)) {
-          await _propertyDataSource.delete(removedId);
-        }
-
-        for (final property in entity.properties) {
-          final propertyToSave = property.copyWith(mainCategoryId: entity.id);
-          if (propertyToSave.id > 0) {
-            await _propertyDataSource.update(propertyToSave);
-          } else {
-            await _propertyDataSource.insert(propertyToSave);
-          }
-        }
-
-        final updatedProperties = await _propertyDataSource.whereMainCategoryId(
-          [entity.id],
-        );
-        return entity.copyWith(properties: updatedProperties);
-      });
+      final category = await _dataSource.update(entity);
       return Right(category);
     } on Failure catch (f) {
       return Left(f);
@@ -157,9 +107,7 @@ class MainCategoryRepositoryImpl implements MainCategoryRepository {
   @override
   Future<Either<Failure, bool>> delete(int id) async {
     try {
-      await _db.transaction(() async {
-        await _dataSource.delete(id);
-      });
+      final result = await _dataSource.delete(id);
       return const Right(true);
     } on Failure catch (f) {
       return Left(f);

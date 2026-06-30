@@ -166,4 +166,16 @@ class SubcategoryRepositoryImpl implements SubcategoryRepository {
       return Left(DatabaseFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, bool>> deleteSubcategoryUnit(int id) async {
+    try {
+      final res = await _dataSource.deleteSubcategoryUnit(id);
+      return Right(res);
+    } on Failure catch (f) {
+      return Left(f);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
 }

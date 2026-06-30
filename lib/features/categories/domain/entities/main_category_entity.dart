@@ -12,7 +12,7 @@ class MainCategoryEntity extends Entity {
   final UnitEntity? categoryUnit;
   final List<CategoryPropertyEntity> properties;
 
-  const MainCategoryEntity({
+   MainCategoryEntity({
     required this.id,
     required this.name,
     required this.type,
@@ -20,6 +20,19 @@ class MainCategoryEntity extends Entity {
     this.categoryUnit,
     this.properties = const [],
   });
+
+  CategoryPropertyEntity? _pricingProperty;
+  CategoryPropertyEntity? get pricingProperty =>
+     _pricingProperty ??= properties.cast<CategoryPropertyEntity?>().firstWhere(
+            (p) => p?.isPricingUnit ?? false,
+            orElse: () => null,
+          );
+  CategoryPropertyEntity? _inventoryProperty;
+  CategoryPropertyEntity? get inventoryProperty =>
+      _inventoryProperty ??= properties.cast<CategoryPropertyEntity?>().firstWhere(
+            (p) => p?.isInventoryUnit ?? false,
+            orElse: () => null,
+          );
 
   @override
   List<Object?> get props => [

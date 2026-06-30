@@ -83,7 +83,7 @@ class _SubcategoryUnitFormView extends StatelessWidget {
                             items: state.units.map((unit) {
                               return fluent.ComboBoxItem<UnitEntity>(
                                 value: unit,
-                                child: fluent.Text(unit.getCategoryName()),
+                                child: fluent.Text(unit.unitName),
                               );
                             }).toList(),
                             onChanged: (unit) {
@@ -143,7 +143,7 @@ class _SubcategoryUnitFormView extends StatelessWidget {
                           subcategoryId: subcategory.id,
                           unitId: selectedUnit.id,
                           propertyId: property.id,
-                          unitName: selectedUnit.getCategoryName(),
+                          unitName: selectedUnit.unitName,
                         ),
                       );
                     },

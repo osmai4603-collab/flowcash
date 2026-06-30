@@ -165,17 +165,21 @@ class MainCategoryFormBloc
           messageError: 'يجب إدخال اسم الصنف الرئيسي',
         ),
       );
+      emit(state.copyWith(status: MainCategoryFormStatus.ready));
       return;
     }
 
     final result = await saveUseCase(current);
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: MainCategoryFormStatus.failure,
-          messageError: failure.message,
-        ),
-      ),
+      (failure) {
+        emit(
+          state.copyWith(
+            status: MainCategoryFormStatus.failure,
+            messageError: failure.message,
+          ),
+        );
+        emit(state.copyWith(status: MainCategoryFormStatus.ready));
+      },
       (id) =>
           emit(state.copyWith(status: MainCategoryFormStatus.saved, id: id)),
     );

@@ -22,4 +22,6 @@ abstract interface class SubcategoryLocalDataSource
     List<SubcategoryUnitEntity> units,
   );
   Future<List<CategoryEntity>> generateCategories(int subcategoryId);
+
+  Future<bool> deleteSubcategoryUnit(int subcategoryId);
 }

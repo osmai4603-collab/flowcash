@@ -13,10 +13,6 @@ import 'package:flowcash/features/categories/data/datasources/category_property_
 import 'package:flowcash/features/categories/data/datasources/category_property_local_data_source_impl.dart';
 import 'package:flowcash/features/categories/data/datasources/category_attribute_data_source.dart';
 import 'package:flowcash/features/categories/data/datasources/category_attribute_local_data_source_impl.dart';
-import 'package:flowcash/core/tables/categories_attributes_table.dart';
-import 'package:flowcash/core/tables/category_properties_table.dart';
-import 'package:flowcash/core/tables/catalog_infos_table.dart';
-
 // Repositories
 import 'package:flowcash/features/categories/domain/repositories/category_repository.dart';
 import 'package:flowcash/features/categories/data/repositories/category_repository_impl.dart';
@@ -131,6 +127,7 @@ void initCategoriesFeature(GetIt sl) {
   sl.registerLazySingleton(() => SaveSubcategoryWithUnitsUseCase(sl()));
   sl.registerLazySingleton(() => AddSubcategoryUnitUseCase(sl()));
   sl.registerLazySingleton(() => GenerateSubcategoryCategoriesUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteSubcategoryUnitUseCase(sl()));
 
   // Property use cases
   sl.registerLazySingleton(
@@ -144,6 +141,10 @@ void initCategoriesFeature(GetIt sl) {
   sl.registerLazySingleton(
     () => GetAvailableUnitsForSubcategoryPropertyUseCase(sl()),
   );
+  sl.registerLazySingleton(
+    () => GetUnitsBySubcategoryAndPropertyIdsUseCase(sl()),
+  );
+  sl.registerLazySingleton(() => GetUnitsBySubcategoryIdsUseCase(sl()));
   sl.registerLazySingleton(() => SaveUnitSelectionUseCase(sl()));
   sl.registerLazySingleton(() => GetBasicUnits(sl()));
 
@@ -180,6 +181,7 @@ void initCategoriesFeature(GetIt sl) {
       getAllMainCategoriesUseCase: sl(),
       addSubcategoryUnitUseCase: sl(),
       generateSubcategoryCategoriesUseCase: sl(),
+      deleteSubcategoryUnitUseCase: sl(),
     ),
   );
   sl.registerFactory(

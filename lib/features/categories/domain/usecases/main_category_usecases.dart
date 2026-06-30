@@ -12,8 +12,9 @@ class GetAllMainCategoriesUseCase {
 
   Future<Either<Failure, List<MainCategoryEntity>>> call({
     Iterable<int>? ids,
+    bool getItems = false,
   }) async {
-    return await _repository.get(ids: ids);
+    return await _repository.get(ids: ids, getItems: getItems);
   }
 }
 

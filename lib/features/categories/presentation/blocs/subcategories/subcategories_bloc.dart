@@ -30,6 +30,7 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
   final GetAllMainCategoriesUseCase getAllMainCategoriesUseCase;
   final AddSubcategoryUnitUseCase addSubcategoryUnitUseCase;
   final GenerateSubcategoryCategoriesUseCase generateSubcategoryCategoriesUseCase;
+  final DeleteSubcategoryUnitUseCase deleteSubcategoryUnitUseCase;
 
   SubcategoriesController _controller = SubcategoriesController([], [], []);
 
@@ -43,6 +44,7 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
     required this.getAllMainCategoriesUseCase,
     required this.addSubcategoryUnitUseCase,
     required this.generateSubcategoryCategoriesUseCase,
+    required this.deleteSubcategoryUnitUseCase,
   }) : super(const SubcategoriesInitial()) {
     on<LoadSubcategoriesEvent>(_onLoadSubcategories);
     on<RefreshSubcategoriesEvent>(_onRefreshSubcategories);
@@ -90,11 +92,12 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
 
             final populatedInfos = infos.map((info) {
               final unit = unitsMap[info.unitId];
-              return info.copyWith(unitName: unit?.getCategoryName());
+              return info.copyWith(unitName: unit?.unitName);
             }).toList();
 
             final propertiesResult = await _loadPropertiesForSubcategories(
               catalogs,
+              emit,
             );
 
             propertiesResult.fold(
@@ -120,7 +123,10 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
   }
 
   Future<Either<Failure, List<CategoryPropertyEntity>>>
-  _loadPropertiesForSubcategories(List<SubcategoryEntity> catalogs) async {
+  _loadPropertiesForSubcategories(
+    List<SubcategoryEntity> catalogs,
+    Emitter<SubcategoriesState> emit,
+  ) async {
     final mainCategoryIds = catalogs
         .map((catalog) => catalog.mainCategoryId)
         .toSet()
@@ -286,18 +292,18 @@ class SubcategoriesBloc extends Bloc<SubcategoriesEvent, SubcategoriesState> {
     Emitter<SubcategoriesState> emit,
   ) async {
     if (state is! SubcategoriesLoadSuccess) return;
-    // final result = await deleteSubcategoryUnitUseCase(event.infoId);
-    // result.fold(
-    //   (failure) => emit(SubcategoriesLoadFailure(failure.message)),
-    //   (success) {
-    //     if (!success) {
-    //       emit(const SubcategoriesLoadFailure('Failed to delete catalog info'));
-    //       return;
-    //     }
-    //     _controller.removeSubcategoryUnit(event.infoId);
-    //     final currentState = state as SubcategoriesLoadSuccess;
-    //     emit(currentState.copyWith(controller: _controller));
-    //   },
-    // );
+    final result = await deleteSubcategoryUnitUseCase(event.infoId);
+    result.fold(
+      (failure) => emit(SubcategoriesLoadFailure(failure.message)),
+      (success) {
+        if (!success) {
+          emit(const SubcategoriesLoadFailure('Failed to delete catalog info'));
+          return;
+        }
+        _controller.removeSubcategoryUnit(event.infoId);
+        final currentState = state as SubcategoriesLoadSuccess;
+        emit(currentState.copyWith(controller: _controller));
+      },
+    );
   }
 }

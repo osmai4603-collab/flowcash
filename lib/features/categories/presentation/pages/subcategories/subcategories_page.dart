@@ -371,27 +371,67 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
               textAlign: TextAlign.center,
             );
           } else if (property.isSingle) {
-            valuesWidget = Text(
-              property.isCategoryUnit
-                  ? property.unitType.fullUnitName
-                  : propertyInfos.first.unitName ?? '',
-              textAlign: TextAlign.center,
-              style: colors.body,
+            final info = propertyInfos.first;
+            valuesWidget = Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  property.isCategoryUnit
+                      ? property.unitType.fullUnitName
+                      : info.unitName ?? '',
+                  textAlign: TextAlign.center,
+                  style: colors.body,
+                ),
+                if (!property.isCategoryUnit) ...[
+                  const SizedBox(width: 8),
+                  fluent.GestureDetector(
+                    onTap: () => _onDeletePropertyInfo(context, info),
+                    child: fluent.Icon(
+                      fluent.FluentIcons.cancel,
+                      size: 12,
+                      color: colors.error,
+                    ),
+                  ),
+                ],
+              ],
             );
           } else {
             valuesWidget = Wrap(
-              spacing: Spacings.xsmall,
-              runSpacing: Spacings.xsmall,
+              spacing: Spacings.small,
+              runSpacing: Spacings.small,
               children: List.generate(propertyInfos.length, (indexOfUnit) {
-                return Container(
+                final info = propertyInfos[indexOfUnit];
+                return SizedBox(
                   height: 20,
-                  alignment: .center,
-                  color: colors.surfaceContainerHighest,
                   width: 85,
-                  child: Text(
-                    propertyInfos[indexOfUnit].unitName ?? '',
-                    textAlign: TextAlign.start,
-                    style: colors.body,
+                  child: Stack(
+                    children: [
+                      Container(
+                        alignment: Alignment.center,
+                        color: colors.surfaceContainerHighest,
+                        child: Text(
+                          info.unitName ?? '',
+                          style: colors.body,
+                        ),
+                      ),
+                      Positioned(
+                        child: fluent.GestureDetector(
+                          onTap: () => _onDeletePropertyInfo(context, info),
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: colors.error,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const fluent.Icon(
+                              fluent.FluentIcons.cancel,
+                              size: 8,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 );
               }),
@@ -471,6 +511,21 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
           ),
         );
       }
+    }
+  }
+
+  void _onDeletePropertyInfo(
+    BuildContext context,
+    SubcategoryUnitEntity info,
+  ) async {
+    final sure = await makeSure(
+      title: 'حذف الوحدة',
+      content: 'هل تريد حذف الوحدة ${info.unitName}؟',
+      context: context,
+    );
+
+    if (sure && context.mounted) {
+      context.read<SubcategoriesBloc>().add(DeleteSubcategoryUnitEvent(info.id));
     }
   }
 

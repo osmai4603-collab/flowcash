@@ -85,7 +85,7 @@ final class DefaultDataInserter {
     ),
     UnitModel(
       id: 2,
-      unitName: 'متر طولي',
+      unitName: 'متر',
       unitType: UnitType.linearMeter,
       measurement: VolumeMeasurableUnit(
         length: 0.0,

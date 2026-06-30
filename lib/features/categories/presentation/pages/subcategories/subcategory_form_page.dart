@@ -317,7 +317,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        field.value?.getCategoryName() ??
+                                        field.value?.unitName ??
                                             'حدد نوع ${property.property.propertyName}',
                                         style: colors.bodyStrong,
                                       ),
@@ -502,7 +502,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                                               Expanded(
                                                 child: Text(
                                                   field.value
-                                                          ?.getCategoryName() ??
+                                                          ?.unitName ??
                                                       'اختر',
                                                   overflow:
                                                       TextOverflow.ellipsis,

@@ -29,8 +29,8 @@ class CategoryFormPage extends StatelessWidget {
         getSubcategories: sl(),
         checkHasRequestsUseCase: sl(),
         getNewCategoryNumberUseCase: sl(),
-        getPropertiesUseCase: sl(),
-        getUnits: sl(),
+        getUnitsBySubcategoryIdsUseCase: sl(),
+        getCategoryProperties: sl(),
       )..add(InitCategoryForm(category)),
       child: _CategoryForm(),
     );
@@ -283,7 +283,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                     return fluent.ComboBoxItem<UnitEntity>(
                                       value: unit,
                                       child: fluent.Text(
-                                        unit.unitType.fullUnitName,
+                                        unit.unitName,
                                       ),
                                     );
                                   }).toList(),
@@ -305,7 +305,7 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                                 color: colors.onSurfaceVariant,
                                               ),
                                               fluent.Text(
-                                                unit.unitType.fullUnitName,
+                                                unit.unitName,
                                               ),
                                             ],
                                           ),
@@ -413,14 +413,34 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                         );
                                         _markChanged();
                                       },
+                                selectedItemBuilder: (context) =>
+                                    [
+                                      fluent.Text('بدون صنف فرعي'),
+                                      ...bloc.subcategories.map((unit) {
+                                        return Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Row(
+                                            spacing: Spacings.medium,
+                                            children: [
+                                              fluent.Icon(
+                                                fluent.FluentIcons.view_list_tree,
+                                                color: colors.onSurfaceVariant,
+                                              ),
+                                              fluent.Text(
+                                                unit.catalogName,
+                                              ),
+
+                                            ],
+                                          ),
+                                        );
+                                      })
+                                    ]
                               ),
                             ),
                           ),
                         ],
                       ),
-                      if (!state.hasRequests &&
-                          state.selectedSubcategory != null)
-                        Row(
+                        if(state.selectedSubcategory != null) Row(
                           spacing: Spacings.medium,
                           children: [
                             Expanded(
@@ -435,8 +455,19 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   items: bloc.pricingsUnits.map((unit) {
                                     return fluent.ComboBoxItem<UnitEntity>(
                                       value: unit,
-                                      child: fluent.Text(
-                                        unit.unitType.fullUnitName,
+                                      child: Row(
+                                        mainAxisAlignment: .spaceBetween,
+                                        children: [
+                                          fluent.Text(
+                                            unit.unitType.unitName,
+                                          ),
+                                          fluent.Text(
+                                              unit.unitName,
+                                              style: colors.body.copyWith(
+                                                  color: colors.onSurfaceVariant
+                                              )
+                                          ),
+                                        ],
                                       ),
                                     );
                                   }).toList(),
@@ -463,8 +494,21 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                                 fluent.FluentIcons.unite_shape,
                                                 color: colors.onSurfaceVariant,
                                               ),
-                                              fluent.Text(
-                                                unit.unitType.fullUnitName,
+                                              Expanded(
+                                                child: Row(
+                                                  mainAxisAlignment: .spaceBetween,
+                                                  children: [
+                                                    fluent.Text(
+                                                      unit.unitType.unitName,
+                                                    ),
+                                                    fluent.Text(
+                                                      unit.unitName,
+                                                      style: colors.body.copyWith(
+                                                        color: colors.onSurfaceVariant
+                                                      )
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -485,8 +529,21 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                   items: bloc.inventoriesUnits.map((unit) {
                                     return fluent.ComboBoxItem<UnitEntity>(
                                       value: unit,
-                                      child: fluent.Text(
-                                        unit.unitType.fullUnitName,
+                                      child: Row(
+                                        mainAxisAlignment: .spaceBetween,
+                                        children: [
+                                          fluent.Text(
+                                            unit.unitType.unitName,
+                                          ),
+                                          fluent.Text(
+                                              unit.unitName,
+                                              textAlign: .start,
+                                              textDirection: .ltr,
+                                              style: colors.body.copyWith(
+                                                  color: colors.onSurfaceVariant
+                                              )
+                                          ),
+                                        ],
                                       ),
                                     );
                                   }).toList(),
@@ -513,8 +570,21 @@ class _CategoryFormPageState extends State<_CategoryForm> {
                                                 fluent.FluentIcons.unite_shape,
                                                 color: colors.onSurfaceVariant,
                                               ),
-                                              fluent.Text(
-                                                unit.unitType.fullUnitName,
+                                              Expanded(
+                                                child: Row(
+                                                  mainAxisAlignment: .spaceBetween,
+                                                  children: [
+                                                    fluent.Text(
+                                                      unit.unitType.unitName,
+                                                    ),
+                                                    fluent.Text(
+                                                        unit.unitName,
+                                                        style: colors.body.copyWith(
+                                                            color: colors.onSurfaceVariant
+                                                        )
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ],
                                           ),

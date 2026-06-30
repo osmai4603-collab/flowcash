@@ -189,4 +189,45 @@ final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
     final rows = await _db.rawQuery(query, [propertyId, subcategoryId, propertyId]);
     return rows.map(fromMap).toList();
   }
+
+  @override
+  Future<List<UnitEntity>> getUnitsBySubcategoryAndPropertyIds({
+    required int subcategoryId,
+    required List<int> propertyIds,
+  }) async {
+    if (propertyIds.isEmpty) return [];
+
+    final placeholders = List.filled(propertyIds.length, '?').join(', ');
+    final query = '''
+      SELECT * FROM ${UnitsTable().tableName}
+      WHERE ${UnitsTable().id} IN (
+        SELECT ${SubcategoriesUnitsTable().unitId}
+        FROM ${SubcategoriesUnitsTable().tableName}
+        WHERE ${SubcategoriesUnitsTable().subcategoryId} = ?
+        AND ${SubcategoriesUnitsTable().propertyId} IN ($placeholders)
+      )
+    ''';
+
+    final rows = await _db.rawQuery(query, [subcategoryId, ...propertyIds]);
+    return rows.map(fromMap).toList();
+  }
+
+  @override
+  Future<List<UnitEntity>> getUnitsBySubcategoryIds(
+    List<int> subcategoryIds,
+  ) async {
+    if (subcategoryIds.isEmpty) return [];
+    final ids = subcategoryIds.toSet();
+
+    final placeholders = List.filled(ids.length, '?').join(', ');
+
+    final unitsTable = UnitsTable();
+    final subcategoriesUnitsTable = SubcategoriesUnitsTable();
+
+    final rows = await _db.query(table: UnitsTable().tableName,
+      where: '${unitsTable.id} IN (SELECT ${subcategoriesUnitsTable.unitId} FROM ${subcategoriesUnitsTable.tableName} WHERE ${subcategoriesUnitsTable.subcategoryId} IN ($placeholders))',
+      whereArgs: ids.toList(),
+    );
+    return rows.map(fromMap).toList();
+  }
 }

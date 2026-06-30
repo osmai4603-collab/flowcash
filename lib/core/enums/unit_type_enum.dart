@@ -107,7 +107,7 @@ final class PieceUnitType extends UnitType {
     : super(
         typeName: 'حبة',
         propertyName: 'وحدة',
-        propertyData: 'حبة',
+        propertyData: 'عدد قطع',
         serial: 1,
         unitName: 'حبة',
         fullUnitName: 'حبة',
@@ -260,9 +260,9 @@ final class CubitMeterUnitType extends UnitType {
 final class MainCategoryUnitType extends UnitType {
   const MainCategoryUnitType._()
     : super(
-        typeName: 'صنف رئيسي',
+        typeName: 'نوع صنف رئيسي',
         propertyName: 'صنف رئيسي',
-        propertyData: 'صنف رئيسي',
+        propertyData: 'نوع صنف رئيسي',
         serial: 9,
         unitName: 'صنف رئيسي',
         fullUnitName: 'صنف رئيسي',
@@ -285,9 +285,9 @@ final class MainCategoryUnitType extends UnitType {
 final class SubCategoryUnitType extends UnitType {
   const SubCategoryUnitType._()
     : super(
-        typeName: 'صنف فرعي',
+        typeName: 'نوع صنف فرعي',
         propertyName: 'صنف فرعي',
-        propertyData: 'صنف فرعي',
+        propertyData: 'نوع صنف فرعي',
         serial: 10,
         unitName: 'صنف فرعي',
         fullUnitName: 'صنف فرعي',

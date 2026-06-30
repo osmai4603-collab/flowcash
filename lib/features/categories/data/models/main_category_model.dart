@@ -6,7 +6,7 @@ import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/core/tables/main_categories_table.dart';
 
 final class MainCategoryModel extends MainCategoryEntity {
-  const MainCategoryModel({
+   MainCategoryModel({
     required super.id,
     required super.name,
     required super.type,

@@ -99,7 +99,7 @@ class SubcategoryUnit {
   }
 
   String unitName() {
-    return unit.getCategoryName();
+    return unit.unitName;
   }
 
   SubcategoryUnitEntity toEntity(int subcategoryId) {

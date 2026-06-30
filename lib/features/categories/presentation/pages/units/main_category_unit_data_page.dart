@@ -11,7 +11,6 @@ import 'package:flowcash/features/categories/presentation/blocs/main_category_un
 import 'package:flowcash/widgets/message.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flowcash/core/theme/styles.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;

@@ -6,6 +6,8 @@ import 'package:flowcash/features/categories/domain/entities/main_category_entit
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../domain/entities/category_property_entity.dart';
+
 class MainCategoryUnitDataBloc
     extends Bloc<MainCategoryUnitDataEvent, MainCategoryUnitDataState> {
   MainCategoryUnitDataBloc() : super(MainCategoryUnitDataInitial()) {
@@ -42,7 +44,9 @@ class MainCategoryUnitDataBloc
               )
             : null;
 
-        final MainCategoryEntity mainCategory = event.mainCategory;
+        final MainCategoryEntity mainCategory = event.mainCategory.copyWith(
+          properties: properties,
+        );
 
         emit(
           MainCategoryUnitDataLoadSuccess(
@@ -62,12 +66,18 @@ class MainCategoryUnitDataBloc
   ) {
     final state = this.state;
     if (state is MainCategoryUnitDataLoadSuccess) {
+      final properties = List<CategoryPropertyEntity>.from(state.properties);
+      final indexOfInventoryProperty = properties.indexWhere((property) => property.id == state.inventoryPropertySelected?.id);
+      final indexOfPricingProperty = properties.indexWhere((property) => property.id == event.pricingProperty.id);
+      for(var index = 0; index < properties.length; index++) {
+        properties[index] = properties[index].copyWith(isPricingUnit: index == indexOfPricingProperty);
+      }
       emit(
         MainCategoryUnitDataLoadSuccess(
           category: state.category,
-          properties: state.properties,
-          pricingPropertySelected: event.pricingProperty,
-          inventoryPropertySelected: state.inventoryPropertySelected,
+          properties: properties,
+          pricingPropertySelected: properties[indexOfPricingProperty],
+          inventoryPropertySelected: indexOfInventoryProperty > -1 ? properties[indexOfInventoryProperty] : null,
         ),
       );
     }
@@ -77,14 +87,22 @@ class MainCategoryUnitDataBloc
     UpdateInventoryPropertyEvent event,
     Emitter<MainCategoryUnitDataState> emit,
   ) {
+
     final state = this.state;
     if (state is MainCategoryUnitDataLoadSuccess) {
+
+      final properties = List<CategoryPropertyEntity>.from(state.properties);
+      final indexOfInventoryProperty = properties.indexWhere((property) => property.id == event.inventoryProperty.id);
+      final indexOfPricingProperty = properties.indexWhere((property) => property.id == state.pricingPropertySelected?.id);
+      for(var index = 0; index < properties.length; index++) {
+        properties[index] = properties[index].copyWith(isInventoryUnit: index == indexOfInventoryProperty);
+      }
       emit(
         MainCategoryUnitDataLoadSuccess(
           category: state.category,
-          properties: state.properties,
-          pricingPropertySelected: state.pricingPropertySelected,
-          inventoryPropertySelected: event.inventoryProperty,
+          properties: properties,
+          pricingPropertySelected: indexOfPricingProperty > -1 ? properties[indexOfPricingProperty] : null,
+          inventoryPropertySelected: properties[indexOfInventoryProperty],
         ),
       );
     }
@@ -98,14 +116,21 @@ class MainCategoryUnitDataBloc
     if (state is! MainCategoryUnitDataLoadSuccess) return;
     emit(MainCategoryUnitDataSaveInProgress());
 
-    // NOTE: detailed property updates and category resets belong to usecases/repository layer.
-    // For now update the main category name via `SaveMainCategoryUseCase` when changed.
     final SaveMainCategoryUseCase saveMain = sl();
+
+    final Map<int, CategoryPropertyEntity> updatedPropsMap = {
+      for (var p in state.properties) p.id: p,
+    };
+
+    final finalProperties = state.category.properties.map((p) {
+      return updatedPropsMap[p.id] ?? p;
+    }).toList();
+
     final updated = MainCategoryEntity(
       id: state.category.id,
       name: event.categoryName,
       type: state.category.type,
-      properties: state.category.properties,
+      properties: state.properties,
       categoryUnitId: state.category.categoryUnitId,
     );
     final result = await saveMain(updated);

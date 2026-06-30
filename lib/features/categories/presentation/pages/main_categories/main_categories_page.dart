@@ -54,7 +54,6 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
       3: const FlexTableWidgetColumnWidth(0.15, alignment: Alignment.center),
       4: const FlexTableWidgetColumnWidth(0.15, alignment: Alignment.center),
       5: const FlexTableWidgetColumnWidth(0.15, alignment: Alignment.center),
-      6: const FlexTableWidgetColumnWidth(0.15, alignment: Alignment.center),
     };
   }
 
@@ -79,7 +78,6 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
         'وحدة السعر',
         'وحدة الجرد',
         'نوع الصنف',
-        'اسم الحاوية'
       ],
       paintRowColorWhen: (item, index) => index.isEven,
       rowColor: colors.surfaceContainer,
@@ -95,11 +93,11 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
         }
       },
       onDoubleTap: (category) async {
-        final result = await showDialog<MainCategoryEntity?>(
+        final result = await showDialog<bool?>(
           context: context,
           builder: (_) => MainCategoryUnitDataPage(mainCategory: category),
         );
-        if (result != null && context.mounted) {
+        if (result == true && context.mounted) {
           context.read<MainCategoriesBloc>().add(
             RefreshMainCategoriesEvent(),
           );
@@ -110,11 +108,19 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
         return [
           fluent.Text('${index + 1}', style: colors.body),
           fluent.Text(item.name, style: colors.body),
-          fluent.Text(item.categoryUnit?.unitType.displayName() ?? '-', style: colors.body),
-          fluent.Text('-', style: colors.body),
-          fluent.Text('-', style: colors.body),
+          fluent.Text(
+            item.categoryUnit?.unitType.displayName() ?? '-',
+            style: colors.body,
+          ),
+          fluent.Text(
+            item.pricingProperty?.unitType.displayName() ?? '-',
+            style: colors.body,
+          ),
+          fluent.Text(
+            item.inventoryProperty?.unitType.displayName() ?? '-',
+            style: colors.body,
+          ),
           fluent.Text(item.type.displayName(), style: colors.body),
-          fluent.Text('-', style: colors.body),
         ];
       },
     );

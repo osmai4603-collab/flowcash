@@ -88,7 +88,7 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
             ) >
             -1 &&
         !(measureUnitType?.isMeterMeasurable ?? false)) {
-      unitsTypes.removeWhere((unitType) => unitType.isMeterMeasurable);
+      unitsTypes.removeWhere((unitType) => unitType.isMeterMeasurable && !unitType.isPiece);
     }
     unitsTypes.removeWhere((unitType) => unitType == unitSelected);
     if (measureUnitType != null && !unitsTypes.contains(measureUnitType)) {
@@ -434,14 +434,14 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
         spacing: Spacings.medium,
         children: [
           Row(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: .end,
             spacing: Spacings.medium,
             children: [
               Expanded(
                 child: fluent.InfoLabel(
                   label: 'اسم الخاصية',
                   child: fluent.TextFormBox(
-                    enabled: state.status == .ready,
+                    enabled: state.status != .ready ? false : true,
                     style: colors.body.copyWith(fontWeight: FontWeight.bold),
                     textInputAction: TextInputAction.next,
                     controller: property.propertyName,
@@ -455,52 +455,53 @@ class _MainCategoryFormPageState extends State<MainCategoryFormPage> {
                 ),
               ),
               Expanded(
-                child: fluent.InfoLabel(
-                  label: 'نوع الوحدة',
-                  child: fluent.ComboboxFormField<UnitType>(
-                    value: property.unitTypeSelected,
-                    placeholder: const fluent.Text('حدد نوع الوحدة'),
-                    isExpanded: true,
-                    items: state.status != .ready
-                        ? []
-                        : getPropertiesTypes(property).map((unitType) {
-                            return fluent.ComboBoxItem<UnitType>(
-                              value: unitType,
-                              child: fluent.Text(unitType.propertyData),
-                            );
-                          }).toList(),
-                    onChanged: (unitType) {
-                      if (unitType != null) {
-                        property.isInventoryUnit = false;
-                        setState(() => property.unitTypeSelected = unitType);
-                        _markChanged();
-                      }
+                child:
+                Container(
+                  padding: const EdgeInsets.only(right: 8.0, left: 8.0, bottom: 6.0),
+                  color: colors.surfaceContainerHigh,
+                  child: fluent.Checkbox(
+                    checked: property.isSingle,
+                    onChanged: state.status != .ready
+                        ? null
+                        : (value) {
+                      setState(() => property.isSingle = value ?? false);
+                      _markChanged();
                     },
+                    content: ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: property.propertyName,
+                      builder: (_, value, __) {
+                        return TextWidget(
+                          text:
+                          '${value.text} واحد لكل ${categoryTypeSelected.displayName()}',
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            color: colors.surfaceContainerHigh,
-            child: fluent.Checkbox(
-              checked: property.isSingle,
-              onChanged: state.status != .ready
-                  ? null
-                  : (value) {
-                      setState(() => property.isSingle = value ?? false);
-                      _markChanged();
-                    },
-              content: ValueListenableBuilder<TextEditingValue>(
-                valueListenable: property.propertyName,
-                builder: (_, value, __) {
-                  return TextWidget(
-                    text:
-                        '${value.text} واحد لكل ${categoryTypeSelected.displayName()}',
-                  );
-                },
-              ),
+          fluent.InfoLabel(
+            label: 'نوع الوحدة',
+            child: fluent.ComboboxFormField<UnitType>(
+              value: property.unitTypeSelected,
+              placeholder: const fluent.Text('حدد نوع الوحدة'),
+              isExpanded: true,
+              items: state.status != .ready
+                  ? []
+                  : getPropertiesTypes(property).map((unitType) {
+                return fluent.ComboBoxItem<UnitType>(
+                  value: unitType,
+                  child: fluent.Text(unitType.propertyData),
+                );
+              }).toList(),
+              onChanged: (unitType) {
+                if (unitType != null) {
+                  property.isInventoryUnit = false;
+                  setState(() => property.unitTypeSelected = unitType);
+                  _markChanged();
+                }
+              },
             ),
           ),
         ],

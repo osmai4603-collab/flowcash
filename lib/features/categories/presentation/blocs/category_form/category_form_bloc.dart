@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flowcash/core/enums/unit_type_enum.dart';
+import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +10,8 @@ import 'package:flowcash/features/categories/domain/usecases/subcategory_usecase
 import 'package:flowcash/features/categories/domain/usecases/unit_usecases.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_usecases.dart';
 import 'package:flowcash/features/categories/domain/usecases/category_property_usecases.dart';
+import 'package:fpdart/fpdart.dart';
+import '../../../../../core/errors/failure.dart';
 import 'category_form_event.dart';
 import 'category_form_state.dart';
 
@@ -18,8 +22,8 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
   final GetAllSubcategoriesUseCase _getSubcategories;
   final CheckCategoryHasRequestsUseCase _checkHasRequestsUseCase;
   final GetNewCategoryNumberUseCase _getNewCategoryNumberUseCase;
-  final GetCategoryPropertiesByMainCategoryUseCase _getPropertiesUseCase;
-  final GetUnitsUseCase _getUnitsUseCase;
+  final GetUnitsBySubcategoryIdsUseCase _getUnitsBySubcategoryIdsUseCase;
+  final GetCategoryPropertiesByMainCategoryUseCase _getCategoryProperties;
 
   /// البيانات المرجعية - محفوظة في الـ BLoC وليس في الحالة
   List<UnitEntity> _units = [];
@@ -40,16 +44,16 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
     required GetAllSubcategoriesUseCase getSubcategories,
     required CheckCategoryHasRequestsUseCase checkHasRequestsUseCase,
     required GetNewCategoryNumberUseCase getNewCategoryNumberUseCase,
-    required GetCategoryPropertiesByMainCategoryUseCase getPropertiesUseCase,
-    required GetUnitsUseCase getUnits,
+    required GetUnitsBySubcategoryIdsUseCase getUnitsBySubcategoryIdsUseCase,
+    required GetCategoryPropertiesByMainCategoryUseCase getCategoryProperties,
   }) : _addCategory = addCategory,
        _updateCategory = updateCategory,
        _getBasicUnits = getUnitsUseCase,
        _getSubcategories = getSubcategories,
        _checkHasRequestsUseCase = checkHasRequestsUseCase,
        _getNewCategoryNumberUseCase = getNewCategoryNumberUseCase,
-       _getPropertiesUseCase = getPropertiesUseCase,
-       _getUnitsUseCase = getUnits,
+       _getUnitsBySubcategoryIdsUseCase = getUnitsBySubcategoryIdsUseCase,
+       _getCategoryProperties = getCategoryProperties,
        super(const CategoryFormState()) {
     on<InitCategoryForm>(_onInit);
     on<SaveCategoryEvent>(_onSave);
@@ -69,10 +73,10 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
     );
     on<GenerateCategoryNumberEvent>(_onGenerateCategoryNumber);
     on<ChangeCategoryPricingUnitEvent>(
-      (event, emit) => emit(state.copyWith(selectedPricingUnit: event.unit)),
+      (event, emit) => emit(state.copyWith(selectedPricingUnit: event.unit, selectedInventoryUnit: state.selectedSubcategory == null ? event.unit : null)),
     );
     on<ChangeCategoryInventoryUnitEvent>(
-      (event, emit) => emit(state.copyWith(selectedInventoryUnit: event.unit)),
+      (event, emit) => emit(state.copyWith(selectedInventoryUnit: event.unit, selectedPricingUnit: state.selectedSubcategory == null ? event.unit : null)),
     );
   }
 
@@ -87,16 +91,14 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
     ChangeCategoryUnitEvent event,
     Emitter<CategoryFormState> emit,
   ) async {
-    final updatedState = state.copyWithCategoryUnit(unit: event.unit);
+    final updatedState = state.copyWith(
+      selectedUnit: event.unit,
+      selectedPricingUnit: state.selectedSubcategory == null ? event.unit : null,
+      selectedInventoryUnit: state.selectedSubcategory == null ? event.unit : null,
+    );
     if (state.selectedSubcategory == null) {
       _inventoriesUnits = [event.unit];
       _pricingsUnits = [event.unit];
-      return emit(
-        updatedState.copyWith(
-          selectedPricingUnit: event.unit,
-          selectedInventoryUnit: event.unit,
-        ),
-      );
     }
     return emit(updatedState);
   }
@@ -119,63 +121,61 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
 
     emit(state.copyWith(status: CategoryFormStatus.initial));
 
-    // 1. Get properties for the subcategory's main category
-    final propertiesResult = await _getPropertiesUseCase(
-      subcategory.mainCategoryId,
-    );
-    final properties = propertiesResult.getOrElse((_) => []);
+    final results = await Future.wait([
+      _getUnitsBySubcategoryIdsUseCase([subcategory.id]),
+      _getCategoryProperties(subcategory.mainCategoryId),
+    ]);
 
-    // 2. Get all units from the database
-    final unitsResult = await _getUnitsUseCase();
-    final allUnits = unitsResult.getOrElse((_) => []);
+    final unitsResult = results[0] as Either<Failure, List<UnitEntity>>;
+    final propertiesResult =
+        results[1] as Either<Failure, List<CategoryPropertyEntity>>;
 
-    // 3. Filter units to find those that match the properties and subcategory
-    // For pricing units: properties where isPricingUnit is true
-    final pricingProps = properties.where((p) => p.isPricingUnit).toList();
-    final pricingPropIds = pricingProps.map((p) => p.id).toSet();
+    unitsResult.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: CategoryFormStatus.failure,
+          messageError: failure.message,
+        ),
+      ),
+      (units) {
+        final properties = propertiesResult.getOrElse((_) => []);
+        final pricingProperty = properties
+            .cast<CategoryPropertyEntity?>()
+            .firstWhere(
+              (property) => property?.isPricingUnit ?? false,
+              orElse: () => null,
+            );
+        final inventoryProperty = properties
+            .cast<CategoryPropertyEntity?>()
+            .firstWhere(
+              (property) => property?.isInventoryUnit ?? false,
+              orElse: () => null,
+            );
 
-    // For inventory units: properties where isInventoryUnit is true
-    final inventoryProps = properties.where((p) => p.isInventoryUnit).toList();
-    final inventoryPropIds = inventoryProps.map((p) => p.id).toSet();
+        _pricingsUnits = units
+            .where((unit) => unit.unitType == pricingProperty?.unitType)
+            .toList();
+        _inventoriesUnits = units
+            .where((unit) => unit.unitType == inventoryProperty?.unitType)
+            .toList();
 
-    final List<UnitEntity> filteredPricingUnits = [];
-    final List<UnitEntity> filteredInventoryUnits = [];
+        UnitEntity? newPricingUnit =
+            _pricingsUnits.firstOrNull ?? state.selectedUnit;
+        UnitEntity? newInventoryUnit =
+            _inventoriesUnits.firstOrNull ?? state.selectedUnit;
 
-    for (final subcatUnit in subcategory.units) {
-      if (pricingPropIds.contains(subcatUnit.propertyId)) {
-        final unit = allUnits
-            .where((u) => u.id == subcatUnit.unitId)
-            .firstOrNull;
-        if (unit != null) {
-          filteredPricingUnits.add(unit);
-        }
-      }
-      if (inventoryPropIds.contains(subcatUnit.propertyId)) {
-        final unit = allUnits
-            .where((u) => u.id == subcatUnit.unitId)
-            .firstOrNull;
-        if (unit != null) {
-          filteredInventoryUnits.add(unit);
-        }
-      }
-    }
+        _pricingsUnits.sort((a, b) => a.measurement.countUnits.compareTo(b.countUnits));
+        _inventoriesUnits.sort((a, b) => a.measurement.countUnits.compareTo(b.countUnits));
 
-    _pricingsUnits = filteredPricingUnits;
-    _inventoriesUnits = filteredInventoryUnits;
-
-    UnitEntity? newPricingUnit =
-        filteredPricingUnits.firstOrNull ?? state.selectedUnit;
-    UnitEntity? newInventoryUnit =
-        filteredInventoryUnits.firstOrNull ?? state.selectedUnit;
-
-    emit(
-      state
-          .copyWithSubcategory(subcategory: subcategory)
-          .copyWith(
-            status: CategoryFormStatus.ready,
-            selectedPricingUnit: newPricingUnit,
-            selectedInventoryUnit: newInventoryUnit,
-          ),
+        emit(
+          state.copyWith(
+                status: CategoryFormStatus.ready,
+                selectedPricingUnit: newPricingUnit,
+                selectedInventoryUnit: newInventoryUnit,
+            selectedSubcategory: subcategory
+              ),
+        );
+      },
     );
   }
 
@@ -191,7 +191,6 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
     Emitter<CategoryFormState> emit,
   ) async {
     emit(state.copyWith(status: CategoryFormStatus.initial));
-    await Future.delayed(const Duration(seconds: 1));
 
     final unitsResult = await _getBasicUnits();
     await unitsResult.fold(
@@ -221,12 +220,54 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
 
         subcategoriesResult.fold((failure) => null, (list) {
           _subcategories = list;
+          _subcategories.sort((a, b) => a.catalogName.compareTo(b.catalogName));
           if (event.category?.subcategoryId != null) {
             selectedSubcategory = list
                 .where((s) => s.id == event.category!.subcategoryId)
                 .firstOrNull;
           }
         });
+
+        if (selectedSubcategory != null) {
+          final results = await Future.wait([
+            _getUnitsBySubcategoryIdsUseCase([selectedSubcategory!.id]),
+            _getCategoryProperties(selectedSubcategory!.mainCategoryId),
+          ]);
+
+          final subUnitsResult =
+              results[0] as Either<Failure, List<UnitEntity>>;
+          final propertiesResult =
+              results[1] as Either<Failure, List<CategoryPropertyEntity>>;
+
+          subUnitsResult.fold(
+            (l) => null,
+            (r) {
+              final properties = propertiesResult.getOrElse((_) => []);
+              final pricingProperty = properties
+                  .cast<CategoryPropertyEntity?>()
+                  .firstWhere(
+                    (property) => property?.isPricingUnit ?? false,
+                    orElse: () => null,
+                  );
+              final inventoryProperty = properties
+                  .cast<CategoryPropertyEntity?>()
+                  .firstWhere(
+                    (property) => property?.isInventoryUnit ?? false,
+                    orElse: () => null,
+                  );
+
+              _pricingsUnits = r
+                  .where((u) => u.unitType == pricingProperty?.unitType)
+                  .toList();
+              _inventoriesUnits = r
+                  .where((u) => u.unitType == inventoryProperty?.unitType)
+                  .toList();
+            },
+          );
+        } else {
+          _pricingsUnits = selectedUnit == null ? _units : [selectedUnit];
+          _inventoriesUnits = selectedUnit == null ? _units : [selectedUnit];
+        }
 
         bool hasRequests = false;
         if (event.category != null) {
@@ -250,18 +291,25 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
 
         UnitEntity? selectedPricingUnit;
         UnitEntity? selectedInventoryUnit;
-        if (units.isNotEmpty) {
-          selectedPricingUnit = units.firstWhere(
+
+        final pricingCandidates = [..._pricingsUnits, ...units];
+        final inventoryCandidates = [..._inventoriesUnits, ...units];
+
+        if (pricingCandidates.isNotEmpty) {
+          selectedPricingUnit = pricingCandidates.firstWhere(
             (unit) => event.category != null
                 ? unit.id == event.category!.pricingUnitId
                 : unit.unitType.isPiece,
-            orElse: () => selectedUnit ?? units.first,
+            orElse: () => selectedUnit ?? pricingCandidates.first,
           );
-          selectedInventoryUnit = units.firstWhere(
+        }
+
+        if (inventoryCandidates.isNotEmpty) {
+          selectedInventoryUnit = inventoryCandidates.firstWhere(
             (unit) => event.category != null
                 ? unit.id == event.category!.inventoryUnitId
                 : unit.unitType.isPiece,
-            orElse: () => selectedUnit ?? units.first,
+            orElse: () => selectedUnit ?? inventoryCandidates.first,
           );
         }
 
@@ -281,6 +329,13 @@ class CategoryFormBloc extends Bloc<CategoryFormEvent, CategoryFormState> {
             return;
           }
         }
+
+
+        _pricingsUnits.sort((a, b) => a.measurement.countUnits.compareTo(b.countUnits));
+        _inventoriesUnits.sort((a, b) => a.measurement.countUnits.compareTo(b.countUnits));
+
+        if(_pricingsUnits.isEmpty) _pricingsUnits = _units;
+        if(_inventoriesUnits.isEmpty) _inventoriesUnits = _units;
 
         emit(
           state.copyWith(

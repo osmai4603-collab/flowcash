@@ -233,7 +233,7 @@ class CategoryGenerationService {
 
       final unitIndex = units.indexWhere((u) => u.id == info.unitId);
       if (unitIndex >= 0 && units[unitIndex].unitType.canWriteUnitOnCategory) {
-        final unitName = units[unitIndex].getCategoryName();
+        final unitName = units[unitIndex].unitName;
         if (property.unitType.isMainCategory) {
           mainUnits.add(unitName);
         } else {

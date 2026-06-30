@@ -207,3 +207,29 @@ class GetAvailableUnitsForPropertyUseCase {
     return await GetUnitsForPropertyUseCase(_repository)(propertyId);
   }
 }
+
+class GetUnitsBySubcategoryAndPropertyIdsUseCase {
+  final UnitRepository _repository;
+  const GetUnitsBySubcategoryAndPropertyIdsUseCase(this._repository);
+
+  Future<Either<Failure, List<UnitEntity>>> call({
+    required int subcategoryId,
+    required List<int> propertyIds,
+  }) async {
+    return await _repository.getUnitsBySubcategoryAndPropertyIds(
+      subcategoryId: subcategoryId,
+      propertyIds: propertyIds,
+    );
+  }
+}
+
+class GetUnitsBySubcategoryIdsUseCase {
+  final UnitRepository _repository;
+  const GetUnitsBySubcategoryIdsUseCase(this._repository);
+
+  Future<Either<Failure, List<UnitEntity>>> call(
+    List<int> subcategoryIds,
+  ) async {
+    return await _repository.getUnitsBySubcategoryIds(subcategoryIds);
+  }
+}

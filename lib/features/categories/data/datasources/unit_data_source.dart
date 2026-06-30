@@ -18,4 +18,11 @@ abstract interface class UnitLocalDataSource
     required int subcategoryId,
     required int propertyId,
   });
+  Future<List<UnitEntity>> getUnitsBySubcategoryAndPropertyIds({
+    required int subcategoryId,
+    required List<int> propertyIds,
+  });
+  Future<List<UnitEntity>> getUnitsBySubcategoryIds(
+    List<int> subcategoryIds,
+  );
 }

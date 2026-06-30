@@ -40,7 +40,7 @@ final class CategoryPropertyModel extends CategoryPropertyEntity {
 
   Map<String, dynamic> toMap() {
     return {
-      CategoryPropertiesTable().id: id,
+      if(id > 0) CategoryPropertiesTable().id: id,
       CategoryPropertiesTable().mainCategoryId: mainCategoryId,
       CategoryPropertiesTable().propertyName: propertyName,
       CategoryPropertiesTable().unitType: unitType.name,
