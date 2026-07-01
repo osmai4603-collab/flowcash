@@ -1,4 +1,5 @@
 import 'package:flowcash/core/theme/paddings.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/injection_container.dart';
@@ -266,65 +267,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Table Header
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.primaryContainer
-                                  .withAlpha(50),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Row(
-                              children: [
-                                Expanded(
-                                  child: fluent.Text(
-                                    'رقم السند 🧾',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: fluent.Text(
-                                    'نوع الحركة 📋',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: fluent.Text(
-                                    'المستودع الرئيسي 🏢',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: fluent.Text(
-                                    'تاريخ الإصدار 📅',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: fluent.Text(
-                                    'البيان/ملاحظة 📝',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-
-                          // Transactions list
+                          // Table with selection
                           Expanded(
                             child: filteredTransactions.isEmpty
                                 ? const Center(
@@ -336,103 +279,68 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                       ),
                                     ),
                                   )
-                                : ListView.builder(
-                                    itemCount: filteredTransactions.length,
-                                    itemBuilder: (context, index) {
-                                      final t = filteredTransactions[index];
-                                      final isSelected =
-                                          _selectedTransaction?.id == t.id;
-
+                                : TableWidget<InventoryTransactionEntity>(
+                                    columns: const {
+                                      0: FlexTableWidgetColumnWidth(1),
+                                      1: FlexTableWidgetColumnWidth(1),
+                                      2: FlexTableWidgetColumnWidth(1),
+                                      3: FlexTableWidgetColumnWidth(1),
+                                      4: FlexTableWidgetColumnWidth(1),
+                                    },
+                                    header: const [
+                                      'رقم السند 🧂',
+                                      'نوع الحركة 📋',
+                                      'المستودع الرئيسي 🏢',
+                                      'تاريخ الإصدار 📅',
+                                      'البيان/ملاحظة 📝',
+                                    ],
+                                    items: filteredTransactions,
+                                    rowColor: theme.colorScheme.primary
+                                        .withAlpha(20),
+                                    paintRowColorWhen: (t, index) =>
+                                        _selectedTransaction?.id == t.id,
+                                    onTapRow: (t) {
+                                      setState(() {
+                                        _selectedTransaction =
+                                            _selectedTransaction?.id == t.id
+                                            ? null
+                                            : t;
+                                      });
+                                    },
+                                    builder: (context, t, index) {
                                       final isReceipt =
                                           t.transactionType ==
                                           InventoryTransactionType
                                               .importInventory;
-
-                                      return Card(
-                                        color: isSelected
-                                            ? theme.colorScheme.primary
-                                                  .withAlpha(20)
-                                            : null,
-                                        elevation: isSelected ? 2 : 0,
-                                        margin: const EdgeInsets.symmetric(
-                                          vertical: 4,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          side: BorderSide(
-                                            color: isSelected
-                                                ? theme.colorScheme.primary
-                                                : Colors.transparent,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                      return [
+                                        fluent.Text(
+                                          '#${t.billNumber}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        child: InkWell(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          onTap: () {
-                                            setState(() {
-                                              _selectedTransaction = isSelected
-                                                  ? null
-                                                  : t;
-                                            });
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 14,
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  child: fluent.Text(
-                                                    '#${t.billNumber}',
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: fluent.Text(
-                                                    t.transactionType
-                                                        .displayName(),
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: isReceipt
-                                                          ? Colors.green
-                                                          : Colors.red,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: fluent.Text(
-                                                    _getWarehouseName(
-                                                      t.warehouseId,
-                                                      state.warehouses,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: fluent.Text(
-                                                    _formatDate(t.createdAt),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: fluent.Text(
-                                                    t.note ?? '──',
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                        fluent.Text(
+                                          t.transactionType.displayName(),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: isReceipt
+                                                ? Colors.green
+                                                : Colors.red,
                                           ),
                                         ),
-                                      );
+                                        fluent.Text(
+                                          _getWarehouseName(
+                                            t.warehouseId,
+                                            state.warehouses,
+                                          ),
+                                        ),
+                                        fluent.Text(_formatDate(t.createdAt)),
+                                        fluent.Text(
+                                          t.note ?? '──',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ];
                                     },
                                   ),
                           ),

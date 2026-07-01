@@ -55,6 +55,48 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
       text: widget.draft.amount > 0 ? widget.draft.amount.toString() : '',
     );
     _descController = TextEditingController(text: widget.draft.lineDescription);
+
+    // Initialize _accoutSelected from draft when editing
+    if (widget.draft.account != null) {
+      final match = widget.subAccounts.where(
+        (a) => a.id == widget.draft.account!.id,
+      );
+      if (match.isNotEmpty) _accoutSelected = match.first;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant JournalItemRowForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Sync controllers when draft data changes (e.g., after BLoC loads editing data)
+    final newDraft = widget.draft;
+    final oldDraft = oldWidget.draft;
+
+    if (newDraft.account?.id != oldDraft.account?.id) {
+      _accountController.text = newDraft.account?.accountName ?? '';
+      if (newDraft.account != null) {
+        final match = widget.subAccounts.where(
+          (a) => a.id == newDraft.account!.id,
+        );
+        if (match.isNotEmpty) _accoutSelected = match.first;
+      } else {
+        _accoutSelected = null;
+      }
+    }
+
+    if (newDraft.amount != oldDraft.amount && newDraft.amount > 0) {
+      final currentVal =
+          double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0.0;
+      if ((currentVal - newDraft.amount).abs() > 0.001) {
+        _amountController.text = newDraft.amount.toString();
+      }
+    }
+
+    if (newDraft.lineDescription != oldDraft.lineDescription &&
+        _descController.text != newDraft.lineDescription) {
+      _descController.text = newDraft.lineDescription;
+    }
   }
 
   @override
@@ -66,7 +108,7 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
   }
 
   String? _validateAmounts() {
-    final val = _amountController.text;
+    final val = _amountController.text.replaceAll(',', '');
     final amountVal = double.tryParse(val) ?? 0.0;
     if (amountVal <= 0.0) {
       return 'أدخل مبلغاً صالحاً أكبر من الصفر';
@@ -148,9 +190,7 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
               ),
               textDirection: TextDirection.ltr,
               placeholder: '0.00',
-              inputFormatters: [
-                ThousandsFormatter(allowFraction: true)
-              ],
+              inputFormatters: [ThousandsFormatter(allowFraction: true)],
               prefix: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: fluent.Icon(
@@ -160,6 +200,7 @@ class _JournalItemRowFormState extends State<JournalItemRowForm> {
                 ),
               ),
               validator: (_) => _validateAmounts(),
+
               onChanged: (val) {
                 widget.onChanged(
                   lineDescription: _descController.text,

@@ -12,15 +12,6 @@ final class BillsPostToAccountingTrigger {
     db.execute('DROP TRIGGER IF EXISTS bills_after_update_post_to_accounting');
 
     db.execute('''
-      CREATE TRIGGER IF NOT EXISTS bills_after_insert_post_to_accounting
-      AFTER INSERT ON ${billsTable.tableName}
-      WHEN NEW.${billsTable.journalEntryId} IS NOT NULL
-      BEGIN
-        SELECT post_bill_to_accounting(NEW.${billsTable.id});
-      END;
-    ''');
-
-    db.execute('''
       CREATE TRIGGER IF NOT EXISTS bills_after_update_post_to_accounting
       AFTER UPDATE OF ${billsTable.journalEntryId} ON ${billsTable.tableName}
       WHEN OLD.${billsTable.journalEntryId} IS NULL

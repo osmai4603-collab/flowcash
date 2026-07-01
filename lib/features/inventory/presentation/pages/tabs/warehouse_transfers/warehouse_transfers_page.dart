@@ -1,3 +1,4 @@
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/injection_container.dart';
@@ -315,66 +316,7 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Table Header
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.primaryContainer
-                                  .withAlpha(50),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Row(
-                              children: [
-                                Expanded(
-                                  child: fluent.Text(
-                                    'رقم السند 🧾',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: fluent.Text(
-                                    'من مستودع (الصادر) 📤',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: fluent.Text(
-                                    'إلى مستودع (الوارد) 📥',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: fluent.Text(
-                                    'تاريخ العملية 📅',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: fluent.Text(
-                                    'الحالة وتفاصيل النقل 🚚',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-
-                          // Transfers list
+                          // Table with selection
                           Expanded(
                             child: filteredTransfers.isEmpty
                                 ? const Center(
@@ -386,14 +328,36 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                                       ),
                                     ),
                                   )
-                                : ListView.builder(
-                                    itemCount: filteredTransfers.length,
-                                    itemBuilder: (context, index) {
-                                      final t = filteredTransfers[index];
-                                      final isSelected =
-                                          _selectedTransfer?.id == t.id;
-
-                                      // Parse counterpart details
+                                : TableWidget<InventoryTransactionEntity>(
+                                    columns: const {
+                                      0: FlexTableWidgetColumnWidth(1),
+                                      1: FlexTableWidgetColumnWidth(1),
+                                      2: FlexTableWidgetColumnWidth(1),
+                                      3: FlexTableWidgetColumnWidth(1),
+                                      4: FlexTableWidgetColumnWidth(2),
+                                    },
+                                    header: const [
+                                      'رقم السند 🧂',
+                                      'من مستودع (الصادر) 📤',
+                                      'إلى مستودع (الوارد) 📥',
+                                      'تاريخ العملية 📅',
+                                      'الحالة وتفاصيل النقل 🚚',
+                                    ],
+                                    items: filteredTransfers,
+                                    rowColor: theme.colorScheme.primary
+                                        .withAlpha(20),
+                                    paintRowColorWhen: (t, index) =>
+                                        _selectedTransfer?.id == t.id,
+                                    onTapRow: (t) {
+                                      setState(() {
+                                        _selectedTransfer =
+                                            _selectedTransfer?.id == t.id
+                                            ? null
+                                            : t;
+                                      });
+                                    },
+                                    builder: (context, t, index) {
+                                      // Parse counterpart warehouse
                                       int toWarehouseId = 0;
                                       if (t.note != null &&
                                           t.note!.contains('إلى مستودع')) {
@@ -411,92 +375,34 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                                               0;
                                         }
                                       }
-
-                                      return Card(
-                                        color: isSelected
-                                            ? theme.colorScheme.primary
-                                                  .withAlpha(20)
-                                            : null,
-                                        elevation: isSelected ? 2 : 0,
-                                        margin: const EdgeInsets.symmetric(
-                                          vertical: 4,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          side: BorderSide(
-                                            color: isSelected
-                                                ? theme.colorScheme.primary
-                                                : Colors.transparent,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                      return [
+                                        fluent.Text(
+                                          '#${t.billNumber}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        child: InkWell(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          onTap: () {
-                                            setState(() {
-                                              _selectedTransfer = isSelected
-                                                  ? null
-                                                  : t;
-                                            });
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 14,
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  child: fluent.Text(
-                                                    '#${t.billNumber}',
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: fluent.Text(
-                                                    _getWarehouseName(
-                                                      t.warehouseId,
-                                                      state.warehouses,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: fluent.Text(
-                                                    _getWarehouseName(
-                                                      toWarehouseId,
-                                                      state.warehouses,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: fluent.Text(
-                                                    _formatDate(t.createdAt),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: fluent.Text(
-                                                    'تم التحويل بنجاح ✅',
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: theme
-                                                          .colorScheme
-                                                          .primary,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                        fluent.Text(
+                                          _getWarehouseName(
+                                            t.warehouseId,
+                                            state.warehouses,
                                           ),
                                         ),
-                                      );
+                                        fluent.Text(
+                                          _getWarehouseName(
+                                            toWarehouseId,
+                                            state.warehouses,
+                                          ),
+                                        ),
+                                        fluent.Text(_formatDate(t.createdAt)),
+                                        fluent.Text(
+                                          'تم التحويل بنجاح ✅',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: theme.colorScheme.primary,
+                                          ),
+                                        ),
+                                      ];
                                     },
                                   ),
                           ),

@@ -38,7 +38,9 @@ final class BillModel extends BillEntity implements Model {
       personId: map[BillsTable().personId] as int?,
       inventoryTransactionId: map[BillsTable().inventoryTransactionId] as int?,
       isCash: map[BillsTable().isCash] == 1 || map[BillsTable().isCash] == true,
-      billType: InvoiceType.of(map[BillsTable().billType] as String? ?? 'sales'),
+      billType: InvoiceType.of(
+        map[BillsTable().billType] as String? ?? 'sales',
+      ),
       costGoodId: map[BillsTable().costGoodId] as int?,
       treasuryId: map[BillsTable().treasuryId] as int?,
     );
@@ -102,6 +104,26 @@ final class BillModel extends BillEntity implements Model {
       costGoodId: costGoodId ?? this.costGoodId,
       treasuryId: treasuryId ?? this.treasuryId,
       orders: orders ?? this.orders,
+    );
+  }
+
+  static BillModel fromEntity(BillEntity entity) {
+    return BillModel(
+      id: entity.id,
+      createdAt: entity.createdAt,
+      createdBy: entity.createdBy,
+      currencyId: entity.currencyId,
+      offerAmount: entity.offerAmount,
+      billNumber: entity.billNumber,
+      warehouseId: entity.warehouseId,
+      billType: entity.billType,
+      isCash: entity.isCash,
+      journalEntryId: entity.journalEntryId,
+      personId: entity.personId,
+      treasuryId: entity.personId,
+      note: entity.note,
+      costGoodId: entity.costGoodId,
+      inventoryTransactionId: entity.inventoryTransactionId,
     );
   }
 }

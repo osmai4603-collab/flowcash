@@ -1,3 +1,4 @@
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -384,190 +385,92 @@ class _GroupBalancesReportPageState extends State<GroupBalancesReportPage> {
 
         // Detail Table List
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: theme.dividerColor.withAlpha(50)),
-            ),
-            child: Column(
-              children: [
-                // Table Header
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12.0,
-                    horizontal: 16.0,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest.withAlpha(
-                      50,
+          child: displayedSubs.isEmpty
+              ? const Center(child: fluent.Text('لا توجد حسابات فرعية لعرضها'))
+              : TableWidget<SubAccountEntity>(
+                  columns: {
+                    0: const FlexTableWidgetColumnWidth(
+                      3,
+                      alignment: AlignmentDirectional.centerStart,
                     ),
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(8),
+                    1: const FlexTableWidgetColumnWidth(
+                      5,
+                      alignment: AlignmentDirectional.centerStart,
                     ),
-                    border: Border(
-                      bottom: BorderSide(
-                        color: theme.dividerColor.withAlpha(80),
-                      ),
+                    2: const FlexTableWidgetColumnWidth(
+                      3,
+                      alignment: AlignmentDirectional.centerStart,
                     ),
-                  ),
-                  child: Row(
-                    children: const [
-                      Expanded(
-                        flex: 3,
-                        child: fluent.Text(
-                          'رقم الحساب',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                    3: const FlexTableWidgetColumnWidth(
+                      2,
+                      alignment: AlignmentDirectional.centerEnd,
+                    ),
+                    4: const FlexTableWidgetColumnWidth(
+                      2,
+                      alignment: AlignmentDirectional.centerEnd,
+                    ),
+                    5: const FlexTableWidgetColumnWidth(
+                      2,
+                      alignment: AlignmentDirectional.centerEnd,
+                    ),
+                  },
+                  header: const [
+                    'رقم الحساب',
+                    'اسم الحساب',
+                    'المجموعة الرئيسية',
+                    'مدين (وارد)',
+                    'دائن (صادر)',
+                    'صافي الرصيد',
+                  ],
+                  items: displayedSubs,
+                  builder: (context, sub, index) {
+                    final bal =
+                        state.subaccountBalances[sub.id] ??
+                        {'debit': 0.0, 'credit': 0.0};
+                    final debit = bal['debit']!;
+                    final credit = bal['credit']!;
+                    final net = debit - credit;
+
+                    final parent = mainAccountsMap[sub.mainAccountId];
+                    final groupName =
+                        parent?.mainAccountType.accountType.displayName() ?? '';
+
+                    return [
+                      fluent.Text(
+                        sub.accountNumber,
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Expanded(
-                        flex: 5,
-                        child: fluent.Text(
-                          'اسم الحساب',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                      fluent.Text(sub.accountName),
+                      fluent.Text(
+                        groupName,
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurface.withAlpha(120),
                         ),
                       ),
-                      Expanded(
-                        flex: 3,
-                        child: fluent.Text(
-                          'المجموعة الرئيسية',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                      fluent.Text(
+                        debit > 0 ? debit.toStringAsFixed(2) : '-',
+                        style: const TextStyle(color: Colors.green),
+                        textAlign: TextAlign.end,
                       ),
-                      Expanded(
-                        flex: 2,
-                        child: fluent.Text(
-                          'مدين (وارد)',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.end,
-                        ),
+                      fluent.Text(
+                        credit > 0 ? credit.toStringAsFixed(2) : '-',
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.end,
                       ),
-                      Expanded(
-                        flex: 2,
-                        child: fluent.Text(
-                          'دائن (صادر)',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.end,
+                      fluent.Text(
+                        net.toStringAsFixed(2),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: net >= 0 ? Colors.green : Colors.red,
                         ),
+                        textAlign: TextAlign.end,
                       ),
-                      Expanded(
-                        flex: 2,
-                        child: fluent.Text(
-                          'صافي الرصيد',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.end,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ];
+                  },
                 ),
-
-                // Table Items
-                Expanded(
-                  child: displayedSubs.isEmpty
-                      ? const Center(
-                          child: fluent.Text('لا توجد حسابات فرعية لعرضها'),
-                        )
-                      : ListView.builder(
-                          itemCount: displayedSubs.length,
-                          itemBuilder: (context, index) {
-                            final sub = displayedSubs[index];
-                            final bal =
-                                state.subaccountBalances[sub.id] ??
-                                {'debit': 0.0, 'credit': 0.0};
-                            final debit = bal['debit']!;
-                            final credit = bal['credit']!;
-                            final net = debit - credit;
-
-                            final parent = mainAccountsMap[sub.mainAccountId];
-                            final groupName =
-                                parent?.mainAccountType.accountType
-                                    .displayName() ??
-                                '';
-
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 10.0,
-                                horizontal: 16.0,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: theme.dividerColor.withAlpha(20),
-                                    width: 0.5,
-                                  ),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 3,
-                                    child: fluent.Text(
-                                      sub.accountNumber,
-                                      style: const TextStyle(
-                                        fontFamily: 'monospace',
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 5,
-                                    child: fluent.Text(sub.accountName),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: fluent.Text(
-                                      groupName,
-                                      style: TextStyle(
-                                        color: theme.colorScheme.onSurface
-                                            .withAlpha(120),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: fluent.Text(
-                                      debit > 0
-                                          ? debit.toStringAsFixed(2)
-                                          : '-',
-                                      style: const TextStyle(
-                                        color: Colors.green,
-                                      ),
-                                      textAlign: TextAlign.end,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: fluent.Text(
-                                      credit > 0
-                                          ? credit.toStringAsFixed(2)
-                                          : '-',
-                                      style: const TextStyle(color: Colors.red),
-                                      textAlign: TextAlign.end,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: fluent.Text(
-                                      net.toStringAsFixed(2),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: net >= 0
-                                            ? Colors.green
-                                            : Colors.red,
-                                      ),
-                                      textAlign: TextAlign.end,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                ),
-              ],
-            ),
-          ),
         ),
       ],
     );

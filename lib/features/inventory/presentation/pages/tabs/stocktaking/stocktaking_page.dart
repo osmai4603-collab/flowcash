@@ -1,3 +1,5 @@
+import 'package:flowcash/core/widgets/table_widget.dart';
+import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/injection_container.dart';
@@ -215,61 +217,7 @@ class _StocktakingPageState extends State<StocktakingPage> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Table Header
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withAlpha(50),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: fluent.Text(
-                              'اسم صنف المخزون 📦',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            child: fluent.Text(
-                              'المستودع الرئيسي 🏢',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            child: fluent.Text(
-                              'الكمية الدفترية 📘',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            child: fluent.Text(
-                              'الكمية الفعلية ✏️',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            child: fluent.Text(
-                              'الفارق الحسابي 🔢',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            child: fluent.Text(
-                              'الحالة 💡',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Table Rows
+                    // Table with editable counts
                     Expanded(
                       child: filteredItems.isEmpty
                           ? const Center(
@@ -281,13 +229,29 @@ class _StocktakingPageState extends State<StocktakingPage> {
                                 ),
                               ),
                             )
-                          : ListView.builder(
-                              itemCount: filteredItems.length,
-                              itemBuilder: (context, index) {
-                                final item = filteredItems[index];
+                          : TableWidget<InventoryEntity>(
+                              columns: const {
+                                0: FlexTableWidgetColumnWidth(2),
+                                1: FlexTableWidgetColumnWidth(1),
+                                2: FlexTableWidgetColumnWidth(1),
+                                3: FlexTableWidgetColumnWidth(1),
+                                4: FlexTableWidgetColumnWidth(1),
+                                5: FlexTableWidgetColumnWidth(1),
+                              },
+                              header: const [
+                                'اسم صنف المخزون 📦',
+                                'المستودع الرئيسي 🏢',
+                                'الكمية الدفترية 📘',
+                                'الكمية الفعلية ✏️',
+                                'الفارق الحسابي 🔢',
+                                'الحالة 💡',
+                              ],
+                              items: filteredItems,
+                              builder: (context, item, index) {
                                 final book = item.countUnits;
                                 final actual =
-                                    state.actualCounts[item.categoryId] ?? book;
+                                    state.actualCounts[item.categoryId] ??
+                                        book;
                                 final diff = actual - book;
 
                                 String statusLabel = "مطابق ✅";
@@ -300,119 +264,70 @@ class _StocktakingPageState extends State<StocktakingPage> {
                                   statusColor = Colors.red;
                                 }
 
-                                return Card(
-                                  elevation: 0,
-                                  margin: const EdgeInsets.symmetric(
-                                    vertical: 4,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: theme.colorScheme.outline
-                                          .withAlpha(20),
-                                    ),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        // Category Name
-                                        Expanded(
-                                          flex: 2,
-                                          child: fluent.Text(
-                                            _getInventoryName(item.categoryId),
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Warehouse
-                                        Expanded(
-                                          child: fluent.Text(
-                                            _getWarehouseName(
-                                              item.storeId,
-                                              state.warehouses,
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Book count
-                                        Expanded(
-                                          child: fluent.Text(
-                                            book.toString(),
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Editable Actual Count
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              left: 32.0,
-                                            ),
-                                            child: TextFormField(
-                                              initialValue: actual.toString(),
-                                              keyboardType:
-                                                  const TextInputType.numberWithOptions(
-                                                    decimal: true,
-                                                  ),
-                                              decoration: const InputDecoration(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4,
-                                                    ),
-                                              ),
-                                              onChanged: (val) {
-                                                final num =
-                                                    double.tryParse(val) ??
-                                                    book;
-                                                bloc.add(
-                                                  UpdateActualCountEvent(
-                                                    item.categoryId,
-                                                    num,
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Difference
-                                        Expanded(
-                                          child: fluent.Text(
-                                            diff == 0
-                                                ? '0.0'
-                                                : (diff > 0
-                                                      ? '+$diff'
-                                                      : '$diff'),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: statusColor,
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Status
-                                        Expanded(
-                                          child: fluent.Text(
-                                            statusLabel,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: statusColor,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                return [
+                                  fluent.Text(
+                                    _getInventoryName(item.categoryId),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                );
+                                  fluent.Text(
+                                    _getWarehouseName(
+                                      item.storeId,
+                                      state.warehouses,
+                                    ),
+                                  ),
+                                  fluent.Text(
+                                    book.toString(),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextFormField(
+                                    initialValue: actual.toString(),
+                                    keyboardType:
+                                        const TextInputType
+                                            .numberWithOptions(
+                                          decimal: true,
+                                        ),
+                                    decoration:
+                                        const InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                    ),
+                                    onChanged: (val) {
+                                      final num =
+                                          double.tryParse(val) ?? book;
+                                      bloc.add(
+                                        UpdateActualCountEvent(
+                                          item.categoryId,
+                                          num,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  fluent.Text(
+                                    diff == 0
+                                        ? '0.0'
+                                        : (diff > 0
+                                              ? '+$diff'
+                                              : '$diff'),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: statusColor,
+                                    ),
+                                  ),
+                                  fluent.Text(
+                                    statusLabel,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: statusColor,
+                                    ),
+                                  ),
+                                ];
                               },
                             ),
                     ),

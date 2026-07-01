@@ -1,4 +1,5 @@
 import 'package:flowcash/features/transactions/data/datasources/interfaces/bill_data_source.dart';
+import 'package:flowcash/features/transactions/data/models/bill_model.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_order_entity.dart';
 import 'package:flowcash/core/enums/invoice_type_enum.dart';
@@ -46,7 +47,7 @@ final class BillLocalDataSourceImpl implements BillDataSource {
     return await _db.transaction(() async {
       final billId = await _db.insert(
         table: BillsTable().tableName,
-        data: _sanitizeInsertData(toMap(entity), BillsTable().id),
+        data: BillModel.fromEntity(entity).toMap(),
       );
 
       if (billId <= 0) {

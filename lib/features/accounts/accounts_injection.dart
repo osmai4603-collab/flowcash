@@ -58,6 +58,7 @@ void initAccountsFeature(GetIt sl) {
   sl.registerFactory(
     () => JournalEntryFormBloc(
       insertJournalEntryWithItems: sl(),
+      updateJournalEntry: sl(),
       getJournalItemsByEntryId: sl(),
       updateSubaccountBalance: sl(),
       updateMainAccountBalance: sl(),

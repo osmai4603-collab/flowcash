@@ -17,6 +17,7 @@ import 'journal_entry_form_state.dart';
 class JournalEntryFormBloc
     extends Bloc<JournalEntryFormEvent, JournalEntryFormState> {
   final InsertJournalEntryUseCase _insertJournalEntryWithItems;
+  final UpdateJournalEntryUseCase _updateJournalEntry;
   final GetJournalItemsByEntryIdUseCase _getJournalItemsByEntryId;
   final GetSubAccountsUseCase _getSubAccounts;
   final GetSubAccountByIdUseCase _getSubAccountById;
@@ -26,6 +27,7 @@ class JournalEntryFormBloc
 
   JournalEntryFormBloc({
     required InsertJournalEntryUseCase insertJournalEntryWithItems,
+    required UpdateJournalEntryUseCase updateJournalEntry,
     required GetJournalItemsByEntryIdUseCase getJournalItemsByEntryId,
     required UpdateSubaccountBalanceUseCase updateSubaccountBalance,
     required UpdateMainAccountBalanceUseCase updateMainAccountBalance,
@@ -35,6 +37,7 @@ class JournalEntryFormBloc
     required GetCurrenciesUseCase getCurrencies,
     required GetExPriceUseCase getExPrice,
   }) : _insertJournalEntryWithItems = insertJournalEntryWithItems,
+       _updateJournalEntry = updateJournalEntry,
        _getJournalItemsByEntryId = getJournalItemsByEntryId,
        _getSubAccounts = getSubAccounts,
        _getSubAccountById = getSubAccountById,
@@ -61,6 +64,8 @@ class JournalEntryFormBloc
         status: JournalEntryFormStatus.loading,
         editingEntry: event.editingEntry,
         isLoadingCurrencies: true,
+        // Clear items when editing so shimmer loading shows properly
+        items: event.editingEntry != null ? [] : null,
       ),
     );
 
@@ -425,9 +430,11 @@ class JournalEntryFormBloc
       );
     }
 
-    final entryResult = await _insertJournalEntryWithItems(
-      entry.copyWith(items: items),
-    );
+    final entryWithItems = entry.copyWith(items: items);
+    final isEditing = state.editingEntry != null;
+    final entryResult = isEditing
+        ? await _updateJournalEntry(entryWithItems)
+        : await _insertJournalEntryWithItems(entryWithItems);
 
     await entryResult.fold(
       (failure) async => emit(

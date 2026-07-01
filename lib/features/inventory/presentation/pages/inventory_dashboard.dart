@@ -2,7 +2,8 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 
 // Sub Pages
-import 'tabs/inventory_catalog/inventory_catalog_page.dart';
+import 'tabs/inventory_catalog/inventory_list_page.dart';
+import 'inventory_histories_page.dart';
 import 'tabs/transactions/transactions_page.dart';
 import 'tabs/warehouse_transfers/warehouse_transfers_page.dart';
 import 'tabs/opening_quantities/opening_quantities_page.dart';
@@ -22,9 +23,15 @@ class InventoryTabNotifier extends ChangeNotifier {
     }
   }
 
+  void navigateToHistories(int inventoryId) {
+    selectedInventoryId = inventoryId;
+    _selectedIndex = 1; // Index 1 is Histories
+    notifyListeners();
+  }
+
   void navigateToBatches(int inventoryId) {
     selectedInventoryId = inventoryId;
-    _selectedIndex = 1; // Index 1 is Transactions/Batches
+    _selectedIndex = 2; // Index 2 is Transactions/Batches
     notifyListeners();
   }
 
@@ -80,7 +87,14 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                   PaneItem(
                     icon: const Icon(FluentIcons.product),
                     title: const Text('قائمة المخزون'),
-                    body: const InventoryCatalogPage(),
+                    body: const InventoryListPage(),
+                  ),
+                  PaneItem(
+                    icon: const Icon(FluentIcons.history),
+                    title: const Text('سجلات المخزون'),
+                    body: InventoryHistoriesPage(
+                      inventoryId: notifier.selectedInventoryId,
+                    ),
                   ),
                   PaneItem(
                     icon: const Icon(FluentIcons.sync),

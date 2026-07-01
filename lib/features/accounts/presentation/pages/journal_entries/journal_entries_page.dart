@@ -1,6 +1,7 @@
 import 'package:flowcash/core/formatters/money_formatter.dart';
 import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/core/theme_fluent/app_colors.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -10,7 +11,6 @@ import 'package:flowcash/features/accounts/presentation/blocs/journal_entries/jo
 import 'package:flowcash/features/accounts/presentation/blocs/journal_entries/journal_entries_event.dart';
 import 'package:flowcash/features/accounts/presentation/blocs/journal_entries/journal_entries_state.dart';
 import 'package:flowcash/features/accounts/presentation/pages/journal_entries/journal_entry_form_dialog.dart';
-import 'package:flowcash/widgets/my_text_widget.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class JournalEntriesPage extends StatefulWidget {
@@ -40,14 +40,32 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     super.dispose();
   }
 
-  Map<int, TableColumnWidth> _getTableColumnWidths() {
+  Map<int, TableWidgetColumnWidth> _getTableColumnWidths() {
     return {
-      0: const FixedColumnWidth(45), // No
-      1: const FlexColumnWidth(0.20), // الرقم المرجعي
-      2: const FlexColumnWidth(0.38), // البيان العام للقيد
-      3: const FlexColumnWidth(0.18), // التاريخ
-      4: const FlexColumnWidth(0.18), // المبلغ الأساسي
-      5: const FlexColumnWidth(0.18), // التحكم
+      0: const FixedTableWidgetColumnWidth(
+        45,
+        alignment: Alignment.center,
+      ), // No
+      1: const FlexTableWidgetColumnWidth(
+        0.20,
+        alignment: Alignment.centerRight,
+      ), // الرقم المرجعي
+      2: const FlexTableWidgetColumnWidth(
+        0.38,
+        alignment: AlignmentDirectional.centerStart,
+      ), // البيان العام للقيد
+      3: const FlexTableWidgetColumnWidth(
+        0.18,
+        alignment: Alignment.center,
+      ), // التاريخ
+      4: const FlexTableWidgetColumnWidth(
+        0.18,
+        alignment: Alignment.center,
+      ), // المبلغ الأساسي
+      5: const FlexTableWidgetColumnWidth(
+        0.18,
+        alignment: Alignment.center,
+      ), // التحكم
     };
   }
 
@@ -217,57 +235,8 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
                         // Master List (Left Pane)
                         Expanded(
                           flex: 4,
-                          child: buildTable(theme, state, filteredEntries),
+                          child: _buildTableContent(state, filteredEntries),
                         ),
-                        // const SizedBox(width: 16),
-
-                        // // Detail Panel (Right Pane)
-                        // Expanded(
-                        //   flex: 2,
-                        //   child: Container(
-                        //     height: double.infinity,
-                        //     decoration: BoxDecoration(
-                        //       color: theme.colorScheme.surface,
-                        //       borderRadius: BorderRadius.circular(8),
-                        //       border: Border.all(
-                        //         color: theme.dividerColor.withAlpha(50),
-                        //       ),
-                        //     ),
-                        //     child: state.selectedEntry == null
-                        //         ? Center(
-                        //             child: Column(
-                        //               mainAxisAlignment:
-                        //                   MainAxisAlignment.center,
-                        //               children: [
-                        //                 fluent.Icon(
-                        //                   fluent.FluentIcons.note_pinned,
-                        //                   size: 64,
-                        //                   color: theme.colorScheme.onSurface
-                        //                       .withAlpha(50),
-                        //                 ),
-                        //                 const SizedBox(height: 16),
-                        //                 fluent.Text(
-                        //                   'يرجى تحديد قيد يومية لعرض التفاصيل',
-                        //                   style: TextStyle(
-                        //                     fontSize: 16,
-                        //                     color: theme.colorScheme.onSurface
-                        //                         .withAlpha(150),
-                        //                   ),
-                        //                 ),
-                        //               ],
-                        //             ),
-                        //           )
-                        //         : ClipRRect(
-                        //             borderRadius: BorderRadius.circular(8),
-                        //             child: SingleChildScrollView(
-                        //               child: JournalEntryDetailPanel(
-                        //                 entry: state.selectedEntry!,
-                        //                 items: state.selectedEntryItems,
-                        //               ),
-                        //             ),
-                        //           ),
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),
@@ -280,221 +249,122 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     );
   }
 
-  Widget buildTable(
-    ThemeData theme,
+  Widget _buildTableContent(
     JournalEntriesState state,
     List<JournalEntryEntity> filteredEntries,
   ) {
-    final colors = theme.colorScheme;
-    final style = AppStyle.of(context).bodyStrong;
+    final style = AppStyle.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        fluent.Table(
-          border: fluent.TableBorder.all(width: 0.50, color: colors.outline),
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          columnWidths: _getTableColumnWidths(),
-          children: [
-            TableRow(
-              decoration: BoxDecoration(
-                color: colors.primaryContainer.withAlpha(50),
-              ),
-              children: [
-                TextWidget(
-                  text: 'No',
-                  textAlign: TextAlign.center,
-                  textDirection: .ltr,
-                  padding: const EdgeInsets.all(8),
-                  style: style,
-                ),
-                TextWidget(
-                  text: 'الرقم المرجعي',
-                  textAlign: TextAlign.center,
-                  padding: const EdgeInsets.all(8),
-                  style: style,
-                ),
-                TextWidget(
-                  text: 'البيان العام للقيد',
-                  textAlign: TextAlign.center,
-                  padding: const EdgeInsets.all(8),
-                  style: style,
-                ),
-                TextWidget(
-                  text: 'التاريخ',
-                  textAlign: TextAlign.center,
-                  padding: const EdgeInsets.all(8),
-                  style: style,
-                ),
-                TextWidget(
-                  text: 'المبلغ الأساسي',
-                  textAlign: TextAlign.center,
-                  padding: const EdgeInsets.all(8),
-                  style: style,
-                ),
-                TextWidget(
-                  text: 'التحكم',
-                  textAlign: TextAlign.center,
-                  padding: const EdgeInsets.all(8),
-                  style: style,
-                ),
-              ],
-            ),
-          ],
+    if (state.status == JournalEntriesStatus.loading) {
+      return const Center(child: fluent.ProgressRing());
+    }
+
+    if (state.status == JournalEntriesStatus.failure) {
+      return Center(
+        child: fluent.Text('خطأ في تحميل القيود: ${state.errorMessage}'),
+      );
+    }
+
+    if (filteredEntries.isEmpty) {
+      return Center(
+        child: fluent.Text(
+          'لا توجد قيود يومية مسجلة ⚠️',
+          style: style.bodyLarge.copyWith(color: Colors.grey),
+          textAlign: TextAlign.center,
         ),
-        Expanded(
-          child: state.status == JournalEntriesStatus.loading
-              ? const Center(child: fluent.ProgressRing())
-              : state.status == JournalEntriesStatus.failure
-              ? Center(
-                  child: fluent.Text(
-                    'خطأ في تحميل القيود: ${state.errorMessage}',
-                  ),
-                )
-              : filteredEntries.isEmpty
-              ? _buildEmptyEntries()
-              : _buildEntriesTable(filteredEntries, state, colors, theme),
-        ),
+      );
+    }
+
+    return TableWidget<JournalEntryEntity>(
+      columns: _getTableColumnWidths(),
+      header: const [
+        'No',
+        'الرقم المرجعي',
+        'البيان العام للقيد',
+        'التاريخ',
+        'المبلغ الأساسي',
+        'التحكم',
       ],
-    );
-  }
-
-  Center _buildEmptyEntries() {
-    return Center(
-      child: fluent.Text(
-        'لا توجد قيود يومية مسجلة ⚠️',
-        style: AppStyle.of(context).bodyLarge.copyWith(color: Colors.grey),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget _buildEntriesTable(
-    List<JournalEntryEntity> filteredEntries,
-    JournalEntriesState state,
-    ColorScheme colors,
-    ThemeData theme,
-  ) {
-    final style = AppStyle.of(context).bodyStrong;
-    return ListView.builder(
-      itemCount: filteredEntries.length,
-      itemBuilder: (context, index) {
-        final entry = filteredEntries[index];
-        final isSelected = state.selectedEntry?.id == entry.id;
+      items: filteredEntries,
+      onTapRow: (entry) {
+        context.read<JournalEntriesBloc>().add(SelectJournalEntry(entry));
+      },
+      rowColor: Theme.of(context).colorScheme.primaryContainer.withAlpha(15),
+      paintRowColorWhen: (item, index) =>
+          state.selectedEntry?.id == item.id || index.isEven,
+      builder: (context, entry, index) {
+        final bodyStyle = style.bodyStrong;
         final dateStr = DateFormat('yyyy-MM-dd').format(entry.createdAt);
 
-        return fluent.HoverButton(
-          onPressed: () {
-            context.read<JournalEntriesBloc>().add(SelectJournalEntry(entry));
-          },
-          builder: (p0, state) {
-            return fluent.Table(
-              border: fluent.TableBorder.all(
-                width: 0.50,
-                color: colors.outline,
-              ),
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              columnWidths: _getTableColumnWidths(),
-              children: [
-                TableRow(
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? colors.primaryContainer.withAlpha(50)
-                        : (index.isEven
-                              ? colors.primaryContainer.withAlpha(15)
-                              : null),
-                  ),
-                  children: [
-                    TextWidget(
-                      text: '${index + 1}',
-                      textAlign: TextAlign.center,
-                      textDirection: .ltr,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 6,
-                      ),
-                      style: style,
-                    ),
-                    TextWidget(
-                      text: entry.referenceNumber,
-                      textAlign: TextAlign.center,
-                      padding: const EdgeInsets.all(8),
-                      style: style?.copyWith(
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.bold,
-                      ),
-                      alignment: Alignment.centerRight,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    TextWidget(
-                      text: entry.description ?? 'بدون وصف',
-                      padding: const EdgeInsets.all(8),
-                      style: style,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    TextWidget(
-                      text: dateStr,
-                      textAlign: TextAlign.center,
-                      padding: const EdgeInsets.all(8),
-                    ),
-                    Row(
-                      mainAxisAlignment: .spaceBetween,
-                      children: [
-                        TextWidget(
-                          text: AppMoneyFormatter.formatDouble(
-                            entry.baseAmount,
-                          ),
-                          alignment: Alignment.centerRight,
-                          textDirection: .ltr,
-                          textAlign: TextAlign.end,
-                          padding: const EdgeInsets.all(8),
-                          style: style?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        TextWidget(
-                          text: entry.currencyId,
-                          textAlign: TextAlign.center,
-                          padding: const EdgeInsets.all(8),
-                          style: style,
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Row(
-                        spacing: Spacings.small,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          fluent.Tooltip(
-                            message: 'تعديل القيد',
-                            child: fluent.IconButton(
-                              icon: const fluent.Icon(
-                                fluent.FluentIcons.edit,
-                                size: 16,
-                                color: Colors.orange,
-                              ),
-                              onPressed: () => _showEntryDialog(context, entry),
-                            ),
-                          ),
-                          fluent.Tooltip(
-                            message: 'حذف القيد',
-                            child: fluent.IconButton(
-                              icon: const fluent.Icon(
-                                fluent.FluentIcons.delete,
-                                size: 16,
-                                color: Colors.red,
-                              ),
-                              onPressed: () => _confirmDelete(context, entry),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+        return [
+          Text(
+            '${index + 1}',
+            textAlign: TextAlign.center,
+            textDirection: .ltr,
+            style: bodyStyle,
+          ),
+          Text(
+            entry.referenceNumber,
+            textAlign: TextAlign.center,
+            style: bodyStyle.copyWith(
+              fontFamily: 'monospace',
+              fontWeight: FontWeight.bold,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            entry.description ?? 'بدون وصف',
+            style: bodyStyle,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(dateStr, textAlign: TextAlign.center),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(
+                  AppMoneyFormatter.formatDouble(entry.baseAmount),
+                  textDirection: .ltr,
+                  textAlign: TextAlign.end,
+                  style: bodyStyle.copyWith(fontWeight: FontWeight.bold),
                 ),
-              ],
-            );
-          },
-        );
+              ),
+              Text(
+                entry.currencyId,
+                textAlign: TextAlign.center,
+                style: bodyStyle,
+              ),
+            ],
+          ),
+          Row(
+            spacing: Spacings.small,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              fluent.Tooltip(
+                message: 'تعديل القيد',
+                child: fluent.IconButton(
+                  icon: const fluent.Icon(
+                    fluent.FluentIcons.edit,
+                    size: 16,
+                    color: Colors.orange,
+                  ),
+                  onPressed: () => _showEntryDialog(context, entry),
+                ),
+              ),
+              fluent.Tooltip(
+                message: 'حذف القيد',
+                child: fluent.IconButton(
+                  icon: const fluent.Icon(
+                    fluent.FluentIcons.delete,
+                    size: 16,
+                    color: Colors.red,
+                  ),
+                  onPressed: () => _confirmDelete(context, entry),
+                ),
+              ),
+            ],
+          ),
+        ];
       },
     );
   }
