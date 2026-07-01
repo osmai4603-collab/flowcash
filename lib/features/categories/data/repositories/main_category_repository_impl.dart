@@ -11,7 +11,7 @@ import 'package:flowcash/core/tables/main_categories_table.dart';
 class MainCategoryRepositoryImpl implements MainCategoryRepository {
   final MainCategoryLocalDataSource _dataSource;
   final CategoryPropertyDataSource _propertyDataSource;
-  final SqliteService _db;
+  final SqliteDatabase _db;
 
   const MainCategoryRepositoryImpl(
     this._dataSource,

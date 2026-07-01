@@ -1,8 +1,9 @@
 import 'package:flowcash/core/enums/unit_type_enum.dart';
 import 'package:flowcash/features/categories/domain/entities/simple_category_entity.dart';
 import 'package:flowcash/core/tables/main_categories_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class SimpleCategoryModel extends SimpleCategoryEntity {
+final class SimpleCategoryModel extends SimpleCategoryEntity implements Model {
   const SimpleCategoryModel({
     required super.id,
     required super.categoryName,
@@ -19,6 +20,7 @@ final class SimpleCategoryModel extends SimpleCategoryEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       MainCategoriesTable().id: id,

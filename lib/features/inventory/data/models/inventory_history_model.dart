@@ -4,9 +4,9 @@ import 'package:flowcash/core/tables/inventory_transactions_orders_table.dart';
 import 'package:flowcash/core/tables/inventory_transactions_table.dart';
 import 'package:flowcash/core/tables/categories_table.dart';
 import 'package:flowcash/core/tables/units_table.dart';
-import 'package:flowcash/core/tables/inventories_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-class InventoryHistoryModel extends InventoryHistory {
+class InventoryHistoryModel extends InventoryHistory implements Model {
   const InventoryHistoryModel({
     required super.transactionOrderId,
     required super.transactionType,
@@ -27,6 +27,19 @@ class InventoryHistoryModel extends InventoryHistory {
       categoryUnit: map[UnitsTable().unitName] as String,
       inventoryId: map[InventoryTransactionsOrdersTable().inventoryId] as int,
     );
+  }
+
+  @override
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      InventoryTransactionsOrdersTable().id: transactionOrderId,
+      InventoryTransactionsTable().transactionType: transactionType.name,
+      InventoryTransactionsOrdersTable().countUnits: countUnits,
+      CategoriesTable().categoryName: categoryName,
+      UnitsTable().unitName: categoryUnit,
+      InventoryTransactionsOrdersTable().inventoryId: inventoryId,
+    };
   }
 
   @override

@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول طلبيات حركة المخزون.
-class InventoryTransactionsOrdersTable extends TableInfo {
+class InventoryTransactionsOrdersTable extends TableById {
   static final InventoryTransactionsOrdersTable _instance = InventoryTransactionsOrdersTable.internal();
 
   factory InventoryTransactionsOrdersTable() => _instance;

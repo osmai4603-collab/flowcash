@@ -7,7 +7,7 @@ import 'package:flowcash/features/auth/data/datasources/interfaces/program_user_
 import 'package:flowcash/features/auth/domain/entities/program_user_entity.dart';
 
 final class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const ProgramUserLocalDataSourceImpl(this._db);
 
   @override

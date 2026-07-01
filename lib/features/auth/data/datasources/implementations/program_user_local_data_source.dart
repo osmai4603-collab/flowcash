@@ -8,7 +8,7 @@ import '../../models/program_user_model.dart';
 import '../interfaces/program_user_data_source.dart';
 
 class ProgramUserLocalDataSourceImpl implements ProgramUserDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
 
   const ProgramUserLocalDataSourceImpl(this._db);
 

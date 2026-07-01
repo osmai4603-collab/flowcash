@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول العملات.
-class CurrenciesTable extends TableInfo {
+class CurrenciesTable extends TableById {
   static final CurrenciesTable _instance = CurrenciesTable.internal();
 
   factory CurrenciesTable() => _instance;

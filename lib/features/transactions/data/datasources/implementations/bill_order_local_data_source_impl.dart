@@ -6,7 +6,7 @@ import 'package:flowcash/core/tables/bills_table.dart';
 import 'package:flowcash/core/tables/inventories_table.dart';
 
 final class BillOrderLocalDataSourceImpl implements BillOrderDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const BillOrderLocalDataSourceImpl(this._db);
 
   @override

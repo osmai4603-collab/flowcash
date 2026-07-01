@@ -33,7 +33,7 @@ import 'package:flowcash/core/enums/journal_status_enum.dart';
 
 final class OpeningQuantityLocalDataSourceImpl
     implements OpeningQuantityDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   final Map<String, dynamic> Function(JournalEntryEntity) journalEntryToMap;
   final Map<String, dynamic> Function(JournalItemEntity) journalItemToMap;
 

@@ -1,8 +1,9 @@
 import 'package:flowcash/core/enums/accounting_inventory_type_enum.dart';
 import 'package:flowcash/features/system/domain/entities/accounting_period_entity.dart';
 import 'package:flowcash/core/tables/accounting_periods_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class AccountingPeriodModel extends AccountingPeriodEntity {
+final class AccountingPeriodModel extends AccountingPeriodEntity implements Model {
   const AccountingPeriodModel({
     required super.id,
     required super.periodName,
@@ -37,6 +38,7 @@ final class AccountingPeriodModel extends AccountingPeriodEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       AccountingPeriodsTable().id: id,

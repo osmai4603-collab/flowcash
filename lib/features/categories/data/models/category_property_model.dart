@@ -1,8 +1,9 @@
 import 'package:flowcash/core/enums/unit_type_enum.dart';
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
 import 'package:flowcash/core/tables/category_properties_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class CategoryPropertyModel extends CategoryPropertyEntity {
+final class CategoryPropertyModel extends CategoryPropertyEntity implements Model {
   const CategoryPropertyModel({
     required super.id,
     required super.mainCategoryId,
@@ -38,6 +39,7 @@ final class CategoryPropertyModel extends CategoryPropertyEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if(id > 0) CategoryPropertiesTable().id: id,

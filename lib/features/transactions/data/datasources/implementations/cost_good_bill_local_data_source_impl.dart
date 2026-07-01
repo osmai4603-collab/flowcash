@@ -8,7 +8,7 @@ import 'package:flowcash/features/transactions/domain/entities/cost_good_bill_en
 import 'package:flowcash/features/transactions/domain/entities/cost_good_bill_order_entity.dart';
 
 final class CostGoodBillLocalDataSourceImpl implements CostGoodBillDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   final Map<String, dynamic> Function(CostGoodBillOrderEntity) orderToMap;
 
   const CostGoodBillLocalDataSourceImpl(this._db, this.orderToMap);

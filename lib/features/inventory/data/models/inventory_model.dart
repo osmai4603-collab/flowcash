@@ -1,8 +1,9 @@
 import 'package:flowcash/core/tables/categories_table.dart';
 import 'package:flowcash/core/tables/inventories_table.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class InventoryModel extends InventoryItemEntity {
+final class InventoryModel extends InventoryItemEntity implements Model {
   const InventoryModel({
     required super.id,
     required super.categoryId,
@@ -35,6 +36,7 @@ final class InventoryModel extends InventoryItemEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) InventoriesTable().id: id,

@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول عداد القيم.
-class ValuesCounterTable extends TableInfo {
+class ValuesCounterTable extends TableById {
   static final ValuesCounterTable _instance = ValuesCounterTable.internal();
 
   factory ValuesCounterTable() => _instance;

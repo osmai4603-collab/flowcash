@@ -1,8 +1,9 @@
 import 'package:flowcash/features/inventory/domain/entities/inventory_transaction_order_entity.dart';
 import 'package:flowcash/core/tables/inventory_transactions_orders_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
 final class InventoryTransactionOrderModel
-    extends InventoryTransactionOrderEntity {
+    extends InventoryTransactionOrderEntity implements Model {
   const InventoryTransactionOrderModel({
     required super.id,
     super.inventoryId,
@@ -20,6 +21,7 @@ final class InventoryTransactionOrderModel
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) InventoryTransactionsOrdersTable().id: id,

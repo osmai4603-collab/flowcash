@@ -4,8 +4,9 @@ import 'package:flowcash/features/categories/domain/entities/main_category_entit
 import 'package:flowcash/features/categories/domain/entities/category_property_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/core/tables/main_categories_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class MainCategoryModel extends MainCategoryEntity {
+final class MainCategoryModel extends MainCategoryEntity implements Model {
    MainCategoryModel({
     required super.id,
     required super.name,
@@ -26,6 +27,7 @@ final class MainCategoryModel extends MainCategoryEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       MainCategoriesTable().id: id,

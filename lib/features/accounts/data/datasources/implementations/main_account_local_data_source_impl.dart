@@ -7,7 +7,7 @@ import 'package:flowcash/core/enums/main_account_type_enum.dart';
 import 'package:flowcash/core/enums/main_account_group_enum.dart';
 
 final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const MainAccountLocalDataSourceImpl(this._db);
 
   @override
@@ -164,13 +164,10 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
     ).map((e) => e.name).toList();
     if (types.isEmpty) return null;
     final placeholders = List.filled(types.length, '?').join(', ');
-    final db = await _db.database;
     final sql =
         'SELECT MAX(CAST(${MainAccountsTable().accountNumber} AS INTEGER)) AS max_num FROM ${MainAccountsTable().tableName} WHERE ${MainAccountsTable().mainAccountType} IN ($placeholders)';
-    final stmt = db.prepare(sql);
-    final rs = stmt.select(types);
-    final maxNum = rs.isNotEmpty ? rs.first['max_num'] as int? : null;
-    stmt.dispose();
+    final rows = await _db.rawQuery(sql, types);
+    final maxNum = rows.isNotEmpty ? rows.first['max_num'] as int? : null;
     return maxNum;
   }
 
@@ -232,35 +229,19 @@ final class MainAccountLocalDataSourceImpl implements MainAccountDataSource {
 
   @override
   Future<MainAccountEntity> firstWhereSubAccountId(int subAccountId) async {
-    final db = await _db.database;
     final sql =
         '''
       SELECT m.* FROM ${MainAccountsTable().tableName} m
       INNER JOIN sub_accounts s ON s.main_account_id = m.${MainAccountsTable().id}
       WHERE s.account_id = ?
     ''';
-    final stmt = db.prepare(sql);
-    final rs = stmt.select([subAccountId]);
-    if (rs.isEmpty) {
-      stmt.dispose();
+    final rows = await _db.rawQuery(sql, [subAccountId]);
+    if (rows.isEmpty) {
       throw StateError(
         'No main account found for sub account ID: $subAccountId',
       );
     }
-    final mainAcc = fromMap(Map<String, dynamic>.from(rs.first));
-    stmt.dispose();
-    return mainAcc;
+    return fromMap(Map<String, dynamic>.from(rows.first));
   }
 
-  Map<String, dynamic> _sanitizeInsertData(
-    Map<String, dynamic> data,
-    String idKey,
-  ) {
-    if (data[idKey] is int && (data[idKey] as int) <= 0) {
-      final sanitized = Map<String, dynamic>.from(data);
-      sanitized.remove(idKey);
-      return sanitized;
-    }
-    return data;
-  }
 }

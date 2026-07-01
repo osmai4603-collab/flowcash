@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول الحسابات الرئيسية.
-class MainAccountsTable extends TableInfo {
+class MainAccountsTable extends TableById {
   static final MainAccountsTable _instance = MainAccountsTable.internal();
 
   factory MainAccountsTable() => _instance;
@@ -11,6 +11,7 @@ class MainAccountsTable extends TableInfo {
   @override
   final String tableName = 'main_accounts';
 
+  @override
   final String id = 'account_id';
   final String accountName = 'account_name';
   final String accountNumber = 'account_number';

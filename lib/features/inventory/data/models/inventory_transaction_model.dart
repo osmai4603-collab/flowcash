@@ -3,8 +3,9 @@ import 'package:flowcash/features/inventory/domain/entities/inventory_transactio
 import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 import 'package:flowcash/core/enums/inventory_transaction_nature_enum.dart';
 import 'package:flowcash/core/tables/inventory_transactions_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class InventoryTransactionModel extends InventoryTransactionEntity {
+final class InventoryTransactionModel extends InventoryTransactionEntity implements Model {
   const InventoryTransactionModel({
     required super.id,
     required super.createdAt,
@@ -38,6 +39,7 @@ final class InventoryTransactionModel extends InventoryTransactionEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) InventoryTransactionsTable().id: id,

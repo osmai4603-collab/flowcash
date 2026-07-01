@@ -8,9 +8,9 @@ import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
 
 final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
-  final SqliteService _db;
+  final SqliteDatabase db;
   final Map<String, dynamic> Function(JournalItemEntity) journalItemToMap;
-  const JournalEntryLocalDataSourceImpl(this._db, this.journalItemToMap);
+  const JournalEntryLocalDataSourceImpl(this.db, this.journalItemToMap);
 
   @override
   Future<List<JournalEntryEntity>> get({
@@ -18,8 +18,8 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
     bool getItems = false,
   }) async {
     final rows = ids == null
-        ? await _db.query(table: JournalEntriesTable().tableName)
-        : await _db.query(
+        ? await db.query(table: JournalEntriesTable().tableName)
+        : await db.query(
             table: JournalEntriesTable().tableName,
             where:
                 '${JournalEntriesTable().id} IN (${List.filled(ids.length, '?').join(', ')})',
@@ -38,7 +38,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
 
   @override
   Future<JournalEntryEntity?> getById(int id, {bool getItems = false}) async {
-    final rows = await _db.query(
+    final rows = await db.query(
       table: JournalEntriesTable().tableName,
       where: '${JournalEntriesTable().id} = ?',
       whereArgs: [id],
@@ -54,8 +54,8 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
 
   @override
   Future<JournalEntryEntity> insert(JournalEntryEntity entity) async {
-    return await _db.transaction(() async {
-      final entryId = await _db.insert(
+    return await db.transaction(() async {
+      final entryId = await db.insert(
         table: JournalEntriesTable().tableName,
         data: toMap(entity),
       );
@@ -66,7 +66,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
 
       for (var index = 0; index < entity.items.length; index++) {
         final item = entity.items[index].copyWith(entryId: entryId);
-        final itemId = await _db.insert(
+        final itemId = await db.insert(
           table: JournalItemsTable().tableName,
           data: journalItemToMap(item),
         );
@@ -80,68 +80,8 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
     });
   }
 
-  @override
-  Future<JournalEntryEntity> saveWithItems(
-    JournalEntryEntity entry,
-    List<JournalItemEntity> items,
-  ) async {
-    final db = await _db.database;
-    db.execute('BEGIN');
-
-    try {
-      JournalEntryEntity persistedEntry = entry;
-
-      if (entry.id > 0) {
-        final updateData = Map<String, dynamic>.from(toMap(entry))
-          ..remove(JournalEntriesTable().id);
-        final setClause = updateData.keys.map((key) => '$key = ?').join(', ');
-        final updateStmt = db.prepare(
-          'UPDATE ${JournalEntriesTable().tableName} SET $setClause WHERE ${JournalEntriesTable().id} = ?',
-        );
-        updateStmt.execute([...updateData.values, entry.id]);
-        updateStmt.dispose();
-
-        final deleteStmt = db.prepare(
-          'DELETE FROM ${JournalItemsTable().tableName} WHERE ${JournalItemsTable().entryId} = ?',
-        );
-        deleteStmt.execute([entry.id]);
-        deleteStmt.dispose();
-      } else {
-        final insertData = toMap(entry);
-        final columns = insertData.keys.join(', ');
-        final placeholders = List.filled(insertData.length, '?').join(', ');
-        final insertStmt = db.prepare(
-          'INSERT INTO ${JournalEntriesTable().tableName} ($columns) VALUES ($placeholders)',
-        );
-        insertStmt.execute(insertData.values.toList());
-        final id = db.lastInsertRowId;
-        insertStmt.dispose();
-        persistedEntry = entry.copyWith(id: id);
-      }
-
-      for (final item in items) {
-        final sanitizedItem = journalItemToMap(
-          item.copyWith(entryId: persistedEntry.id),
-        );
-        final columns = sanitizedItem.keys.join(', ');
-        final placeholders = List.filled(sanitizedItem.length, '?').join(', ');
-        final itemInsertStmt = db.prepare(
-          'INSERT INTO ${JournalItemsTable().tableName} ($columns) VALUES ($placeholders)',
-        );
-        itemInsertStmt.execute(sanitizedItem.values.toList());
-        itemInsertStmt.dispose();
-      }
-
-      db.execute('COMMIT');
-      return persistedEntry;
-    } catch (e) {
-      db.execute('ROLLBACK');
-      rethrow;
-    }
-  }
-
   Future<List<JournalItemEntity>> _getJournalItemsByEntryId(int entryId) async {
-    final rows = await _db.query(
+    final rows = await db.query(
       table: JournalItemsTable().tableName,
       where: '${JournalItemsTable().entryId} = ?',
       whereArgs: [entryId],
@@ -156,7 +96,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
 
     final where =
         '${JournalItemsTable().entryId} IN (${List.filled(entryIds.length, '?').join(', ')})';
-    final rows = await _db.query(
+    final rows = await db.query(
       table: JournalItemsTable().tableName,
       where: where,
       whereArgs: entryIds,
@@ -172,8 +112,8 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
 
   @override
   Future<JournalEntryEntity> update(JournalEntryEntity entity) async {
-    return await _db.transaction(() async {
-      await _db.update(
+    return await db.transaction(() async {
+      await db.update(
         table: JournalEntriesTable().tableName,
         data: toMap(entity),
         where: {JournalEntriesTable().id: entity.id},
@@ -183,18 +123,18 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
       for (var index = 0; index < entity.items.length; index++) {
         final item = entity.items[index].copyWith(entryId: entity.id);
         if (item.id > 0) {
-          await _db.update(
+          await db.update(
             table: JournalItemsTable().tableName,
             data: journalItemToMap(item),
-            where: {JournalItemsTable().itemId: item.id},
+            where: {JournalItemsTable().id: item.id},
           );
           updatedItems.add(item);
         } else {
-          final itemId = await _db.insert(
+          final itemId = await db.insert(
             table: JournalItemsTable().tableName,
             data: _sanitizeInsertData(
               journalItemToMap(item),
-              JournalItemsTable().itemId,
+              JournalItemsTable().id,
             ),
           );
           if (itemId <= 0) {
@@ -210,12 +150,12 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
 
   @override
   Future<bool> delete(int id) async {
-    return await _db.transaction(() async {
-      await _db.deleteWhere(
+    return await db.transaction(() async {
+      await db.deleteWhere(
         table: JournalItemsTable().tableName,
         where: {JournalItemsTable().entryId: id},
       );
-      await _db.deleteWhere(
+      await db.deleteWhere(
         table: JournalEntriesTable().tableName,
         where: {JournalEntriesTable().id: id},
       );
@@ -252,7 +192,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
 
   @override
   Future<List<JournalEntryEntity>> whereWarehouse(int warehouseId) async {
-    final rows = await _db.query(
+    final rows = await db.query(
       table: JournalEntriesTable().tableName,
       where: '${JournalEntriesTable().warehouseId} = ?',
       whereArgs: [warehouseId],
@@ -262,7 +202,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
 
   @override
   Future<List<JournalEntryEntity>> whereCreatedBy(int userId) async {
-    final rows = await _db.query(
+    final rows = await db.query(
       table: JournalEntriesTable().tableName,
       where: '${JournalEntriesTable().userId} = ?',
       whereArgs: [userId],
@@ -274,7 +214,7 @@ final class JournalEntryLocalDataSourceImpl implements JournalEntryDataSource {
   Future<JournalEntryEntity?> firstWhereReferenceNumber(
     String referenceNumber,
   ) async {
-    final rows = await _db.query(
+    final rows = await db.query(
       table: JournalEntriesTable().tableName,
       where: '${JournalEntriesTable().referenceNumber} = ?',
       whereArgs: [referenceNumber],

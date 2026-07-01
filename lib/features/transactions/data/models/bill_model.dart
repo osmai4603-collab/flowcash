@@ -2,8 +2,9 @@ import 'package:flowcash/core/enums/invoice_type_enum.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_order_entity.dart';
 import 'package:flowcash/core/tables/bills_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class BillModel extends BillEntity {
+final class BillModel extends BillEntity implements Model {
   const BillModel({
     required super.id,
     required super.createdAt,
@@ -43,6 +44,7 @@ final class BillModel extends BillEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       BillsTable().id: id,

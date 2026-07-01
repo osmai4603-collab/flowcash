@@ -1,7 +1,8 @@
 import 'package:flowcash/features/inventory/domain/entities/opening_quantity_entity.dart';
 import 'package:flowcash/core/tables/opening_quantities_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class OpeningQuantityModel extends OpeningQuantityEntity {
+final class OpeningQuantityModel extends OpeningQuantityEntity implements Model {
   const OpeningQuantityModel({
     required super.id,
     required super.inventoryId,
@@ -28,6 +29,7 @@ final class OpeningQuantityModel extends OpeningQuantityEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) OpeningQuantitiesTable().id: id,

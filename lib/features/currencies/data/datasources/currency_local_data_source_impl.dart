@@ -6,7 +6,7 @@ import 'package:flowcash/core/tables/currencies_table.dart';
 import 'package:flowcash/core/tables/exchange_prices_table.dart';
 
 final class CurrencyLocalDataSourceImpl implements CurrencyDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const CurrencyLocalDataSourceImpl(this._db);
 
   @override

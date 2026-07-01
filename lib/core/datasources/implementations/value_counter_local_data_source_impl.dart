@@ -8,7 +8,7 @@ import 'package:flowcash/core/enums/value_counter_type_enum.dart';
 import 'package:flowcash/core/errors/failure.dart';
 
 final class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const ValueCounterLocalDataSourceImpl(this._db);
 
   @override

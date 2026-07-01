@@ -6,7 +6,7 @@ import 'package:flowcash/core/enums/histories_group_enum.dart';
 
 final class FinancialTransactionLocalDataSourceImpl
     implements FinancialTransactionDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const FinancialTransactionLocalDataSourceImpl(this._db);
 
   @override

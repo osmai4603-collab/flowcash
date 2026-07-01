@@ -9,7 +9,7 @@ import 'package:flowcash/features/inventory/data/models/inventory_history_model.
 import 'package:flowcash/features/inventory/domain/entities/inventory_history.dart';
 
 class InventoryHistoryLocalDataSourceImpl implements InventoryHistoryDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
 
   const InventoryHistoryLocalDataSourceImpl(this._db);
 

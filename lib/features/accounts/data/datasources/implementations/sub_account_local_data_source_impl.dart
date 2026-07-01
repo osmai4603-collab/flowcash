@@ -9,7 +9,7 @@ import 'package:flowcash/core/tables/sub_accounts_table.dart';
 import 'package:flowcash/core/enums/sub_account_type_enum.dart';
 
 final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const SubAccountLocalDataSourceImpl(this._db);
 
   @override
@@ -151,38 +151,29 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
 
   @override
   Future<int> getCountHistories(int subAccountId) async {
-    final db = await _db.database;
-    final sql =
-        'SELECT COUNT(*) AS cnt FROM journal_items WHERE account_id = ?';
-    final stmt = db.prepare(sql);
-    final rs = stmt.select([subAccountId]);
-    final cnt = rs.isNotEmpty ? rs.first['cnt'] as int : 0;
-    stmt.dispose();
-    return cnt;
+    final rows = await _db.rawQuery(
+      'SELECT COUNT(*) AS cnt FROM journal_items WHERE account_id = ?',
+      [subAccountId],
+    );
+    return rows.isNotEmpty ? rows.first['cnt'] as int : 0;
   }
 
   @override
   Future<int> getCountCreditorHistories(int subAccountId) async {
-    final db = await _db.database;
-    final sql =
-        'SELECT COUNT(*) AS cnt FROM journal_items WHERE account_id = ? AND credit > 0';
-    final stmt = db.prepare(sql);
-    final rs = stmt.select([subAccountId]);
-    final cnt = rs.isNotEmpty ? rs.first['cnt'] as int : 0;
-    stmt.dispose();
-    return cnt;
+    final rows = await _db.rawQuery(
+      'SELECT COUNT(*) AS cnt FROM journal_items WHERE account_id = ? AND credit > 0',
+      [subAccountId],
+    );
+    return rows.isNotEmpty ? rows.first['cnt'] as int : 0;
   }
 
   @override
   Future<int> getCountDebtorHistories(int subAccountId) async {
-    final db = await _db.database;
-    final sql =
-        'SELECT COUNT(*) AS cnt FROM journal_items WHERE account_id = ? AND debit > 0';
-    final stmt = db.prepare(sql);
-    final rs = stmt.select([subAccountId]);
-    final cnt = rs.isNotEmpty ? rs.first['cnt'] as int : 0;
-    stmt.dispose();
-    return cnt;
+    final rows = await _db.rawQuery(
+      'SELECT COUNT(*) AS cnt FROM journal_items WHERE account_id = ? AND debit > 0',
+      [subAccountId],
+    );
+    return rows.isNotEmpty ? rows.first['cnt'] as int : 0;
   }
 
   @override
@@ -287,18 +278,14 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     int personId,
     int warehouseId,
   ) async {
-    final db = await _db.database;
-    final sql =
-        'SELECT receivable_acc_id, payable_acc_id FROM persons WHERE person_id = ?';
-    final stmt = db.prepare(sql);
-    final rs = stmt.select([personId]);
-    if (rs.isEmpty) {
-      stmt.dispose();
-      return [];
-    }
-    final recId = rs.first['receivable_acc_id'] as int?;
-    final payId = rs.first['payable_acc_id'] as int?;
-    stmt.dispose();
+    final rows = await _db.rawQuery(
+      'SELECT receivable_acc_id, payable_acc_id FROM persons WHERE person_id = ?',
+      [personId],
+    );
+    if (rows.isEmpty) return [];
+
+    final recId = rows.first['receivable_acc_id'] as int?;
+    final payId = rows.first['payable_acc_id'] as int?;
 
     final ids = [recId, payId].whereType<int>().toList();
     if (ids.isEmpty) return [];
@@ -310,31 +297,27 @@ final class SubAccountLocalDataSourceImpl implements SubAccountDataSource {
     int mainAccountId,
     int personId,
   ) async {
-    final db = await _db.database;
-    final sql =
-        'SELECT receivable_acc_id, payable_acc_id FROM persons WHERE person_id = ?';
-    final stmt = db.prepare(sql);
-    final rs = stmt.select([personId]);
-    if (rs.isEmpty) {
-      stmt.dispose();
-      return null;
-    }
-    final recId = rs.first['receivable_acc_id'] as int?;
-    final payId = rs.first['payable_acc_id'] as int?;
-    stmt.dispose();
+    final rows = await _db.rawQuery(
+      'SELECT receivable_acc_id, payable_acc_id FROM persons WHERE person_id = ?',
+      [personId],
+    );
+    if (rows.isEmpty) return null;
+
+    final recId = rows.first['receivable_acc_id'] as int?;
+    final payId = rows.first['payable_acc_id'] as int?;
 
     final ids = [recId, payId].whereType<int>().toList();
     if (ids.isEmpty) return null;
 
-    final rows = await _db.query(
+    final accountRows = await _db.query(
       table: SubAccountsTable().tableName,
       where:
           '${SubAccountsTable().id} IN (${ids.join(", ")}) AND ${SubAccountsTable().mainAccountId} = ?',
       whereArgs: [mainAccountId],
       limit: 1,
     );
-    if (rows.isEmpty) return null;
-    return fromMap(rows.first);
+    if (accountRows.isEmpty) return null;
+    return fromMap(accountRows.first);
   }
 
   @override

@@ -1,8 +1,9 @@
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_unit_entity.dart';
 import 'package:flowcash/core/tables/catalog_infos_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class SubcategoryUnitModel extends SubcategoryUnitEntity {
+final class SubcategoryUnitModel extends SubcategoryUnitEntity implements Model {
   const SubcategoryUnitModel({
     required super.id,
     required super.subcategoryId,
@@ -20,6 +21,7 @@ final class SubcategoryUnitModel extends SubcategoryUnitEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) SubcategoriesUnitsTable().id: id,

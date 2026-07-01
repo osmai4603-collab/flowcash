@@ -5,7 +5,7 @@ import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/hints_table.dart';
 
 final class HintLocalDataSourceImpl implements HintDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const HintLocalDataSourceImpl(this._db);
 
   @override

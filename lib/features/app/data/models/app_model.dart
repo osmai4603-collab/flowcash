@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/app_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class AppModel extends AppEntity {
+final class AppModel extends AppEntity implements Model {
   const AppModel({required super.themeMode, required super.locale});
 
   factory AppModel.fromJson(Map<String, dynamic> json) {
@@ -19,6 +20,10 @@ final class AppModel extends AppEntity {
 
     return {'themeMode': themeMode.name, 'locale': localeValue};
   }
+
+  @override
+  @override
+  Map<String, dynamic> toMap() => toJson();
 
   @override
   AppModel copyWith({ThemeMode? themeMode, Locale? locale}) {

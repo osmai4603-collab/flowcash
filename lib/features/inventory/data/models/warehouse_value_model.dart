@@ -1,8 +1,9 @@
 import 'package:flowcash/features/inventory/domain/entities/warehouse_value_entity.dart';
 import 'package:flowcash/core/enums/warehouse_value_type_enum.dart';
 import 'package:flowcash/core/tables/warehouse_values_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class WarehouseValueModel extends WarehouseValueEntity {
+final class WarehouseValueModel extends WarehouseValueEntity implements Model {
   const WarehouseValueModel({
     required super.id,
     required super.warehouseId,
@@ -21,6 +22,7 @@ final class WarehouseValueModel extends WarehouseValueEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) WarehouseValuesTable().id: id,

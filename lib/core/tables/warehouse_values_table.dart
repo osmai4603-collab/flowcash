@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول القيم الافتراضية للمستودع.
-class WarehouseValuesTable extends TableInfo {
+class WarehouseValuesTable extends TableById {
   static final WarehouseValuesTable _instance = WarehouseValuesTable.internal();
 
   factory WarehouseValuesTable() => _instance;

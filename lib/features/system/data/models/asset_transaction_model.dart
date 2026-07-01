@@ -1,8 +1,9 @@
 import 'package:flowcash/core/enums/histories_group_enum.dart';
 import 'package:flowcash/features/system/domain/entities/asset_transaction_entity.dart';
 import 'package:flowcash/core/tables/assets_transactions_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class AssetTransactionModel extends AssetTransactionEntity {
+final class AssetTransactionModel extends AssetTransactionEntity implements Model {
   const AssetTransactionModel({
     required super.id,
     required super.createdAt,
@@ -37,6 +38,7 @@ final class AssetTransactionModel extends AssetTransactionEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       AssetsTransactionsTable().id: id,

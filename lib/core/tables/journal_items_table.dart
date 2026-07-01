@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول بنود قيود اليومية.
-class JournalItemsTable extends TableInfo {
+class JournalItemsTable extends TableById {
   static final JournalItemsTable _instance = JournalItemsTable.internal();
 
   factory JournalItemsTable() => _instance;
@@ -11,7 +11,8 @@ class JournalItemsTable extends TableInfo {
   @override
   final String tableName = 'journal_items';
 
-  final String itemId = 'item_id';
+  @override
+  final String id = 'item_id';
   final String entryId = 'entry_id';
   final String accountId = 'account_id';
   final String amount = 'amount';
@@ -22,7 +23,8 @@ class JournalItemsTable extends TableInfo {
   final String journalStatus = 'journal_status';
 
   @override
-  List<String> get columns => [itemId,
+  List<String> get columns => [
+    id,
     entryId,
     accountId,
     amount,
@@ -30,5 +32,6 @@ class JournalItemsTable extends TableInfo {
     currencyId,
     exPrice,
     exPriceMain,
-    journalStatus,];
+    journalStatus,
+  ];
 }

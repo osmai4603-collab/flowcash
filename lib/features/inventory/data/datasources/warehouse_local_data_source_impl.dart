@@ -8,7 +8,7 @@ import 'package:flowcash/core/tables/warehouse_values_table.dart';
 import 'package:flowcash/core/tables/warehouses_table.dart';
 
 final class WarehouseLocalDataSourceImpl implements WarehouseDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const WarehouseLocalDataSourceImpl(this._db);
 
   @override

@@ -10,6 +10,7 @@ import 'package:flowcash/features/categories/presentation/blocs/main_category_fo
 import 'package:flowcash/features/categories/presentation/blocs/main_category_form/main_category_form_event.dart';
 import 'package:flowcash/features/categories/presentation/blocs/main_category_form/main_category_form_state.dart';
 import 'package:flowcash/features/injection_container.dart';
+import 'package:flowcash/core/models/model.dart';
 
 import 'package:flowcash/widgets/message.dart';
 import 'package:flowcash/widgets/my_text_widget.dart';

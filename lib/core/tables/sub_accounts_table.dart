@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول الحسابات الفرعية.
-class SubAccountsTable extends TableInfo {
+class SubAccountsTable extends TableById {
   static final SubAccountsTable _instance = SubAccountsTable.internal();
 
   factory SubAccountsTable() => _instance;

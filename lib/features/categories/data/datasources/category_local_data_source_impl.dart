@@ -15,7 +15,7 @@ import 'package:flowcash/features/settings/data/models/value_counter_model.dart'
 import '../models/category_attribute_model.dart';
 
 final class CategoryLocalDataSourceImpl implements CategoryLocalDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const CategoryLocalDataSourceImpl(this._db);
 
   @override

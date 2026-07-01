@@ -148,33 +148,47 @@ class BillRepositoryImpl implements BillRepository {
     required List<ExchangePriceEntity> exPrices,
   }) async {
     try {
-      final result = await (switch (bill.billType) {
-        SalesInvoiceType() => _postSalesBill(
-          bill,
-          userId,
-          currencyId,
-          exPrices,
+      final journalEntry = await _journalEntryDataSource.insert(
+        JournalEntryEntity(
+          id: 0,
+          referenceNumber: bill.billType.invoiceTypeName,
+          description: bill.billHistory,
+          createdAt: bill.createdAt,
+          createdBy: userId,
+          currencyId: currencyId,
+          baseAmount: bill.offerAmount,
+          warehouseId: bill.warehouseId,
+          items: [],
         ),
-        PurchaseInvoiceType() => _postPurchaseBill(
-          bill,
-          userId,
-          currencyId,
-          exPrices,
-        ),
-        SalesReturnInvoiceType() => _postSalesReturnBill(
-          bill,
-          userId,
-          currencyId,
-          exPrices,
-        ),
-        PurchaseReturnInvoiceType() => _postPurchaseReturnBill(
-          bill,
-          userId,
-          currencyId,
-          exPrices,
-        ),
-      });
-      return right(result);
+      );
+      await _dataSource.updateJournalEntry(id: bill.id, journalEntryId: journalEntry.id);
+      // final result = await (switch (bill.billType) {
+      //   SalesInvoiceType() => _postSalesBill(
+      //     bill,
+      //     userId,
+      //     currencyId,
+      //     exPrices,
+      //   ),
+      //   PurchaseInvoiceType() => _postPurchaseBill(
+      //     bill,
+      //     userId,
+      //     currencyId,
+      //     exPrices,
+      //   ),
+      //   SalesReturnInvoiceType() => _postSalesReturnBill(
+      //     bill,
+      //     userId,
+      //     currencyId,
+      //     exPrices,
+      //   ),
+      //   PurchaseReturnInvoiceType() => _postPurchaseReturnBill(
+      //     bill,
+      //     userId,
+      //     currencyId,
+      //     exPrices,
+      //   ),
+      // });
+      return right(bill.copyWith(journalEntryId: journalEntry.id));
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
     }

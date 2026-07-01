@@ -1,7 +1,8 @@
 import 'package:flowcash/core/tables/exchange_prices_table.dart';
 import 'package:flowcash/features/currencies/domain/entities/exchange_price_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class ExchangePriceModel extends ExchangePriceEntity {
+final class ExchangePriceModel extends ExchangePriceEntity implements Model {
   const ExchangePriceModel({
     required super.id,
     required super.fromCurrencyId,
@@ -18,6 +19,7 @@ final class ExchangePriceModel extends ExchangePriceEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) ExchangePricesTable().id: id,

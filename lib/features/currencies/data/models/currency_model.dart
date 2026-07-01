@@ -1,7 +1,8 @@
 import 'package:flowcash/core/tables/currencies_table.dart';
 import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class CurrencyModel extends CurrencyEntity {
+final class CurrencyModel extends CurrencyEntity implements Model {
   const CurrencyModel({
     required super.id,
     required super.name,
@@ -18,6 +19,7 @@ final class CurrencyModel extends CurrencyEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       CurrenciesTable().id: id,

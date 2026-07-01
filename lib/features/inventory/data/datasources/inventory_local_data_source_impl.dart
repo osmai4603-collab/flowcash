@@ -11,7 +11,7 @@ import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/inventories_table.dart';
 
 final class InventoryLocalDataSourceImpl implements InventoryDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const InventoryLocalDataSourceImpl(this._db);
 
   @override
@@ -182,11 +182,10 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
       args.add(warehouseId);
     }
 
-    final db = await _db.database;
-    final stmt = db.prepare(buffer.toString());
-    final results = stmt.select(args);
-    final rows = results.map((r) => Map<String, dynamic>.from(r)).toList();
-    stmt.dispose();
+    final rows = await _db.rawQuery(
+      buffer.toString(),
+      warehouseId != null ? [warehouseId] : null,
+    );
     return rows.map(InventoryCategoryModel.fromMap).toList();
   }
 
@@ -196,11 +195,10 @@ final class InventoryLocalDataSourceImpl implements InventoryDataSource {
   ) async {
     final sql =
         'SELECT i.${InventoriesTable().id} AS inventory_id, i.${InventoriesTable().categoryId} AS category_id, i.${InventoriesTable().storeId} AS store_id, i.${InventoriesTable().propertyAccountId} AS property_id, i.${InventoriesTable().revenueAccountId} AS revenue_id, i.${InventoriesTable().expenseAccountId} AS expense_id, i.${InventoriesTable().incomeStockId} AS income_stock_id, i.${InventoriesTable().outcomeStockId} AS outcome_stock_id, i.${InventoriesTable().costTotal} AS cost_total, i.${InventoriesTable().countUnits} AS count_units, c.${CategoriesTable().categoryName} AS category_name, c.${CategoriesTable().categoryUnitId} AS category_unit_id, u.${UnitsTable().unitName} AS unit_name, u.${UnitsTable().length} AS unit_length, u.${UnitsTable().width} AS unit_width, u.${UnitsTable().thickness} AS unit_thickness, u.${UnitsTable().unitType} AS unit_type FROM ${InventoriesTable().tableName} i LEFT JOIN ${CategoriesTable().tableName} c ON i.${InventoriesTable().categoryId} = c.${CategoriesTable().id} LEFT JOIN ${UnitsTable().tableName} u ON c.${CategoriesTable().categoryUnitId} = u.${UnitsTable().id} WHERE i.${InventoriesTable().id} = ? LIMIT 1';
-    final db = await _db.database;
-    final stmt = db.prepare(sql);
-    final results = stmt.select([id]);
-    final rows = results.map((r) => Map<String, dynamic>.from(r)).toList();
-    stmt.dispose();
+    final rows = await _db.rawQuery(
+      sql,
+      [id]
+    );
     return InventoryCategoryModel.fromMap(rows.first);
   }
 

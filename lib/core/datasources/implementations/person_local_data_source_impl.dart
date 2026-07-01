@@ -5,7 +5,7 @@ import 'package:flowcash/core/tables/persons_table.dart';
 import 'package:flowcash/core/enums/person_type_enum.dart';
 
 final class PersonLocalDataSourceImpl implements PersonDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const PersonLocalDataSourceImpl(this._db);
 
   @override

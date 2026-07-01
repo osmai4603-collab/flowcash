@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول الفواتير.
-class BillsTable extends TableInfo {
+class BillsTable extends TableById {
   static final BillsTable _instance = BillsTable.internal();
 
   factory BillsTable() => _instance;
@@ -11,6 +11,7 @@ class BillsTable extends TableInfo {
   @override
   final String tableName = 'bills';
 
+  @override
   final String id = 'bill_id';
   final String createdAt = 'create_at';
   final String createdBy = 'create_by';

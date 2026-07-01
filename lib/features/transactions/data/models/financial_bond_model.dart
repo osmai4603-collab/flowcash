@@ -1,8 +1,9 @@
 import 'package:flowcash/core/enums/histories_group_enum.dart';
 import 'package:flowcash/features/transactions/domain/entities/financial_bond_entity.dart';
 import 'package:flowcash/core/tables/financial_bonds_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class FinancialBondModel extends FinancialBondEntity {
+final class FinancialBondModel extends FinancialBondEntity implements Model {
   const FinancialBondModel({
     required super.id,
     required super.createdAt,
@@ -35,6 +36,7 @@ final class FinancialBondModel extends FinancialBondEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       FinancialBondsTable().id: id,

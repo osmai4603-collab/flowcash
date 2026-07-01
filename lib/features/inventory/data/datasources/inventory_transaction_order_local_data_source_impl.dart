@@ -7,7 +7,7 @@ import 'package:flowcash/core/enums/inventory_transaction_type_enum.dart';
 
 final class InventoryTransactionOrderLocalDataSourceImpl
     implements InventoryTransactionOrderDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const InventoryTransactionOrderLocalDataSourceImpl(this._db);
 
   @override

@@ -1,7 +1,8 @@
 import 'package:flowcash/features/system/domain/entities/hint_entity.dart';
 import 'package:flowcash/core/tables/hints_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class HintModel extends HintEntity {
+final class HintModel extends HintEntity implements Model {
   const HintModel({
     required super.id,
     required super.hintName,
@@ -16,6 +17,7 @@ final class HintModel extends HintEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       HintsTable().id: id,

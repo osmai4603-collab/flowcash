@@ -15,7 +15,7 @@ class CustomersPage extends StatefulWidget {
 
 class _CustomersPageState extends State<CustomersPage> {
   final searchController = TextEditingController();
-  final _dataSource = PersonLocalDataSourceImpl(sl<SqliteService>());
+  final _dataSource = PersonLocalDataSourceImpl(sl<SqliteDatabase>());
 
   bool _isLoading = true;
   List<PersonEntity> _persons = [];

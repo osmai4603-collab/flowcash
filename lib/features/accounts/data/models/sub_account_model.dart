@@ -1,8 +1,9 @@
 import 'package:flowcash/core/tables/sub_accounts_table.dart';
 import 'package:flowcash/core/enums/sub_account_type_enum.dart';
 import 'package:flowcash/features/accounts/domain/entities/sub_account_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class SubAccountModel extends SubAccountEntity {
+final class SubAccountModel extends SubAccountEntity implements Model {
   const SubAccountModel({
     required super.id,
     required super.mainAccountId,
@@ -31,6 +32,7 @@ final class SubAccountModel extends SubAccountEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) SubAccountsTable().id: id,

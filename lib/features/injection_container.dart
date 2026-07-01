@@ -1,4 +1,5 @@
 import 'package:flowcash/core/repositories/implementations/accounting_period_repository_impl.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_database_manager.dart';
 import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/features/auth/auth_injection.dart';
 import 'package:flowcash/features/accounts/accounts_injection.dart';
@@ -9,7 +10,6 @@ import 'package:flowcash/features/inventory/inventory_injection.dart';
 import 'package:flowcash/features/system/system_injection.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:flowcash/user_session.dart';
 import 'package:flowcash/features/inventory/domain/usecases/warehouse_usecases.dart';
 import 'package:flowcash/core/usecases/accounting_period_repository_usecases.dart';
@@ -57,8 +57,8 @@ Future<void> initDependencies() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
 
-  sl.registerLazySingleton<SqliteService>(() => SqliteService.instance);
-  await SqliteService.instance.database;
+  final db = await SqliteDatabaseManager.instance.database;
+  sl.registerLazySingleton<SqliteDatabase>(() => SqliteDatabase(db));
 
   //============================================================
   // Core - Data sources
@@ -79,7 +79,7 @@ Future<void> initDependencies() async {
     () => JournalEntryLocalDataSourceImpl(
       sl(),
       (item) => {
-        if (item.id > 0) JournalItemsTable().itemId: item.id,
+        if (item.id > 0) JournalItemsTable().id: item.id,
         JournalItemsTable().entryId: item.entryId,
         JournalItemsTable().accountId: item.accountId,
         JournalItemsTable().amount: item.amount,
@@ -133,7 +133,6 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => GetJournalEntryByIdUseCase(sl()));
   sl.registerLazySingleton(() => InsertJournalEntryUseCase(sl()));
   sl.registerLazySingleton(() => UpdateJournalEntryUseCase(sl()));
-  sl.registerLazySingleton(() => SaveJournalEntryWithItemsUseCase(sl()));
   sl.registerLazySingleton(() => DeleteJournalEntryUseCase(sl()));
   sl.registerLazySingleton(() => GetJournalItemsUseCase(sl()));
   sl.registerLazySingleton(() => GetJournalItemByIdUseCase(sl()));

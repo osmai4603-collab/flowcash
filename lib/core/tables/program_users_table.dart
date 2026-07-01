@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول مستخدمي البرنامج.
-class ProgramUsersTable extends TableInfo {
+class ProgramUsersTable extends TableById {
   static final ProgramUsersTable _instance = ProgramUsersTable.internal();
 
   factory ProgramUsersTable() => _instance;

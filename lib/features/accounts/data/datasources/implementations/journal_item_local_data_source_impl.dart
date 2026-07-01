@@ -4,10 +4,9 @@ import 'package:flowcash/features/accounts/data/models/journal_item_model.dart';
 import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/core/tables/journal_items_table.dart';
-import 'package:flowcash/core/enums/journal_status_enum.dart';
 
 final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const JournalItemLocalDataSourceImpl(this._db);
 
   @override
@@ -18,7 +17,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
     }
 
     final where =
-        '${JournalItemsTable().itemId} IN (${List.filled(ids.length, '?').join(', ')})';
+        '${JournalItemsTable().id} IN (${List.filled(ids.length, '?').join(', ')})';
     final rows = await _db.query(
       table: JournalItemsTable().tableName,
       where: where,
@@ -31,7 +30,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
   Future<JournalItemEntity?> getById(int id) async {
     final rows = await _db.query(
       table: JournalItemsTable().tableName,
-      where: '${JournalItemsTable().itemId} = ?',
+      where: '${JournalItemsTable().id} = ?',
       whereArgs: [id],
       limit: 1,
     );
@@ -56,7 +55,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
     await _db.update(
       table: JournalItemsTable().tableName,
       data: toMap(entity),
-      where: {JournalItemsTable().itemId: entity.id},
+      where: {JournalItemsTable().id: entity.id},
     );
     return entity;
   }
@@ -65,7 +64,7 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
   Future<bool> delete(int id) async {
     await _db.deleteWhere(
       table: JournalItemsTable().tableName,
-      where: {JournalItemsTable().itemId: id},
+      where: {JournalItemsTable().id: id},
     );
     return true;
   }
@@ -115,31 +114,17 @@ final class JournalItemLocalDataSourceImpl implements JournalItemDataSource {
 
   @override
   Future<List<JournalItemEntity>> whereWarehouse(int warehouseId) async {
-    final db = await _db.database;
-    final stmt = db.prepare('''
+    final rows = await _db.rawQuery(
+      '''
       SELECT ji.*
       FROM ${JournalItemsTable().tableName} AS ji
       INNER JOIN ${JournalEntriesTable().tableName} AS je
         ON ji.${JournalItemsTable().entryId} = je.${JournalEntriesTable().id}
       WHERE je.${JournalEntriesTable().warehouseId} = ?
-    ''');
-    final result = stmt.select([warehouseId]);
-    final items = result
-        .map((row) => fromMap(Map<String, dynamic>.from(row)))
-        .toList();
-    stmt.dispose();
-    return items;
+      ''',
+      [warehouseId],
+    );
+    return rows.map((row) => fromMap(Map<String, dynamic>.from(row))).toList();
   }
 
-  Map<String, dynamic> _sanitizeInsertData(
-    Map<String, dynamic> data,
-    String idKey,
-  ) {
-    if (data[idKey] is int && (data[idKey] as int) <= 0) {
-      final sanitized = Map<String, dynamic>.from(data);
-      sanitized.remove(idKey);
-      return sanitized;
-    }
-    return data;
-  }
 }

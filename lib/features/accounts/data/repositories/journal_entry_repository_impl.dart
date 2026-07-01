@@ -2,7 +2,6 @@ import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/accounts/data/datasources/interfaces/journal_entry_data_source.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
-import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
 import 'package:flowcash/features/accounts/domain/repositories/journal_entry_repository.dart';
 
 class JournalEntryRepositoryImpl implements JournalEntryRepository {
@@ -60,21 +59,6 @@ class JournalEntryRepositoryImpl implements JournalEntryRepository {
     try {
       final entityUpdated = await _dataSource.update(entity);
       return Right(entityUpdated);
-    } on Failure catch (f) {
-      return Left(f);
-    } catch (e) {
-      return Left(DatabaseFailure(e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, JournalEntryEntity>> saveWithItems(
-    JournalEntryEntity entry,
-    List<JournalItemEntity> items,
-  ) async {
-    try {
-      final savedEntry = await _dataSource.saveWithItems(entry, items);
-      return Right(savedEntry);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {

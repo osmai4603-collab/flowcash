@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flowcash/core/models/model.dart';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';

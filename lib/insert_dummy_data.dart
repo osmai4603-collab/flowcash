@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
+import 'package:flowcash/core/services/sqlite/sqlite_database_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:sqlite3/open.dart';
@@ -39,7 +40,7 @@ void main() async {
   // Initialize active database (creates/opens cashing.db in Application Documents Directory)
   final db = await SqliteDatabaseManager.instance.database;
 
-  print('Database initialized. Path: ${await SqliteService.instance.databasePath}');
+  print('Database initialized. Path: ${await SqliteDatabaseManager.instance.databasePath}');
 
   // Clean up old incorrect data
   print('Cleaning up old test data...');

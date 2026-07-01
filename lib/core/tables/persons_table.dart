@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول الأشخاص.
-class PersonsTable extends TableInfo {
+class PersonsTable extends TableById {
   static final PersonsTable _instance = PersonsTable.internal();
 
   factory PersonsTable() => _instance;
@@ -11,6 +11,7 @@ class PersonsTable extends TableInfo {
   @override
   final String tableName = 'persons';
 
+  @override
   final String id = 'person_id';
   final String personName = 'person_name';
   final String phoneNumber = 'phone_number';

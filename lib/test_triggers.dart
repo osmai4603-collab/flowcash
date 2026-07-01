@@ -127,7 +127,7 @@ void main() {
   );
   db.execute('''
     INSERT INTO ${JournalItemsTable().tableName} (
-      ${JournalItemsTable().itemId}, ${JournalItemsTable().entryId}, ${JournalItemsTable().accountId},
+      ${JournalItemsTable().id}, ${JournalItemsTable().entryId}, ${JournalItemsTable().accountId},
       ${JournalItemsTable().amount}, ${JournalItemsTable().lineDescription}, ${JournalItemsTable().currencyId},
       ${JournalItemsTable().exPrice}, ${JournalItemsTable().exPriceMain}, ${JournalItemsTable().journalStatus}
     ) VALUES (200, 100, 10, 1000.0, 'مدين الصندوق', 'YER', 1.0, 1.0, 'increment')
@@ -135,7 +135,7 @@ void main() {
 
   db.execute('''
     INSERT INTO ${JournalItemsTable().tableName} (
-      ${JournalItemsTable().itemId}, ${JournalItemsTable().entryId}, ${JournalItemsTable().accountId},
+      ${JournalItemsTable().id}, ${JournalItemsTable().entryId}, ${JournalItemsTable().accountId},
       ${JournalItemsTable().amount}, ${JournalItemsTable().lineDescription}, ${JournalItemsTable().currencyId},
       ${JournalItemsTable().exPrice}, ${JournalItemsTable().exPriceMain}, ${JournalItemsTable().journalStatus}
     ) VALUES (201, 100, 11, 1000.0, 'دائن رأس المال', 'YER', 1.0, 1.0, 'decrement')
@@ -194,7 +194,7 @@ void main() {
   db.execute('''
     UPDATE ${JournalItemsTable().tableName}
     SET ${JournalItemsTable().amount} = 1500.0
-    WHERE ${JournalItemsTable().itemId} = 200
+    WHERE ${JournalItemsTable().id} = 200
   ''');
 
   rowSubBox = db

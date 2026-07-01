@@ -10,7 +10,7 @@ import 'package:flowcash/core/enums/unit_type_enum.dart';
 
 final class MainCategoryLocalDataSourceImpl
     implements MainCategoryLocalDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const MainCategoryLocalDataSourceImpl(this._db);
 
   @override

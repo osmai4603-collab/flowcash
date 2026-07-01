@@ -1,7 +1,8 @@
 import 'package:flowcash/core/tables/cost_good_bill_orders_table.dart';
 import 'package:flowcash/features/transactions/domain/entities/cost_good_bill_order_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class CostGoodBillOrderModel extends CostGoodBillOrderEntity {
+final class CostGoodBillOrderModel extends CostGoodBillOrderEntity implements Model {
   const CostGoodBillOrderModel({
     required super.id,
     required super.costGoodBillId,
@@ -20,6 +21,7 @@ final class CostGoodBillOrderModel extends CostGoodBillOrderEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) CostGoodBillOrdersTable().id: id,

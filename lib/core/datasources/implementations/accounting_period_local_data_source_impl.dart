@@ -6,7 +6,7 @@ import 'package:flowcash/core/tables/accounting_periods_table.dart';
 
 final class AccountingPeriodLocalDataSourceImpl
     implements AccountingPeriodDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const AccountingPeriodLocalDataSourceImpl(this._db);
 
   @override

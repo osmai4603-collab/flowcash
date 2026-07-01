@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول حركات الأصول.
-class AssetsTransactionsTable extends TableInfo {
+class AssetsTransactionsTable extends TableById {
   static final AssetsTransactionsTable _instance =
       AssetsTransactionsTable.internal();
 

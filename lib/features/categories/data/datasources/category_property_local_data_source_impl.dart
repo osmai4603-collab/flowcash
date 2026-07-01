@@ -6,7 +6,7 @@ import 'package:flowcash/core/enums/unit_type_enum.dart';
 
 final class CategoryPropertyLocalDataSourceImpl
     implements CategoryPropertyDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const CategoryPropertyLocalDataSourceImpl(this._db);
 
   @override

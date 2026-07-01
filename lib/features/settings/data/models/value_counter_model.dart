@@ -1,8 +1,9 @@
 import 'package:flowcash/core/tables/values_counter_table.dart';
 import 'package:flowcash/core/enums/value_counter_type_enum.dart';
 import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class ValueCounterModel extends ValueCounterEntity {
+final class ValueCounterModel extends ValueCounterEntity implements Model {
   const ValueCounterModel({
     required super.id,
     required super.counterType,
@@ -24,6 +25,7 @@ final class ValueCounterModel extends ValueCounterEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) ValuesCounterTable().id: id,

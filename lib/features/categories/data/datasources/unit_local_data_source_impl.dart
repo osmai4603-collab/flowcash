@@ -9,7 +9,7 @@ import 'package:flowcash/core/tables/catalog_infos_table.dart';
 import 'package:flowcash/core/enums/unit_type_enum.dart';
 
 final class UnitLocalDataSourceImpl implements UnitLocalDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const UnitLocalDataSourceImpl(this._db);
 
   @override

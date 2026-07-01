@@ -2,8 +2,9 @@ import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
 import 'package:flowcash/core/enums/unit_type_enum.dart';
 import 'package:flowcash/core/tables/units_table.dart';
 import 'package:flowcash/features/categories/domain/entities/measurable_unit.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class UnitModel extends UnitEntity {
+final class UnitModel extends UnitEntity implements Model {
   const UnitModel({
     required super.id,
     required super.unitName,
@@ -28,6 +29,7 @@ final class UnitModel extends UnitEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     final table = UnitsTable();
     return {

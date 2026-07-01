@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول الفترات المحاسبية.
-class AccountingPeriodsTable extends TableInfo {
+class AccountingPeriodsTable extends TableById {
   static final AccountingPeriodsTable _instance =
       AccountingPeriodsTable.internal();
 
@@ -12,6 +12,7 @@ class AccountingPeriodsTable extends TableInfo {
   @override
   final String tableName = 'accounting_periods';
 
+  @override
   final String id = 'period_id';
   final String balance = 'money_head';
   final String currencyId = 'currency_id';

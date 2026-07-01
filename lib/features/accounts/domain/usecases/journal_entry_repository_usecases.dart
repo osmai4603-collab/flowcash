@@ -1,7 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
-import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
 import 'package:flowcash/features/accounts/domain/repositories/journal_entry_repository.dart';
 
 class GetJournalEntriesUseCase {
@@ -60,15 +59,3 @@ class DeleteJournalEntryUseCase {
   }
 }
 
-class SaveJournalEntryWithItemsUseCase {
-  final JournalEntryRepository _repository;
-
-  const SaveJournalEntryWithItemsUseCase(this._repository);
-
-  Future<Either<Failure, JournalEntryEntity>> call(
-    JournalEntryEntity entry,
-    List<JournalItemEntity> items,
-  ) async {
-    return await _repository.saveWithItems(entry, items);
-  }
-}

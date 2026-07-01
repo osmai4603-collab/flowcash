@@ -5,7 +5,7 @@ import 'package:flowcash/core/tables/categories_attributes_table.dart';
 
 final class CategoryAttributeLocalDataSourceImpl
     implements CategoryAttributeDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const CategoryAttributeLocalDataSourceImpl(this._db);
 
   @override

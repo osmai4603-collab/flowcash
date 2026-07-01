@@ -1,8 +1,9 @@
 import 'package:flowcash/core/tables/main_accounts_table.dart';
 import 'package:flowcash/core/enums/main_account_type_enum.dart';
 import 'package:flowcash/features/accounts/domain/entities/main_account_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class MainAccountModel extends MainAccountEntity {
+final class MainAccountModel extends MainAccountEntity implements Model {
   const MainAccountModel({
     required super.id,
     super.accountName = '',
@@ -32,6 +33,7 @@ final class MainAccountModel extends MainAccountEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) MainAccountsTable().id: id,

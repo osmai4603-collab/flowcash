@@ -1,8 +1,9 @@
 import 'package:flowcash/core/enums/histories_group_enum.dart';
 import 'package:flowcash/core/entities/capital_transaction_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
 // TODO: Replace with the actual table class (e.g. CapitalTransactionsTable) when it exists.
-final class CapitalTransactionModel extends CapitalTransactionEntity {
+final class CapitalTransactionModel extends CapitalTransactionEntity implements Model {
   const CapitalTransactionModel({
     required super.id,
     required super.createdAt,
@@ -37,6 +38,7 @@ final class CapitalTransactionModel extends CapitalTransactionEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,

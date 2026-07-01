@@ -1,8 +1,9 @@
 import 'package:flowcash/core/entities/person_entity.dart';
 import 'package:flowcash/core/enums/person_type_enum.dart';
 import 'package:flowcash/core/tables/persons_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class PersonModel extends PersonEntity {
+final class PersonModel extends PersonEntity implements Model {
   const PersonModel({
     required super.id,
     super.personName = '',
@@ -33,6 +34,7 @@ final class PersonModel extends PersonEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       PersonsTable().id: id,

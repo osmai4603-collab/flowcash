@@ -1,99 +1,26 @@
-import 'dart:io';
-
-import 'package:flowcash/core/services/sqlite/sqlite_default_data.dart';
-import 'package:flowcash/core/services/sqlite/sqlite_schema_manager.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqlite3/sqlite3.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 
-final class SqliteDatabaseManager {
-  static SqliteDatabaseManager? _instance;
-  static SqliteDatabaseManager get instance =>
-      _instance ??= const SqliteDatabaseManager._();
-  const SqliteDatabaseManager._();
+final class SqliteDatabase {
+  SqliteDatabase(this._db);
 
-  static Database? _database;
-  static String? _databasePath;
-  static const int _version = SqliteSchemaManager.currentVersion;
-  static const String _dbName = 'cashing.db';
-
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDb();
-    return _database!;
-  }
-
-  Future<Database> _initDb() async {
-    final dbFolder = await getApplicationSupportDirectory();
-    final path = join(dbFolder.path, _dbName);
-    _databasePath = path;
-
-    debugPrint('DATABASE PATH: $path');
-
-    final db = sqlite3.open(path);
-
-    // Enable foreign keys
-    db.execute('PRAGMA foreign_keys = ON');
-
-    final currentVersion = db.userVersion;
-
-    if (currentVersion == 0) {
-      // Fresh DB: create the full schema and insert defaults.
-      SqliteSchemaManager.createAll(db);
-      DefaultDataInserter.insertDefaults(db);
-      db.userVersion = _version;
-    } else if (currentVersion < _version) {
-      // Incremental migrations from the existing schema to the current version.
-      SqliteSchemaManager.migrate(db, currentVersion, _version);
-      db.userVersion = _version;
-      DefaultDataInserter.insertDefaults(db);
-    } else {
-      // Existing DB at current schema version: ensure required default rows exist.
-      DefaultDataInserter.insertDefaults(db);
-    }
-
-    return db;
-  }
-
-  Future<void> closeDatabase() async {
-    if (_database != null) {
-      _database!.dispose();
-      _database = null;
-    }
-  }
-
-  // Schema and default data are handled by SqliteSchemaManager and DefaultDataInserter.
-}
-
-final class SqliteService {
-  static SqliteService? _instance;
-  static SqliteService get instance => _instance ??= const SqliteService._();
-  const SqliteService._();
-  factory SqliteService() => instance;
-
-  static Database? overrideDatabase;
-
-  Future<Database> get database async =>
-      overrideDatabase ?? SqliteDatabaseManager.instance.database;
+  final Database _db;
 
   /// Insert a map of values into the database and return the last inserted row id.
   Future<int> insert({
     required String table,
     required Map<String, dynamic> data,
   }) async {
-    _validateNotNullBillNumber(table: table, data: data);
-
-    final db = await database;
     final columns = data.keys.join(', ');
     final placeholders = List.filled(data.length, '?').join(', ');
     final query = 'INSERT INTO $table ($columns) VALUES ($placeholders)';
-    debugPrint(
+    _log(
       'INSERT INTO $table ($columns) VALUES ("${data.values.join('", "')}")',
     );
-    final stmt = db.prepare(query);
+    final stmt = _db.prepare(query);
     stmt.execute(data.values.toList());
-    final lastInsertId = db.lastInsertRowId;
+    final lastInsertId = _db.lastInsertRowId;
     stmt.dispose();
     return lastInsertId;
   }
@@ -104,44 +31,42 @@ final class SqliteService {
     required List<Map<String, dynamic>> dataList,
   }) async {
     if (dataList.isEmpty) return;
-    final db = await database;
+
     final columns = dataList.first.keys.join(', ');
     final placeholders = List.filled(dataList.first.length, '?').join(', ');
     final sql = 'INSERT INTO $table ($columns) VALUES ($placeholders)';
-    debugPrint(sql);
-    final stmt = db.prepare(sql);
+    _log(sql);
+    final stmt = _db.prepare(sql);
 
     for (final data in dataList) {
-      _validateNotNullBillNumber(table: table, data: data);
       stmt.execute(data.values.toList());
     }
     stmt.dispose();
   }
 
   Future<T> transaction<T>(Future<T> Function() action) async {
-    final db = await database;
-    final inTransaction = !db.autocommit;
+    final inTransaction = !_db.autocommit;
     if (inTransaction) {
-      debugPrint('Nested transaction detected, running action directly...');
+      _log('Nested transaction detected, running action directly...');
       return await action();
     }
-    debugPrint(
+    _log(
       'Start Transaction....................................................',
     );
-    db.execute('BEGIN');
+    _db.execute('BEGIN');
     try {
       final result = await action();
-      debugPrint(
+      _log(
         'Commit Transaction....................................................',
       );
-      db.execute('COMMIT');
+      _db.execute('COMMIT');
       return result;
     } catch (e) {
-      debugPrint(e.toString());
-      debugPrint(
+      _log(e.toString());
+      _log(
         'RollBack Transaction....................................................',
       );
-      db.execute('ROLLBACK');
+      _db.execute('ROLLBACK');
       rethrow;
     }
   }
@@ -152,31 +77,86 @@ final class SqliteService {
     required Map<String, dynamic> data,
     required Map<String, dynamic> where,
   }) async {
-    _validateNotNullBillNumber(table: table, data: data);
-
-    final db = await database;
     final setClause = data.keys.map((k) => '$k = ?').join(', ');
     final whereClause = where.keys.map((k) => '$k = ?').join(' AND ');
     final sql = 'UPDATE $table SET $setClause WHERE $whereClause';
-    final stmt = db.prepare(sql);
-    debugPrint(
-      '$sql,  with args: ${[...data.values, ...where.values].join(', ')}',
-    );
+    final stmt = _db.prepare(sql);
+    _log('$sql,  with args: ${[...data.values, ...where.values].join(', ')}');
     stmt.execute([...data.values, ...where.values]);
     stmt.dispose();
   }
 
-  void _validateNotNullBillNumber({
-    required String table,
-    required Map<String, dynamic> data,
-  }) {
-    if (data.containsKey('bill_number') && data['bill_number'] == null) {
-      throw ArgumentError.value(
-        data['bill_number'],
-        'bill_number',
-        'bill_number must not be null for table $table',
-      );
-    }
+  Future<Map<String, dynamic>?> getById<T>({
+    required TableById table,
+    required T id,
+  }) async {
+    return fetchFirst(
+      tableName: table.tableName,
+      where: '${table.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<Model?> getByIdToModel<Id, Model>({
+    required TableById table,
+    required Id id,
+    required Model Function(Map<String, dynamic>) toModel,
+  }) async {
+    final result = await getById(table: table, id: id);
+    return result != null ? toModel(result) : null;
+  }
+
+  Future<bool> deleteById<T>({required TableById table, required T id}) async {
+    await deleteWhere(table: table.tableName, where: {table.id: id});
+    return true;
+  }
+
+  Future<List<Map<String, dynamic>>> getByIds<T>({
+    required TableById table,
+    required Iterable<T> ids,
+  }) async {
+    if (ids.isEmpty) return [];
+    final rowsIds = ids.toSet().toList();
+
+    final placeholders = List.filled(rowsIds.length, '?').join(', ');
+    return query(
+      table: table.tableName,
+      where: '${table.id} IN ($placeholders)',
+      whereArgs: rowsIds,
+      limit: rowsIds.length,
+    );
+  }
+
+  Future<List<Model>> getByIdsToModel<T, Model>({
+    required TableById table,
+    required Iterable<T> ids,
+    required Model Function(Map<String, dynamic>) toModel,
+  }) async {
+    if (ids.isEmpty) return [];
+    final rowsIds = ids.toSet().toList();
+
+    final placeholders = List.filled(rowsIds.length, '?').join(', ');
+    return queryToModels(
+      table: table.tableName,
+      where: '${table.id} IN ($placeholders)',
+      whereArgs: rowsIds,
+      limit: rowsIds.length,
+      toModel: toModel,
+    );
+  }
+
+  Future<bool> deleteByIds<T>({
+    required TableById table,
+    required Iterable<T> ids,
+  }) async {
+    if (ids.isEmpty) return true;
+
+    final rowsIds = ids.toSet().toList();
+    _db.execute(
+      'DELETE FROM ${table.tableName} WHERE ${table.id} IN (${List.filled(rowsIds.length, '?').join(', ')})',
+      rowsIds,
+    );
+    return true;
   }
 
   /// Delete rows matching [where] conditions.
@@ -184,15 +164,42 @@ final class SqliteService {
     required String table,
     required Map<String, dynamic> where,
   }) async {
-    final db = await database;
     if (where.isEmpty) {
-      db.execute('DELETE FROM $table');
+      _db.execute('DELETE FROM $table');
       return;
     }
     final whereClause = where.keys.map((k) => '$k = ?').join(' AND ');
-    final stmt = db.prepare('DELETE FROM $table WHERE $whereClause');
+    final stmt = _db.prepare('DELETE FROM $table WHERE $whereClause');
     stmt.execute(where.values.toList());
     stmt.dispose();
+  }
+
+  Future<Map<String, dynamic>?> fetchFirst({
+    required String tableName,
+    String? where,
+    List<Object?>? whereArgs,
+  }) async {
+    final result = await query(
+      table: tableName,
+      where: where,
+      whereArgs: whereArgs,
+      limit: 1,
+    );
+    return result.firstOrNull;
+  }
+
+  Future<Model?> fetchFirstToModel<Model>({
+    required String tableName,
+    String? where,
+    List<Object?>? whereArgs,
+    required Model Function(Map<String, dynamic>) toModel,
+  }) async {
+    final result = await fetchFirst(
+      tableName: tableName,
+      where: where,
+      whereArgs: whereArgs,
+    );
+    return result != null ? toModel(result) : null;
   }
 
   /// Query the database and return a list of rows.
@@ -203,7 +210,6 @@ final class SqliteService {
     String? orderBy,
     int? limit,
   }) async {
-    final db = await database;
     var sql = 'SELECT * FROM $table';
     if (where != null && where.isNotEmpty) {
       sql += ' WHERE $where';
@@ -214,18 +220,18 @@ final class SqliteService {
     if (limit != null && limit > 0) {
       sql += ' LIMIT $limit';
     }
-    debugPrint('$sql with args: $whereArgs');
-    final stmt = db.prepare(sql);
+    _log('$sql with args: $whereArgs');
+    final stmt = _db.prepare(sql);
     final ResultSet results = stmt.select(whereArgs ?? const []);
 
     final List<Map<String, dynamic>> list = [];
     for (final row in results) {
-      debugPrint(
+      _log(
         '  ${row.entries.map((entry) => '${entry.key}: ${entry.value}').join(', ')}',
       );
       list.add(Map<String, dynamic>.from(row));
     }
-    list.isEmpty ? debugPrint('  NO ROWS RETURNED.\n') : debugPrint('');
+    list.isEmpty ? _log('  NO ROWS RETURNED.\n') : _log('');
     stmt.dispose();
     return list;
   }
@@ -235,9 +241,8 @@ final class SqliteService {
     String query, [
     List<Object?>? args,
   ]) async {
-    final db = await database;
-    debugPrint('$query with args: $args');
-    final stmt = db.prepare(query);
+    _log('$query with args: $args');
+    final stmt = _db.prepare(query);
     final ResultSet results = stmt.select(args ?? const []);
     final List<Map<String, dynamic>> list = results
         .map((row) => Map<String, dynamic>.from(row))
@@ -246,48 +251,41 @@ final class SqliteService {
     return list;
   }
 
-  Future<String> get databasePath async {
-    if (SqliteDatabaseManager._databasePath != null) {
-      return SqliteDatabaseManager._databasePath!;
-    }
-    await database;
-    return SqliteDatabaseManager._databasePath!;
-  }
-
-  Future<File> copyDatabase(String destinationPath) async {
-    final sourcePath = await databasePath;
-    final file = File(sourcePath);
-    return await file.copy(destinationPath);
+  /// Registers a SQLite scalar function for use in SQL queries and triggers.
+  void createFunction({
+    required String functionName,
+    required ScalarFunction function,
+    AllowedArgumentCount argumentCount = const AllowedArgumentCount.any(),
+    bool deterministic = false,
+    bool directOnly = true,
+    bool subtype = false,
+  }) {
+    _db.createFunction(
+      functionName: functionName,
+      function: function,
+      argumentCount: argumentCount,
+      deterministic: deterministic,
+      directOnly: directOnly,
+      subtype: subtype,
+    );
   }
 
   Future<void> execute(String query) async {
-    final db = await database;
-    db.execute(query);
+    _db.execute(query);
   }
 
-  Future<List<String>> getTableNames() async {
-    final db = await database;
-    final stmt = db.prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';",
+  void _log(String message) {
+    debugPrint(message);
+  }
+  
+  Future<List<Model>> queryToModels<Model>({required String table, required String where, required List<Object?> whereArgs, required int limit, required Model Function(Map<String, dynamic>) toModel}) async {
+    final rows = await query(
+      table: table,
+      where: where,
+      whereArgs: whereArgs,
+      limit: limit,
     );
-    final ResultSet result = stmt.select();
-    final names = <String>[];
-    for (final row in result) {
-      names.add(row['name'] as String);
-    }
-    stmt.dispose();
-    return names;
+    return rows.map(toModel).toList(growable: false);
   }
 
-  Future<void> closeDatabase() async {
-    await SqliteDatabaseManager.instance.closeDatabase();
-  }
-
-  Future<void> restoreDatabase(String sourcePath) async {
-    await closeDatabase();
-    final destPath = await databasePath;
-    final backupFile = File(sourcePath);
-    await backupFile.copy(destPath);
-    await database; // re-open database connection
-  }
 }

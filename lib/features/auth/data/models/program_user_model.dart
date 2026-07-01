@@ -1,8 +1,9 @@
 import 'package:flowcash/core/tables/program_users_table.dart';
 import 'package:flowcash/core/enums/user_type_enum.dart';
 import '../../domain/entities/program_user_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class ProgramUserModel extends ProgramUserEntity {
+final class ProgramUserModel extends ProgramUserEntity implements Model {
   const ProgramUserModel({
     required super.id,
     required super.userName,
@@ -22,6 +23,7 @@ final class ProgramUserModel extends ProgramUserEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       ProgramUsersTable().userName: userName,

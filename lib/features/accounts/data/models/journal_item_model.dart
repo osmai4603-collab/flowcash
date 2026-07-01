@@ -1,8 +1,9 @@
 import 'package:flowcash/core/tables/journal_items_table.dart';
 import 'package:flowcash/core/enums/journal_status_enum.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class JournalItemModel extends JournalItemEntity {
+final class JournalItemModel extends JournalItemEntity implements Model {
   const JournalItemModel({
     required super.id,
     required super.entryId,
@@ -17,7 +18,7 @@ final class JournalItemModel extends JournalItemEntity {
 
   factory JournalItemModel.fromMap(Map<String, dynamic> map) {
     return JournalItemModel(
-      id: map[JournalItemsTable().itemId] as int,
+      id: map[JournalItemsTable().id] as int,
       entryId: map[JournalItemsTable().entryId] as int,
       accountId: map[JournalItemsTable().accountId] as int,
       amount: ((map[JournalItemsTable().amount]) as num).toDouble(),
@@ -29,9 +30,10 @@ final class JournalItemModel extends JournalItemEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
-      if (id > 0) JournalItemsTable().itemId: id,
+      if (id > 0) JournalItemsTable().id: id,
       JournalItemsTable().entryId: entryId,
       JournalItemsTable().accountId: accountId,
       JournalItemsTable().amount: amount,

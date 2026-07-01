@@ -5,8 +5,9 @@ import 'package:flowcash/core/tables/inventories_table.dart';
 import 'package:flowcash/core/tables/categories_table.dart';
 import 'package:flowcash/core/tables/units_table.dart';
 import 'package:flowcash/core/enums/unit_type_enum.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class InventoryCategoryModel extends InventoryCategoryEntity {
+final class InventoryCategoryModel extends InventoryCategoryEntity implements Model {
   const InventoryCategoryModel({
     required super.inventoryId,
     required super.categoryId,
@@ -50,6 +51,7 @@ final class InventoryCategoryModel extends InventoryCategoryEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       'inventory_id': inventoryId,

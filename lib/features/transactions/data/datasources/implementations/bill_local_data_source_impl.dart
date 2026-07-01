@@ -9,7 +9,7 @@ import 'package:flowcash/core/tables/bills_table.dart';
 import '../../../../../core/tables/persons_table.dart';
 
 final class BillLocalDataSourceImpl implements BillDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   final Map<String, dynamic> Function(BillOrderEntity) orderToMap;
   const BillLocalDataSourceImpl(this._db, this.orderToMap);
 

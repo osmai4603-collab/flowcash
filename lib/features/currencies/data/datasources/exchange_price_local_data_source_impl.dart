@@ -6,7 +6,7 @@ import 'package:flowcash/core/tables/exchange_prices_table.dart';
 
 final class ExchangePriceLocalDataSourceImpl
     implements ExchangePriceDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const ExchangePriceLocalDataSourceImpl(this._db);
 
   @override

@@ -1,7 +1,8 @@
 import 'package:flowcash/features/categories/domain/entities/category_attribute_entity.dart';
 import 'package:flowcash/core/tables/categories_attributes_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class CategoryAttributeModel extends CategoryAttributeEntity {
+final class CategoryAttributeModel extends CategoryAttributeEntity implements Model {
   const CategoryAttributeModel({
     required super.id,
     required super.subcategoryUnitId,
@@ -17,6 +18,7 @@ final class CategoryAttributeModel extends CategoryAttributeEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if(id > 0) CategoriesAttributesTable().id: id,

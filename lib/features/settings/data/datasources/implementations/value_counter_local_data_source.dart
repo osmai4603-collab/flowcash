@@ -6,7 +6,7 @@ import '../../models/value_counter_model.dart';
 import '../interfaces/value_counter_data_source.dart';
 
 class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
 
   const ValueCounterLocalDataSourceImpl(this._db);
 

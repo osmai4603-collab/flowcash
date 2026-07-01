@@ -1,3 +1,5 @@
+import 'package:flowcash/core/services/sqlite/sqlite_database_manager.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_service.dart';
 import 'package:flowcash/features/settings/domain/usecases/counters/set_counter.dart';
 import 'package:get_it/get_it.dart';
 
@@ -49,7 +51,7 @@ void initSettingsFeature(GetIt sl) {
     () => ValueCounterRepositoryImpl(sl()),
   );
   sl.registerLazySingleton<DatabaseRepository>(
-    () => DatabaseRepositoryImpl(sl()),
+    () => DatabaseRepositoryImpl(SqliteDatabaseManager.instance),
   );
 
   // Use cases

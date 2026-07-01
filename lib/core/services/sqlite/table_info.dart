@@ -5,4 +5,9 @@ abstract class TableInfo {
   List<String> get columns;
 
   List<String> get fields => columns;
+
+  @override
+  String toString() {
+    return tableName;
+  }
 }

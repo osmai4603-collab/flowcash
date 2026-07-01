@@ -4,8 +4,9 @@ import 'package:flowcash/features/categories/domain/entities/category_attribute_
 import 'package:flowcash/features/categories/domain/entities/category_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/subcategory_entity.dart';
 import 'package:flowcash/features/categories/domain/entities/unit_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class CategoryModel extends CategoryEntity {
+final class CategoryModel extends CategoryEntity implements Model {
   const CategoryModel({
     required super.id,
     required super.categoryName,
@@ -71,6 +72,7 @@ final class CategoryModel extends CategoryEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) CategoriesTable().id: id,

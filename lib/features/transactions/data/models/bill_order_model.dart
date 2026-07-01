@@ -1,7 +1,8 @@
 import 'package:flowcash/features/transactions/domain/entities/bill_order_entity.dart';
 import 'package:flowcash/core/tables/bill_orders_table.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class BillOrderModel extends BillOrderEntity {
+final class BillOrderModel extends BillOrderEntity implements Model {
   const BillOrderModel({
     required super.id,
     required super.billId,
@@ -20,6 +21,7 @@ final class BillOrderModel extends BillOrderEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       BillOrdersTable().id: id,

@@ -6,7 +6,7 @@ import 'package:flowcash/core/tables/values_table.dart';
 import 'dart:typed_data';
 
 final class ValueLocalDataSourceImpl implements ValueDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const ValueLocalDataSourceImpl(this._db);
 
   @override

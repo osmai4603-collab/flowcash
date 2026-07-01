@@ -1,6 +1,7 @@
 import 'package:flowcash/core/services/sqlite/sqlite_migrations/sqlite_migrations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqlite3/sqlite3.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_triggers/bills_post_to_accounting_trigger.dart';
 import 'package:flowcash/core/services/sqlite/sqlite_triggers/journal_items_balance_trigger.dart';
 import 'package:flowcash/core/services/sqlite/sqlite_triggers/inventory_balance_trigger.dart';
 import 'package:flowcash/core/services/sqlite/sqlite_triggers/cost_good_balance_trigger.dart';
@@ -98,6 +99,7 @@ final class SqliteSchemaManager {
     JournalItemsBalanceTrigger.call(db);
     InventoryBalanceTrigger.call(db);
     CostGoodBalanceTrigger.call(db);
+    BillsPostToAccountingTrigger.call(db);
 
     // Drop the deprecated inventories triggers
     db.execute('DROP TRIGGER IF EXISTS inventories_after_insert_journal');

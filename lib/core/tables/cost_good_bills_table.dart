@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول تكلفة الفواتير المباعة.
-class CostGoodBillsTable extends TableInfo {
+class CostGoodBillsTable extends TableById {
   static final CostGoodBillsTable _instance = CostGoodBillsTable.internal();
 
   factory CostGoodBillsTable() => _instance;

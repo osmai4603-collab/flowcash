@@ -142,7 +142,7 @@ void initInventoryFeature(GetIt sl) {
         JournalEntriesTable().warehouseId: entry.warehouseId,
       },
       (item) => {
-        if (item.id > 0) JournalItemsTable().itemId: item.id,
+        if (item.id > 0) JournalItemsTable().id: item.id,
         JournalItemsTable().entryId: item.entryId,
         JournalItemsTable().accountId: item.accountId,
         JournalItemsTable().amount: item.amount,

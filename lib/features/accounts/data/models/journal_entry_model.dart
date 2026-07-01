@@ -2,8 +2,9 @@ import 'package:flowcash/core/tables/journal_entries_table.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_entry_entity.dart';
 import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
 import 'package:flowcash/features/accounts/data/models/journal_item_model.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class JournalEntryModel extends JournalEntryEntity {
+final class JournalEntryModel extends JournalEntryEntity implements Model {
   const JournalEntryModel({
     required super.id,
     required super.referenceNumber,
@@ -30,6 +31,7 @@ final class JournalEntryModel extends JournalEntryEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       if (id > 0) JournalEntriesTable().id: id,

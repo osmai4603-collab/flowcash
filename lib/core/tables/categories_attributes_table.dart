@@ -1,6 +1,6 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
-class CategoriesAttributesTable extends TableInfo {
+class CategoriesAttributesTable extends TableById {
   static final CategoriesAttributesTable _instance = CategoriesAttributesTable.internal();
 
   factory CategoriesAttributesTable() => _instance;

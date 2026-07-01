@@ -65,6 +65,7 @@ final class ExampleModel extends ExampleEntity {
   }
 
   @override
+  @override
   Map<String, dynamic> toMap() {
     final t = ExampleTable();
     

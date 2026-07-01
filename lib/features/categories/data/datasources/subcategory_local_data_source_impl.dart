@@ -1,4 +1,6 @@
 import 'dart:isolate';
+import 'package:flowcash/core/services/sqlite/sqlite_database_manager.dart';
+import 'package:flowcash/core/services/sqlite/sqlite_schema_manager.dart';
 import 'package:flowcash/features/categories/data/datasources/unit_data_source.dart';
 import 'package:flowcash/features/categories/data/models/subcategory_model.dart';
 import 'package:flowcash/features/categories/data/models/subcategory_unit_model.dart';
@@ -44,7 +46,7 @@ import 'package:flowcash/features/categories/domain/services/category_generation
 
 final class SubcategoryLocalDataSourceImpl
     implements SubcategoryLocalDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
   const SubcategoryLocalDataSourceImpl(this._db);
 
   @override
@@ -282,7 +284,7 @@ final class SubcategoryLocalDataSourceImpl
 
   @override
   Future<List<CategoryEntity>> generateCategories(int subcategoryId) async {
-    final dbPath = await _db.databasePath;
+    final dbPath = await SqliteDatabaseManager.instance.databasePath;
     final result = await Isolate.run(
       () => _generateCategoriesInIsolate(
         _GenerationIsolateInput(dbPath: dbPath, subcategoryId: subcategoryId),
@@ -332,9 +334,7 @@ Future<Either<Failure, List<CategoryEntity>>> _generateCategoriesInIsolate(
   try {
     db = sqlite.sqlite3.open(input.dbPath);
     db.execute('PRAGMA foreign_keys = ON');
-    SqliteService.overrideDatabase = db;
-
-    final sqliteService = SqliteService();
+    final sqliteService = SqliteDatabase(db);
 
     final categoryLocalDataSource = CategoryLocalDataSourceImpl(
       sqliteService,
@@ -398,7 +398,6 @@ Future<Either<Failure, List<CategoryEntity>>> _generateCategoriesInIsolate(
     }
     return Left(ServerFailure(e.toString()));
   } finally {
-    SqliteService.overrideDatabase = null;
     db?.dispose();
   }
 }

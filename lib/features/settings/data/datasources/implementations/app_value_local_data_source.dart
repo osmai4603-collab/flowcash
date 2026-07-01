@@ -5,7 +5,7 @@ import '../../models/app_value_model.dart';
 import '../interfaces/app_value_data_source.dart';
 
 class AppValueLocalDataSourceImpl implements AppValueDataSource {
-  final SqliteService _db;
+  final SqliteDatabase _db;
 
   const AppValueLocalDataSourceImpl(this._db);
 

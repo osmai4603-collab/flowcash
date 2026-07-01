@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول الكتالوجات.
-class SubcategoriesTable extends TableInfo {
+class SubcategoriesTable extends TableById {
   static final SubcategoriesTable _instance = SubcategoriesTable.internal();
 
   factory SubcategoriesTable() => _instance;

@@ -1,8 +1,9 @@
 import 'package:flowcash/core/tables/values_table.dart';
 import 'package:flowcash/core/enums/app_value_type_enum.dart';
 import '../../domain/entities/app_value_entity.dart';
+import 'package:flowcash/core/models/model.dart';
 
-final class AppValueModel extends AppValueEntity {
+final class AppValueModel extends AppValueEntity implements Model {
   const AppValueModel({
     required super.id,
     required super.value,
@@ -18,6 +19,7 @@ final class AppValueModel extends AppValueEntity {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {ValuesTable().value: value, ValuesTable().valueType: valueType.name};
   }

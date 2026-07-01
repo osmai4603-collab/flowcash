@@ -1,7 +1,7 @@
-import 'package:flowcash/core/services/sqlite/table_info.dart';
+import 'package:flowcash/core/services/sqlite/table_by_id.dart';
 
 /// ثوابت جدول طلبيات الفواتير.
-class BillOrdersTable extends TableInfo {
+class BillOrdersTable extends TableById {
   static final BillOrdersTable _instance = BillOrdersTable.internal();
 
   factory BillOrdersTable() => _instance;
