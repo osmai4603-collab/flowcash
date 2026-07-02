@@ -194,10 +194,7 @@ class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
     result.fold(
       (failure) => emit(SalesPageOperationFailure(failure.message)),
       (postedBill) {
-        final index = _sales.indexWhere((sale) => sale.billId == postedBill.id);
-        if (index != -1) {
-          _sales[index] = _mapToSalesDocument(postedBill, event.doc.customerName);
-        }
+        _upsertPostedBill(postedBill, event.doc.customerName);
         _emitUpdatedList(emit);
         emit(const SalesPageOperationSuccess('تم الترحيل المحاسبي بنجاح.'));
       },
@@ -227,10 +224,7 @@ class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
     result.fold(
       (failure) => emit(SalesPageOperationFailure(failure.message)),
       (postedBill) {
-        final index = _sales.indexWhere((sale) => sale.billId == postedBill.id);
-        if (index != -1) {
-          _sales[index] = _mapToSalesDocument(postedBill, event.doc.customerName);
-        }
+        _upsertPostedBill(postedBill, event.doc.customerName);
         _emitUpdatedList(emit);
         emit(const SalesPageOperationSuccess('تم الترحيل المخزني بنجاح.'));
       },
@@ -255,19 +249,29 @@ class SalesPageBloc extends Bloc<SalesPageEvent, SalesPageState> {
     final result = await _postBillToCostingUseCase(
       bill: event.doc.rawBill,
       userId: user.id,
+      overrideOrders: event.overrideOrders,
     );
 
     result.fold(
       (failure) => emit(SalesPageOperationFailure(failure.message)),
       (postedBill) {
-        final index = _sales.indexWhere((sale) => sale.billId == postedBill.id);
-        if (index != -1) {
-          _sales[index] = _mapToSalesDocument(postedBill, event.doc.customerName);
-        }
+        _upsertPostedBill(postedBill, event.doc.customerName);
         _emitUpdatedList(emit);
         emit(const SalesPageOperationSuccess('تم ترحيل التكلفة بنجاح.'));
       },
     );
+  }
+
+  void _upsertPostedBill(BillEntity postedBill, String? customerName) {
+    final index = _sales.indexWhere((sale) => sale.billId == postedBill.id);
+    final newDoc = _mapToSalesDocument(postedBill, customerName);
+    if (index != -1) {
+      // Replace existing
+      _sales[index] = newDoc;
+    } else {
+      // Insert at top so user sees it
+      _sales.insert(0, newDoc);
+    }
   }
 
   void _emitUpdatedList(Emitter<SalesPageState> emit) {

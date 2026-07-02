@@ -42,4 +42,6 @@ sealed class Paddings {
   static const EdgeInsets xlargeVertical = EdgeInsets.symmetric(
     vertical: xlarge,
   );
+
+  static const EdgeInsetsGeometry none = EdgeInsets.all(0.0);
 }

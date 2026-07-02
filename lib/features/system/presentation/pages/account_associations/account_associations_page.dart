@@ -1,6 +1,7 @@
 import 'package:flowcash/core/theme/paddings.dart';
 import 'package:flowcash/core/theme/spacings.dart';
 import 'package:flowcash/core/theme_fluent/app_colors.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -89,7 +90,6 @@ class _AccountAssociationsPageState extends State<AccountAssociationsPage> {
     List<SubAccountEntity> subAccounts,
   ) {
     final colors = AppStyle.of(context);
-    final borderColor = colors.outline;
 
     if (persons.isEmpty) {
       return Center(
@@ -101,125 +101,107 @@ class _AccountAssociationsPageState extends State<AccountAssociationsPage> {
       );
     }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: fluent.Table(
-        border: TableBorder.all(width: 0.5, color: borderColor),
-        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-        columnWidths: const {
-          0: FixedColumnWidth(40),
-          1: FixedColumnWidth(180),
-          2: FixedColumnWidth(130),
-          3: FixedColumnWidth(130),
-          4: FixedColumnWidth(180),
-          5: FixedColumnWidth(180),
-          6: FixedColumnWidth(100),
-        },
-        children: [
-          TableRow(
-            decoration: BoxDecoration(color: colors.surfaceContainer),
-            children: const [
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: fluent.Text('No', textAlign: TextAlign.center),
+    return TableWidget<PersonEntity>(
+      columns: const {
+        0: FixedTableWidgetColumnWidth(
+          40,
+          alignment: Alignment.center,
+          padding: EdgeInsets.all(8.0),
+        ),
+        1: FixedTableWidgetColumnWidth(
+          180,
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.all(8.0),
+        ),
+        2: FixedTableWidgetColumnWidth(
+          130,
+          alignment: Alignment.center,
+          padding: EdgeInsets.all(8.0),
+        ),
+        3: FixedTableWidgetColumnWidth(
+          130,
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.all(8.0),
+        ),
+        4: FixedTableWidgetColumnWidth(
+          180,
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.all(8.0),
+        ),
+        5: FixedTableWidgetColumnWidth(
+          180,
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.all(8.0),
+        ),
+        6: FixedTableWidgetColumnWidth(
+          100,
+          alignment: Alignment.center,
+          padding: EdgeInsets.all(8.0),
+        ),
+      },
+      header: const ['No', 'الاسم', 'نوع الحساب', 'الهاتف', 'حساب المدين', 'حساب الدائن', 'العمليات'],
+      items: persons,
+      minWidth: 940,
+      paintRowColorWhen: (person, index) => index.isOdd,
+      rowColor: colors.surfaceContainer,
+      builder: (context, person, index) => [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: fluent.Text('${index + 1}', textAlign: TextAlign.center),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: fluent.Text(
+            person.personName,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: fluent.Text(
+            person.personType.displayName(),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: fluent.Text(
+            person.phoneNumber ?? '-',
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: fluent.Text(
+            _getAccountName(subAccounts, person.receivableAccountId),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: fluent.Text(
+            _getAccountName(subAccounts, person.payableAccountId),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              fluent.IconButton(
+                icon: const fluent.Icon(fluent.FluentIcons.edit),
+                onPressed: () => _onEditAssociation(person),
               ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: fluent.Text('الاسم', textAlign: TextAlign.center),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: fluent.Text('نوع الحساب', textAlign: TextAlign.center),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: fluent.Text('الهاتف', textAlign: TextAlign.center),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: fluent.Text('حساب المدين', textAlign: TextAlign.center),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: fluent.Text('حساب الدائن', textAlign: TextAlign.center),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: fluent.Text('العمليات', textAlign: TextAlign.center),
+              const SizedBox(width: 8),
+              fluent.IconButton(
+                icon: const fluent.Icon(fluent.FluentIcons.delete),
+                onPressed: () => _onDeleteAssociation(person),
               ),
             ],
           ),
-          ...persons.asMap().entries.map((entry) {
-            final index = entry.key;
-            final person = entry.value;
-            final rowColor = index.isOdd ? colors.surfaceContainer : null;
-            return TableRow(
-              decoration: BoxDecoration(color: rowColor),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: fluent.Text(
-                    '${index + 1}',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: fluent.Text(
-                    person.personName,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: fluent.Text(
-                    person.personType.displayName(),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: fluent.Text(
-                    person.phoneNumber ?? '-',
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: fluent.Text(
-                    _getAccountName(subAccounts, person.receivableAccountId),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: fluent.Text(
-                    _getAccountName(subAccounts, person.payableAccountId),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      fluent.IconButton(
-                        icon: const fluent.Icon(fluent.FluentIcons.edit),
-                        onPressed: () => _onEditAssociation(person),
-                      ),
-                      const SizedBox(width: 8),
-                      fluent.IconButton(
-                        icon: const fluent.Icon(fluent.FluentIcons.delete),
-                        onPressed: () => _onDeleteAssociation(person),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          }),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

@@ -27,12 +27,11 @@ import 'package:flowcash/features/transactions/data/datasources/interfaces/cost_
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
+import 'package:flowcash/features/transactions/domain/entities/cost_good_bill_order_entity.dart';
 import 'package:flowcash/features/transactions/domain/repositories/bill_repository.dart';
 import 'package:flowcash/features/transactions/data/datasources/interfaces/bill_data_source.dart';
 import 'package:flowcash/features/transactions/data/models/cost_good_bill_model.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_order_entity.dart';
-
-import '../../domain/entities/cost_good_bill_order_entity.dart';
 
 class BillRepositoryImpl implements BillRepository {
   final BillDataSource _dataSource;
@@ -148,47 +147,33 @@ class BillRepositoryImpl implements BillRepository {
     required List<ExchangePriceEntity> exPrices,
   }) async {
     try {
-      final journalEntry = await _journalEntryDataSource.insert(
-        JournalEntryEntity(
-          id: 0,
-          referenceNumber: bill.billType.invoiceTypeName,
-          description: bill.billHistory,
-          createdAt: bill.createdAt,
-          createdBy: userId,
-          currencyId: currencyId,
-          baseAmount: bill.offerAmount,
-          warehouseId: bill.warehouseId,
-          items: [],
+       final result = await (switch (bill.billType) {
+         SalesInvoiceType() => _postSalesBill(
+          bill,
+          userId,
+          currencyId,
+          exPrices,
         ),
-      );
-      await _dataSource.updateJournalEntry(id: bill.id, journalEntryId: journalEntry.id);
-      // final result = await (switch (bill.billType) {
-      //   SalesInvoiceType() => _postSalesBill(
-      //     bill,
-      //     userId,
-      //     currencyId,
-      //     exPrices,
-      //   ),
-      //   PurchaseInvoiceType() => _postPurchaseBill(
-      //     bill,
-      //     userId,
-      //     currencyId,
-      //     exPrices,
-      //   ),
-      //   SalesReturnInvoiceType() => _postSalesReturnBill(
-      //     bill,
-      //     userId,
-      //     currencyId,
-      //     exPrices,
-      //   ),
-      //   PurchaseReturnInvoiceType() => _postPurchaseReturnBill(
-      //     bill,
-      //     userId,
-      //     currencyId,
-      //     exPrices,
-      //   ),
-      // });
-      return right(bill.copyWith(journalEntryId: journalEntry.id));
+        PurchaseInvoiceType() => _postPurchaseBill(
+          bill,
+          userId,
+          currencyId,
+          exPrices,
+        ),
+        SalesReturnInvoiceType() => _postSalesReturnBill(
+          bill,
+          userId,
+          currencyId,
+          exPrices,
+        ),
+        PurchaseReturnInvoiceType() => _postPurchaseReturnBill(
+          bill,
+          userId,
+          currencyId,
+          exPrices,
+        ),
+      });
+      return Right(result);
     } catch (e) {
       return left(DatabaseFailure(e.toString()));
     }
@@ -283,6 +268,7 @@ class BillRepositoryImpl implements BillRepository {
   Future<Either<Failure, BillEntity>> postToCosting({
     required BillEntity bill,
     required int userId,
+    List<CostGoodBillOrderEntity>? overrideOrders,
   }) async {
     try {
       if (bill.billType is! SalesInvoiceType &&
@@ -301,37 +287,67 @@ class BillRepositoryImpl implements BillRepository {
 
       final inventoryCache = <int, InventoryEntity>{};
 
-      for (final order in billOrders) {
-        final category = categories.cast<CategoryEntity?>().firstWhere(
-          (category) => category?.id == order.categoryId,
-          orElse: () => null,
-        );
-        if (category == null ||
-            category.categoryType == CategoryDefineType.services) {
-          continue;
-        }
-        final inventory = inventoryCache[order.categoryId] ??=
-            await _inventoryDataSource.getInventory(
-              categoryId: order.categoryId,
-              warehouseId: bill.warehouseId,
-            );
-
-        final unitCost = inventory.countUnits > 0
-            ? inventory.costTotal / inventory.countUnits
-            : 0.0;
-
-        final orderCost = unitCost * order.countUnits;
-        totalCostAmount += orderCost;
-
-        costOrders.add(
-          CostGoodBillOrderEntity(
-            id: 0,
-            costGoodBillId: 0,
+      if (overrideOrders != null) {
+        for (final order in billOrders) {
+          final category = categories.cast<CategoryEntity?>().firstWhere(
+            (category) => category?.id == order.categoryId,
+            orElse: () => null,
+          );
+          if (category == null ||
+              category.categoryType == CategoryDefineType.services) {
+            continue;
+          }
+          inventoryCache[order.categoryId] ??= await _inventoryDataSource.getInventory(
             categoryId: order.categoryId,
-            countUnits: order.countUnits,
-            totalPrice: orderCost,
-          ),
-        );
+            warehouseId: bill.warehouseId,
+          );
+        }
+
+        for (final order in overrideOrders) {
+          final category = categories.cast<CategoryEntity?>().firstWhere(
+            (category) => category?.id == order.categoryId,
+            orElse: () => null,
+          );
+          if (category == null ||
+              category.categoryType == CategoryDefineType.services) {
+            continue;
+          }
+          costOrders.add(order);
+          totalCostAmount += order.totalPrice;
+        }
+      } else {
+        for (final order in billOrders) {
+          final category = categories.cast<CategoryEntity?>().firstWhere(
+            (category) => category?.id == order.categoryId,
+            orElse: () => null,
+          );
+          if (category == null ||
+              category.categoryType == CategoryDefineType.services) {
+            continue;
+          }
+          final inventory = inventoryCache[order.categoryId] ??=
+              await _inventoryDataSource.getInventory(
+                categoryId: order.categoryId,
+                warehouseId: bill.warehouseId,
+              );
+
+          final unitCost = inventory.countUnits > 0
+              ? inventory.costTotal / inventory.countUnits
+              : 0.0;
+
+          final orderCost = unitCost * order.countUnits;
+          totalCostAmount += orderCost;
+
+          costOrders.add(
+            CostGoodBillOrderEntity(
+              id: 0,
+              costGoodBillId: 0,
+              categoryId: order.categoryId,
+              countUnits: order.countUnits,
+              totalPrice: orderCost,
+            ),
+          );
+        }
       }
 
       if (costOrders.isEmpty || totalCostAmount <= 0) {

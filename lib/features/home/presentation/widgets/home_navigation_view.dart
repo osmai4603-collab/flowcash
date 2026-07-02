@@ -13,7 +13,6 @@ class HomeNavigationView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = AppStyle.of(context);
     return NavigationView(
       // titleBar: const TitleBar(
       //   title: Text('نظام التدفق المالي'),

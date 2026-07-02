@@ -249,7 +249,7 @@ class _InventoryListPageState extends State<InventoryListPage> {
                       fluent.FilledButton(
                         onPressed: () async {
                           final result =
-                              await showDialog<List<InventoryEntity>>(
+                              await fluent.showDialog<List<InventoryEntity>>(
                                 context: context,
                                 builder: (context) =>
                                     const InventorySubcategoryFormDialog(),
@@ -283,7 +283,7 @@ class _InventoryListPageState extends State<InventoryListPage> {
                       fluent.FilledButton(
                         onPressed: () async {
                           final result =
-                              await showDialog<List<InventoryEntity>>(
+                              await fluent.showDialog<List<InventoryEntity>>(
                                 context: context,
                                 builder: (context) =>
                                     const InventoryMainCategoryFormDialog(),
@@ -316,7 +316,7 @@ class _InventoryListPageState extends State<InventoryListPage> {
                       const SizedBox(width: 12),
                       fluent.FilledButton(
                         onPressed: () async {
-                          final result = await showDialog<InventoryEntity>(
+                          final result = await fluent.showDialog<InventoryEntity>(
                             context: context,
                             builder: (context) =>
                                 const InventoryItemFormDialog(),

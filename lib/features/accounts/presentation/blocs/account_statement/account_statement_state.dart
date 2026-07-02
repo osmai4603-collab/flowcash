@@ -14,6 +14,10 @@ class AccountStatementState extends Equatable {
   final String? errorMessage;
   final DateTime? startDate;
   final DateTime? endDate;
+  final List<double> balances;
+  final double totalDebit;
+  final double totalCredit;
+  final double lastBalance;
 
   const AccountStatementState({
     required this.status,
@@ -21,6 +25,10 @@ class AccountStatementState extends Equatable {
     required this.items,
     required this.entries,
     required this.openingBalance,
+    required this.balances,
+    required this.totalDebit,
+    required this.totalCredit,
+    required this.lastBalance,
     this.errorMessage,
     this.startDate,
     this.endDate,
@@ -32,6 +40,10 @@ class AccountStatementState extends Equatable {
       items: [],
       entries: {},
       openingBalance: 0.0,
+      balances: [],
+      totalDebit: 0.0,
+      totalCredit: 0.0,
+      lastBalance: 0.0,
     );
   }
 
@@ -41,6 +53,10 @@ class AccountStatementState extends Equatable {
     List<JournalItemEntity>? items,
     Map<int, JournalEntryEntity>? entries,
     double? openingBalance,
+    List<double>? balances,
+    double? totalDebit,
+    double? totalCredit,
+    double? lastBalance,
     String? errorMessage,
     DateTime? startDate,
     DateTime? endDate,
@@ -52,6 +68,10 @@ class AccountStatementState extends Equatable {
       items: items ?? this.items,
       entries: entries ?? this.entries,
       openingBalance: openingBalance ?? this.openingBalance,
+      balances: balances ?? this.balances,
+      totalDebit: totalDebit ?? this.totalDebit,
+      totalCredit: totalCredit ?? this.totalCredit,
+      lastBalance: lastBalance ?? this.lastBalance,
       errorMessage: errorMessage ?? this.errorMessage,
       startDate: clearDates ? null : (startDate ?? this.startDate),
       endDate: clearDates ? null : (endDate ?? this.endDate),
@@ -65,6 +85,10 @@ class AccountStatementState extends Equatable {
     items,
     entries,
     openingBalance,
+    balances,
+    totalDebit,
+    totalCredit,
+    lastBalance,
     errorMessage,
     startDate,
     endDate,

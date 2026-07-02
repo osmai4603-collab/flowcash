@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/system/presentation/bloc/warehouses/warehouses_cubit.dart';
@@ -7,7 +9,6 @@ import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dar
 import 'package:flowcash/features/system/presentation/pages/warehouses/warehouse_form_page.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class WarehousesPage extends StatefulWidget {
   const WarehousesPage({super.key});
@@ -124,7 +125,7 @@ class _WarehousesPageState extends State<WarehousesPage> {
                 ],
               ),
               onPressed: () async {
-                final addedWarehouse = await showDialog<WarehouseEntity?>(
+                final addedWarehouse = await fluent.showDialog<WarehouseEntity?>(
                   context: context,
                   builder: (context) => const WarehouseFormPage(),
                 );
@@ -150,25 +151,40 @@ class _WarehousesPageState extends State<WarehousesPage> {
   }
 
   Widget buildDataGrid(BuildContext context, List<WarehouseEntity> items) {
-    final textTheme = Theme.of(context).textTheme;
-    final colors = Theme.of(context).colorScheme;
-    final dataSource = WarehousesDataGridSource(
-      items: items,
-      textTheme: textTheme,
-      colors: colors,
-    );
+    final style = AppStyle.of(context);
 
-    return SfDataGrid(
-      source: dataSource,
-      headerRowHeight: 40,
-      rowHeight: 30,
-      gridLinesVisibility: GridLinesVisibility.both,
-      headerGridLinesVisibility: GridLinesVisibility.both,
-      columnWidthMode: ColumnWidthMode.fill,
-      onCellTap: (DataGridCellTapDetails details) async {
-        if (details.rowColumnIndex.rowIndex > 0) {
-          final item = dataSource.items[details.rowColumnIndex.rowIndex - 1];
-          final updatedWarehouse = await showDialog<WarehouseEntity?>(
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: style.outline, width: 0.5),
+      ),
+      child: TableWidget<WarehouseEntity>(
+        columns: {
+          0: FixedTableWidgetColumnWidth(
+            isDesktop ? 180.0 : 130.0,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          ),
+          1: const FlexTableWidgetColumnWidth(
+            0.35,
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          ),
+          2: const FlexTableWidgetColumnWidth(
+            0.30,
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          ),
+          3: const FlexTableWidgetColumnWidth(
+            0.20,
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          ),
+        },
+        header: const ['اسم المستودع', 'العنوان', 'نوع المستودع', 'المستودع الأب'],
+        items: items,
+        minWidth: isDesktop ? 650.0 : 500.0,
+        onTapRow: (item) async {
+          final updatedWarehouse = await fluent.showDialog<WarehouseEntity?>(
             context: context,
             builder: (context) => WarehouseFormPage(initialValue: item),
           );
@@ -182,47 +198,15 @@ class _WarehousesPageState extends State<WarehousesPage> {
             );
             context.read<WarehousesBloc>().add(LoadWarehousesEvent());
           }
-        }
-      },
-      columns: [
-        GridColumn(
-          columnName: 'warehouseName',
-          width: isDesktop ? 180.0 : 130.0,
-          label: _buildHeaderCell('اسم المستودع', textTheme, colors),
-        ),
-        GridColumn(
-          columnName: 'location',
-          label: _buildHeaderCell('العنوان', textTheme, colors),
-        ),
-        GridColumn(
-          columnName: 'warehouseType',
-          width: isDesktop ? 140.0 : 120.0,
-          label: _buildHeaderCell('نوع المستودع', textTheme, colors),
-        ),
-        GridColumn(
-          columnName: 'parentId',
-          label: _buildHeaderCell('المستودع الأب', textTheme, colors),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeaderCell(
-    String text,
-    TextTheme textTheme,
-    ColorScheme colors,
-  ) {
-    return Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: colors.primaryContainer),
-      child: fluent.Text(
-        text,
-        textAlign: TextAlign.center,
-        style: textTheme.bodyMedium?.copyWith(
-          color: colors.onPrimaryContainer,
-          fontWeight: FontWeight.bold,
-        ),
+        },
+        paintRowColorWhen: (item, index) => index.isOdd,
+        rowColor: style.surfaceContainerLow,
+        builder: (context, item, index) => [
+          Text(item.warehouseName),
+          Text(item.location),
+          Text(item.warehouseType.displayName()),
+          Text(item.parentId?.toString() ?? ''),
+        ],
       ),
     );
   }
@@ -266,64 +250,6 @@ class _WarehousesPageState extends State<WarehousesPage> {
         }
         return const SizedBox.shrink();
       },
-    );
-  }
-}
-
-class WarehousesDataGridSource extends DataGridSource {
-  WarehousesDataGridSource({
-    required List<WarehouseEntity> items,
-    required this.textTheme,
-    required this.colors,
-  }) : _items = items,
-       _dataGridRows = items.map<DataGridRow>((item) {
-         return DataGridRow(
-           cells: [
-             DataGridCell<String>(
-               columnName: 'warehouseName',
-               value: item.warehouseName,
-             ),
-             DataGridCell<String>(columnName: 'location', value: item.location),
-             DataGridCell<String>(
-               columnName: 'warehouseType',
-               value: item.warehouseType.displayName(),
-             ),
-             DataGridCell<String>(
-               columnName: 'parentId',
-               value: item.parentId?.toString() ?? '',
-             ),
-           ],
-         );
-       }).toList();
-
-  final TextTheme textTheme;
-  final ColorScheme colors;
-  final List<WarehouseEntity> _items;
-  final List<DataGridRow> _dataGridRows;
-
-  List<WarehouseEntity> get items => _items;
-
-  @override
-  List<DataGridRow> get rows => _dataGridRows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    final index = _dataGridRows.indexOf(row);
-    return DataGridRowAdapter(
-      color: index.isOdd ? colors.primaryContainer.withOpacity(0.12) : null,
-      cells: row.getCells().map<Widget>((dataGridCell) {
-        return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(4.0),
-          child: fluent.Text(
-            dataGridCell.value.toString().isEmpty
-                ? '-'
-                : dataGridCell.value.toString(),
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.bodyMedium,
-          ),
-        );
-      }).toList(),
     );
   }
 }

@@ -48,7 +48,7 @@ class _SettingsPageState extends State<SettingsPage> {
   ) async {
     Color selectedColor = currentColor;
 
-    await showDialog<void>(
+    await fluent.showDialog<void>(
       context: context,
       builder: (context) {
         return fluent.ContentDialog(
@@ -233,7 +233,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 );
               } else if (state.restoreStatus == SettingsStatus.success) {
-                showDialog(
+                fluent.showDialog(
                   context: context,
                   barrierDismissible: false,
                   builder: (context) => fluent.ContentDialog(

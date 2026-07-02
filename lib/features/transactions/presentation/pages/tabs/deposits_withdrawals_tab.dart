@@ -328,7 +328,7 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
   }
 
   void _confirmDelete(BuildContext context, int id) {
-    showDialog(
+    fluent.showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const fluent.Text('حذف العملية'),
@@ -360,7 +360,7 @@ class _DepositsWithdrawalsTabState extends State<DepositsWithdrawalsTab> {
     final billNumController = TextEditingController();
     final hintIdController = TextEditingController();
 
-    showDialog(
+    fluent.showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: fluent.Text(

@@ -102,7 +102,7 @@ class _SubcategoryUnitFormView extends StatelessWidget {
                               color: colors.primary,
                             ),
                             onPressed: () async {
-                              final newUnit = await showDialog<UnitEntity>(
+                              final newUnit = await fluent.showDialog<UnitEntity>(
                                 context: context,
                                 barrierDismissible: false,
                                 builder: (_) => UnitFormPage(property: property),

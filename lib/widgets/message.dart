@@ -14,7 +14,7 @@ void error({
   String title = 'خطأ',
   required String toast,
 }) async {
-  await showDialog(
+  await fluent.showDialog(
     context: context,
     builder: (c) {
       return fluent.ContentDialog(
@@ -85,7 +85,7 @@ void successMessage({
   String title = 'نجاح',
   required String toast,
 }) async {
-  await showDialog(
+  await fluent.showDialog(
     context: context,
     builder: (c) {
       return fluent.ContentDialog(
@@ -147,7 +147,7 @@ void messageWithPath({
   required String toast,
   required String path,
 }) async {
-  await showDialog(
+  await fluent.showDialog(
     context: context,
     builder: (c) {
       return fluent.ContentDialog(
@@ -311,7 +311,7 @@ Future<bool> makeSure({
 }) async {
   final colors = ColorScheme.of(context);
   final textTheme = TextTheme.of(context);
-  return await showDialog<bool>(
+  return await fluent.showDialog<bool>(
         context: context,
         builder: (c) {
           return fluent.ContentDialog(
@@ -425,7 +425,7 @@ Future<void> process({
   required BuildContext context,
   bool dismissible = true,
 }) async {
-  showDialog(
+  fluent.showDialog(
     barrierDismissible: dismissible,
     context: context,
     builder: (_) {

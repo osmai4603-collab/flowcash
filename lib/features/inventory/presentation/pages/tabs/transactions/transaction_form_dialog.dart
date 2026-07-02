@@ -292,7 +292,7 @@ class _TransactionFormDialogState extends State<TransactionFormDialog> {
                         ),
                         onPressed: () async {
                           final result =
-                              await showDialog<InventoryTransactionOrderEntity>(
+                              await fluent.showDialog<InventoryTransactionOrderEntity>(
                                 context: context,
                                 builder: (context) => TransactionOrderForm(
                                   inventoryItems: widget.inventoryItems,

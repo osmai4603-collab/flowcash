@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flowcash/core/theme/paddings.dart';
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/system/presentation/bloc/defaults/defaults_cubit.dart';
 import 'package:flowcash/features/system/presentation/pages/defaults/default_value_form_page.dart';
@@ -8,7 +10,6 @@ import 'package:flowcash/features/system/domain/entities/value_entity.dart';
 import 'package:flutter/material.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class DefaultsPage extends StatelessWidget {
   const DefaultsPage({super.key});
@@ -16,89 +17,41 @@ class DefaultsPage extends StatelessWidget {
   bool get isDesktop => Platform.isLinux || Platform.isWindows;
 
   Widget buildTable(BuildContext context, List<ValueEntity> items) {
-    final textTheme = Theme.of(context).textTheme;
-    final colors = Theme.of(context).colorScheme;
+    final style = AppStyle.of(context);
 
-    final dataSource = DefaultsDataGridSource(
-      items: items,
-      textTheme: textTheme,
-      colors: colors,
-    );
-
-    return Column(
-      children: [
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: colors.outline, width: 0.5),
-            ),
-            child: SfDataGrid(
-              source: dataSource,
-              headerRowHeight: 40,
-              rowHeight: 30,
-              gridLinesVisibility: GridLinesVisibility.both,
-              headerGridLinesVisibility: GridLinesVisibility.both,
-              columnWidthMode: ColumnWidthMode.fill,
-              onCellTap: (DataGridCellTapDetails details) async {
-                if (details.rowColumnIndex.rowIndex > 0) {
-                  final valueEntity =
-                      items[details.rowColumnIndex.rowIndex - 1];
-                  final didUpdate = await showDialog<ValueEntity?>(
-                    context: context,
-                    builder: (context) =>
-                        DefaultValueFormPage(initialValue: valueEntity),
-                  );
-                  if (didUpdate != null && context.mounted) {
-                    fluent.displayInfoBar(
-                      context,
-                      builder: (context, close) => fluent.InfoBar(
-                        title: const fluent.Text('تنبيه'),
-                        content: fluent.Text('تم تحديث القيمة'),
-                      ),
-                    );
-                    context.read<DefaultsBloc>().add(LoadDefaultsEvent());
-                  }
-                }
-              },
-              columns: [
-                GridColumn(
-                  columnName: 'id',
-                  width: isDesktop ? 70.0 : 55.0,
-                  label: _buildHeaderCell('المعرف', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'value',
-                  width: isDesktop ? 220.0 : 140.0,
-                  label: _buildHeaderCell('الخاصية', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'type',
-                  label: _buildHeaderCell('القيمة', textTheme, colors),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeaderCell(
-    String text,
-    TextTheme textTheme,
-    ColorScheme colors,
-  ) {
     return Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: colors.surfaceContainerHigh),
-      child: fluent.Text(
-        text,
-        textAlign: TextAlign.center,
-        style: textTheme.bodyMedium?.copyWith(
-          color: colors.onSurface,
-          fontWeight: FontWeight.bold,
-        ),
+      decoration: BoxDecoration(
+        border: Border.all(color: style.outline, width: 0.5),
+      ),
+      child: TableWidget<ValueEntity>(
+        columns: {
+          0: FixedTableWidgetColumnWidth(
+            isDesktop ? 70.0 : 55.0,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          ),
+          1: FixedTableWidgetColumnWidth(
+            isDesktop ? 220.0 : 140.0,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          ),
+          2: const FlexTableWidgetColumnWidth(
+            1.0,
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          ),
+        },
+        header: const ['المعرف', 'الخاصية', 'القيمة'],
+        items: items,
+        minWidth: isDesktop ? 420.0 : 320.0,
+        onTapRow: (valueEntity) => _openEditForm(context, valueEntity),
+        paintRowColorWhen: (item, index) => index.isOdd,
+        rowColor: style.surfaceContainerLow,
+        builder: (context, item, index) => [
+          Text(item.id.toString()),
+          Text(item.value.toString()),
+          Text(item.valueType.name),
+        ],
       ),
     );
   }
@@ -162,7 +115,7 @@ class DefaultsPage extends StatelessWidget {
                   ],
                 ),
                 onPressed: () async {
-                  final result = await showDialog<ValueEntity?>(
+                  final result = await fluent.showDialog<ValueEntity?>(
                     context: context,
                     builder: (context) =>
                         DefaultValueFormPage(initialValue: null),
@@ -199,49 +152,21 @@ class DefaultsPage extends StatelessWidget {
       ),
     );
   }
-}
 
-class DefaultsDataGridSource extends DataGridSource {
-  DefaultsDataGridSource({
-    required List<ValueEntity> items,
-    required this.textTheme,
-    required this.colors,
-  }) {
-    _dataGridRows = items.map<DataGridRow>((item) {
-      return DataGridRow(
-        cells: [
-          DataGridCell<String>(columnName: 'id', value: item.id.toString()),
-          DataGridCell<String>(
-            columnName: 'value',
-            value: item.value.toString(),
-          ),
-          DataGridCell<String>(columnName: 'type', value: item.valueType.name),
-        ],
-      );
-    }).toList();
-  }
-
-  final TextTheme textTheme;
-  final ColorScheme colors;
-  List<DataGridRow> _dataGridRows = [];
-
-  @override
-  List<DataGridRow> get rows => _dataGridRows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    return DataGridRowAdapter(
-      cells: row.getCells().map<Widget>((dataGridCell) {
-        return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(4.0),
-          child: fluent.Text(
-            dataGridCell.value.toString(),
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.bodyMedium,
-          ),
-        );
-      }).toList(),
+  void _openEditForm(BuildContext context, ValueEntity valueEntity) async {
+    final didUpdate = await fluent.showDialog<ValueEntity?>(
+      context: context,
+      builder: (context) => DefaultValueFormPage(initialValue: valueEntity),
     );
+    if (didUpdate != null && context.mounted) {
+      fluent.displayInfoBar(
+        context,
+        builder: (context, close) => fluent.InfoBar(
+          title: const fluent.Text('تنبيه'),
+          content: fluent.Text('تم تحديث القيمة'),
+        ),
+      );
+      context.read<DefaultsBloc>().add(LoadDefaultsEvent());
+    }
   }
 }

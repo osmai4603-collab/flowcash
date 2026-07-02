@@ -241,7 +241,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                 ),
                                 onPressed: () async {
                                   final result =
-                                      await showDialog<Map<String, dynamic>>(
+                                      await fluent.showDialog<Map<String, dynamic>>(
                                         context: context,
                                         builder: (context) =>
                                             TransactionFormDialog(
@@ -386,7 +386,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                           categories: _categories,
                           onEdit: () async {
                             final result =
-                                await showDialog<Map<String, dynamic>>(
+                                await fluent.showDialog<Map<String, dynamic>>(
                                   context: context,
                                   builder: (context) => TransactionFormDialog(
                                     transaction: _selectedTransaction,
@@ -406,7 +406,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                             }
                           },
                           onDelete: () {
-                            showDialog(
+                            fluent.showDialog(
                               context: context,
                               builder: (context) => fluent.ContentDialog(
                                 title: const fluent.Text(

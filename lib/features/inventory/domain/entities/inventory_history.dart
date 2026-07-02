@@ -8,6 +8,7 @@ class InventoryHistory extends Entity {
   final String categoryName;
   final String categoryUnit;
   final int inventoryId;
+  final double openingQuantity;
 
   const InventoryHistory({
     required this.transactionOrderId,
@@ -16,6 +17,7 @@ class InventoryHistory extends Entity {
     required this.categoryName,
     required this.categoryUnit,
     required this.inventoryId,
+    this.openingQuantity = 0.0,
   });
 
   @override
@@ -26,6 +28,7 @@ class InventoryHistory extends Entity {
         categoryName,
         categoryUnit,
         inventoryId,
+        openingQuantity,
       ];
 
   @override
@@ -36,6 +39,7 @@ class InventoryHistory extends Entity {
     String? categoryName,
     String? categoryUnit,
     int? inventoryId,
+    double? openingQuantity,
   }) {
     return InventoryHistory(
       transactionOrderId: transactionOrderId ?? this.transactionOrderId,
@@ -44,6 +48,7 @@ class InventoryHistory extends Entity {
       categoryName: categoryName ?? this.categoryName,
       categoryUnit: categoryUnit ?? this.categoryUnit,
       inventoryId: inventoryId ?? this.inventoryId,
+      openingQuantity: openingQuantity ?? this.openingQuantity,
     );
   }
 }

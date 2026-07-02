@@ -14,6 +14,7 @@ class InventoryHistoryModel extends InventoryHistory implements Model {
     required super.categoryName,
     required super.categoryUnit,
     required super.inventoryId,
+    required super.openingQuantity,
   });
 
   factory InventoryHistoryModel.fromMap(Map<String, dynamic> map) {
@@ -26,6 +27,7 @@ class InventoryHistoryModel extends InventoryHistory implements Model {
       categoryName: map[CategoriesTable().categoryName] as String,
       categoryUnit: map[UnitsTable().unitName] as String,
       inventoryId: map[InventoryTransactionsOrdersTable().inventoryId] as int,
+      openingQuantity: (map['opening_quantity'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
@@ -39,6 +41,7 @@ class InventoryHistoryModel extends InventoryHistory implements Model {
       CategoriesTable().categoryName: categoryName,
       UnitsTable().unitName: categoryUnit,
       InventoryTransactionsOrdersTable().inventoryId: inventoryId,
+      'opening_quantity': openingQuantity,
     };
   }
 
@@ -50,6 +53,7 @@ class InventoryHistoryModel extends InventoryHistory implements Model {
     String? categoryName,
     String? categoryUnit,
     int? inventoryId,
+    double? openingQuantity,
   }) {
     return InventoryHistoryModel(
       transactionOrderId: transactionOrderId ?? this.transactionOrderId,
@@ -58,6 +62,7 @@ class InventoryHistoryModel extends InventoryHistory implements Model {
       categoryName: categoryName ?? this.categoryName,
       categoryUnit: categoryUnit ?? this.categoryUnit,
       inventoryId: inventoryId ?? this.inventoryId,
+      openingQuantity: openingQuantity ?? this.openingQuantity,
     );
   }
 }

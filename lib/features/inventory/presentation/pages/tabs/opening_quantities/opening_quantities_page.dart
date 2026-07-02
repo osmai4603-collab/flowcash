@@ -3,15 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/core/theme_fluent/app_colors.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flowcash/features/injection_container.dart';
 import 'package:flowcash/features/inventory/domain/entities/inventory_entity.dart';
 import 'package:flowcash/features/inventory/domain/entities/opening_quantity_entity.dart';
-import 'package:flowcash/features/inventory/domain/entities/warehouse_entity.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/opening_quantities/opening_quantities_bloc.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/opening_quantities/opening_quantities_event.dart';
 import 'package:flowcash/features/inventory/presentation/blocs/opening_quantities/opening_quantities_state.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-
 import 'opening_quantity_form_dialog.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -45,6 +43,21 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
       return items.firstWhere((i) => i.id == inventoryId).storeId;
     } catch (_) {
       return null;
+    }
+  }
+
+  String _getWarehouseName(
+    int inventoryId,
+    List<InventoryEntity> items,
+    List<dynamic> warehouses,
+  ) {
+    try {
+      final inventory = items.firstWhere((i) => i.id == inventoryId);
+      return warehouses
+          .firstWhere((w) => w.id == inventory.storeId)
+          .warehouseName;
+    } catch (_) {
+      return 'غير معرف';
     }
   }
 
@@ -203,7 +216,7 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
                               return;
                             }
                             final result =
-                                await showDialog<OpeningQuantityEntity>(
+                                await fluent.showDialog<OpeningQuantityEntity>(
                                   context: context,
                                   builder: (context) =>
                                       OpeningQuantityFormDialog(
@@ -278,74 +291,124 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
     OpeningQuantitiesState state,
   ) {
     final style = AppStyle.of(context);
-    final dataSource = OpeningQuantitiesDataGridSource(
-      items: items,
-      state: state,
-      style: style,
-      onDelete: _onDeleteOpeningQuantityPressed,
-    );
 
-    return SfDataGrid(
-      source: dataSource,
-      headerRowHeight: 40,
-      rowHeight: 45,
-      gridLinesVisibility: GridLinesVisibility.both,
-      headerGridLinesVisibility: GridLinesVisibility.both,
-      columnWidthMode: ColumnWidthMode.fill,
-      columns: [
-        GridColumn(
-          columnName: 'no',
-          width: isDesktop ? 60.0 : 50.0,
-          label: _buildHeaderCell('No', style),
-        ),
-        GridColumn(
-          columnName: 'inventoryName',
-          label: _buildHeaderCell('اسم صنف المخزون', style),
-        ),
-        GridColumn(
-          columnName: 'warehouse',
-          width: isDesktop ? 140.0 : 110.0,
-          label: _buildHeaderCell('المستودع الرئيسي', style),
-        ),
-        GridColumn(
-          columnName: 'countUnits',
-          width: isDesktop ? 110.0 : 90.0,
-          label: _buildHeaderCell('الكمية الافتتاحية', style),
-        ),
-        GridColumn(
-          columnName: 'costTotal',
-          width: isDesktop ? 130.0 : 110.0,
-          label: _buildHeaderCell('إجمالي التكلفة', style),
-        ),
-        GridColumn(
-          columnName: 'period',
-          width: isDesktop ? 120.0 : 100.0,
-          label: _buildHeaderCell('الفترة المالية', style),
-        ),
-        GridColumn(
-          columnName: 'actions',
-          width: isDesktop ? 100.0 : 90.0,
-          label: _buildHeaderCell('الإجراءات', style),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeaderCell(String text, AppStyle style) {
-    return fluent.Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(4),
-      decoration: fluent.BoxDecoration(color: style.surfaceContainerHighest),
-      child: fluent.Text(
-        text,
-        textAlign: TextAlign.center,
-        style: style.bodyStrong,
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: style.outline, width: 0.5),
+      ),
+      child: TableWidget<OpeningQuantityEntity>(
+        columns: {
+          0: FixedTableWidgetColumnWidth(
+            isDesktop ? 60.0 : 50.0,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(8.0),
+          ),
+          1: const FlexTableWidgetColumnWidth(
+            0.35,
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.all(8.0),
+          ),
+          2: const FlexTableWidgetColumnWidth(
+            0.25,
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.all(8.0),
+          ),
+          3: FixedTableWidgetColumnWidth(
+            isDesktop ? 110.0 : 90.0,
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(8.0),
+          ),
+          4: FixedTableWidgetColumnWidth(
+            isDesktop ? 130.0 : 110.0,
+            alignment: Alignment.centerRight,
+            padding: EdgeInsets.all(8.0),
+          ),
+          5: FixedTableWidgetColumnWidth(
+            isDesktop ? 120.0 : 100.0,
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(8.0),
+          ),
+          6: FixedTableWidgetColumnWidth(
+            isDesktop ? 100.0 : 90.0,
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(8.0),
+          ),
+        },
+        header: const [
+          'No',
+          'اسم صنف المخزون',
+          'المستودع الرئيسي',
+          'الكمية الافتتاحية',
+          'إجمالي التكلفة',
+          'الفترة المالية',
+          'الإجراءات',
+        ],
+        items: items,
+        minWidth: isDesktop ? 900.0 : 760.0,
+        paintRowColorWhen: (item, index) => index.isOdd,
+        rowColor: style.surfaceContainer,
+        builder: (context, item, index) => [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: fluent.Text('${index + 1}', textAlign: TextAlign.center),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: fluent.Text(
+              _getInventoryName(item.inventoryId, state.inventoryItems),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: fluent.Text(
+              _getWarehouseName(
+                item.inventoryId,
+                state.inventoryItems,
+                state.warehouses,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: fluent.Text(
+              item.countUnits.toString(),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: fluent.Text(
+              '${item.costTotal.toStringAsFixed(2)} SAR',
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: fluent.Text(
+              'فترة #${item.periodId}',
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Align(
+            alignment: Alignment.center,
+            child: fluent.IconButton(
+              icon: const fluent.Icon(
+                fluent.FluentIcons.delete,
+                color: Colors.red,
+              ),
+              onPressed: () => _onDeleteOpeningQuantityPressed(item),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   void _onDeleteOpeningQuantityPressed(OpeningQuantityEntity item) async {
-    final sure = await showDialog<bool>(
+    final sure = await fluent.showDialog<bool>(
       context: context,
       builder: (context) => fluent.ContentDialog(
         title: const fluent.Text('حذف الرصيد الافتتاحي ⚠️'),
@@ -369,121 +432,6 @@ class _OpeningQuantitiesPageState extends State<OpeningQuantitiesPage> {
       context.read<OpeningQuantitiesBloc>().add(
         DeleteOpeningQuantityEvent(item.id),
       );
-    }
-  }
-}
-
-class OpeningQuantitiesDataGridSource extends DataGridSource {
-  OpeningQuantitiesDataGridSource({
-    required List<OpeningQuantityEntity> items,
-    required this.state,
-    required this.style,
-    required this.onDelete,
-  }) {
-    _dataGridRows = items.asMap().entries.map<DataGridRow>((entry) {
-      final index = entry.key;
-      final item = entry.value;
-      return DataGridRow(
-        cells: [
-          DataGridCell<String>(columnName: 'no', value: '${index + 1}'),
-          DataGridCell<String>(
-            columnName: 'inventoryName',
-            value: _getInventoryName(item.inventoryId, state.inventoryItems),
-          ),
-          DataGridCell<String>(
-            columnName: 'warehouse',
-            value: _getWarehouseName(
-              item.inventoryId,
-              state.inventoryItems,
-              state.warehouses,
-            ),
-          ),
-          DataGridCell<String>(
-            columnName: 'countUnits',
-            value: item.countUnits.toString(),
-          ),
-          DataGridCell<String>(
-            columnName: 'costTotal',
-            value: '${item.costTotal.toStringAsFixed(2)} SAR',
-          ),
-          DataGridCell<String>(
-            columnName: 'period',
-            value: 'فترة #${item.periodId}',
-          ),
-          DataGridCell<OpeningQuantityEntity>(
-            columnName: 'actions',
-            value: item,
-          ),
-        ],
-      );
-    }).toList();
-  }
-
-  final OpeningQuantitiesState state;
-  final AppStyle style;
-  final void Function(OpeningQuantityEntity item) onDelete;
-  List<DataGridRow> _dataGridRows = [];
-
-  @override
-  List<DataGridRow> get rows => _dataGridRows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    return DataGridRowAdapter(
-      color: _dataGridRows.indexOf(row).isEven ? null : style.surfaceContainer,
-      cells: row.getCells().map<Widget>((dataGridCell) {
-        if (dataGridCell.columnName == 'actions') {
-          final openingItem = dataGridCell.value as OpeningQuantityEntity;
-          return Align(
-            alignment: Alignment.center,
-            child: fluent.IconButton(
-              icon: const fluent.Icon(
-                fluent.FluentIcons.delete,
-                color: Colors.red,
-              ),
-              onPressed: () => onDelete(openingItem),
-            ),
-          );
-        }
-
-        final displayValue = _resolveCellValue(dataGridCell);
-        return Container(
-          alignment: AlignmentDirectional.centerStart,
-          padding: const EdgeInsets.all(8.0),
-          child: fluent.Text(
-            displayValue,
-            overflow: TextOverflow.ellipsis,
-            style: style.body,
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  String _resolveCellValue(DataGridCell cell) {
-    return cell.value?.toString() ?? '';
-  }
-
-  String _getInventoryName(int inventoryId, List<InventoryEntity> items) {
-    try {
-      return items.firstWhere((i) => i.id == inventoryId).inventoryName;
-    } catch (_) {
-      return 'صنف (#$inventoryId)';
-    }
-  }
-
-  String _getWarehouseName(
-    int inventoryId,
-    List<InventoryEntity> items,
-    List<WarehouseEntity> warehouses,
-  ) {
-    try {
-      final inventory = items.firstWhere((i) => i.id == inventoryId);
-      return warehouses
-          .firstWhere((w) => w.id == inventory.storeId)
-          .warehouseName;
-    } catch (_) {
-      return 'غير معرف';
     }
   }
 }

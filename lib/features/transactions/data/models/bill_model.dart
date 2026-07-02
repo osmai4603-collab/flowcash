@@ -49,7 +49,7 @@ final class BillModel extends BillEntity implements Model {
   @override
   Map<String, dynamic> toMap() {
     return {
-      BillsTable().id: id,
+      if(id > 0) BillsTable().id: id,
       BillsTable().createdAt: createdAt.toIso8601String(),
       BillsTable().createdBy: createdBy,
       BillsTable().note: note,

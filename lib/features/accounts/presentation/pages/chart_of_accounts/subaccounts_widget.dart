@@ -262,7 +262,7 @@ class _SubAccountsViewWidgetState extends State<SubAccountsViewWidget> {
   }
 
   Future<void> _showAddSubAccountDialog(BuildContext context) async {
-    final result = await showDialog<bool>(
+    final result = await fluent.showDialog<bool>(
       context: context,
       builder: (context) =>
           SubAccountFormDialog(mainAccountId: widget.mainAccount.id),

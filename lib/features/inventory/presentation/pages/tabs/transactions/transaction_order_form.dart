@@ -107,10 +107,17 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
                 children: [
                   // Select Inventory Item
                   ComboBoxForm<InventoryEntity>(
+                    placeHolder: 'اختر الصنف',
+                    prefix: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: fluent.Icon(fluent.FluentIcons.product),
+                    ),
                     controller: _itemController,
-                    decoration: const InputDecoration(
-                      labelText: 'اختر الصنف',
-                      prefixIcon: fluent.Icon(fluent.FluentIcons.product),
+                    decoration: const WidgetStatePropertyAll(
+                      BoxDecoration(
+                        border: Border.fromBorderSide(BorderSide.none),
+                        borderRadius: BorderRadius.zero,
+                      ),
                     ),
                     labelMenu: (item) => _getInventoryLabel(item),
                     labelString: (item) => _getInventoryLabel(item),
@@ -147,24 +154,26 @@ class _TransactionOrderFormState extends State<TransactionOrderForm> {
                   const SizedBox(height: 16),
 
                   // Quantity
-                  TextFormField(
+                  fluent.TextFormBox(
                     controller: _quantityController,
                     textDirection: TextDirection.ltr,
-                    decoration: const InputDecoration(
-                      labelText: 'الكمية المطلوبة',
-                      prefixIcon: fluent.Icon(
-                        fluent.FluentIcons.numbered_list_number,
+                    decoration: const WidgetStatePropertyAll(
+                      BoxDecoration(
+                        border: Border.fromBorderSide(BorderSide.none),
+                        borderRadius: BorderRadius.zero,
                       ),
                     ),
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
                     validator: (val) {
-                      if (val == null || val.isEmpty)
+                      if (val == null || val.isEmpty) {
                         return 'الرجاء إدخال الكمية';
+                      }
                       final q = double.tryParse(val);
-                      if (q == null || q <= 0)
+                      if (q == null || q <= 0) {
                         return 'الكمية يجب أن تكون أكبر من الصفر';
+                      }
                       return null;
                     },
                   ),

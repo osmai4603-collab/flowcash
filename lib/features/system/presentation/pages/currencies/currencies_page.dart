@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flowcash/core/theme_fluent/app_colors.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/currencies/domain/entities/currency_entity.dart';
@@ -8,46 +9,14 @@ import 'package:flowcash/features/system/presentation/bloc/currencies/currencies
 import 'package:flowcash/features/system/presentation/pages/currencies/currency_form_page.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class CurrenciesPage extends StatelessWidget {
   const CurrenciesPage({Key? key}) : super(key: key);
 
   bool get isDesktop => Platform.isLinux || Platform.isWindows;
 
-  Map<int, TableColumnWidth> get columnWidths => {
-    0: FixedColumnWidth(isDesktop ? 90.0 : 70.0),
-    1: FixedColumnWidth(isDesktop ? 140.0 : 100.0),
-    2: FixedColumnWidth(isDesktop ? 100.0 : 80.0),
-    3: FixedColumnWidth(isDesktop ? 140.0 : 100.0),
-    4: const FlexColumnWidth(0.30),
-  };
-
-  Widget headerCell(String text, AppStyle textTheme, ColorScheme colors) {
-    return Padding(
-      padding: const EdgeInsets.all(4),
-      child: fluent.Text(
-        text,
-        textAlign: TextAlign.center,
-        style: textTheme.body,
-      ),
-    );
-  }
-
-  Widget dataCell(String text, TextTheme textTheme) {
-    return Padding(
-      padding: const EdgeInsets.all(4),
-      child: fluent.Text(
-        text.isEmpty ? '-' : text,
-        textAlign: TextAlign.center,
-        style: textTheme.bodyMedium,
-      ),
-    );
-  }
-
   Widget buildTable(BuildContext context, List<CurrencyEntity> items) {
-    final textTheme = AppStyle.of(context);
-    final colors = Theme.of(context).colorScheme;
+    final style = AppStyle.of(context);
 
     if (items.isEmpty) {
       return Column(
@@ -72,18 +41,12 @@ class CurrenciesPage extends StatelessWidget {
           ),
           Expanded(
             child: Center(
-              child: fluent.Text('لا توجد عملات', style: textTheme.bodyLarge),
+              child: fluent.Text('لا توجد عملات', style: style.bodyLarge),
             ),
           ),
         ],
       );
     }
-
-    final dataSource = CurrenciesDataGridSource(
-      items: items,
-      textTheme: textTheme,
-      colors: colors,
-    );
 
     return Column(
       children: [
@@ -107,52 +70,42 @@ class CurrenciesPage extends StatelessWidget {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(color: colors.outline, width: 0.5),
+              border: Border.all(color: style.outline, width: 0.5),
             ),
-            child: SfDataGrid(
-              source: dataSource,
-              headerRowHeight: 40,
-              rowHeight: 30,
-              gridLinesVisibility: GridLinesVisibility.both,
-              headerGridLinesVisibility: GridLinesVisibility.both,
-              columnWidthMode: ColumnWidthMode.fill,
-              onCellTap: (DataGridCellTapDetails details) async {
-                if (details.rowColumnIndex.rowIndex > 0) {
-                  final item = items[details.rowColumnIndex.rowIndex - 1];
-                  final didUpdate = await _openCurrencyForm(context, item);
-                  if (didUpdate == true && context.mounted) {
-                    fluent.displayInfoBar(
-                      context,
-                      builder: (context, close) => fluent.InfoBar(
-                        title: const fluent.Text('تنبيه'),
-                        content: fluent.Text('تم تحديث العملة'),
-                      ),
-                    );
-                    context.read<CurrenciesBloc>().add(LoadCurrenciesEvent());
-                  }
-                }
+            child: TableWidget<CurrencyEntity>(
+              columns: {
+                0: FixedTableWidgetColumnWidth(
+                  isDesktop ? 90.0 : 70.0,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
+                1: FixedTableWidgetColumnWidth(
+                  isDesktop ? 140.0 : 100.0,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
+                2: FixedTableWidgetColumnWidth(
+                  isDesktop ? 100.0 : 80.0,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
+                3: const FlexTableWidgetColumnWidth(
+                  1.0,
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
               },
-              columns: [
-                GridColumn(
-                  columnName: 'id',
-                  width: isDesktop ? 90.0 : 70.0,
-                  label: headerCell('المعرف', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'name',
-                  width: isDesktop ? 140.0 : 100.0,
-                  label: headerCell('الاسم', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'symbol',
-                  width: isDesktop ? 100.0 : 80.0,
-                  label: headerCell('الرمز', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'isDefault',
-                  width: isDesktop ? 120.0 : 90.0,
-                  label: headerCell('افتراضي', textTheme, colors),
-                ),
+              header: const ['المعرف', 'الاسم', 'الرمز', 'افتراضي'],
+              items: items,
+              minWidth: isDesktop ? 500.0 : 380.0,
+              onTapRow: (item) => _openCurrencyForm(context, item),
+              paintRowColorWhen: (item, index) => index.isOdd,
+              rowColor: style.surfaceContainerLow,
+              builder: (context, item, index) => [
+                Text(item.id),
+                Text(item.name),
+                Text(item.symbol),
+                Text(item.isDefault ? 'نعم' : 'لا'),
               ],
             ),
           ),
@@ -165,7 +118,7 @@ class CurrenciesPage extends StatelessWidget {
     BuildContext context,
     CurrencyEntity? entity,
   ) async {
-    final result = await showDialog<CurrencyEntity?>(
+    final result = await fluent.showDialog<CurrencyEntity?>(
       context: context,
       builder: (context) => CurrencyFormPage(initialValue: entity),
     );
@@ -226,51 +179,6 @@ class CurrenciesPage extends StatelessWidget {
         }
         return const SizedBox.shrink();
       },
-    );
-  }
-}
-
-class CurrenciesDataGridSource extends DataGridSource {
-  CurrenciesDataGridSource({
-    required List<CurrencyEntity> items,
-    required this.textTheme,
-    required this.colors,
-  }) {
-    _dataGridRows = items.map<DataGridRow>((item) {
-      return DataGridRow(
-        cells: [
-          DataGridCell<String>(columnName: 'id', value: item.id),
-          DataGridCell<String>(columnName: 'name', value: item.name),
-          DataGridCell<String>(columnName: 'symbol', value: item.symbol),
-          DataGridCell<bool>(columnName: 'isDefault', value: item.isDefault),
-        ],
-      );
-    }).toList();
-  }
-
-  final AppStyle textTheme;
-  final ColorScheme colors;
-  List<DataGridRow> _dataGridRows = [];
-
-  @override
-  List<DataGridRow> get rows => _dataGridRows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    final index = _dataGridRows.indexOf(row);
-    return DataGridRowAdapter(
-      color: index.isEven ? null : colors.surfaceVariant.withOpacity(0.12),
-      cells: row.getCells().map<Widget>((dataGridCell) {
-        return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(4.0),
-          child: fluent.Text(
-            dataGridCell.value.toString(),
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.body,
-          ),
-        );
-      }).toList(),
     );
   }
 }

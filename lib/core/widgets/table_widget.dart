@@ -173,6 +173,8 @@ class TableWidget<T> extends StatelessWidget {
   final Color? rowColor;
   final bool Function(T item, int index)? paintRowColorWhen;
   final double? minWidth;
+  final ScrollPhysics? physics;
+  final bool? shrinkWrap;
 
   const TableWidget({
     super.key,
@@ -187,16 +189,22 @@ class TableWidget<T> extends StatelessWidget {
     this.paintRowColorWhen,
     this.rowColor,
     this.minWidth,
+    this.physics,
+    this.shrinkWrap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final body = _buildBody(context);
+
     Widget child = Column(
+      mainAxisSize: shrinkWrap == true ? MainAxisSize.min : MainAxisSize.max,
       children: [
         _buildHeader(context),
-        Expanded(
-          child: _buildBody(context),
-        ),
+        if (shrinkWrap == true)
+          body
+        else
+          Expanded(child: body),
       ],
     );
 
@@ -225,9 +233,7 @@ class TableWidget<T> extends StatelessWidget {
       children: [
         TableRow(
           children: header.asMap().entries.map((entry) {
-            final index = entry.key;
             final title = entry.value;
-            final columnWidth = columns[index];
             return Container(
               alignment: AlignmentDirectional.center,
               padding: const EdgeInsets.all(8.0),
@@ -244,53 +250,64 @@ class TableWidget<T> extends StatelessWidget {
 
   Widget _buildBody(BuildContext context) {
     final style = AppStyle.of(context);
+
     return ListView.separated(
+      shrinkWrap: shrinkWrap ?? false,
+      physics: shrinkWrap == true ? const NeverScrollableScrollPhysics() : physics ?? const ClampingScrollPhysics(),
       itemCount: items.length,
-      separatorBuilder: (context, index) =>  Divider(height: 0, thickness: borderThickness, color: style.outline),
-      itemBuilder: (context, indexOfRow) {
-        final item = items[indexOfRow];
-        final widgets = builder(context, item, indexOfRow);
-        return Material(
-          color: paintRowColorWhen != null
-            ? (paintRowColorWhen!(item, indexOfRow) ? rowColor : null)
-            : rowColor,
-          child: InkWell(
-            onTap: onTapRow != null ? () => onTapRow!(item) : null,
-            onDoubleTap: onDoubleTap != null ? () => onDoubleTap!(item) : null,
-            onLongPress: onLongPressed != null ? () => onLongPressed!(item) : null,
-            child: Table(
-              border: TableBorder.symmetric(inside: BorderSide(width: borderThickness, color: style.outline)),
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              columnWidths: columns,
-              children: [
-                TableRow(
-                  children: List.generate(columns.values.length, (indexOfField) {
-                    final column = columns[indexOfField];
-                    if(column == null || indexOfField >= widgets.length) {
-                      return Container(
-                        color: style.error,
-                        height: column?.fieldHeight,
-                        padding: Paddings.xsmallAll,
-                        alignment: AlignmentDirectional.center,
-                        child: Text(
-                          'لم يتم اضافة الحقل هنا',
-                          style: style.body.copyWith(color: style.onError),
-                        ),
-                      );
-                    }
-                    return Container(
-                      height: column.fieldHeight,
-                      padding: column.padding,
-                      alignment: column.alignment,
-                      child: widgets[indexOfField],
-                    );
-                  })
-                ),
-              ],
-            ),
-          ),
-        );
+      separatorBuilder: (context, index) => Divider(color: style.outline, height: 1),
+      itemBuilder: (context, index) {
+        return _buildRow(context, style, index);
       },
+    );
+  }
+
+  Widget _buildRow(BuildContext context, AppStyle style, int indexOfRow) {
+    final item = items[indexOfRow];
+    final widgets = builder(context, item, indexOfRow);
+    final rowColorValue = paintRowColorWhen != null
+        ? (paintRowColorWhen!(item, indexOfRow) ? rowColor : null)
+        : rowColor;
+
+    return Material(
+      color: rowColorValue,
+      child: InkWell(
+        onTap: onTapRow == null ? null : () => onTapRow!(item),
+        onDoubleTap: onDoubleTap == null ? null : () => onDoubleTap!(item),
+        onLongPress: onLongPressed == null ? null : () => onLongPressed!(item),
+        child: Table(
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          columnWidths: columns,
+          border: TableBorder.symmetric(
+            inside: BorderSide(width: borderThickness, color: style.outline),
+          ),
+          children: [
+            TableRow(
+              children: List.generate(columns.values.length, (indexOfField) {
+                final column = columns[indexOfField];
+                if (column == null || indexOfField >= widgets.length) {
+                  return Container(
+                    color: style.error,
+                    height: column?.fieldHeight,
+                    padding: Paddings.xsmallAll,
+                    alignment: AlignmentDirectional.center,
+                    child: Text(
+                      'لم يتم اضافة الحقل هنا',
+                      style: style.body.copyWith(color: style.onError),
+                    ),
+                  );
+                }
+                return Container(
+                  height: column.fieldHeight,
+                  padding: column.padding,
+                  alignment: column.alignment,
+                  child: widgets[indexOfField],
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -82,7 +82,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
       paintRowColorWhen: (item, index) => index.isEven,
       rowColor: colors.surfaceContainer,
       onTapRow: (category) async {
-        final result = await showDialog<MainCategoryEntity?>(
+        final result = await fluent.showDialog<MainCategoryEntity?>(
           context: context,
           builder: (_) => MainCategoryFormPage(category: category),
         );
@@ -93,7 +93,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
         }
       },
       onDoubleTap: (category) async {
-        final result = await showDialog<bool?>(
+        final result = await fluent.showDialog<bool?>(
           context: context,
           builder: (_) => MainCategoryUnitDataPage(mainCategory: category),
         );
@@ -243,7 +243,7 @@ class _MainCategoriesPageState extends State<_MainCategoriesView> {
   }
 
   void _onAddMainCategory(BuildContext context) async {
-    final mainCategory = await showDialog<MainCategoryEntity?>(
+    final mainCategory = await fluent.showDialog<MainCategoryEntity?>(
       context: context,
       builder: (_) => const MainCategoryFormPage(),
     );

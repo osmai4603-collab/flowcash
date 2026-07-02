@@ -432,7 +432,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                               color: colors.onSurface,
                             ),
                             onPressed: () async {
-                              final unitEntity = await showDialog<UnitEntity>(
+                              final unitEntity = await fluent.showDialog<UnitEntity>(
                                 barrierDismissible: false,
                                 context: context,
                                 builder: (_) =>
@@ -586,7 +586,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
                       ),
                       onPressed: () async {
                         if (property.availableUnits.isEmpty) {
-                          final unitEntity = await showDialog<UnitEntity>(
+                          final unitEntity = await fluent.showDialog<UnitEntity>(
                             barrierDismissible: false,
                             context: context,
                             builder: (_) =>
@@ -668,7 +668,7 @@ class _SubcategoryFormPageState extends State<SubcategoryFormPage> {
   }
 
   void _onAddNewSubcategoryUnit(SubcategoryProperty property) async {
-    final unitEntity = await showDialog<UnitEntity>(
+    final unitEntity = await fluent.showDialog<UnitEntity>(
       barrierDismissible: false,
       context: context,
       builder: (_) => UnitFormPage(property: property.property),

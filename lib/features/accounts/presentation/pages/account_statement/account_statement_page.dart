@@ -148,31 +148,11 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                         );
                       }
 
-                      // Pre-compute the list of balances for running balance:
-                      final balances = <double>[];
-                      double balanceTemp = state.openingBalance;
-                      for (final item in state.items) {
-                        final amount = item.amount;
-                        final displayedDebit = item.journalStatus == JournalStatus.increment
-                            ? amount
-                            : 0.0;
-                        final displayedCredit = item.journalStatus == JournalStatus.decrement
-                            ? amount
-                            : 0.0;
-                        balanceTemp += (displayedDebit - displayedCredit);
-                        balances.add(balanceTemp);
-                      }
-
-                      // Compute totals for the summary row:
-                      double totalDebit = 0.0;
-                      double totalCredit = 0.0;
-                      for (final item in state.items) {
-                        item.journalStatus == JournalStatus.increment
-                            ? totalDebit += item.amountExPriceHistory
-                            : totalCredit += item.amountExPriceHistory;
-                      }
-
-                      final lastBalance = balances.isNotEmpty ? balances.last : 0.0;
+                      // Use precomputed balances and totals from state
+                      final balances = state.balances;
+                      final totalDebit = state.totalDebit;
+                      final totalCredit = state.totalCredit;
+                      final lastBalance = state.lastBalance;
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,7 +203,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                   ),
                                   item.journalStatus == JournalStatus.increment
                                       ? TextWidget(
-                                          text: AppMoneyFormatter.formatDouble(item.amount),
+                                          text: AppMoneyFormatter.formatDouble(item.amountExPriceHistory),
                                           alignment: Alignment.centerRight,
                                           padding: Paddings.xsmallAll,
                                           style: style.copyWith(color: Colors.green.shade900),
@@ -233,7 +213,7 @@ class _AccountStatementPageState extends State<AccountStatementPage> {
                                       : const SizedBox(height: 1),
                                   item.journalStatus == JournalStatus.decrement
                                       ? TextWidget(
-                                          text: AppMoneyFormatter.formatDouble(item.amount),
+                                          text: AppMoneyFormatter.formatDouble(item.amountExPriceHistory),
                                           alignment: Alignment.centerRight,
                                           padding: Paddings.xsmallAll,
                                           style: style.copyWith(color: Colors.red.shade900),

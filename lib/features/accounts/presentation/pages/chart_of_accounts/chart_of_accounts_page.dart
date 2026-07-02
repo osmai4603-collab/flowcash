@@ -147,7 +147,7 @@ class _ChartOfAccountsContentState extends State<_ChartOfAccountsContent> {
     MainAccountEntity? mainAccount,
     required MainAccountGroup group,
   }) async {
-    final result = await showDialog<bool>(
+    final result = await fluent.showDialog<bool>(
       context: context,
       builder: (context) =>
           MainAccountFormDialog(mainAccount: mainAccount, group: group),

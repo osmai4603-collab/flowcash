@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flowcash/features/sales/presentation/bloc/sales_page/sales_page_state.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
+import 'package:flowcash/features/transactions/domain/entities/cost_good_bill_order_entity.dart';
 
 abstract class SalesPageEvent extends Equatable {
   const SalesPageEvent();
@@ -69,9 +70,10 @@ class PostSalesDocumentToInventoryEvent extends SalesPageEvent {
 
 class PostSalesDocumentToCostingEvent extends SalesPageEvent {
   final SalesDocument doc;
+  final List<CostGoodBillOrderEntity>? overrideOrders;
 
-  const PostSalesDocumentToCostingEvent(this.doc);
+  const PostSalesDocumentToCostingEvent(this.doc, {this.overrideOrders});
 
   @override
-  List<Object?> get props => [doc];
+  List<Object?> get props => [doc, overrideOrders];
 }

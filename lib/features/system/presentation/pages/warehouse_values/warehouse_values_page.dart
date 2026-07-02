@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/inventory/domain/entities/warehouse_value_entity.dart';
 import 'package:flowcash/features/system/presentation/bloc/warehouse_values/warehouse_values_cubit.dart';
 import 'package:flowcash/features/system/presentation/pages/warehouse_values/warehouse_value_form_page.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
@@ -61,8 +62,8 @@ class WarehouseValuesPage extends StatelessWidget {
   bool get isDesktop => Platform.isLinux || Platform.isWindows;
 
   Widget buildTable(BuildContext context, List<WarehouseValueEntity> items) {
+    final style = AppStyle.of(context);
     final textTheme = Theme.of(context).textTheme;
-    final colors = Theme.of(context).colorScheme;
 
     if (items.isEmpty) {
       return Column(
@@ -97,12 +98,6 @@ class WarehouseValuesPage extends StatelessWidget {
       );
     }
 
-    final dataSource = WarehouseValuesDataGridSource(
-      items: items,
-      textTheme: textTheme,
-      colors: colors,
-    );
-
     return Column(
       children: [
         Padding(
@@ -125,61 +120,48 @@ class WarehouseValuesPage extends StatelessWidget {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(color: colors.outline, width: 0.5),
+              border: Border.all(color: style.outline, width: 0.5),
             ),
-            child: SfDataGrid(
-              source: dataSource,
-              headerRowHeight: 40,
-              rowHeight: 30,
-              gridLinesVisibility: GridLinesVisibility.both,
-              headerGridLinesVisibility: GridLinesVisibility.both,
-              columnWidthMode: ColumnWidthMode.fill,
-              onCellTap: (DataGridCellTapDetails details) async {
-                if (details.rowColumnIndex.rowIndex > 0) {
-                  final item = items[details.rowColumnIndex.rowIndex - 1];
-                  final didUpdate = await _openWarehouseValueForm(
-                    context,
-                    item,
-                  );
-                  if (didUpdate == true && context.mounted) {
-                    fluent.displayInfoBar(
-                      context,
-                      builder: (context, close) => fluent.InfoBar(
-                        title: const fluent.Text('تنبيه'),
-                        content: fluent.Text('تم تحديث قيمة المستودع'),
-                      ),
-                    );
-                    context.read<WarehouseValuesBloc>().add(
-                      LoadWarehouseValuesEvent(),
-                    );
-                  }
-                }
+            child: TableWidget<WarehouseValueEntity>(
+              columns: {
+                0: FixedTableWidgetColumnWidth(
+                  isDesktop ? 60.0 : 50.0,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
+                1: FixedTableWidgetColumnWidth(
+                  isDesktop ? 120.0 : 90.0,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
+                2: FixedTableWidgetColumnWidth(
+                  isDesktop ? 140.0 : 110.0,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
+                3: FixedTableWidgetColumnWidth(
+                  isDesktop ? 120.0 : 90.0,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
+                4: const FlexTableWidgetColumnWidth(
+                  1.0,
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
               },
-              columns: [
-                GridColumn(
-                  columnName: 'no',
-                  width: isDesktop ? 60.0 : 50.0,
-                  label: _buildHeaderCell('No.', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'warehouse',
-                  width: isDesktop ? 120.0 : 90.0,
-                  label: _buildHeaderCell('المستودع', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'type',
-                  width: isDesktop ? 140.0 : 110.0,
-                  label: _buildHeaderCell('النوع', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'value',
-                  width: isDesktop ? 120.0 : 90.0,
-                  label: _buildHeaderCell('القيمة', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'subaccount',
-                  label: _buildHeaderCell('حساب فرعي', textTheme, colors),
-                ),
+              header: const ['No.', 'المستودع', 'النوع', 'القيمة', 'حساب فرعي'],
+              items: items,
+              minWidth: isDesktop ? 650.0 : 500.0,
+              onTapRow: (item) => _openWarehouseValueForm(context, item),
+              paintRowColorWhen: (item, index) => index.isOdd,
+              rowColor: style.surfaceContainerLow,
+              builder: (context, item, index) => [
+                Text((index + 1).toString()),
+                Text(item.warehouseId.toString()),
+                Text(item.valueType.displayName()),
+                Text(_displayValue(item.value)),
+                Text(_displaySubaccount(item.value)),
               ],
             ),
           ),
@@ -188,31 +170,11 @@ class WarehouseValuesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderCell(
-    String text,
-    TextTheme textTheme,
-    ColorScheme colors,
-  ) {
-    return Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: colors.primaryContainer),
-      child: fluent.Text(
-        text,
-        textAlign: TextAlign.center,
-        style: textTheme.bodyMedium?.copyWith(
-          color: colors.onPrimaryContainer,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
   Future<bool?> _openWarehouseValueForm(
     BuildContext context,
     WarehouseValueEntity? entity,
   ) async {
-    final result = await showDialog<WarehouseValueEntity?>(
+    final result = await fluent.showDialog<WarehouseValueEntity?>(
       context: context,
       builder: (context) => WarehouseValueFormPage(initialValue: entity),
     );
@@ -231,64 +193,6 @@ class WarehouseValuesPage extends StatelessWidget {
     }
 
     return result != null;
-  }
-}
-
-class WarehouseValuesDataGridSource extends DataGridSource {
-  WarehouseValuesDataGridSource({
-    required List<WarehouseValueEntity> items,
-    required this.textTheme,
-    required this.colors,
-  }) {
-    _dataGridRows = items.asMap().entries.map<DataGridRow>((entry) {
-      final index = entry.key;
-      final item = entry.value;
-      return DataGridRow(
-        cells: [
-          DataGridCell<int>(columnName: 'no', value: index + 1),
-          DataGridCell<String>(
-            columnName: 'warehouse',
-            value: item.warehouseId.toString(),
-          ),
-          DataGridCell<String>(
-            columnName: 'type',
-            value: item.valueType.displayName(),
-          ),
-          DataGridCell<String>(
-            columnName: 'value',
-            value: _displayValue(item.value),
-          ),
-          DataGridCell<String>(
-            columnName: 'subaccount',
-            value: _displaySubaccount(item.value),
-          ),
-        ],
-      );
-    }).toList();
-  }
-
-  final TextTheme textTheme;
-  final ColorScheme colors;
-  List<DataGridRow> _dataGridRows = [];
-
-  @override
-  List<DataGridRow> get rows => _dataGridRows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    return DataGridRowAdapter(
-      cells: row.getCells().map<Widget>((dataGridCell) {
-        return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(4.0),
-          child: fluent.Text(
-            dataGridCell.value.toString(),
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.bodyMedium,
-          ),
-        );
-      }).toList(),
-    );
   }
 
   String _displayValue(Object? value) {

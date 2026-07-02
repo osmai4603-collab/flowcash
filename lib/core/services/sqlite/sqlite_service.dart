@@ -188,7 +188,7 @@ final class SqliteDatabase {
     return result.firstOrNull;
   }
 
-  Future<Model?> fetchFirstToModel<Model>({
+  Future<Model?> fetchFirstModel<Model>({
     required String tableName,
     String? where,
     List<Object?>? whereArgs,

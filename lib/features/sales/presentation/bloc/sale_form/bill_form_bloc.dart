@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flowcash/core/models/model.dart';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -41,6 +40,16 @@ enum BillCashType {
   const BillCashType({required this.typeName});
 
   bool get isCash => this == BillCashType.cash;
+}
+
+int calculateNextCounterValue({
+  required ValueCounterEntity counter,
+  required int currentValue,
+}) {
+  final maxValue = counter.counterMax > 0 ? counter.counterMax : 99999;
+  final incrementValue = counter.incrementValue > 0 ? counter.incrementValue : 1;
+  final baseValue = currentValue > 0 ? currentValue : counter.count;
+  return ((baseValue + incrementValue - 1) % maxValue) + 1;
 }
 
 class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
@@ -427,18 +436,30 @@ class BillFormBloc extends Bloc<BillFormEvent, BillFormState> {
           ),
         ),
         (bill) async {
-          if (state.initialBill == null && billCounter != null) {
-            await updateValueCounter(
-              billCounter!.copyWith(
-                count: (state.billNumber % billCounter!.counterMax) + 1,
-              ),
-            );
+          if (state.initialBill == null) {
+            final currentCounter = billCounter;
+            if (currentCounter != null) {
+              final nextCount = calculateNextCounterValue(
+                counter: currentCounter,
+                currentValue: state.billNumber,
+              );
+              final updatedCounter = await updateValueCounter(
+                currentCounter.copyWith(count: nextCount),
+              );
+              updatedCounter.fold(
+                (_) {},
+                (counter) {
+                  billCounter = counter;
+                },
+              );
+            }
           }
 
           emit(
             state.copyWith(
               status: BillFormStatus.submitSuccess,
               initialBill: bill,
+              billNumber: billCounter?.count ?? state.billNumber,
             ),
           );
         },

@@ -12,77 +12,48 @@ class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
 
   @override
   Future<ValueCounterModel> getCounter(ValueCounterType type) async {
-    final rows = await _db.query(
-      table: ValuesCounterTable().tableName,
+    var counter = await _db.fetchFirstModel(
+      tableName: ValuesCounterTable().tableName,
       where: '${ValuesCounterTable().counterType} = ?',
       whereArgs: [type.name],
-      limit: 1,
+      toModel: ValueCounterModel.fromMap
     );
-    if (rows.isEmpty) {
+    if(counter == null) {
       final initialCount = type == ValueCounterType.categoryNumber ? 1001 : 1;
       final increment = 1;
       final formatValue = '0000';
-      await _db.insert(
-        table: ValuesCounterTable().tableName,
-        data: {
-          ValuesCounterTable().counterType: type.name,
-          ValuesCounterTable().count: initialCount,
-          ValuesCounterTable().counterMax: 99999,
-          ValuesCounterTable().incrementValue: increment,
-          ValuesCounterTable().formatValue: formatValue,
-        },
+      final newCounter = ValueCounterModel(
+        id: 0,
+        counterType: type,
+        count: initialCount,
+        counterMax: 99999,
+        incrementValue: increment,
+        formatValue: formatValue,
       );
-      final insertedRows = await _db.query(
-        table: ValuesCounterTable().tableName,
-        where: '${ValuesCounterTable().counterType} = ?',
-        whereArgs: [type.name],
-        limit: 1,
-      );
-      return ValueCounterModel.fromMap(insertedRows.first);
+      return await setCounter(newCounter);
     }
-    return ValueCounterModel.fromMap(rows.first);
+    return counter;
   }
 
   @override
   Future<int> incrementCounter(ValueCounterType type) async {
-    final rows = await _db.query(
-      table: ValuesCounterTable().tableName,
-      where: '${ValuesCounterTable().counterType} = ?',
-      whereArgs: [type.name],
-      limit: 1,
-    );
-
-    if (rows.isEmpty) {
-      final initialCount = type == ValueCounterType.categoryNumber ? 1001 : 1;
-      final increment = 1;
-      final formatValue = '0000';
-      await _db.insert(
-        table: ValuesCounterTable().tableName,
-        data: {
-          ValuesCounterTable().counterType: type.name,
-          ValuesCounterTable().count: initialCount,
-          ValuesCounterTable().counterMax: 99999,
-          ValuesCounterTable().incrementValue: increment,
-          ValuesCounterTable().formatValue: formatValue,
-        },
-      );
-      return initialCount;
-    }
-
-    final row = rows.first;
-    final currentCount = row[ValuesCounterTable().count] as int? ?? 0;
-    final increment = row[ValuesCounterTable().incrementValue] as int? ?? 1;
-    final maxValue = row[ValuesCounterTable().counterMax] as int? ?? 99999;
+    final counter = await getCounter(type);
+    
+    final currentCount = counter.count;
+    final increment = counter.incrementValue;
+    final maxValue = counter.counterMax;
     final initialCount = type == ValueCounterType.categoryNumber ? 1001 : 1;
     var nextCount = currentCount + increment;
     if (nextCount > maxValue) {
       nextCount = initialCount;
     }
 
+    
+
     await _db.update(
       table: ValuesCounterTable().tableName,
       data: {ValuesCounterTable().count: nextCount},
-      where: {ValuesCounterTable().id: row[ValuesCounterTable().id]},
+      where: {ValuesCounterTable().id: counter.id},
     );
     return currentCount;
   }
@@ -167,14 +138,11 @@ class ValueCounterLocalDataSourceImpl implements ValueCounterDataSource {
 
   @override
   Future<ValueCounterEntity?> getById(int id) async {
-    final rows = await _db.query(
-      table: ValuesCounterTable().tableName,
-      where: '${ValuesCounterTable().id} = ?',
-      whereArgs: [id],
-      limit: 1,
+    return await _db.getByIdToModel(
+      table: ValuesCounterTable(),
+      id: id,
+      toModel: ValueCounterModel.fromMap,
     );
-    if (rows.isEmpty) return null;
-    return fromMap(rows.first);
   }
 
   @override

@@ -11,7 +11,7 @@ import 'package:flowcash/features/sales/presentation/pages/customers/customer_fo
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
 import 'package:flowcash/features/transactions/domain/usecases/bill_repository_usecases.dart';
 import 'package:fluent_ui/fluent_ui.dart' hide Colors;
-import 'package:flutter/material.dart' show ColorScheme;
+import 'package:flutter/material.dart' show BoxDecoration;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tafqit/tafqit.dart';
@@ -280,27 +280,14 @@ class _BillFormViewState extends State<_BillFormView> {
     }
 
     if (isDesktop) {
-      return Align(
-        child: SizedBox(
-          width: 600.0,
-          child: Card(
-            margin: const EdgeInsets.all(10.0),
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: buildActions(context),
-                    ),
-                    Expanded(child: buildBill(context, state)),
-                  ],
-                ),
-              ),
-            ),
-          ),
+      return ContentDialog(
+        constraints: const BoxConstraints(maxWidth: 600),
+        title: buildDesktopHeader(context, state),
+        actions: buildDialogActions(context, state),
+        
+        content: Form(
+          key: _formKey,
+          child: buildBill(context, state),
         ),
       );
     }
@@ -312,7 +299,7 @@ class _BillFormViewState extends State<_BillFormView> {
             'فاتورة ${widget.billType.totalName}',
             textAlign: TextAlign.center,
           ),
-          commandBar: Row(children: buildActions(context)),
+          commandBar: Row(children: buildMobileActions(context)),
           leading: Tooltip(
             message: 'رجوع',
             child: IconButton(
@@ -329,7 +316,66 @@ class _BillFormViewState extends State<_BillFormView> {
     );
   }
 
-  List<Widget> buildActions(BuildContext context) {
+  Widget buildDesktopHeader(BuildContext context, BillFormState state) {
+    final bloc = context.read<BillFormBloc>();
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            'فاتورة ${widget.billType.totalName}',
+            style: const TextStyle(fontSize: 18),
+          ),
+        ),
+        Tooltip(
+          message: 'اضافة طلبية جديدة',
+          child: IconButton(
+            icon: const Icon(FluentIcons.add_field),
+            onPressed: () => bloc.add(BillFormRequestAdded()),
+          ),
+        ),
+        const SizedBox(width: 4),
+        Tooltip(
+          message: 'اضافة عميل جديد',
+          child: IconButton(
+            icon: const Icon(FluentIcons.people_add),
+            onPressed: () => _onAddNewPerson(context),
+          ),
+        ),
+        const SizedBox(width: 4),
+        Tooltip(
+          message: 'اضافة صنف جديد',
+          child: IconButton(
+            icon: const Icon(FluentIcons.category_classification),
+            onPressed: () => _onAddNewCategory(context),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> buildDialogActions(BuildContext context, BillFormState state) {
+    final bloc = context.read<BillFormBloc>();
+    return [
+      Expanded(
+        child: Button(
+          child: const Text('رجوع'),
+          onPressed: () => _onBackPressed(state),
+        ),
+      ),
+      Expanded(
+        child: FilledButton(
+          child: const Text('حفظ'),
+          onPressed: () {
+            if (_formKey.currentState?.validate() ?? false) {
+              bloc.add(BillFormSubmitRequested());
+            }
+          },
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> buildMobileActions(BuildContext context) {
     final bloc = context.read<BillFormBloc>();
     return [
       Tooltip(
@@ -464,14 +510,14 @@ class _BillFormViewState extends State<_BillFormView> {
                       ),
                       Text(
                         state.billNumber.toString().padLeft(
-                              context
-                                      .read<BillFormBloc>()
-                                      .billCounter
-                                      ?.formatValue
-                                      .length ??
-                                  5,
-                              '0',
-                            ),
+                          context
+                                  .read<BillFormBloc>()
+                                  .billCounter
+                                  ?.formatValue
+                                  .length ??
+                              5,
+                          '0',
+                        ),
                         style: TextStyle(color: colors.primary, fontSize: 18),
                       ),
                     ],
@@ -513,8 +559,9 @@ class _BillFormViewState extends State<_BillFormView> {
                   child: ComboboxFormField<CurrencyEntity>(
                     value: state.currencySelected,
                     isExpanded: true,
-                    items:
-                        context.read<BillFormBloc>().currencies.map((currency) {
+                    items: context.read<BillFormBloc>().currencies.map((
+                      currency,
+                    ) {
                       return ComboBoxItem<CurrencyEntity>(
                         value: currency,
                         child: Text(
@@ -569,8 +616,7 @@ class _BillFormViewState extends State<_BillFormView> {
                     ? state.treasurySelected
                     : null,
                 isExpanded: true,
-                items:
-                    context.read<BillFormBloc>().treasuries.map((treasury) {
+                items: context.read<BillFormBloc>().treasuries.map((treasury) {
                   return ComboBoxItem<PersonEntity>(
                     value: treasury,
                     child: Text(
@@ -672,6 +718,11 @@ class _BillFormViewState extends State<_BillFormView> {
               onChanged: _onNoteChanged,
               maxLines: 2,
               style: Styles.titleSmall,
+              decoration: const WidgetStatePropertyAll(
+                BoxDecoration(
+                  border: Border.fromBorderSide(BorderSide.none),
+                ),
+              ),
               placeholder: 'ادخل الملاحظة',
               prefix: const Icon(FluentIcons.add_notes),
             ),
@@ -684,77 +735,81 @@ class _BillFormViewState extends State<_BillFormView> {
 
   Widget _buildBillTable(BuildContext context, BillFormState state) {
     final colors = AppStyle.of(context);
+    const borderThickness = 0.50;
+
+    final columnWidths = <int, TableColumnWidth>{
+      0: const FixedColumnWidth(20),
+      1: const FlexColumnWidth(0.17),
+      2: const FlexColumnWidth(0.17),
+      3: const FlexColumnWidth(0.10),
+      4: const FixedColumnWidth(60),
+      5: const FlexColumnWidth(0.46),
+    };
+
+    final headerTitles = ['', 'الاجمالي', 'سعر الوحدة', 'الكمية', 'الوحدة', 'الوصف'];
 
     return Table(
-      border: TableBorder.all(width: 0.50),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-      columnWidths: const {
-        0: FixedColumnWidth(20),
-        1: FlexColumnWidth(0.15),
-        2: FlexColumnWidth(0.15),
-        3: FlexColumnWidth(0.10),
-        4: FixedColumnWidth(60),
-        5: FlexColumnWidth(0.50),
-      },
+      columnWidths: columnWidths,
+      border: TableBorder(
+        top: BorderSide(width: borderThickness, color: colors.outline),
+        bottom: BorderSide(width: borderThickness, color: colors.outline),
+        left: BorderSide(width: borderThickness, color: colors.outline),
+        right: BorderSide(width: borderThickness, color: colors.outline),
+        verticalInside: BorderSide(width: borderThickness, color: colors.outline),
+        horizontalInside: BorderSide(width: borderThickness, color: colors.outline),
+      ),
       children: [
         TableRow(
-          children: [
-            TextWidget(
-              size: const Size.fromHeight(25.0),
-              text: '',
-              alignment: Alignment.center,
-              style: colors.body,
-            ),
-            TextWidget(
-              text: 'الاجمالي',
-              alignment: Alignment.center,
-              style: colors.body,
-            ),
-            TextWidget(
-              text: 'سعر الوحدة',
-              alignment: Alignment.center,
-              style: colors.body,
-            ),
-            TextWidget(
-              text: 'الكمية',
-              alignment: Alignment.center,
-              style: colors.body,
-            ),
-            TextWidget(
-              text: 'الوحدة',
-              alignment: Alignment.center,
-              style: colors.body,
-            ),
-            TextWidget(
-              text: 'الوصف',
-              alignment: Alignment.center,
-              style: colors.body,
-            ),
-          ],
+          decoration: BoxDecoration(color: colors.surface),
+          children: headerTitles.map((title) {
+            return Container(
+              alignment: AlignmentDirectional.center,
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                title,
+                style: colors.body.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12.5,
+                ),
+              ),
+            );
+          }).toList(),
         ),
-        ...List.generate(state.requests.length, (index) {
-          final request = state.requests[index];
-          return TableRow(
+        for (var index = 0; index < state.requests.length; index++)
+          TableRow(
+            decoration: BoxDecoration(
+              color: index.isOdd ? colors.surfaceContainerHigh : null,
+            ),
             children: [
               HoverButton(
                 onPressed: () => _onRemoveRequest(context, index),
                 builder: (context, states) {
-                  return TextWidget(
-                    size: const Size.fromHeight(30),
-                    text: '${index + 1}',
+                  return Container(
+                    height: 30,
                     alignment: Alignment.center,
-                    style: colors.body,
+                    child: TextWidget(
+                      size: const Size.fromHeight(30),
+                      text: '${index + 1}',
+                      alignment: Alignment.center,
+                      style: colors.body,
+                    ),
                   );
                 },
               ),
               TextFormBox(
                 textInputAction: TextInputAction.done,
-                controller: request.totalPriceController,
-                focusNode: request.totalPriceFocusNode,
+                controller: state.requests[index].totalPriceController,
+                focusNode: state.requests[index].totalPriceFocusNode,
                 keyboardType: TextInputType.number,
                 textDirection: TextDirection.ltr,
                 cursorHeight: 13.0,
                 style: colors.body,
+                decoration: const WidgetStatePropertyAll(
+                  BoxDecoration(
+                    border: Border.fromBorderSide(BorderSide.none),
+                  ),
+                ),
                 textAlign: TextAlign.center,
                 inputFormatters: [ThousandsFormatter(allowFraction: true)],
                 placeholder: '---',
@@ -762,18 +817,23 @@ class _BillFormViewState extends State<_BillFormView> {
                   color: colors.onSurfaceVariant,
                 ),
                 onChanged: (value) => _onTotalPriceChanged(index, value),
-                onEditingComplete: () =>
-                    _onTotalPriceEditingComplete(index, state),
+                onEditingComplete: () => _onTotalPriceEditingComplete(index, state),
                 validator: _validateRequiredPriceOrCount,
               ),
               TextFormBox(
                 textInputAction: TextInputAction.next,
-                controller: request.unitPriceController,
-                focusNode: request.unitPriceFocusNode,
+                controller: state.requests[index].unitPriceController,
+                focusNode: state.requests[index].unitPriceFocusNode,
                 keyboardType: TextInputType.number,
                 textDirection: TextDirection.ltr,
                 cursorHeight: 13.0,
                 style: colors.body,
+                decoration: const WidgetStatePropertyAll(
+                  BoxDecoration(
+                    border: Border.fromBorderSide(BorderSide.none),
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
                 textAlign: TextAlign.center,
                 inputFormatters: [ThousandsFormatter(allowFraction: true)],
                 placeholder: '---',
@@ -781,27 +841,33 @@ class _BillFormViewState extends State<_BillFormView> {
                   color: colors.onSurfaceVariant,
                 ),
                 onChanged: (value) => _onUnitPriceChanged(index, value),
-                onEditingComplete: request.totalPriceFocusNode.requestFocus,
+                onEditingComplete: state.requests[index].totalPriceFocusNode.requestFocus,
                 validator: _validateRequiredPriceOrCount,
               ),
               TextFormBox(
                 textInputAction: TextInputAction.next,
-                controller: request.countUnitsController,
-                focusNode: request.countUnitsFocusNode,
+                controller: state.requests[index].countUnitsController,
+                focusNode: state.requests[index].countUnitsFocusNode,
                 keyboardType: TextInputType.number,
                 textDirection: TextDirection.ltr,
                 cursorHeight: 13.0,
                 style: colors.body,
+                decoration: const WidgetStatePropertyAll(
+                  BoxDecoration(
+                    border: Border.fromBorderSide(BorderSide.none),
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
                 textAlign: TextAlign.center,
                 inputFormatters: [
-                  (request.category?.unitType.isPiece ?? true)
+                  (state.requests[index].category?.unitType.isPiece ?? true)
                       ? FilteringTextInputFormatter.digitsOnly
                       : FilteringTextInputFormatter.allow(
                           RegExp(r'\d+\.?\d*'),
                           replacementString:
-                              request.countUnitsController.text.contains('.')
-                              ? ''
-                              : '.',
+                              state.requests[index].countUnitsController.text.contains('.')
+                                  ? ''
+                                  : '.',
                         ),
                 ],
                 placeholder: '---',
@@ -809,36 +875,44 @@ class _BillFormViewState extends State<_BillFormView> {
                   color: colors.onSurfaceVariant,
                 ),
                 onChanged: (value) => _onCountUnitsChanged(index, value),
-                onEditingComplete: request.unitPriceFocusNode.requestFocus,
+                onEditingComplete: state.requests[index].unitPriceFocusNode.requestFocus,
                 validator: _validateRequiredPriceOrCount,
               ),
               TextWidget(
-                text: request.category?.unitType.unitName ?? 'الوحدة',
+                size: const Size.fromHeight(30),
+                backColor: colors.surface,
+                // backColor: colors.surfaceContainerLowest,
+                text: state.requests[index].category?.unitType.unitName ?? 'الوحدة',
                 overflow: TextOverflow.fade,
                 alignment: Alignment.center,
                 style: colors.body.copyWith(
-                  color: request.category != null
+                  color: state.requests[index].category != null
                       ? null
                       : colors.onSurfaceVariant,
                 ),
+
               ),
               ComboBoxForm<SimpleCategoryEntity>(
                 itemsBuilder: _fetchCategories,
-                onSelectedItem: (category) =>
-                    _onCategorySelected(index, category, request),
+                onSelectedItem: (category) => _onCategorySelected(index, category, state.requests[index]),
                 style: colors.body,
-                controller: request.categoryNameController,
+                controller: state.requests[index].categoryNameController,
                 labelMenu: (category) => category.categoryName,
-                focusNode: request.categoryNameFocusNode,
+                focusNode: state.requests[index].categoryNameFocusNode,
                 placeHolder: 'ادخل الطلبية',
                 cursorHeight: 13.0,
+                decoration: const WidgetStatePropertyAll(
+                  BoxDecoration(
+                    border: Border.fromBorderSide(BorderSide.none),
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
                 minCharsForSuggestions: 2,
-                validator: (value) => _validateCategory(value, request),
+                validator: (value) => _validateCategory(value, state.requests[index]),
                 onChanged: (value) => _onCategoryChanged(index, value),
               ),
             ],
-          );
-        }),
+          ),
       ],
     );
   }

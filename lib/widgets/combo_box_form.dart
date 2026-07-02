@@ -30,7 +30,7 @@ class ComboBoxForm<T extends Object> extends StatefulWidget {
   final Widget? Function(T item)? itemViewBuilder;
   final int minCharsForSuggestions;
   final FormFieldValidator<String>? validator;
-  final InputDecoration? decoration;
+  final WidgetStatePropertyAll<BoxDecoration>? decoration;
 
   const ComboBoxForm({
     super.key,
@@ -142,7 +142,7 @@ class _ComboBoxFormState<T extends Object> extends State<ComboBoxForm<T>>
             textAlignVertical: widget.textAlignVertical,
             style: widget.style?.copyWith(fontWeight: FontWeight.bold),
             cursorHeight: widget.cursorHeight,
-            // decoration: widget.decoration,
+            decoration: widget.decoration,
             onEditingComplete: widget.onEditingComplete,
             keyboardType: widget.keyboardType,
             textInputAction: widget.textInputAction,

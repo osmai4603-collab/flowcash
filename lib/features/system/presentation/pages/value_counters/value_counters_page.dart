@@ -1,12 +1,13 @@
 import 'dart:io';
 
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/system/presentation/bloc/value_counters/value_counters_cubit.dart';
 import 'package:flowcash/features/system/domain/entities/value_counter_entity.dart';
 
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ValueCountersPage extends StatelessWidget {
   const ValueCountersPage({super.key});
@@ -14,8 +15,8 @@ class ValueCountersPage extends StatelessWidget {
   bool get isDesktop => Platform.isLinux || Platform.isWindows;
 
   Widget buildTable(BuildContext context, List<dynamic> items) {
+    final style = AppStyle.of(context);
     final textTheme = Theme.of(context).textTheme;
-    final colors = Theme.of(context).colorScheme;
 
     if (items.isEmpty) {
       return Center(
@@ -23,170 +24,39 @@ class ValueCountersPage extends StatelessWidget {
       );
     }
 
-    final dataSource = ValueCountersDataGridSource(
-      items: items,
-      textTheme: textTheme,
-      colors: colors,
-    );
-
-    return Column(
-      children: [
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: colors.outline, width: 0.5),
-            ),
-            child: SfDataGrid(
-              source: dataSource,
-              headerRowHeight: 40,
-              rowHeight: 30,
-              gridLinesVisibility: GridLinesVisibility.both,
-              headerGridLinesVisibility: GridLinesVisibility.both,
-              columnWidthMode: ColumnWidthMode.fill,
-              onCellTap: (DataGridCellTapDetails details) async {
-                if (details.rowColumnIndex.rowIndex > 0) {
-                  final item = items[details.rowColumnIndex.rowIndex - 1];
-                  if (item is ValueCounterEntity) {
-                    final countController = TextEditingController(
-                      text: item.count.toString(),
-                    );
-                    final maxController = TextEditingController(
-                      text: item.counterMax.toString(),
-                    );
-                    final incrementController = TextEditingController(
-                      text: item.incrementValue.toString(),
-                    );
-                    final formatController = TextEditingController(
-                      text: item.formatValue,
-                    );
-
-                    await showDialog<void>(
-                      context: context,
-                      builder: (ctx) => fluent.ContentDialog(
-                        title: fluent.Text(item.counterType.displayName()),
-                        content: StatefulBuilder(
-                          builder: (ctx2, setState) {
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                fluent.Text(
-                                  'تعديل جميع الحقول ماعدا المعرف ونوع العداد',
-                                ),
-                                const SizedBox(height: 16),
-                                fluent.InfoLabel(
-                                  label: 'القيمة',
-                                  child: fluent.TextFormBox(
-                                    controller: countController,
-                                    keyboardType: TextInputType.number,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                fluent.InfoLabel(
-                                  label: 'الحد الأقصى',
-                                  child: fluent.TextFormBox(
-                                    controller: maxController,
-                                    keyboardType: TextInputType.number,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                fluent.InfoLabel(
-                                  label: 'قيمة الزيادة',
-                                  child: fluent.TextFormBox(
-                                    controller: incrementController,
-                                    keyboardType: TextInputType.number,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                fluent.InfoLabel(
-                                  label: 'تنسيق القيمة',
-                                  child: fluent.TextFormBox(
-                                    controller: formatController,
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                        actions: [
-                          fluent.Button(
-                            onPressed: () {
-                              Navigator.of(ctx).pop();
-                            },
-                            child: const fluent.Text('إلغاء'),
-                          ),
-                          fluent.FilledButton(
-                            onPressed: () {
-                              final newCount = int.tryParse(
-                                countController.text,
-                              );
-                              final newMax = int.tryParse(maxController.text);
-                              final newIncrement = int.tryParse(
-                                incrementController.text,
-                              );
-                              final newFormat = formatController.text;
-
-                              if (newCount != null &&
-                                  newMax != null &&
-                                  newIncrement != null) {
-                                final updated = item.copyWith(
-                                  count: newCount,
-                                  counterMax: newMax,
-                                  incrementValue: newIncrement,
-                                  formatValue: newFormat,
-                                );
-                                context.read<ValueCountersBloc>().add(
-                                  SetValueCountersEvent(updated),
-                                );
-                              }
-                              Navigator.of(ctx).pop();
-                            },
-                            child: const fluent.Text('حفظ'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                }
-              },
-              columns: [
-                GridColumn(
-                  columnName: 'id',
-                  width: isDesktop ? 70.0 : 55.0,
-                  label: _buildHeaderCell('المعرف', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'name',
-                  width: isDesktop ? 180.0 : 130.0,
-                  label: _buildHeaderCell('اسم العداد', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'value',
-                  label: _buildHeaderCell('القيمة', textTheme, colors),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeaderCell(
-    String text,
-    TextTheme textTheme,
-    ColorScheme colors,
-  ) {
     return Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: colors.surfaceContainerHigh),
-      child: fluent.Text(
-        text,
-        textAlign: TextAlign.center,
-        style: textTheme.bodyMedium?.copyWith(
-          color: colors.onSurface,
-          fontWeight: FontWeight.bold,
-        ),
+      decoration: BoxDecoration(
+        border: Border.all(color: style.outline, width: 0.5),
+      ),
+      child: TableWidget<dynamic>(
+        columns: {
+          0: FixedTableWidgetColumnWidth(
+            isDesktop ? 70.0 : 55.0,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          ),
+          1: FixedTableWidgetColumnWidth(
+            isDesktop ? 180.0 : 130.0,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          ),
+          2: const FlexTableWidgetColumnWidth(
+            1.0,
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          ),
+        },
+        header: const ['المعرف', 'اسم العداد', 'القيمة'],
+        items: items,
+        minWidth: isDesktop ? 420.0 : 320.0,
+        onTapRow: (item) => _handleRowTap(context, item),
+        paintRowColorWhen: (item, index) => index.isOdd,
+        rowColor: style.surfaceContainerLow,
+        builder: (context, item, index) => [
+          Text(_getField(item, ['id', 'counterId', 'code'])),
+          Text(_getField(item, ['name', 'counterName', 'title'])),
+          Text(_getField(item, ['value', 'currentValue', 'amount'])),
+        ],
       ),
     );
   }
@@ -233,33 +103,97 @@ class ValueCountersPage extends StatelessWidget {
       },
     );
   }
-}
 
-class ValueCountersDataGridSource extends DataGridSource {
-  ValueCountersDataGridSource({
-    required List<dynamic> items,
-    required this.textTheme,
-    required this.colors,
-  }) {
-    _dataGridRows = items.map<DataGridRow>((item) {
-      final id = getField(item, ['id', 'counterId', 'code']);
-      final name = getField(item, ['name', 'counterName', 'title']);
-      final value = getField(item, ['value', 'currentValue', 'amount']);
-      return DataGridRow(
-        cells: [
-          DataGridCell<String>(columnName: 'id', value: id),
-          DataGridCell<String>(columnName: 'name', value: name),
-          DataGridCell<String>(columnName: 'value', value: value),
+  void _handleRowTap(BuildContext context, dynamic item) async {
+    if (item is! ValueCounterEntity) {
+      return;
+    }
+
+    final countController = TextEditingController(text: item.count.toString());
+    final maxController = TextEditingController(text: item.counterMax.toString());
+    final incrementController = TextEditingController(
+      text: item.incrementValue.toString(),
+    );
+    final formatController = TextEditingController(text: item.formatValue);
+
+    await fluent.showDialog<void>(
+      context: context,
+      builder: (ctx) => fluent.ContentDialog(
+        title: fluent.Text(item.counterType.displayName()),
+        content: StatefulBuilder(
+          builder: (ctx2, setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                fluent.Text('تعديل جميع الحقول ماعدا المعرف ونوع العداد'),
+                const SizedBox(height: 16),
+                fluent.InfoLabel(
+                  label: 'القيمة',
+                  child: fluent.TextFormBox(
+                    controller: countController,
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                fluent.InfoLabel(
+                  label: 'الحد الأقصى',
+                  child: fluent.TextFormBox(
+                    controller: maxController,
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                fluent.InfoLabel(
+                  label: 'قيمة الزيادة',
+                  child: fluent.TextFormBox(
+                    controller: incrementController,
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                fluent.InfoLabel(
+                  label: 'تنسيق القيمة',
+                  child: fluent.TextFormBox(
+                    controller: formatController,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        actions: [
+          fluent.Button(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: const fluent.Text('إلغاء'),
+          ),
+          fluent.FilledButton(
+            onPressed: () {
+              final newCount = int.tryParse(countController.text);
+              final newMax = int.tryParse(maxController.text);
+              final newIncrement = int.tryParse(incrementController.text);
+              final newFormat = formatController.text;
+
+              if (newCount != null && newMax != null && newIncrement != null) {
+                final updated = item.copyWith(
+                  count: newCount,
+                  counterMax: newMax,
+                  incrementValue: newIncrement,
+                  formatValue: newFormat,
+                );
+                context.read<ValueCountersBloc>().add(SetValueCountersEvent(updated));
+              }
+              Navigator.of(ctx).pop();
+            },
+            child: const fluent.Text('حفظ'),
+          ),
         ],
-      );
-    }).toList();
+      ),
+    );
   }
 
-  final TextTheme textTheme;
-  final ColorScheme colors;
-  List<DataGridRow> _dataGridRows = [];
-
-  String getField(dynamic item, Iterable<String> keys) {
+  String _getField(dynamic item, Iterable<String> keys) {
     if (item is Map) {
       for (final key in keys) {
         if (item.containsKey(key) && item[key] != null) {
@@ -287,25 +221,5 @@ class ValueCountersDataGridSource extends DataGridSource {
       }
     } catch (_) {}
     return '';
-  }
-
-  @override
-  List<DataGridRow> get rows => _dataGridRows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    return DataGridRowAdapter(
-      cells: row.getCells().map<Widget>((dataGridCell) {
-        return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(4.0),
-          child: fluent.Text(
-            dataGridCell.value.toString(),
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.bodyMedium,
-          ),
-        );
-      }).toList(),
-    );
   }
 }

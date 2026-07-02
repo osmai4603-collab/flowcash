@@ -1,11 +1,13 @@
 import 'dart:io';
+
+import 'package:flowcash/core/theme_fluent/app_colors.dart';
+import 'package:flowcash/core/widgets/table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowcash/features/system/domain/entities/accounting_period_entity.dart';
 import 'package:flowcash/features/system/presentation/bloc/financial_periods/financial_periods_cubit.dart';
 import 'package:flowcash/features/system/presentation/pages/financial_periods/financial_period_form_page.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class FinancialPeriodsPage extends StatelessWidget {
   const FinancialPeriodsPage({super.key});
@@ -13,8 +15,8 @@ class FinancialPeriodsPage extends StatelessWidget {
   bool get isDesktop => Platform.isLinux || Platform.isWindows;
 
   Widget buildTable(BuildContext context, List<AccountingPeriodEntity> items) {
+    final style = AppStyle.of(context);
     final textTheme = Theme.of(context).textTheme;
-    final colors = Theme.of(context).colorScheme;
 
     if (items.isEmpty) {
       return Column(
@@ -49,12 +51,6 @@ class FinancialPeriodsPage extends StatelessWidget {
       );
     }
 
-    final dataSource = FinancialPeriodsDataGridSource(
-      items: items,
-      textTheme: textTheme,
-      colors: colors,
-    );
-
     return Column(
       children: [
         Padding(
@@ -77,61 +73,48 @@ class FinancialPeriodsPage extends StatelessWidget {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(color: colors.outline, width: 0.5),
+              border: Border.all(color: style.outline, width: 0.5),
             ),
-            child: SfDataGrid(
-              source: dataSource,
-              headerRowHeight: 40,
-              rowHeight: 30,
-              gridLinesVisibility: GridLinesVisibility.both,
-              headerGridLinesVisibility: GridLinesVisibility.both,
-              columnWidthMode: ColumnWidthMode.fill,
-              onCellTap: (DataGridCellTapDetails details) async {
-                if (details.rowColumnIndex.rowIndex > 0) {
-                  final item = items[details.rowColumnIndex.rowIndex - 1];
-                  final didUpdate = await _openFinancialPeriodForm(
-                    context,
-                    item,
-                  );
-                  if (didUpdate == true && context.mounted) {
-                    fluent.displayInfoBar(
-                      context,
-                      builder: (context, close) => fluent.InfoBar(
-                        title: const fluent.Text('تنبيه'),
-                        content: fluent.Text('تم تحديث الفترة المالية'),
-                      ),
-                    );
-                    context.read<FinancialPeriodsBloc>().add(
-                      LoadFinancialPeriodsEvent(),
-                    );
-                  }
-                }
+            child: TableWidget<AccountingPeriodEntity>(
+              columns: {
+                0: FixedTableWidgetColumnWidth(
+                  isDesktop ? 70.0 : 55.0,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
+                1: FixedTableWidgetColumnWidth(
+                  isDesktop ? 180.0 : 120.0,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
+                2: FixedTableWidgetColumnWidth(
+                  isDesktop ? 120.0 : 90.0,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
+                3: FixedTableWidgetColumnWidth(
+                  isDesktop ? 120.0 : 90.0,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
+                4: const FlexTableWidgetColumnWidth(
+                  1.0,
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                ),
               },
-              columns: [
-                GridColumn(
-                  columnName: 'id',
-                  width: isDesktop ? 70.0 : 55.0,
-                  label: _buildHeaderCell('المعرف', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'name',
-                  width: isDesktop ? 180.0 : 120.0,
-                  label: _buildHeaderCell('اسم الفترة', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'start',
-                  width: isDesktop ? 120.0 : 90.0,
-                  label: _buildHeaderCell('من التاريخ', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'end',
-                  width: isDesktop ? 120.0 : 90.0,
-                  label: _buildHeaderCell('إلى التاريخ', textTheme, colors),
-                ),
-                GridColumn(
-                  columnName: 'currency',
-                  label: _buildHeaderCell('العملة', textTheme, colors),
-                ),
+              header: const ['المعرف', 'اسم الفترة', 'من التاريخ', 'إلى التاريخ', 'العملة'],
+              items: items,
+              minWidth: isDesktop ? 650.0 : 500.0,
+              onTapRow: (item) => _handleRowTap(context, item),
+              paintRowColorWhen: (item, index) => index.isOdd,
+              rowColor: style.surfaceContainerLow,
+              builder: (context, item, index) => [
+                Text(item.id.toString()),
+                Text(item.periodName),
+                Text(_formatDate(item.dateOfStartPeriod)),
+                Text(_formatDate(item.dateOfEndPeriod)),
+                Text(item.currencyId),
               ],
             ),
           ),
@@ -140,31 +123,11 @@ class FinancialPeriodsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderCell(
-    String text,
-    TextTheme textTheme,
-    ColorScheme colors,
-  ) {
-    return Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: colors.surfaceContainerHigh),
-      child: fluent.Text(
-        text,
-        textAlign: TextAlign.center,
-        style: textTheme.bodyMedium?.copyWith(
-          color: colors.onSurface,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
   Future<bool?> _openFinancialPeriodForm(
     BuildContext context,
     AccountingPeriodEntity? entity,
   ) async {
-    final result = await showDialog<AccountingPeriodEntity?>(
+    final result = await fluent.showDialog<AccountingPeriodEntity?>(
       context: context,
       builder: (context) => FinancialPeriodFormPage(initialValue: entity),
     );
@@ -183,6 +146,24 @@ class FinancialPeriodsPage extends StatelessWidget {
     }
 
     return result != null;
+  }
+
+  void _handleRowTap(BuildContext context, AccountingPeriodEntity item) async {
+    final didUpdate = await _openFinancialPeriodForm(context, item);
+    if (didUpdate == true && context.mounted) {
+      fluent.displayInfoBar(
+        context,
+        builder: (context, close) => fluent.InfoBar(
+          title: const fluent.Text('تنبيه'),
+          content: fluent.Text('تم تحديث الفترة المالية'),
+        ),
+      );
+    }
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return '-';
+    return date.toIso8601String().split('T').first;
   }
 
   @override
@@ -228,61 +209,6 @@ class FinancialPeriodsPage extends StatelessWidget {
 
         return const SizedBox.shrink();
       },
-    );
-  }
-}
-
-class FinancialPeriodsDataGridSource extends DataGridSource {
-  FinancialPeriodsDataGridSource({
-    required List<AccountingPeriodEntity> items,
-    required this.textTheme,
-    required this.colors,
-  }) {
-    _dataGridRows = items.map<DataGridRow>((item) {
-      return DataGridRow(
-        cells: [
-          DataGridCell<String>(columnName: 'id', value: item.id.toString()),
-          DataGridCell<String>(columnName: 'name', value: item.periodName),
-          DataGridCell<String>(
-            columnName: 'start',
-            value: formatDate(item.dateOfStartPeriod),
-          ),
-          DataGridCell<String>(
-            columnName: 'end',
-            value: formatDate(item.dateOfEndPeriod),
-          ),
-          DataGridCell<String>(columnName: 'currency', value: item.currencyId),
-        ],
-      );
-    }).toList();
-  }
-
-  final TextTheme textTheme;
-  final ColorScheme colors;
-  List<DataGridRow> _dataGridRows = [];
-
-  String formatDate(DateTime? date) {
-    if (date == null) return '-';
-    return date.toIso8601String().split('T').first;
-  }
-
-  @override
-  List<DataGridRow> get rows => _dataGridRows;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    return DataGridRowAdapter(
-      cells: row.getCells().map<Widget>((dataGridCell) {
-        return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(4.0),
-          child: fluent.Text(
-            dataGridCell.value.toString(),
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.bodyMedium,
-          ),
-        );
-      }).toList(),
     );
   }
 }

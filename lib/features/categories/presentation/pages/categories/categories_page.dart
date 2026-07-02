@@ -236,7 +236,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
   void _onAddNewCategoryPressed() async {
     BuildContext context() => this.context;
-    final category = await showDialog<CategoryEntity>(
+    final category = await fluent.showDialog<CategoryEntity>(
       context: context(),
       builder: (_) => const CategoryFormPage(),
     );
@@ -261,7 +261,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
   void _onUpdateCategoryPressed(CategoryEntity category) async {
     BuildContext context() => this.context;
-    final updatedCategory = await showDialog<CategoryEntity>(
+    final updatedCategory = await fluent.showDialog<CategoryEntity>(
       context: context(),
       builder: (_) => CategoryFormPage(category: category),
     );

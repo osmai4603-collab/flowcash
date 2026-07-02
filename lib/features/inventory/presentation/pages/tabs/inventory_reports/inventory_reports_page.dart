@@ -1,6 +1,8 @@
+import 'package:flowcash/features/inventory/presentation/pages/inventory_dashboard.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flowcash/features/inventory/presentation/pages/inventory_histories_page.dart';
 import 'package:flutter/material.dart' as material;
+import 'package:provider/provider.dart';
 
 class InventoryReportsPage extends StatelessWidget {
   const InventoryReportsPage({super.key});
@@ -25,11 +27,8 @@ class InventoryReportsPage extends StatelessWidget {
                 title: 'سجلات حركات المخزون',
                 icon: FluentIcons.history,
                 onTap: () {
-                  material.Navigator.of(context).push(
-                    material.MaterialPageRoute(
-                      builder: (context) => const InventoryHistoriesPage(),
-                    ),
-                  );
+                  context.read<InventoryTabNotifier>().navigateToHistories(0);
+                  
                 },
               ),
             ],

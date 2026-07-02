@@ -1,3 +1,4 @@
+import 'package:flowcash/features/transactions/domain/entities/cost_good_bill_order_entity.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flowcash/core/errors/failure.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
@@ -29,6 +30,7 @@ abstract interface class BillRepository implements RepositoryDB<BillEntity> {
   Future<Either<Failure, BillEntity>> postToCosting({
     required BillEntity bill,
     required int userId,
+    List<CostGoodBillOrderEntity>? overrideOrders,
   });
 
   Future<Either<Failure, List<Map<String, dynamic>>>> getBillsWithCustomer();

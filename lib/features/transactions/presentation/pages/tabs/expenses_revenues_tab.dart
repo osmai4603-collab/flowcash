@@ -322,7 +322,7 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
   }
 
   void _confirmDelete(BuildContext context, int id) {
-    showDialog(
+    fluent.showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const fluent.Text('حذف الحركة المالية'),
@@ -354,7 +354,7 @@ class _ExpensesRevenuesTabState extends State<ExpensesRevenuesTab> {
     final billNumController = TextEditingController();
     final hintIdController = TextEditingController();
 
-    showDialog(
+    fluent.showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: fluent.Text(

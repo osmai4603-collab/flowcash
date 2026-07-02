@@ -74,7 +74,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     JournalEntryEntity? entry,
   ]) async {
     final bloc = context.read<JournalEntriesBloc>();
-    final result = await showDialog<bool>(
+    final result = await fluent.showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (context) => JournalEntryFormDialog(entry: entry),
@@ -90,7 +90,7 @@ class _JournalEntriesPageState extends State<JournalEntriesPage> {
     JournalEntryEntity entry,
   ) async {
     final bloc = context.read<JournalEntriesBloc>();
-    final confirm = await showDialog<bool>(
+    final confirm = await fluent.showDialog<bool>(
       context: context,
       builder: (context) => Material(
         color: Colors.transparent,

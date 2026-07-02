@@ -282,7 +282,7 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                                     return;
                                   }
                                   final result =
-                                      await showDialog<Map<String, dynamic>>(
+                                      await fluent.showDialog<Map<String, dynamic>>(
                                         context: context,
                                         builder: (context) =>
                                             TransferFormDialog(
@@ -448,7 +448,7 @@ class _WarehouseTransfersPageState extends State<WarehouseTransfersPage> {
                           inventoryItems: state.batches,
                           categories: _categories,
                           onDelete: (fromId, toId) {
-                            showDialog(
+                            fluent.showDialog(
                               context: context,
                               builder: (context) => fluent.ContentDialog(
                                 title: const fluent.Text(

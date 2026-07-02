@@ -295,7 +295,7 @@ class _SalesTabState extends State<SalesTab> {
   }
 
   void _confirmDeleteBill(BuildContext context, int id) {
-    showDialog(
+    fluent.showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const fluent.Text('حذف الفاتورة'),
@@ -323,7 +323,7 @@ class _SalesTabState extends State<SalesTab> {
     final billNumController = TextEditingController();
     bool isCash = true;
 
-    showDialog(
+    fluent.showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(

@@ -52,7 +52,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
               if (state is SubcategoriesLoadSuccess) {
                 if (state.isGenerating && !_isShowingGeneratingDialog) {
                   _isShowingGeneratingDialog = true;
-                  showDialog<void>(
+                  fluent.showDialog<void>(
                     context: context,
                     barrierDismissible: false,
                     builder: (dialogCtx) => const fluent.ContentDialog(
@@ -79,7 +79,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
 
                 if (state.generatedCategoryNames != null) {
                   final names = state.generatedCategoryNames!;
-                  await showDialog<void>(
+                  await fluent.showDialog<void>(
                     context: context,
                     builder: (ctx) => fluent.ContentDialog(
                       title: fluent.Text(
@@ -195,7 +195,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
   }
 
   Future<void> _onAddSubcategory(BuildContext context) async {
-    final newSubcategory = await showDialog<SubcategoryEntity>(
+    final newSubcategory = await fluent.showDialog<SubcategoryEntity>(
       context: context,
       builder: (ctx) => const SubcategoryFormPage(),
     );
@@ -229,12 +229,13 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
 
     return TableWidget<SubcategoryEntity>(
       columns: getWidths(),
+      borderThickness: 0.80,
       items: filteredSubcategories,
       header: const ['No', 'اسم النوع', 'الخصائص والسمات', 'العمليات'],
       // paintRowColorWhen: (item, index) => index.isEven,
       rowColor: AppStyle.of(context).surfaceContainerLow,
       onTapRow: (catalog) async {
-        final result = await showDialog<SubcategoryEntity>(
+        final result = await fluent.showDialog<SubcategoryEntity>(
           context: context,
           builder: (ctx) => SubcategoryFormPage(subcategory: catalog),
         );
@@ -313,6 +314,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
       2: FlexTableWidgetColumnWidth(
         1,
         alignment: .centerStart,
+        padding: Paddings.none,
       ), // الخصائص والسمات
       3: FixedTableWidgetColumnWidth(80, alignment: .center), // العمليات
     };
@@ -341,131 +343,128 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(6.0),
-      child: fluent.Table(
-        border: fluent.TableBorder.all(width: 0.5, color: colors.outline),
-        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-        columnWidths: const {
-          0: FixedColumnWidth(120), // اسم الخاصية
-          1: FlexColumnWidth(), // القيم / الوحدات
-          2: FixedColumnWidth(40), // إضافة
-        },
-        children: catalogProperties.map((property) {
-          final propertyInfos = state.infos
-              .where(
-                (info) =>
-                    info.subcategoryId == catalog.id &&
-                    info.propertyId == property.id,
-              )
-              .toList();
-          propertyInfos.sort(
-            (a, b) => (a.unitName ?? '').compareTo(b.unitName ?? ''),
+    return fluent.Table(
+      border: fluent.TableBorder.all(width: 0.5, color: colors.outline),
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      columnWidths: const {
+        0: FixedColumnWidth(120), // اسم الخاصية
+        1: FlexColumnWidth(), // القيم / الوحدات
+        2: FixedColumnWidth(40), // إضافة
+      },
+      children: catalogProperties.map((property) {
+        final propertyInfos = state.infos
+            .where(
+              (info) =>
+                  info.subcategoryId == catalog.id &&
+                  info.propertyId == property.id,
+            )
+            .toList();
+        propertyInfos.sort(
+          (a, b) => (a.unitName ?? '').compareTo(b.unitName ?? ''),
+        );
+    
+        Widget valuesWidget;
+        if (propertyInfos.isEmpty) {
+          valuesWidget = Text(
+            'لم يتم التحديد',
+            style: colors.caption.copyWith(color: colors.outline),
+            textAlign: TextAlign.center,
           );
-
-          Widget valuesWidget;
-          if (propertyInfos.isEmpty) {
-            valuesWidget = Text(
-              'لم يتم التحديد',
-              style: colors.caption.copyWith(color: colors.outline),
-              textAlign: TextAlign.center,
-            );
-          } else if (property.isSingle) {
-            final info = propertyInfos.first;
-            valuesWidget = Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  property.isCategoryUnit
-                      ? property.unitType.fullUnitName
-                      : info.unitName ?? '',
-                  textAlign: TextAlign.center,
-                  style: colors.body,
-                ),
-                if (!property.isCategoryUnit) ...[
-                  const SizedBox(width: 8),
-                  fluent.GestureDetector(
-                    onTap: () => _onDeletePropertyInfo(context, info),
-                    child: fluent.Icon(
-                      fluent.FluentIcons.cancel,
-                      size: 12,
-                      color: colors.error,
-                    ),
+        } else if (property.isSingle) {
+          final info = propertyInfos.first;
+          valuesWidget = Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                property.isCategoryUnit
+                    ? property.unitType.fullUnitName
+                    : info.unitName ?? '',
+                textAlign: TextAlign.center,
+                style: colors.body,
+              ),
+              if (!property.isCategoryUnit) ...[
+                const SizedBox(width: 8),
+                fluent.GestureDetector(
+                  onTap: () => _onDeletePropertyInfo(context, info),
+                  child: fluent.Icon(
+                    fluent.FluentIcons.cancel,
+                    size: 12,
+                    color: colors.error,
                   ),
-                ],
+                ),
               ],
-            );
-          } else {
-            valuesWidget = Wrap(
-              spacing: Spacings.small,
-              runSpacing: Spacings.small,
-              children: List.generate(propertyInfos.length, (indexOfUnit) {
-                final info = propertyInfos[indexOfUnit];
-                return SizedBox(
-                  height: 20,
-                  width: 85,
-                  child: Stack(
-                    children: [
-                      Container(
-                        alignment: Alignment.center,
-                        color: colors.surfaceContainerHighest,
-                        child: Text(
-                          info.unitName ?? '',
-                          style: colors.body,
-                        ),
+            ],
+          );
+        } else {
+          valuesWidget = Wrap(
+            spacing: Spacings.small,
+            runSpacing: Spacings.small,
+            children: List.generate(propertyInfos.length, (indexOfUnit) {
+              final info = propertyInfos[indexOfUnit];
+              return SizedBox(
+                height: 20,
+                width: 85,
+                child: Stack(
+                  children: [
+                    Container(
+                      alignment: Alignment.center,
+                      color: colors.surfaceContainerHighest,
+                      child: Text(
+                        info.unitName ?? '',
+                        style: colors.body,
                       ),
-                      Positioned(
-                        child: fluent.GestureDetector(
-                          onTap: () => _onDeletePropertyInfo(context, info),
-                          child: Container(
-                            padding: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              color: colors.error,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const fluent.Icon(
-                              fluent.FluentIcons.cancel,
-                              size: 8,
-                              color: Colors.white,
-                            ),
+                    ),
+                    Positioned(
+                      child: fluent.GestureDetector(
+                        onTap: () => _onDeletePropertyInfo(context, info),
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: colors.error,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const fluent.Icon(
+                            fluent.FluentIcons.cancel,
+                            size: 8,
+                            color: Colors.white,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                );
-              }),
-            );
-          }
-
-          return TableRow(
-            decoration: BoxDecoration(color: colors.surfaceContainerLowest),
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Paddings.small,
-                  vertical: Paddings.xsmall,
+                    ),
+                  ],
                 ),
-                child: Align(
-                  child: Text(
-                    'ال${property.propertyName}',
-                    style: colors.bodyStrong,
-                    textAlign: TextAlign.start,
-                  ),
-                ),
-              ),
-              Padding(padding: const EdgeInsets.all(6.0), child: valuesWidget),
-              Center(
-                child: fluent.IconButton(
-                  icon: const fluent.Icon(fluent.FluentIcons.add, size: 14),
-                  onPressed: () =>
-                      _onAddPropertyInfo(context, catalog, property),
-                ),
-              ),
-            ],
+              );
+            }),
           );
-        }).toList(),
-      ),
+        }
+    
+        return TableRow(
+          decoration: BoxDecoration(color: colors.surfaceContainerLowest),
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: Paddings.small,
+                vertical: Paddings.xsmall,
+              ),
+              child: Align(
+                child: Text(
+                  'ال${property.propertyName}',
+                  style: colors.bodyStrong,
+                  textAlign: TextAlign.start,
+                ),
+              ),
+            ),
+            Padding(padding: const EdgeInsets.all(6.0), child: valuesWidget),
+            Center(
+              child: fluent.IconButton(
+                icon: const fluent.Icon(fluent.FluentIcons.add, size: 14),
+                onPressed: () =>
+                    _onAddPropertyInfo(context, catalog, property),
+              ),
+            ),
+          ],
+        );
+      }).toList(),
     );
   }
 
@@ -496,7 +495,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
       return;
     }
     if (context.mounted) {
-      final subcategoryUnit = await showDialog<SubcategoryUnitEntity>(
+      final subcategoryUnit = await fluent.showDialog<SubcategoryUnitEntity>(
         barrierDismissible: false,
         context: context,
         builder: (_) =>

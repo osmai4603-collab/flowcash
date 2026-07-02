@@ -315,7 +315,7 @@ class _BondsTabState extends State<BondsTab> {
   }
 
   void _confirmDelete(BuildContext context, int id) {
-    showDialog(
+    fluent.showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const fluent.Text('حذف السند'),
@@ -347,7 +347,7 @@ class _BondsTabState extends State<BondsTab> {
     final billNumController = TextEditingController();
     final hintIdController = TextEditingController();
 
-    showDialog(
+    fluent.showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: fluent.Text(

@@ -4,6 +4,8 @@ import 'package:flowcash/features/accounts/domain/usecases/journal_entry_reposit
 import 'package:flowcash/features/accounts/domain/usecases/journal_item_repository_usecases.dart';
 import 'account_statement_event.dart';
 import 'account_statement_state.dart';
+import 'package:flowcash/features/accounts/domain/entities/journal_item_entity.dart';
+import 'package:flowcash/core/enums/journal_status_enum.dart';
 
 class AccountStatementBloc
     extends Bloc<AccountStatementEvent, AccountStatementState> {
@@ -90,7 +92,7 @@ class AccountStatementBloc
             final entriesMap = {for (var entry in entriesList) entry.id: entry};
 
             double openingBalance = 0.0;
-            final filteredItems = <dynamic>[];
+            final filteredItems = <JournalItemEntity>[];
 
             for (final item in allItems) {
               final entry = entriesMap[item.entryId];
@@ -113,11 +115,33 @@ class AccountStatementBloc
 
             // Sort filtered items by entry date ascending
             filteredItems.sort((a, b) {
-              final entryA = entriesMap[a.id];
-              final entryB = entriesMap[b.id];
+              final entryA = entriesMap[a.entryId];
+              final entryB = entriesMap[b.entryId];
               if (entryA == null || entryB == null) return 0;
               return entryA.createdAt.compareTo(entryB.createdAt);
             });
+
+            // Compute running balances and totals
+            double balanceTemp = openingBalance;
+            final balances = <double>[];
+            double totalDebit = 0.0;
+            double totalCredit = 0.0;
+
+            for (final item in filteredItems) {
+              final amount = item.amountExPriceHistory;
+              final displayedDebit = item.journalStatus == JournalStatus.increment ? amount : 0.0;
+              final displayedCredit = item.journalStatus == JournalStatus.decrement ? amount : 0.0;
+              balanceTemp += (displayedDebit - displayedCredit);
+              balances.add(balanceTemp);
+
+              if (item.journalStatus == JournalStatus.increment) {
+                totalDebit += amount;
+              } else {
+                totalCredit += amount;
+              }
+            }
+
+            final lastBalance = balances.isNotEmpty ? balances.last : 0.0;
 
             emit(
               state.copyWith(
@@ -126,6 +150,10 @@ class AccountStatementBloc
                 items: List.from(filteredItems),
                 entries: entriesMap,
                 openingBalance: openingBalance,
+                balances: balances,
+                totalDebit: totalDebit,
+                totalCredit: totalCredit,
+                lastBalance: lastBalance,
               ),
             );
           },

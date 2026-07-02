@@ -22,6 +22,7 @@ import 'package:flowcash/features/currencies/data/models/exchange_price_model.da
 import 'package:flowcash/features/inventory/data/models/inventory_model.dart';
 import 'package:flowcash/features/transactions/data/models/bill_model.dart';
 import 'package:flowcash/features/transactions/data/models/bill_order_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 /// Registers a user-defined SQLite function that can be called from triggers.
@@ -40,12 +41,13 @@ final class BillPostToAccountingFunction {
       functionName: functionName,
       function: _handleFunctionCall,
       argumentCount: const AllowedArgumentCount(1),
-      deterministic: false,
-      directOnly: true,
+      deterministic: true,
+      directOnly: false,
     );
   }
 
   Object? _handleFunctionCall(SqliteArguments arguments) {
+    debugPrint('BillPostToAccountingFunction called with arguments: $arguments');
     if (arguments.length != 1) {
       return null;
     }

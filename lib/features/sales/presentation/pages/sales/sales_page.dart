@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flowcash/core/formatters/money_formatter.dart';
+import 'package:flowcash/features/sales/presentation/pages/sales/bill_cost_form_page.dart';
 import 'package:flowcash/features/sales/presentation/pages/sales/bill_form_page.dart';
 import 'package:flowcash/features/transactions/domain/entities/bill_entity.dart';
+import 'package:flowcash/features/transactions/domain/entities/cost_good_bill_order_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -428,7 +430,7 @@ class _SalesPageViewState extends State<_SalesPageView> {
 
   void _onAddNewSaleBill() async {
     final bloc = context.read<SalesPageBloc>();
-    final saleBill = await showDialog<BillEntity>(
+    final saleBill = await fluent.showDialog<BillEntity>(
       context: context,
       builder: (context) => const BillFormPage(billType: InvoiceType.sales),
     );
@@ -445,7 +447,7 @@ class _SalesPageViewState extends State<_SalesPageView> {
     );
     if (!sure || !context.mounted) return;
 
-    final updatedBill = await showDialog<BillEntity>(
+    final updatedBill = await fluent.showDialog<BillEntity>(
       context: context,
       builder: (context) =>
           BillFormPage(bill: doc.rawBill, billType: InvoiceType.sales),
@@ -520,10 +522,24 @@ class _SalesPageViewState extends State<_SalesPageView> {
     );
     if (!sure || !context.mounted) return;
 
-    if (!doc.isCostGoodPosted) {
-      context.read<SalesPageBloc>().add(PostSalesDocumentToCostingEvent(doc));
-    } else {
-      error(context: context, toast: 'إلغاء الترحيل غير مدعوم حالياً من هنا.');
+    if (doc.isCostGoodPosted) {
+      error(context: context, toast: 'إلغاء ترحيل التكلفة غير مدعوم حالياً من هنا.');
+      return;
     }
+
+    final overrideOrders = await fluent.showDialog<List<CostGoodBillOrderEntity>>(
+      context: context,
+      builder: (context) => BillCostFormPage(bill: doc.rawBill),
+    );
+
+    if (!context.mounted) return;
+    if (overrideOrders == null) return;
+
+    context.read<SalesPageBloc>().add(
+          PostSalesDocumentToCostingEvent(
+            doc,
+            overrideOrders: overrideOrders,
+          ),
+        );
   }
 }
